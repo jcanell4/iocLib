@@ -4,8 +4,6 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_INC."inc/plugin.php");
 require_once(DOKU_INC."inc/events.php");
 include_once(DOKU_INC."inc/inc_ioc/Logger.php"); //USO: Logger::debug($Texto, $NúmError, __LINE__, __FILE__, $level=-1, $append);
-require_once(DOKU_PLUGIN."wikiiocmodel/WikiIocModelManager.php");
-require_once(DOKU_PLUGIN."wikiiocmodel/AuthorizationKeys.php");
 require_once(DOKU_PLUGIN."ajaxcommand/defkeys/ProjectKeys.php");
 
 /**

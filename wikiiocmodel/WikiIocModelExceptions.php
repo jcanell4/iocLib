@@ -5,9 +5,6 @@
  * @author Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_INC . 'lib/plugins/wikiiocmodel/');
-
-require_once (WIKI_IOC_MODEL . 'WikiIocLangManager.php');
 require_once (DOKU_INC . 'inc/inc_ioc/Logger.php');
 
 abstract class WikiIocModelException extends Exception {

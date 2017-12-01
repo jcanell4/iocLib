@@ -5,10 +5,10 @@
  */
 if (!defined('DOKU_INC')) die();
 if (!defined('DOKU_PLUGIN')) define("DOKU_PLUGIN", DOKU_INC."lib/plugins/");
-
+//Está pendiente el establecimiento del valor para el directorio 'wikiiocmodel'
+//en el que obtener el directorio de lang por defecto en la función startUpLang()
 require_once (DOKU_INC . 'inc/pageutils.php');
 require_once (DOKU_INC . 'inc/parserutils.php');
-require_once (DOKU_PLUGIN . 'ownInit/WikiGlobalConfig.php');
 
 class WikiIocLangManager {
     private static $langLoaded = FALSE;
@@ -94,7 +94,7 @@ class WikiIocLangManager {
 
     private static function startUpPluginLang($plugin) {
         $idioma = WikiGlobalConfig::getConf("lang");
-        
+
         $lang = array();
         $path = DOKU_PLUGIN . $plugin."/lang/";
         // don't include once, in case several plugin components require the same language file

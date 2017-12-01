@@ -15,9 +15,9 @@ abstract class WikiIocModelManager {
 
     public static function Instance($type){
         if ($type) {
-            $inst = WikiIocModelManager::createModelManager($type);
+            $inst = self::createModelManager($type);
         } else {
-            $inst = WikiIocModelManager::createModelManager('defaultProject');
+            $inst = self::createModelManager('defaultProject');
         }
         return $inst;
     }
@@ -39,9 +39,9 @@ abstract class WikiIocModelManager {
                 throw new UnknownTypeParamException($type);
         }
     }
-    
+
     public abstract function getProjectDir();
-    
+
     public function getActionInstance($className, $params=NULL){
         $classPath = WIKI_IOC_MODEL."actions/".$className.".php";
         if(!@file_exists($classPath)){

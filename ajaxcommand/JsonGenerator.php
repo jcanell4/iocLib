@@ -1,7 +1,5 @@
 <?php
-if (!defined('DOKU_INC')) {
-    define('DOKU_INC', dirname(__FILE__) . '/../../');
-}
+if (!defined('DOKU_INC')) die();
 require_once(DOKU_INC . 'inc/JSON.php');
 
 /**
@@ -253,7 +251,7 @@ class ArrayJSonGenerator implements JsonGenerator {
  * Implementació del JSonGenerator per un sol element que ja és un string
  */
 class JSonJustEncoded implements JsonGenerator {
-    
+
     private $value;
 
     /**
