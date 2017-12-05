@@ -6,7 +6,6 @@
  */
 if (!defined('DOKU_INC')) die();
 
-
 abstract class AbstractActionManager {
 
     public function __construct() {}

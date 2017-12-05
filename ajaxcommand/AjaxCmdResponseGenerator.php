@@ -1,12 +1,11 @@
 <?php
-if (!defined('DOKU_INC')) die();
-require_once DOKU_INC . "lib/plugins/ajaxcommand/JsonGenerator.php";
-
 /**
  * Class AjaxCmdResponseGenerator
  *
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
+if (!defined('DOKU_INC')) die();
+
 class AjaxCmdResponseGenerator {
 
     private $response;

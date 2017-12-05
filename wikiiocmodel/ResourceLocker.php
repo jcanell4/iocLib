@@ -1,17 +1,5 @@
 <?php
-if (!defined("DOKU_INC")) {
-    die();
-}
-
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-}
-
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_INC . 'lib/plugins/wikiiocmodel/');
-
-require_once WIKI_IOC_MODEL . 'WikiIocModelExceptions.php';
-require_once DOKU_PLUGIN . "wikiiocmodel/ResourceLockerInterface.php";
-require_once DOKU_PLUGIN . "wikiiocmodel/ResourceUnlockerInterface.php";
+if (!defined("DOKU_INC")) die();
 
 class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterface
 {
@@ -19,12 +7,12 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     public static $ST_UNLOCKED = ResourceLockerInterface::LOCKED; // El recurs no es troba bloquejat per ningú
     public static $ST_LOCKED = ResourceLockerInterface::REQUIRED; // // El recurs es troba bloquejat per un altre usuari
     public static $ST_LOCKED_BEFORE = ResourceLockerInterface::LOCKED_BEFORE; // El recurs està bloquejat pel mateix usuari des d'un altre ordinador
-    
+
     //RETORNAT PER requireResource o leaveResource
     public static $RS_LOCKED = ResourceLockerInterface::LOCKED; // El recurs no es troba bloquejat per ningú
     public static $RS_REQUIRED = ResourceLockerInterface::REQUIRED; // // El recurs es troba bloquejat per un altre usuari
     public static $RS_LOCKED_BEFORE = ResourceLockerInterface::LOCKED_BEFORE; // El recurs està bloquejat pel mateix usuari des d'un altre ordinador
-    
+
     protected $lockDataQuery;
     protected $params;
 
@@ -54,7 +42,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     {
         return $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
     }
-    
+
     public function _requireResource($lock = FALSE, $refresh=FALSE)
     {
         $docId = $this->params[PageKeys::KEY_ID];

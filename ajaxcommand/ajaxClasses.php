@@ -6,10 +6,11 @@
  * @author Josep Cañellas <jcanell4@ioc.cat>, Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
+if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC . "lib/plugins/ajaxcommand/");
 require_once(DOKU_INC . 'inc/init.php');
 require_once(DOKU_INC . 'inc/template.php');
 require_once(DOKU_INC . 'inc/pluginutils.php');
-require_once(DOKU_INC . 'lib/plugins/ajaxcommand/defkeys/RequestParameterKeys.php');
+require_once(DOKU_COMMAND . 'defkeys/RequestParameterKeys.php');
 
 class ajaxCall {
     protected $call;
@@ -96,6 +97,7 @@ class ajaxCall {
                 $dataEvent = array('command' => $this->call, 'params' => $this->request_params);
                 $evt       = new Doku_Event('AJAX_CALL_UNKNOWN', $dataEvent);
                 if ($evt->advise_before()) {
+                    //[Josep] TODO: Cal canviar el print per una excepció
                     print "AJAX call '" . htmlspecialchars($this->call) . "' unknown!\n";
                 } else {
                     $evt->advise_after();
@@ -116,7 +118,7 @@ class ajaxCall {
     function existCommand($file=NULL) {
         //'commands' definits a l'estructura 'ajaxcommand'
         if (!$file){
-            $dirCommands = dirname(__FILE__)."/commands/";
+            $dirCommands = DOKU_COMMAND."commands/";
             $file = $dirCommands . $this->call . '/' . $this->call . '_command.php';
         }
         if (($ret = @file_exists($file))) {
@@ -213,10 +215,8 @@ class ajaxCall {
     function callCommand( $respHandDir=NULL ) {
         $respHandObj = NULL;
 
-        $tplincdir = WikiGlobalConfig::tplIncDir();
-
-        if (!$respHandDir){
-            $respHandDir = $tplincdir . 'cmd_response_handler/';
+        if (!$respHandDir) {
+            $respHandDir = DOKU_TPL_INCDIR . 'cmd_response_handler/';
         }
         $respHandClass = $this->call . '_response_handler';
         $respHandFile  = $respHandDir . $respHandClass . '.php';
