@@ -85,6 +85,7 @@ class WikiIocLangManager {
         if ( !empty($idioma) && $idioma !== "en" && file_exists("$tplIncDir/lang/$idioma/lang.php") ) {
             include "$tplIncDir/lang/$idioma/lang.php";
         }
+	//[JOSEP] TODO: Caldrà traslladar el LANG de wikiiocmodel a un altre lloc que escollirem en un altre moment
         include DOKU_PLUGIN."wikiiocmodel/lang/en/lang.php";;
         if ( !empty($idioma) && $idioma !== "en" && file_exists(DOKU_PLUGIN."wikiiocmodel/lang/$idioma/lang.php") ) {
             include DOKU_PLUGIN."wikiiocmodel/lang/$idioma/lang.php";

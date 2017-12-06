@@ -97,8 +97,7 @@ class ajaxCall {
                 $dataEvent = array('command' => $this->call, 'params' => $this->request_params);
                 $evt       = new Doku_Event('AJAX_CALL_UNKNOWN', $dataEvent);
                 if ($evt->advise_before()) {
-                    //[Rafa] Este print no aparece en la pantalla por ninguna parte
-                    //       en el caso de $this->call = 'ns_tree_rest'
+                    //[Josep] TODO: Cal canviar el print per una excepció
                     print "AJAX call '" . htmlspecialchars($this->call) . "' unknown!\n";
                 } else {
                     $evt->advise_after();
