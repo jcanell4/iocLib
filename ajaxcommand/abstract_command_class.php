@@ -410,7 +410,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     protected abstract function process();
 
     protected function postResponse($responseData, &$ajaxCmdResponseGenerator) {
-        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $this->params, $responseData);
+        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $responseData);
         $evt = new Doku_Event("WIOC_PROCESS_RESPONSE", $data);
         $evt->advise_after();
         unset($evt);
@@ -418,15 +418,15 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         $evt->advise_after();
         unset($evt);
         $ajaxCmdResponseGenerator->addSetJsInfo($this->getJsInfo());
-        if ($requestParams[AjaxKeys::PROJECT_TYPE]) {
+        if ($this->params[AjaxKeys::PROJECT_TYPE]) {
             if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
-                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $requestParams[AjaxKeys::PROJECT_TYPE]);
+                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         }
     }
 
     protected function preResponse(&$ajaxCmdResponseGenerator) {
-        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $this->params);
+        $data = $this->_getDataEvent($ajaxCmdResponseGenerator);
         $evt = new Doku_Event("WIOC_PROCESS_RESPONSE", $data);
         $ret = $evt->advise_before();
         unset($evt);
@@ -436,10 +436,10 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return $ret;
     }
 
-    private function _getDataEvent(&$ajaxCmdResponseGenerator, $requestParams=NULL, $responseData=NULL){
+    private function _getDataEvent(&$ajaxCmdResponseGenerator, $responseData=NULL){
         $ret = array(
             "command" => $this->getCommandName(),
-            "requestParams" => $requestParams,
+            "requestParams" => $this->params,
             "responseData" => $responseData,
             "ajaxCmdResponseGenerator" => $ajaxCmdResponseGenerator,
         );
