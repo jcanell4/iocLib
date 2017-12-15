@@ -19,7 +19,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
 
     public function init( $modelManager = NULL ) {
         parent::init($modelManager);
-        $this->persistenceEngine = $this->modelWrapper->getPersistenceEngine();
+        $this->persistenceEngine = $this->getPersistenceEngine();
         $projectMetaDataQuery = $this->persistenceEngine->createProjectMetaDataQuery();
         $ns = ($this->params[AjaxKeys::KEY_NS]) ? $this->params[AjaxKeys::KEY_NS] : $this->params[AjaxKeys::KEY_ID];
         $this->dataProject = $projectMetaDataQuery->getDataProject($ns, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
