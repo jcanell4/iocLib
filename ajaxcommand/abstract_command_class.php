@@ -46,7 +46,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     protected $runPreprocess = FALSE;
 
     protected $authorization;
-    protected $modelWrapper;
+    protected $modelAdapter;
     protected $modelManager;
 
     protected $needMediaInfo = FALSE;
@@ -55,8 +55,8 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     public $error = FALSE;
     public $errorMessage = '';
 
-    public function __construct( $modelWrapper=NULL, $authorization=NULL ) {
-        $this->modelWrapper  = $modelWrapper;
+    public function __construct( $modelAdapter=NULL, $authorization=NULL ) {
+        $this->modelAdapter  = $modelAdapter;
         $this->authorization = $authorization;
     }
 
@@ -77,11 +77,26 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     }
 
     /**
-     * Retorna l'adaptador a emprar.
-     * @return DokuModelAdapter
+     * Estableix l'adaptador a emprar i l'autorització que li correspon.
+     * @param modelManager
      */
-    public function getModelWrapper() {
-        return $this->modelWrapper;
+    public function setModelManager($modelManager) {
+        $this->modelManager = $modelManager;
+
+        if (!$this->modelAdapter) {
+            $this->modelAdapter = $modelManager->getModelAdapterManager();
+        }
+        if (!$this->authorization) {
+            $this->authorization = $modelManager->getAuthorizationManager($this->getAuthorizationType());
+        }
+    }
+
+    public function getModelManager() {
+        return $this->modelManager;
+    }
+
+    public function getModelAdapter() {
+        return $this->modelAdapter;
     }
 
     public function getAuthorization() {
@@ -89,19 +104,11 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     }
 
     /**
-     * Estableix l'adaptador a emprar i l'autorització que li correspon.
-     * @param modelManager
+     * Obtiene la persistencia, correspondiente (por proyecto) a su DokuModelManager, de WikiIocModelManager
      */
-    public function setModelManager($modelManager) {
-
-        $this->modelManager = $modelManager;
-
-        if(!$this->modelWrapper){
-            $this->modelWrapper  = $modelManager->getModelWrapperManager();
-        }
-        if(!$this->authorization){
-            $this->authorization = $modelManager->getAuthorizationManager($this->getAuthorizationType());
-        }
+    public function getPersistenceEngine() {
+        //return $this->getModelAdapter()->getPersistenceEngine();
+        return $this->getModelManager()->getPersistenceEngine();
     }
 
     /**
@@ -140,8 +147,11 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      */
     public function setResponseHandler($respHand) {
         $this->responseHandler = $respHand;
-        if(!$respHand->getModelWrapper()){
-            $respHand->setModelWrapper($this->modelWrapper);
+        if (!$respHand->getModelAdapter()){
+            $respHand->setModelAdapter($this->modelAdapter);
+        }
+        if (!$respHand->getModelManager()){
+            $respHand->setModelManager($this->modelManager);
         }
     }
 
@@ -193,29 +203,29 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                     && $this->types[$key]==self::T_ARRAY_KEY){
                 $value = key($value);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]!= self::T_OBJECT
-                        && $this->types[$key]!= self::T_ARRAY
-                        && $this->types[$key]!= self::T_FUNCTION
-                        && $this->types[$key]!= self::T_METHOD
-                        && $this->types[$key]!= self::T_FILE
-                        && gettype($value) != $this->types[$key]) {
+                    && $this->types[$key]!= self::T_OBJECT
+                    && $this->types[$key]!= self::T_ARRAY
+                    && $this->types[$key]!= self::T_FUNCTION
+                    && $this->types[$key]!= self::T_METHOD
+                    && $this->types[$key]!= self::T_FILE
+                    && gettype($value) != $this->types[$key]) {
                 settype($value, $this->types[$key]);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_ARRAY
-                        && gettype($value) == self::T_STRING){
+                    && $this->types[$key]== self::T_ARRAY
+                    && gettype($value) == self::T_STRING){
                 $value = explode(',', $value);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_OBJECT
-                        && gettype($value) == self::T_STRING){
+                    && $this->types[$key]== self::T_OBJECT
+                    && gettype($value) == self::T_STRING){
                 $value = json_decode($value);
             }else if(isset($this->types[$key])
-                        && ($this->types[$key]== self::T_FUNCTION
-                                || $this->types[$key]== self::T_METHOD
-                       )&& gettype($value) != self::T_STRING){
+                    && ($this->types[$key]== self::T_FUNCTION
+                        || $this->types[$key]== self::T_METHOD)
+                    && gettype($value) != self::T_STRING){
                 settype($value, self::T_STRING);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_FILE
-                        && gettype($value) != self::T_ARRAY){
+                    && $this->types[$key]== self::T_FILE
+                    && gettype($value) != self::T_ARRAY){
                 settype($value, self::T_ARRAY);
             }
             $this->params[$key] = $value;
