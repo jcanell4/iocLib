@@ -1,37 +1,29 @@
 <?php
 if(!defined("DOKU_INC")) die();
+require_once (DOKU_INC."lib/plugins/ajaxcommand/defkeys/ResponseHandlerKeys.php");
 /**
  * Class AbstractResponseHandler
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
 abstract class AbstractResponseHandler {
-    const LOGIN  = 'login';
-    const PAGE   = 'page';
-    const EDIT   = 'edit';
-    const CANCEL = 'cancel';
-    const SAVE   = 'save';
-    const MEDIA  = 'media';
-    const MEDIADETAILS  = 'mediadetails';
-    const ADMIN_TASK  = 'admin_task';
-    const ADMIN_TAB  = 'admin_tab';
-    const PRINT_ACTION  = 'print';
-    const PREVIEW_ACTION  = 'preview';
-    const PROJECT  = 'project';
-
     private $cmd;
-    private $modelWrapper;
+    private $modelAdapter;
+    private $modelManager;
     private $permission;
 
     /**
      * Constructor al que se li passa el nom del Command com argument.
      * @param string $cmd
+     * @param instance $modelAdapter
+     * @param instance $permission
      */
-    public function __construct($cmd, $modelWrapper=NULL, $permission=NULL) {
+    public function __construct($cmd, $modelAdapter=NULL, $permission=NULL) {
         $this->cmd = $cmd;
-        if($modelWrapper){
-            $this->modelWrapper = $modelWrapper;
+        if ($modelAdapter){
+            $this->modelAdapter = $modelAdapter;
+            $this->modelManager = $this->modelAdapter->getModelManager();
         }
-        if($permission){
+        if ($permission){
             $this->permission = $permission;
         }
     }
@@ -43,18 +35,26 @@ abstract class AbstractResponseHandler {
         return $this->cmd;
     }
 
-    /**
-     * @return ModelWrapper instance
-     */
-    public function getModelWrapper() {
-        return $this->modelWrapper;
+    public function getModelManager() {
+        return $this->modelManager;
+    }
+
+    public function setModelManager($modelManager) {
+        $this->modelManager = $modelManager;
     }
 
     /**
-     * Set ModelWrapper instance
+     * @return ModelAdapter instance
      */
-    public function setModelWrapper($modelWrapper) {
-        $this->modelWrapper=$modelWrapper;
+    public function getModelAdapter() {
+        return $this->modelAdapter;
+    }
+
+    /**
+     * Set ModelAdapter instance
+     */
+    public function setModelAdapter($modelAdapter) {
+        $this->modelAdapter = $modelAdapter;
     }
 
     /**
