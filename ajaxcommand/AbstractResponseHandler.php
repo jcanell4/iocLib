@@ -1,10 +1,10 @@
 <?php
-if(!defined("DOKU_INC")) die();
-require_once (DOKU_INC."lib/plugins/ajaxcommand/defkeys/ResponseHandlerKeys.php");
 /**
  * Class AbstractResponseHandler
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
+if(!defined("DOKU_INC")) die();
+
 abstract class AbstractResponseHandler {
     private $cmd;
     private $modelAdapter;
@@ -17,15 +17,8 @@ abstract class AbstractResponseHandler {
      * @param instance $modelAdapter
      * @param instance $permission
      */
-    public function __construct($cmd, $modelAdapter=NULL, $permission=NULL) {
+    public function __construct($cmd) {
         $this->cmd = $cmd;
-        if ($modelAdapter){
-            $this->modelAdapter = $modelAdapter;
-            $this->modelManager = $this->modelAdapter->getModelManager();
-        }
-        if ($permission){
-            $this->permission = $permission;
-        }
     }
 
     /**

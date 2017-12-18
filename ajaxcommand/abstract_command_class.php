@@ -71,7 +71,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         }
 
         if (!$modelManager) {
-            $modelManager = WikiIocModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
+            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
         $this->setModelManager($modelManager);
     }
@@ -104,7 +104,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     }
 
     /**
-     * Obtiene la persistencia, correspondiente (por proyecto) a su DokuModelManager, de WikiIocModelManager
+     * Obtiene la persistencia, correspondiente (por proyecto) a su DokuModelManager, de AbstractModelManager
      */
     public function getPersistenceEngine() {
         //return $this->getModelAdapter()->getPersistenceEngine();
