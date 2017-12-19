@@ -83,7 +83,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     public function setModelManager($modelManager) {
         $this->modelManager = $modelManager;
 
-        if (!$this->modelAdapter) {
+        if (!$this->getModelAdapter()) {
             $this->modelAdapter = $modelManager->getModelAdapterManager();
         }
         if (!$this->authorization) {
@@ -107,7 +107,6 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      * Obtiene la persistencia, correspondiente (por proyecto) a su DokuModelManager, de AbstractModelManager
      */
     public function getPersistenceEngine() {
-        //return $this->getModelAdapter()->getPersistenceEngine();
         return $this->getModelManager()->getPersistenceEngine();
     }
 
@@ -148,10 +147,10 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     public function setResponseHandler($respHand) {
         $this->responseHandler = $respHand;
         if (!$respHand->getModelAdapter()){
-            $respHand->setModelAdapter($this->modelAdapter);
+            $respHand->setModelAdapter($this->getModelAdapter());
         }
         if (!$respHand->getModelManager()){
-            $respHand->setModelManager($this->modelManager);
+            $respHand->setModelManager($this->getModelManager());
         }
     }
 
