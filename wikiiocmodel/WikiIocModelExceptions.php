@@ -146,3 +146,9 @@ class UnknownPojectTypeException extends WikiIocProjectException {
         parent::__construct($codeMessage, $code, $page);
     }
 }
+
+class SystemExecutionFailedException extends WikiIocProjectException {
+    public function __construct($page, $codeMessage='systemExecutionFailed', $code=7008) {
+        parent::__construct($codeMessage, $code, $page);
+    }
+}
