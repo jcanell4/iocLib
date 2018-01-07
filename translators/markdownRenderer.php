@@ -40,16 +40,32 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
         $rep = 7 -$level;
         $this->doc .= str_repeat("=", $rep)." ".$text." ".str_repeat("=", $rep);
     }
+
+//    function emphasis($text) {
+//        $this->doc .= $text;
+//    }
+
+    function emphasis($text) {
+        $this->doc .= $text;
+    }
 }
 
 class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
     private $headers = array();
     
-    function header($text, $level, $numLevels, $pos) {
+    function header($text, $level, $numLevels) {
         $strNum = "";
         for($i=0; $i<$level; $i++){
             $strNum .= $numLevels[$i].".";
         }
         $this->doc .= str_repeat("#", $level).$strNum." ".$text." {#".sectionID($text,$this->headers)."}";
+    }
+
+//    function emphasis($text) {
+//        $this->doc .= $text;
+//    }
+
+    function emphasis($text) {
+        $this->doc .= $text;
     }
 }

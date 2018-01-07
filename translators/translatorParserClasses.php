@@ -48,3 +48,225 @@ class Doku_Parser_Mode_mddweol extends Doku_Parser_Mode {
 }
 
 
+
+// ALERTA[Xavi] Proves
+
+class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
+    var $type;
+
+    var $formatting = array (
+//        'strong' => array (
+//            'entry'=>'\*\*(?=.*\*\*)',
+//            'exit'=>'\*\*',
+//            'sort'=>70
+//        ),
+
+        'emphasis'=> array ( // ALERTA[Xavi] es idéntic a l'original
+            'entry'=>'//(?=.*)', //hack for bugs #384 #763 #1468
+            'exit'=>'//',
+            'sort'=>80
+        ),
+
+//
+//        'underline'=> array (
+//            'entry'=>'__(?=.*__)',
+//            'exit'=>'__',
+//            'sort'=>90
+//        ),
+//
+//        'monospace'=> array (
+//            'entry'=>'\x27\x27(?=.*\x27\x27)',
+//            'exit'=>'\x27\x27',
+//            'sort'=>100
+//        ),
+//
+//        'subscript'=> array (
+//            'entry'=>'<sub>(?=.*</sub>)',
+//            'exit'=>'</sub>',
+//            'sort'=>110
+//        ),
+//
+//        'superscript'=> array (
+//            'entry'=>'<sup>(?=.*</sup>)',
+//            'exit'=>'</sup>',
+//            'sort'=>120
+//        ),
+//
+//        'deleted'=> array (
+//            'entry'=>'<del>(?=.*</del>)',
+//            'exit'=>'</del>',
+//            'sort'=>130
+//        ),
+    );
+
+    function Doku_Parser_Mode_dw2md_formatting($type) {
+        global $PARSER_MODES;
+
+        $type = str_replace('dw2md_', '',$type);
+
+        if ( !array_key_exists($type, $this->formatting) ) {
+            trigger_error('Invalid formatting type '.$type, E_USER_WARNING);
+        }
+
+        $this->type = $type;
+
+        // formatting may contain other formatting but not it self
+        $modes = $PARSER_MODES['formatting'];
+        $key = array_search($type, $modes);
+        if ( is_int($key) ) {
+            unset($modes[$key]);
+        }
+
+        $this->allowedModes = array_merge (
+            $modes,
+            $PARSER_MODES['substition'],
+            $PARSER_MODES['disabled']
+        );
+    }
+
+    function connectTo($mode) {
+
+        // Can't nest formatting in itself
+        if ( $mode == $this->type ) {
+            return;
+        }
+
+//        $this->Lexer->addSpecialPattern(
+//            $this->formatting[$this->type]['entry'],
+//            $mode,
+//            $this->type
+//        );
+
+
+
+        $this->Lexer->addEntryPattern(
+            $this->formatting[$this->type]['entry'],
+            $mode,
+            $this->type
+        );
+    }
+
+    function postConnect() {
+
+        $this->Lexer->addExitPattern(
+            $this->formatting[$this->type]['exit'],
+            $this->type
+        );
+
+    }
+
+    function getSort() {
+        return $this->formatting[$this->type]['sort'];
+    }
+}
+
+class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
+    var $type;
+
+    var $formatting = array (
+//        'strong' => array (
+//            'entry'=>'\*\*(?=.*\*\*)',
+//            'exit'=>'\*\*',
+//            'sort'=>70
+//        ),
+
+        'emphasis'=> array ( // ALERTA[Xavi] es idéntic a l'original
+            'entry'=>'\*(?=.*)', //hack for bugs #384 #763 #1468
+            'exit'=>'\*',
+            'sort'=>80
+        ),
+
+//
+//        'underline'=> array (
+//            'entry'=>'__(?=.*__)',
+//            'exit'=>'__',
+//            'sort'=>90
+//        ),
+//
+//        'monospace'=> array (
+//            'entry'=>'\x27\x27(?=.*\x27\x27)',
+//            'exit'=>'\x27\x27',
+//            'sort'=>100
+//        ),
+//
+//        'subscript'=> array (
+//            'entry'=>'<sub>(?=.*</sub>)',
+//            'exit'=>'</sub>',
+//            'sort'=>110
+//        ),
+//
+//        'superscript'=> array (
+//            'entry'=>'<sup>(?=.*</sup>)',
+//            'exit'=>'</sup>',
+//            'sort'=>120
+//        ),
+//
+//        'deleted'=> array (
+//            'entry'=>'<del>(?=.*</del>)',
+//            'exit'=>'</del>',
+//            'sort'=>130
+//        ),
+    );
+
+    function Doku_Parser_Mode_md2dw_formatting($type) {
+        global $PARSER_MODES;
+
+        $type = str_replace('md2dw_', '',$type);
+
+        if ( !array_key_exists($type, $this->formatting) ) {
+            trigger_error('Invalid formatting type '.$type, E_USER_WARNING);
+        }
+
+        $this->type = $type;
+
+        // formatting may contain other formatting but not it self
+        $modes = $PARSER_MODES['formatting'];
+        $key = array_search($type, $modes);
+        if ( is_int($key) ) {
+            unset($modes[$key]);
+        }
+
+        $this->allowedModes = array_merge (
+            $modes,
+            $PARSER_MODES['substition'],
+            $PARSER_MODES['disabled']
+        );
+    }
+
+    function connectTo($mode) {
+
+        // Can't nest formatting in itself
+        if ( $mode == $this->type ) {
+            return;
+        }
+
+//        $this->Lexer->addSpecialPattern(
+//            $this->formatting[$this->type]['entry'],
+//            $mode,
+//            $this->type
+//        );
+
+
+
+        $this->Lexer->addEntryPattern(
+            $this->formatting[$this->type]['entry'],
+            $mode,
+            $this->type
+        );
+    }
+
+    function postConnect() {
+
+        $this->Lexer->addExitPattern(
+            $this->formatting[$this->type]['exit'],
+            $this->type
+        );
+
+    }
+
+    function getSort() {
+        return $this->formatting[$this->type]['sort'];
+    }
+}
+
+

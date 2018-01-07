@@ -12,7 +12,7 @@ class TranslatorHandler extends Doku_Handler{
 }
 
 class MarkDown2DokuWikiHandler extends TranslatorHandler{
-    
+
     function header($match, $state, $pos) {
         // get level and title
         $title = trim($match);
@@ -30,11 +30,46 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
         }
         $title = trim($title);
         $title = preg_replace("/^([0-9]+.)+\s*/", "", $title, 1);
-        $this->_addCall('header',array($title,$level,$pos), $pos);
-        $this->_addCall('eol',array(),$pos);
+        $this->_addCall('header',array($title,$level,$pos), $pos); // nom de la funció, paràmetres que arribaran al render, punt d'analisis
+        $this->_addCall('eol',array(),$pos); // final de linia
 
         return true;
-    }    
+    }
+
+
+    function emphasis($match, $state, $pos)
+    {
+        switch ( $state ) {
+//            case DOKU_LEXER_ENTER:
+//                $this->_addCall($name.'_open', array(), $pos);
+//                break;
+//            case DOKU_LEXER_EXIT:
+//                $this->_addCall($name.'_close', array(), $pos);
+//                break;
+            case DOKU_LEXER_UNMATCHED:
+//                $this->_addCall('cdata',array($match), $pos);
+
+                $title = '//' . trim($match). '//';
+
+                $this->_addCall('emphasis',array($title), $pos);
+
+
+                break;
+        }
+
+        return true;
+
+//        $this->_nestingTag($match, $state, $pos, 'emphasis');
+
+
+    }
+
+//    function emphasis($match, $state, $pos) {
+//        $title = '//' . trim($match). '//';
+//        $this->_addCall('emphasis',array($title), $pos); // nom de la funció, paràmetres que arribaran al render, punt d'analisis
+//
+//        return true;
+//    }
 }
 
 class DokuWiki2MarkDownHandler extends TranslatorHandler{
@@ -44,7 +79,7 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
         parent::__construct();
         $this->rootLevelValues = $rootLevelValues;
     }
-    
+
     function header($match, $state, $pos) {
         // get level and title
         $title = trim($match);
@@ -61,5 +96,47 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
         $this->_addCall('header',array($title,$level,$numLevels, $pos), $pos);
         return true;
     }
+
+    function emphasis($match, $state, $pos)
+    {
+        switch ( $state ) {
+//            case DOKU_LEXER_ENTER:
+//                $this->_addCall($name.'_open', array(), $pos);
+//                break;
+//            case DOKU_LEXER_EXIT:
+//                $this->_addCall($name.'_close', array(), $pos);
+//                break;
+            case DOKU_LEXER_UNMATCHED:
+//                $this->_addCall('cdata',array($match), $pos);
+
+                $title = '*' . trim($match) . '*';
+
+                $this->_addCall('emphasis',array($title), $pos);
+
+
+                break;
+        }
+
+        return true;
+
+//        $this->_nestingTag($match, $state, $pos, 'emphasis');
+
+
+    }
+
+
+//    function _nestingTag($match, $state, $pos, $name) {
+//        switch ( $state ) {
+//            case DOKU_LEXER_ENTER:
+//                $this->_addCall($name.'_open', array(), $pos);
+//                break;
+//            case DOKU_LEXER_EXIT:
+//                $this->_addCall($name.'_close', array(), $pos);
+//                break;
+//            case DOKU_LEXER_UNMATCHED:
+//                $this->_addCall('cdata',array($match), $pos);
+//                break;
+//        }
+//    }
 }
 
