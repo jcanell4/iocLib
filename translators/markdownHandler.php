@@ -39,6 +39,7 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
 
     function emphasis($match, $state, $pos)
     {
+        // Contingut de la funció _nestingTag()
         switch ( $state ) {
 //            case DOKU_LEXER_ENTER:
 //                $this->_addCall($name.'_open', array(), $pos);
@@ -49,27 +50,50 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
             case DOKU_LEXER_UNMATCHED:
 //                $this->_addCall('cdata',array($match), $pos);
 
-                $title = '//' . trim($match). '//';
 
-                $this->_addCall('emphasis',array($title), $pos);
+                $this->_addCall('emphasis',array($match), $pos);
 
 
                 break;
         }
 
         return true;
-
-//        $this->_nestingTag($match, $state, $pos, 'emphasis');
-
-
     }
 
-//    function emphasis($match, $state, $pos) {
-//        $title = '//' . trim($match). '//';
-//        $this->_addCall('emphasis',array($title), $pos); // nom de la funció, paràmetres que arribaran al render, punt d'analisis
-//
-//        return true;
-//    }
+    function underline($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+
+                $this->_addCall('underline',array($match), $pos);
+                break;
+        }
+
+        return true;
+    }
+
+    function monospace($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('monospace',array($match), $pos);
+                break;
+        }
+
+        return true;
+    }
+
+    function deleted($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('deleted',array($match), $pos);
+                break;
+        }
+
+        return true;
+    }
+
 }
 
 class DokuWiki2MarkDownHandler extends TranslatorHandler{
@@ -100,43 +124,48 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
     function emphasis($match, $state, $pos)
     {
         switch ( $state ) {
-//            case DOKU_LEXER_ENTER:
-//                $this->_addCall($name.'_open', array(), $pos);
-//                break;
-//            case DOKU_LEXER_EXIT:
-//                $this->_addCall($name.'_close', array(), $pos);
-//                break;
             case DOKU_LEXER_UNMATCHED:
-//                $this->_addCall('cdata',array($match), $pos);
+                $this->_addCall('emphasis',array($match), $pos);
+                break;
+        }
 
-                $title = '*' . trim($match) . '*';
+        return true;
+    }
 
-                $this->_addCall('emphasis',array($title), $pos);
-
-
+    function underline($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('underline',array($match), $pos);
                 break;
         }
 
         return true;
 
-//        $this->_nestingTag($match, $state, $pos, 'emphasis');
-
 
     }
 
+    function monospace($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('monospace',array($match), $pos);
+                break;
+        }
 
-//    function _nestingTag($match, $state, $pos, $name) {
-//        switch ( $state ) {
-//            case DOKU_LEXER_ENTER:
-//                $this->_addCall($name.'_open', array(), $pos);
-//                break;
-//            case DOKU_LEXER_EXIT:
-//                $this->_addCall($name.'_close', array(), $pos);
-//                break;
-//            case DOKU_LEXER_UNMATCHED:
-//                $this->_addCall('cdata',array($match), $pos);
-//                break;
-//        }
-//    }
+        return true;
+
+    }
+
+    function deleted($match, $state, $pos)
+    {
+        switch ( $state ) {
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('deleted',array($match), $pos);
+                break;
+        }
+
+        return true;
+    }
 }
 

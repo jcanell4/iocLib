@@ -61,24 +61,24 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
 //            'sort'=>70
 //        ),
 
-        'emphasis'=> array ( // ALERTA[Xavi] es idéntic a l'original
-            'entry'=>'//(?=.*)', //hack for bugs #384 #763 #1468
+        'emphasis'=> array (
+            'entry'=>'//(?=.*)',
             'exit'=>'//',
             'sort'=>80
         ),
 
 //
-//        'underline'=> array (
-//            'entry'=>'__(?=.*__)',
-//            'exit'=>'__',
-//            'sort'=>90
-//        ),
+        'underline'=> array (
+            'entry'=>'__(?=.*__)',
+            'exit'=>'__',
+            'sort'=>90
+        ),
 //
-//        'monospace'=> array (
-//            'entry'=>'\x27\x27(?=.*\x27\x27)',
-//            'exit'=>'\x27\x27',
-//            'sort'=>100
-//        ),
+        'monospace'=> array (
+            'entry'=>"''(?=.*'')",
+            'exit'=>"''",
+            'sort'=>100
+        ),
 //
 //        'subscript'=> array (
 //            'entry'=>'<sub>(?=.*</sub>)',
@@ -92,11 +92,11 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
 //            'sort'=>120
 //        ),
 //
-//        'deleted'=> array (
-//            'entry'=>'<del>(?=.*</del>)',
-//            'exit'=>'</del>',
-//            'sort'=>130
-//        ),
+        'deleted'=> array (
+            'entry'=>'<del>(?=.*</del>)',
+            'exit'=>'</del>',
+            'sort'=>130
+        ),
     );
 
     function Doku_Parser_Mode_dw2md_formatting($type) {
@@ -131,14 +131,6 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
             return;
         }
 
-//        $this->Lexer->addSpecialPattern(
-//            $this->formatting[$this->type]['entry'],
-//            $mode,
-//            $this->type
-//        );
-
-
-
         $this->Lexer->addEntryPattern(
             $this->formatting[$this->type]['entry'],
             $mode,
@@ -170,24 +162,23 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
 //            'sort'=>70
 //        ),
 
-        'emphasis'=> array ( // ALERTA[Xavi] es idéntic a l'original
-            'entry'=>'\*(?=.*)', //hack for bugs #384 #763 #1468
+        'emphasis'=> array (
+            'entry'=>'\*(?=.*)',
             'exit'=>'\*',
             'sort'=>80
         ),
 
-//
-//        'underline'=> array (
-//            'entry'=>'__(?=.*__)',
-//            'exit'=>'__',
-//            'sort'=>90
-//        ),
-//
-//        'monospace'=> array (
-//            'entry'=>'\x27\x27(?=.*\x27\x27)',
-//            'exit'=>'\x27\x27',
-//            'sort'=>100
-//        ),
+        'underline'=> array (
+            'entry'=>'<ins>(?=.*</ins>)',
+            'exit'=>'</ins>',
+            'sort'=>90
+        ),
+
+        'monospace'=> array (
+            'entry'=>'`(?=.*)',
+            'exit'=>'`',
+            'sort'=>100
+        ),
 //
 //        'subscript'=> array (
 //            'entry'=>'<sub>(?=.*</sub>)',
@@ -201,11 +192,11 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
 //            'sort'=>120
 //        ),
 //
-//        'deleted'=> array (
-//            'entry'=>'<del>(?=.*</del>)',
-//            'exit'=>'</del>',
-//            'sort'=>130
-//        ),
+        'deleted'=> array (
+            'entry'=>'~~(?=.*~~)',
+            'exit'=>'~~',
+            'sort'=>130
+        ),
     );
 
     function Doku_Parser_Mode_md2dw_formatting($type) {
@@ -239,14 +230,6 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
         if ( $mode == $this->type ) {
             return;
         }
-
-//        $this->Lexer->addSpecialPattern(
-//            $this->formatting[$this->type]['entry'],
-//            $mode,
-//            $this->type
-//        );
-
-
 
         $this->Lexer->addEntryPattern(
             $this->formatting[$this->type]['entry'],

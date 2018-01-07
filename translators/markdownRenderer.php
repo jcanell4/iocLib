@@ -41,12 +41,20 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
         $this->doc .= str_repeat("=", $rep)." ".$text." ".str_repeat("=", $rep);
     }
 
-//    function emphasis($text) {
-//        $this->doc .= $text;
-//    }
-
     function emphasis($text) {
-        $this->doc .= $text;
+        $this->doc .= '//' . $text . '//';
+    }
+
+    function underline($text) {
+        $this->doc .= '__' . $text . '__';
+    }
+
+    function monospace($text) {
+        $this->doc .= "''" . $text . "''";
+    }
+
+    function deleted($text) {
+        $this->doc .= "<del>" . $text . "</del>";
     }
 }
 
@@ -61,11 +69,19 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
         $this->doc .= str_repeat("#", $level).$strNum." ".$text." {#".sectionID($text,$this->headers)."}";
     }
 
-//    function emphasis($text) {
-//        $this->doc .= $text;
-//    }
-
     function emphasis($text) {
-        $this->doc .= $text;
+        $this->doc .= '*' . $text . '*';
+    }
+
+    function underline($text) {
+        $this->doc .= '<ins>' . $text . '</ins>';
+    }
+
+    function monospace($text) {
+        $this->doc .= '`' . $text . '`';
+    }
+
+    function deleted($text) {
+        $this->doc .= "~~" . $text . "~~";
     }
 }
