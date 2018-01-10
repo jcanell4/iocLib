@@ -9,6 +9,48 @@ class TranslatorHandler extends Doku_Handler{
         parent::Doku_Handler();
         $this->rewriteBlocks = FALSE;
     }
+    
+    function strong_emph($match, $state, $pos){
+        switch ( $state ) {
+            case DOKU_LEXER_ENTER:
+                $this->_addCall('strong_open', array(), $pos);
+                $this->_addCall('emphasis_open', array(), $pos);
+            break;
+            case DOKU_LEXER_EXIT:
+                $this->_addCall('emphasis_close', array(), $pos);
+                $this->_addCall('strong_close', array(), $pos);
+            break;
+            case DOKU_LEXER_UNMATCHED:
+                $this->_addCall('cdata',array($match), $pos);
+            break;
+        }
+        return true;
+    }
+
+    function strong($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'strong');
+        return true;
+    }
+
+    function emphasis($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'emphasis');
+        return true;
+    }
+
+    function underline($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'underline');
+        return true;
+    }
+
+    function monospace($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'monospace');
+        return true;
+    }
+
+    function deleted($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'deleted');
+        return true;
+    }
 }
 
 class MarkDown2DokuWikiHandler extends TranslatorHandler{
@@ -36,7 +78,7 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
         return true;
     }
 
-
+/*
     function emphasis($match, $state, $pos)
     {
         // Contingut de la funció _nestingTag()
@@ -56,7 +98,6 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
 
                 break;
         }
-
         return true;
     }
 
@@ -68,7 +109,6 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
                 $this->_addCall('underline',array($match), $pos);
                 break;
         }
-
         return true;
     }
 
@@ -79,7 +119,6 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
                 $this->_addCall('monospace',array($match), $pos);
                 break;
         }
-
         return true;
     }
 
@@ -90,9 +129,9 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
                 $this->_addCall('deleted',array($match), $pos);
                 break;
         }
-
         return true;
     }
+ */
 
 }
 
@@ -121,6 +160,7 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
         return true;
     }
 
+    /*
     function emphasis($match, $state, $pos)
     {
         switch ( $state ) {
@@ -167,5 +207,6 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
 
         return true;
     }
+*/
 }
 

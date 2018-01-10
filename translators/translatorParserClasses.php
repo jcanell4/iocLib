@@ -62,7 +62,7 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
 //        ),
 
         'emphasis'=> array (
-            'entry'=>'//(?=.*)',
+            'entry'=>'//(?=.*//)',
             'exit'=>'//',
             'sort'=>80
         ),
@@ -156,14 +156,20 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
     var $type;
 
     var $formatting = array (
-//        'strong' => array (
-//            'entry'=>'\*\*(?=.*\*\*)',
-//            'exit'=>'\*\*',
-//            'sort'=>70
-//        ),
+        'strong_emph' => array (
+            'entry'=>'\*\*\*(?=.*\*\*\*)',
+            'exit'=>'\*\*\*',
+            'sort'=>60
+        ),
+
+        'strong' => array (
+            'entry'=>'\*\*(?=.*\*\*)',
+            'exit'=>'\*\*',
+            'sort'=>70
+        ),
 
         'emphasis'=> array (
-            'entry'=>'\*(?=.*)',
+            'entry'=>'\*(?=.*\*)',
             'exit'=>'\*',
             'sort'=>80
         ),

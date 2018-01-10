@@ -151,8 +151,8 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
             'baseonly'     => array('md2dw_header'),
 
             // modes for styling text -- footnote behaves similar to styling
-            'formatting'   => array(/*'md2dw_strong',*/ 'md2dw_emphasis', 'md2dw_underline', 'md2dw_monospace'/*,
-                                    'md2dw_subscript', 'md2dw_superscript' */,'md2dw_deleted'/*, 'md2dw_footnote'*/),
+            'formatting'   => array('strong_emph', 'strong', 'emphasis', 'underline', 'monospace'/*,
+                                    'md2dw_subscript', 'md2dw_superscript' */,'deleted'/*, 'md2dw_footnote'*/),
 
             // modes where the token is simply replaced - they can not contain any
             // other modes
@@ -190,8 +190,8 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
     }
     
     function getFmtModes(){
-        $fmt_modes = array(/*'md2dw_strong',*/'md2dw_emphasis','md2dw_underline','md2dw_monospace'/*,
-                            'md2dw_subscript','md2dw_superscript'*/,'md2dw_deleted');
+        $fmt_modes = array('strong_emph', 'strong', 'emphasis','underline','monospace'/*,
+                            'md2dw_subscript','md2dw_superscript'*/,'deleted');
         
         return $fmt_modes;
     }
@@ -229,8 +229,8 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
             'baseonly'     => array('dw2md_header'),
 
             // modes for styling text -- footnote behaves similar to styling
-            'formatting'   => array(/*'dw2md_strong', */'dw2md_emphasis', 'dw2md_underline', 'dw2md_monospace'/*,
-                                    'dw2md_subscript', 'dw2md_superscript', */,'md2dw_deleted'/*, 'dw2md_footnote'*/),
+            'formatting'   => array(/*'dw2md_strong', */'emphasis', 'underline', 'monospace'/*,
+                                    'dw2md_subscript', 'dw2md_superscript', */,'deleted'/*, 'dw2md_footnote'*/),
 
             // modes where the token is simply replaced - they can not contain any
             // other modes
@@ -268,8 +268,8 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
     }
     
     function getFmtModes(){
-        $fmt_modes = array(/*'dw2md_strong',*/'dw2md_emphasis','dw2md_underline','dw2md_monospace'/*,
-                'dw2md_subscript','dw2md_superscript'*/,'dw2md_deleted');
+        $fmt_modes = array(/*'dw2md_strong',*/'emphasis','underline','monospace'/*,
+                'dw2md_subscript','dw2md_superscript'*/,'deleted');
         
         return $fmt_modes;
     }
@@ -290,6 +290,6 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
 
     function getFormattingParserMode($m)
     {
-        return new Doku_Parser_Mode_dw2md_formatting($m);
+        return new Doku_Parser_Mode_formatting($m);
     }
 }

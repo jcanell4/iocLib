@@ -41,20 +41,43 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
         $this->doc .= str_repeat("=", $rep)." ".$text." ".str_repeat("=", $rep);
     }
 
-    function emphasis($text) {
-        $this->doc .= '//' . $text . '//';
+    function strong_open() {
+        $this->doc .= '**';
     }
 
-    function underline($text) {
-        $this->doc .= '__' . $text . '__';
+    function strong_close(){
+        $this->doc .= '**';
     }
 
-    function monospace($text) {
-        $this->doc .= "''" . $text . "''";
+    function emphasis_open() {
+        $this->doc .= '//';
     }
 
-    function deleted($text) {
-        $this->doc .= "<del>" . $text . "</del>";
+    function emphasis_close(){
+        $this->doc .= '//';
+    }
+
+    function underline_open() {
+        $this->doc .= '__';
+    }
+
+    function underline_close() {
+        $this->doc .= '__';
+    }
+
+    function monospace_open() {
+        $this->doc .= "''";
+    }
+
+    function monospace_close() {
+        $this->doc .= "''";
+    }
+
+    function deleted_open() {
+        $this->doc .= "<del>";
+    }
+    function deleted_close() {
+        $this->doc .= "</del>";
     }
 }
 
@@ -69,19 +92,35 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
         $this->doc .= str_repeat("#", $level).$strNum." ".$text." {#".sectionID($text,$this->headers)."}";
     }
 
-    function emphasis($text) {
-        $this->doc .= '*' . $text . '*';
+    function emphasis_open() {
+        $this->doc .= '*';
     }
 
-    function underline($text) {
-        $this->doc .= '<ins>' . $text . '</ins>';
+    function emphasis_close() {
+        $this->doc .= '*';
     }
 
-    function monospace($text) {
-        $this->doc .= '`' . $text . '`';
+    function underline_open() {
+        $this->doc .= '+';
     }
 
-    function deleted($text) {
-        $this->doc .= "~~" . $text . "~~";
+    function underline_close() {
+        $this->doc .= '+';
+    }
+
+    function monospace_open() {
+        $this->doc .= '`';
+    }
+
+    function monospace_close() {
+        $this->doc .= '`';
+    }
+
+    function deleted_open() {
+        $this->doc .= "~~";
+    }
+
+    function deleted_close() {
+        $this->doc .= "~~";
     }
 }
