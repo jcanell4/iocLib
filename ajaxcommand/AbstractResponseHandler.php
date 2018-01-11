@@ -6,6 +6,19 @@
 if(!defined("DOKU_INC")) die();
 
 abstract class AbstractResponseHandler {
+    const LOGIN  = 'login';
+    const PAGE   = 'page';
+    const EDIT   = 'edit';
+    const CANCEL = 'cancel';
+    const SAVE   = 'save';
+    const MEDIA  = 'media';
+    const MEDIADETAILS  = 'mediadetails';
+    const ADMIN_TASK  = 'admin_task';
+    const ADMIN_TAB  = 'admin_tab';
+    const PRINT_ACTION  = 'print';
+    const PREVIEW_ACTION  = 'preview';
+    const PROJECT  = 'project';
+
     private $cmd;
     private $modelAdapter;
     private $modelManager;
