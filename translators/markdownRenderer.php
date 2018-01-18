@@ -79,6 +79,22 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
     function deleted_close() {
         $this->doc .= "</del>";
     }
+
+    function subscript_open() {
+        $this->doc .= "<sub>";
+    }
+
+    function subscript_close() {
+        $this->doc .= "</sub>";
+    }
+
+    function superscript_open() {
+        $this->doc .= "<sup>";
+    }
+
+    function superscript_close() {
+        $this->doc .= "</sup>";
+    }
 }
 
 class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
@@ -122,5 +138,21 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
 
     function deleted_close() {
         $this->doc .= "~~";
+    }
+
+    function subscript_open() {
+        $this->doc .= "<sub>";
+    }
+
+    function subscript_close() {
+        $this->doc .= "</sub>";
+    }
+
+    function superscript_open() {
+        $this->doc .= "<sup>";
+    }
+
+    function superscript_close() {
+        $this->doc .= "</sup>";
     }
 }

@@ -67,31 +67,29 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
             'sort'=>80
         ),
 
-//
         'underline'=> array (
             'entry'=>'__(?=.*__)',
             'exit'=>'__',
             'sort'=>90
         ),
-//
+
         'monospace'=> array (
             'entry'=>"''(?=.*'')",
             'exit'=>"''",
             'sort'=>100
         ),
-//
-//        'subscript'=> array (
-//            'entry'=>'<sub>(?=.*</sub>)',
-//            'exit'=>'</sub>',
-//            'sort'=>110
-//        ),
-//
-//        'superscript'=> array (
-//            'entry'=>'<sup>(?=.*</sup>)',
-//            'exit'=>'</sup>',
-//            'sort'=>120
-//        ),
-//
+
+        'subscript'=> array (
+            'entry'=>'<sub>(?=.*</sub>)',
+            'exit'=>'</sub>',
+            'sort'=>110
+        ),
+        'superscript'=> array (
+            'entry'=>'<sup>(?=.*</sup>)',
+            'exit'=>'</sup>',
+            'sort'=>120
+        ),
+
         'deleted'=> array (
             'entry'=>'<del>(?=.*</del>)',
             'exit'=>'</del>',
@@ -102,7 +100,7 @@ class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
     function Doku_Parser_Mode_dw2md_formatting($type) {
         global $PARSER_MODES;
 
-        $type = str_replace('dw2md_', '',$type);
+        //$type = str_replace('dw2md_', '',$type);
 
         if ( !array_key_exists($type, $this->formatting) ) {
             trigger_error('Invalid formatting type '.$type, E_USER_WARNING);
@@ -175,8 +173,8 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
         ),
 
         'underline'=> array (
-            'entry'=>'<ins>(?=.*</ins>)',
-            'exit'=>'</ins>',
+            'entry'=>'<u>(?=.*</u>)',
+            'exit'=>'</u>',
             'sort'=>90
         ),
 
@@ -186,17 +184,19 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
             'sort'=>100
         ),
 //
-//        'subscript'=> array (
+        'subscript'=> array (
 //            'entry'=>'<sub>(?=.*</sub>)',
 //            'exit'=>'</sub>',
-//            'sort'=>110
-//        ),
-//
-//        'superscript'=> array (
-//            'entry'=>'<sup>(?=.*</sup>)',
-//            'exit'=>'</sup>',
-//            'sort'=>120
-//        ),
+            'entry'=>'~(?=.*~)',
+            'exit'=>'~',
+            'sort'=>110
+        ),
+
+        'superscript'=> array (
+            'entry'=>'\^(?=.*\^)',
+            'exit'=>'\^',
+            'sort'=>120
+        ),
 //
         'deleted'=> array (
             'entry'=>'~~(?=.*~~)',

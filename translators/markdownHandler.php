@@ -51,6 +51,17 @@ class TranslatorHandler extends Doku_Handler{
         $this->_nestingTag($match, $state, $pos, 'deleted');
         return true;
     }
+
+    function superscript($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'superscript');
+        return true;
+    }
+
+    function subscript($match, $state, $pos){
+        $this->_nestingTag($match, $state, $pos, 'subscript');
+        return true;
+    }
+
 }
 
 class MarkDown2DokuWikiHandler extends TranslatorHandler{
