@@ -49,8 +49,6 @@ class Doku_Parser_Mode_mddweol extends Doku_Parser_Mode {
 
 
 
-// ALERTA[Xavi] Proves
-
 class Doku_Parser_Mode_dw2md_formatting extends Doku_Parser_Mode {
     var $type;
 
@@ -203,6 +201,7 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
             'exit'=>'~~',
             'sort'=>130
         ),
+
     );
 
     function Doku_Parser_Mode_md2dw_formatting($type) {
@@ -255,6 +254,80 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
 
     function getSort() {
         return $this->formatting[$this->type]['sort'];
+    }
+}
+
+class Doku_Parser_Mode_dw2md_listblock extends Doku_Parser_Mode_listblock {
+
+    function Doku_Parser_Mode_dw2md_listblock () {
+        global $PARSER_MODES;
+
+        $this->allowedModes = array_merge (
+            $PARSER_MODES['formatting'],
+            $PARSER_MODES['substition'],
+            $PARSER_MODES['disabled'],
+            $PARSER_MODES['protected'] #XXX new
+        );
+
+        //    $this->allowedModes[] = 'footnote';
+    }
+
+    function connectTo($mode) {
+        $this->Lexer->addEntryPattern('[ \t]*\n {2,}[\-\*]',$mode,'listblock');
+        $this->Lexer->addEntryPattern('[ \t]*\n\t{1,}[\-\*]',$mode,'listblock');
+
+        $this->Lexer->addPattern('\n {2,}[\-\*]','listblock');
+        $this->Lexer->addPattern('\n\t{1,}[\-\*]','listblock');
+
+    }
+
+    function postConnect() {
+        $this->Lexer->addExitPattern('\n','listblock');
+    }
+
+    function getSort() {
+        return 10;
+    }
+}
+
+
+class Doku_Parser_Mode_md2dw_listblock extends Doku_Parser_Mode_listblock {
+
+    function Doku_Parser_Mode_md2dw_listblock() {
+        global $PARSER_MODES;
+
+        $this->allowedModes = array_merge (
+            $PARSER_MODES['formatting'],
+            $PARSER_MODES['substition'],
+            $PARSER_MODES['disabled'],
+            $PARSER_MODES['protected'] #XXX new
+        );
+
+        //    $this->allowedModes[] = 'footnote';
+    }
+
+    function connectTo($mode) {
+//        $this->Lexer->addEntryPattern('[ \t]*\n {2,}[\-\*]',$mode,'listblock');
+//        $this->Lexer->addEntryPattern('[ \t]*\n\t{1,}[\-\*]',$mode,'listblock');
+        $this->Lexer->addEntryPattern('[\n]?- {3}',$mode,'listblock');
+        $this->Lexer->addEntryPattern('[\n]?\d+- {2}',$mode,'listblock');
+
+
+
+//        $this->Lexer->addEntryPattern('[ \t]*\n\t{1,}[\-\*]',$mode,'listblock');
+
+
+//        $this->Lexer->addPattern('\n {2,}[\-\*]','listblock');
+//        $this->Lexer->addPattern('\n\t{1,}[\-\*]','listblock');
+
+    }
+
+    function postConnect() {
+        $this->Lexer->addExitPattern('\n','listblock');
+    }
+
+    function getSort() {
+        return 10;
     }
 }
 

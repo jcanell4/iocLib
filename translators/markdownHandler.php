@@ -27,40 +27,40 @@ class TranslatorHandler extends Doku_Handler{
         return true;
     }
 
-    function strong($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'strong');
-        return true;
-    }
-
-    function emphasis($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'emphasis');
-        return true;
-    }
-
-    function underline($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'underline');
-        return true;
-    }
-
-    function monospace($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'monospace');
-        return true;
-    }
-
-    function deleted($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'deleted');
-        return true;
-    }
-
-    function superscript($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'superscript');
-        return true;
-    }
-
-    function subscript($match, $state, $pos){
-        $this->_nestingTag($match, $state, $pos, 'subscript');
-        return true;
-    }
+//    function strong($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'strong');
+//        return true;
+//    }
+//
+//    function emphasis($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'emphasis');
+//        return true;
+//    }
+//
+//    function underline($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'underline');
+//        return true;
+//    }
+//
+//    function monospace($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'monospace');
+//        return true;
+//    }
+//
+//    function deleted($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'deleted');
+//        return true;
+//    }
+//
+//    function superscript($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'superscript');
+//        return true;
+//    }
+//
+//    function subscript($match, $state, $pos){
+//        $this->_nestingTag($match, $state, $pos, 'subscript');
+//        return true;
+//    }
 
 }
 

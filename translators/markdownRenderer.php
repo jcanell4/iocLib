@@ -95,6 +95,28 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
     function superscript_close() {
         $this->doc .= "</sup>";
     }
+
+    function listu_open() {}
+
+    function listu_close() {}
+
+    function listo_open() {}
+
+    function listo_close() {}
+
+    function listitem_open($level) {
+        // s'han d'afegir 2 espais per nivell, però el nivell per ara no es calcula
+        $this->doc .= "  * ";
+    }
+
+    function listitem_close() {
+        $this->doc .= "\n";
+    }
+
+    function listcontent_open() {
+    }
+
+    function listcontent_close() {}
 }
 
 class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
@@ -154,5 +176,40 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
 
     function superscript_close() {
         $this->doc .= "</sup>";
+    }
+
+    function listu_open() {
+        // Es reconeix correctament que es una llista desordenada
+        return;
+    }
+
+    function listu_close() {}
+
+    function listo_open($args) {
+        // Es reconeix correctament que es una llista ordenada
+        return;
+    }
+
+    function listo_close() {}
+
+    function listitem_open($level) {
+        // TODO[Xavi] No tenim el tipus de llista, s'ha de passar per paràmetre? com s'obté a l'original?
+//         El nivell arriva correctament
+
+        $indent = '';
+
+        for ($i = 1; $i<$level; $i++){
+            $indent .= '   ';
+        }
+
+        $this->doc .= "\n" . $indent . "-   ";
+    }
+
+    function listitem_close() {}
+
+    function listcontent_open() {}
+
+    function listcontent_close() {
+        $this->doc .= "\n";
     }
 }
