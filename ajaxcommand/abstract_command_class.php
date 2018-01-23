@@ -46,7 +46,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     protected $runPreprocess = FALSE;
 
     protected $authorization;
-    protected $modelWrapper;
+    protected $modelAdapter;
     protected $modelManager;
 
     protected $needMediaInfo = FALSE;
@@ -55,8 +55,8 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     public $error = FALSE;
     public $errorMessage = '';
 
-    public function __construct( $modelWrapper=NULL, $authorization=NULL ) {
-        $this->modelWrapper  = $modelWrapper;
+    public function __construct( $modelAdapter=NULL, $authorization=NULL ) {
+        $this->modelAdapter  = $modelAdapter;
         $this->authorization = $authorization;
     }
 
@@ -71,21 +71,9 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         }
 
         if (!$modelManager) {
-            $modelManager = WikiIocModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
+            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
         $this->setModelManager($modelManager);
-    }
-
-    /**
-     * Retorna l'adaptador a emprar.
-     * @return DokuModelAdapter
-     */
-    public function getModelWrapper() {
-        return $this->modelWrapper;
-    }
-
-    public function getAuthorization() {
-        return $this->authorization;
     }
 
     /**
@@ -93,15 +81,33 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      * @param modelManager
      */
     public function setModelManager($modelManager) {
-
         $this->modelManager = $modelManager;
 
-        if(!$this->modelWrapper){
-            $this->modelWrapper  = $modelManager->getModelWrapperManager();
+        if (!$this->getModelAdapter()) {
+            $this->modelAdapter = $modelManager->getModelAdapterManager();
         }
-        if(!$this->authorization){
+        if (!$this->authorization) {
             $this->authorization = $modelManager->getAuthorizationManager($this->getAuthorizationType());
         }
+    }
+
+    public function getModelManager() {
+        return $this->modelManager;
+    }
+
+    public function getModelAdapter() {
+        return $this->modelAdapter;
+    }
+
+    public function getAuthorization() {
+        return $this->authorization;
+    }
+
+    /**
+     * Obtiene la persistencia, correspondiente (por proyecto) a su DokuModelManager, de AbstractModelManager
+     */
+    public function getPersistenceEngine() {
+        return $this->getModelManager()->getPersistenceEngine();
     }
 
     /**
@@ -140,8 +146,11 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      */
     public function setResponseHandler($respHand) {
         $this->responseHandler = $respHand;
-        if(!$respHand->getModelWrapper()){
-            $respHand->setModelWrapper($this->modelWrapper);
+        if (!$respHand->getModelAdapter()){
+            $respHand->setModelAdapter($this->getModelAdapter());
+        }
+        if (!$respHand->getModelManager()){
+            $respHand->setModelManager($this->getModelManager());
         }
     }
 
@@ -193,29 +202,29 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                     && $this->types[$key]==self::T_ARRAY_KEY){
                 $value = key($value);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]!= self::T_OBJECT
-                        && $this->types[$key]!= self::T_ARRAY
-                        && $this->types[$key]!= self::T_FUNCTION
-                        && $this->types[$key]!= self::T_METHOD
-                        && $this->types[$key]!= self::T_FILE
-                        && gettype($value) != $this->types[$key]) {
+                    && $this->types[$key]!= self::T_OBJECT
+                    && $this->types[$key]!= self::T_ARRAY
+                    && $this->types[$key]!= self::T_FUNCTION
+                    && $this->types[$key]!= self::T_METHOD
+                    && $this->types[$key]!= self::T_FILE
+                    && gettype($value) != $this->types[$key]) {
                 settype($value, $this->types[$key]);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_ARRAY
-                        && gettype($value) == self::T_STRING){
+                    && $this->types[$key]== self::T_ARRAY
+                    && gettype($value) == self::T_STRING){
                 $value = explode(',', $value);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_OBJECT
-                        && gettype($value) == self::T_STRING){
+                    && $this->types[$key]== self::T_OBJECT
+                    && gettype($value) == self::T_STRING){
                 $value = json_decode($value);
             }else if(isset($this->types[$key])
-                        && ($this->types[$key]== self::T_FUNCTION
-                                || $this->types[$key]== self::T_METHOD
-                       )&& gettype($value) != self::T_STRING){
+                    && ($this->types[$key]== self::T_FUNCTION
+                        || $this->types[$key]== self::T_METHOD)
+                    && gettype($value) != self::T_STRING){
                 settype($value, self::T_STRING);
             }else if(isset($this->types[$key])
-                        && $this->types[$key]== self::T_FILE
-                        && gettype($value) != self::T_ARRAY){
+                    && $this->types[$key]== self::T_FILE
+                    && gettype($value) != self::T_ARRAY){
                 settype($value, self::T_ARRAY);
             }
             $this->params[$key] = $value;
@@ -239,7 +248,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         } else {
             $responseGenerator = new AjaxCmdResponseGenerator();
             $e = $this->authorization->getAuthorizationError(AuthorizationKeys::EXCEPTION_KEY);
-            $p = $this->authorization->getAuthorizationError(AuthorizationKeys::ERROR_PARAMS_KEY);
+            $p = $this->authorization->getAuthorizationError(AuthorizationKeys::EXTRA_PARAM_KEY);
             if($p){
                 $this->handleError(new $e($p), $responseGenerator);
             }else{
@@ -410,7 +419,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     protected abstract function process();
 
     protected function postResponse($responseData, &$ajaxCmdResponseGenerator) {
-        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $this->params, $responseData);
+        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $responseData);
         $evt = new Doku_Event("WIOC_PROCESS_RESPONSE", $data);
         $evt->advise_after();
         unset($evt);
@@ -418,15 +427,15 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         $evt->advise_after();
         unset($evt);
         $ajaxCmdResponseGenerator->addSetJsInfo($this->getJsInfo());
-        if ($requestParams[AjaxKeys::PROJECT_TYPE]) {
+        if ($this->params[AjaxKeys::PROJECT_TYPE]) {
             if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
-                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $requestParams[AjaxKeys::PROJECT_TYPE]);
+                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         }
     }
 
     protected function preResponse(&$ajaxCmdResponseGenerator) {
-        $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $this->params);
+        $data = $this->_getDataEvent($ajaxCmdResponseGenerator);
         $evt = new Doku_Event("WIOC_PROCESS_RESPONSE", $data);
         $ret = $evt->advise_before();
         unset($evt);
@@ -436,10 +445,10 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return $ret;
     }
 
-    private function _getDataEvent(&$ajaxCmdResponseGenerator, $requestParams=NULL, $responseData=NULL){
+    private function _getDataEvent(&$ajaxCmdResponseGenerator, $responseData=NULL){
         $ret = array(
             "command" => $this->getCommandName(),
-            "requestParams" => $requestParams,
+            "requestParams" => $this->params,
             "responseData" => $responseData,
             "ajaxCmdResponseGenerator" => $ajaxCmdResponseGenerator,
         );

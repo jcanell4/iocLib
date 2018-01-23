@@ -1,8 +1,7 @@
 <?php
 if (!defined("DOKU_INC")) die();
 
-class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterface
-{
+class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterface {
     //RETORNAT PER checklock
     public static $ST_UNLOCKED = ResourceLockerInterface::LOCKED; // El recurs no es troba bloquejat per ningú
     public static $ST_LOCKED = ResourceLockerInterface::REQUIRED; // // El recurs es troba bloquejat per un altre usuari
@@ -16,11 +15,8 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     protected $lockDataQuery;
     protected $params;
 
-    public function __construct(/*BasicPersistenceEngine*/
-        $persistenceEngine, $params=NULL)
-    {
+    public function __construct(BasicPersistenceEngine $persistenceEngine, $params=NULL) {
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
-
         $this->params = $params;
     }
 
@@ -38,13 +34,12 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * @param bool $lock
      * @return int
      */
-    public function requireResource($lock = FALSE)
-    {
+    public function requireResource($lock = FALSE) {
         return $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
     }
 
-    public function _requireResource($lock = FALSE, $refresh=FALSE)
-    {
+    public function _requireResource($lock = FALSE, $refresh=FALSE) {
+
         $docId = $this->params[PageKeys::KEY_ID];
 
         $lockState = $this->lockDataQuery->checklock($docId);
@@ -78,7 +73,6 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
                 throw new UnexpectedLockCodeException($lockState); // TODO[Xavi] Canviar per excepció més apropiada i localitzada
         }
 
-
         return $state;
     }
 
@@ -92,8 +86,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * @param bool $unlock
      * @return int
      */
-    public function leaveResource($unlock = FALSE)
-    {
+    public function leaveResource($unlock = FALSE) {
 
         $docId = $this->params[PageKeys::KEY_ID];
 
@@ -122,21 +115,12 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
                 break;
         }
 
-
         return $returnState; // TODO[Xavi] Retorna el codi correcte
     }
 
     public function checklock() {
         return $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID]);
     }
-
-//    public function lock() {
-//        return $this->lockDataQuery->lock($this->params[PageKeys::KEY_ID], TRUE);
-//    }
-//
-//    public function unlock() {
-//        return $this->lockDataQuery->xUnlock($this->params[PageKeys::KEY_ID], TRUE);
-//    }
 
     public function updateLock() {
         return $this->_requireResource(TRUE, TRUE);

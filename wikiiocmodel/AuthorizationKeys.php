@@ -6,6 +6,6 @@
 interface AuthorizationKeys {
     const ERROR_KEY         = "error";
     const EXCEPTION_KEY     = "exception";
-    const ERROR_PARAMS_KEY  = "extra_param";
+    const EXTRA_PARAM_KEY  = "extra_param";
 
 }

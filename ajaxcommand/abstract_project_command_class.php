@@ -6,7 +6,6 @@ require_once(DOKU_COMMAND . "defkeys/ProjectKeys.php");
 abstract class abstract_project_command_class extends abstract_command_class {
 
     protected $dataProject;   //guarda los datos del proyecto para verificar la autorización
-    protected $persistenceEngine;
 
     public function __construct() {
         parent::__construct();
@@ -19,8 +18,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
 
     public function init( $modelManager = NULL ) {
         parent::init($modelManager);
-        $this->persistenceEngine = $this->modelWrapper->getPersistenceEngine();
-        $projectMetaDataQuery = $this->persistenceEngine->createProjectMetaDataQuery();
+        $projectMetaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery();
         $ns = ($this->params[AjaxKeys::KEY_NS]) ? $this->params[AjaxKeys::KEY_NS] : $this->params[AjaxKeys::KEY_ID];
         $this->dataProject = $projectMetaDataQuery->getDataProject($ns, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
     }

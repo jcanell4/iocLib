@@ -1,9 +1,10 @@
 <?php
-if(!defined("DOKU_INC")) die();
 /**
  * Class AbstractResponseHandler
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
+if(!defined("DOKU_INC")) die();
+
 abstract class AbstractResponseHandler {
     const LOGIN  = 'login';
     const PAGE   = 'page';
@@ -19,21 +20,18 @@ abstract class AbstractResponseHandler {
     const PROJECT  = 'project';
 
     private $cmd;
-    private $modelWrapper;
+    private $modelAdapter;
+    private $modelManager;
     private $permission;
 
     /**
      * Constructor al que se li passa el nom del Command com argument.
      * @param string $cmd
+     * @param instance $modelAdapter
+     * @param instance $permission
      */
-    public function __construct($cmd, $modelWrapper=NULL, $permission=NULL) {
+    public function __construct($cmd) {
         $this->cmd = $cmd;
-        if($modelWrapper){
-            $this->modelWrapper = $modelWrapper;
-        }
-        if($permission){
-            $this->permission = $permission;
-        }
     }
 
     /**
@@ -43,18 +41,26 @@ abstract class AbstractResponseHandler {
         return $this->cmd;
     }
 
-    /**
-     * @return ModelWrapper instance
-     */
-    public function getModelWrapper() {
-        return $this->modelWrapper;
+    public function getModelManager() {
+        return $this->modelManager;
+    }
+
+    public function setModelManager($modelManager) {
+        $this->modelManager = $modelManager;
     }
 
     /**
-     * Set ModelWrapper instance
+     * @return ModelAdapter instance
      */
-    public function setModelWrapper($modelWrapper) {
-        $this->modelWrapper=$modelWrapper;
+    public function getModelAdapter() {
+        return $this->modelAdapter;
+    }
+
+    /**
+     * Set ModelAdapter instance
+     */
+    public function setModelAdapter($modelAdapter) {
+        $this->modelAdapter = $modelAdapter;
     }
 
     /**

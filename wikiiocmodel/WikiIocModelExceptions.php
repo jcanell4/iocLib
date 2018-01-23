@@ -95,6 +95,13 @@ class ClassNotFoundException extends WikiIocModelException {
     }
 }
 
+class IllegalCallExeption extends WikiIocModelException {
+    public function __construct($message, $code=9029, $previous=NULL) {
+        $message = "No està permés cridar aquest mètode en aquest context: $message";
+        parent::__construct($message, $code, $previous);
+    }
+}
+
 
 /**
  * Excepciones propias de los proyectos
