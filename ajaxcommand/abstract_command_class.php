@@ -248,7 +248,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         } else {
             $responseGenerator = new AjaxCmdResponseGenerator();
             $e = $this->authorization->getAuthorizationError(AuthorizationKeys::EXCEPTION_KEY);
-            $p = $this->authorization->getAuthorizationError(AuthorizationKeys::ERROR_PARAMS_KEY);
+            $p = $this->authorization->getAuthorizationError(AuthorizationKeys::EXTRA_PARAM_KEY);
             if($p){
                 $this->handleError(new $e($p), $responseGenerator);
             }else{

@@ -11,7 +11,7 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
     protected $errorAuth = array(
                               self::ERROR_KEY => TRUE
                              ,self::EXCEPTION_KEY => ''
-                             ,self::ERROR_PARAMS_KEY => NULL
+                             ,self::EXTRA_PARAM_KEY => NULL
                            );
     /**
      * getPermissionInstance: Devuelve una nueva instancia de la clase Permission
@@ -27,7 +27,7 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
     public function canRun() {
         $this->errorAuth[self::ERROR_KEY] = FALSE;
         $this->errorAuth[self::EXCEPTION_KEY] =  '';
-        $this->errorAuth[self::ERROR_PARAMS_KEY] = NULL;
+        $this->errorAuth[self::EXTRA_PARAM_KEY] = NULL;
 
         if ($this->permission->getAuthenticatedUsersOnly()) {
             if (($this->errorAuth[self::ERROR_KEY] = !$this->permission->getSecurityTokenVerified())){
