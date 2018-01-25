@@ -163,7 +163,7 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
 
             // modes which have a start and end token but inside which
             // no other modes should be applied
-            'protected'    => array(/*'md2dw_preformatted','md2dw_code','md2dw_file','md2dw_php','md2dw_html','md2dw_htmlblock','md2dw_phpblock'*/),
+            'protected'    => array('md2dw_code'/*'md2dw_preformatted','md2dw_file','md2dw_php','md2dw_html','md2dw_htmlblock','md2dw_phpblock'*/),
 
             // inside this mode no wiki markup should be applied but lineendings
             // and whitespace isn't preserved
@@ -178,8 +178,8 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
     function getStdModes(){
         // add default modes
         $std_modes = array('md2dw_listblock',/*'md2dw_preformatted','md2dw_notoc','md2dw_nocache',*/
-                'md2dw_header'/*,'md2dw_table','md2dw_linebreak','md2dw_footnote','md2dw_hr',
-                'md2dw_unformatted','md2dw_php','md2dw_html','md2dw_code','md2dw_file','md2dw_quote',
+                'md2dw_header', 'md2dw_code'/*,'md2dw_table','md2dw_linebreak','md2dw_footnote','md2dw_hr',
+                'md2dw_unformatted','md2dw_php','md2dw_html','md2dw_file','md2dw_quote',
                 'md2dw_internallink','md2dw_rss','md2dw_media','md2dw_externallink',
                 'md2dw_emaillink','md2dw_windowssharelink'*/,'mddweol');
         if(WikiGlobalConfig::getConf('typography')){
@@ -241,7 +241,7 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
 
             // modes which have a start and end token but inside which
             // no other modes should be applied
-            'protected'    => array(/*'dw2md_preformatted','dw2md_code','dw2md_file','dw2md_php','dw2md_html','dw2md_htmlblock','dw2md_phpblock'*/),
+            'protected'    => array('dw2md_code'/*'dw2md_preformatted','dw2md_file','dw2md_php','dw2md_html','dw2md_htmlblock','dw2md_phpblock'*/),
 
             // inside this mode no wiki markup should be applied but lineendings
             // and whitespace isn't preserved
@@ -256,8 +256,8 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
     function getStdModes(){
         // add default modes
         $std_modes = array('dw2md_listblock',/*'dw2md_preformatted','dw2md_notoc','dw2md_nocache',*/
-                'dw2md_header'/*,'dw2md_table','dw2md_linebreak','dw2md_footnote','dw2md_hr',
-                'dw2md_unformatted','dw2md_php','dw2md_html','dw2md_code','dw2md_file','dw2md_quote',
+                'dw2md_header', 'dw2md_code'/*,'dw2md_table','dw2md_linebreak','dw2md_footnote','dw2md_hr',
+                'dw2md_unformatted','dw2md_php','dw2md_html','dw2md_file','dw2md_quote',
                 'dw2md_internallink','dw2md_rss','dw2md_media','dw2md_externallink',
                 'dw2md_emaillink','dw2md_windowssharelink'*/,'mddweol');
         if(WikiGlobalConfig::getConf('typography')){

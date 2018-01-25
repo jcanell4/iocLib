@@ -13,11 +13,11 @@
  */
 class MarkDownWikiRenderer extends Doku_Renderer{
     private $starting;
-    
+
     function cdata($text) {
         $this->doc .= $text;
     }
-    
+
     function eol($text) {
         if($this->starting){
             $this->starting=FALSE;
@@ -25,7 +25,7 @@ class MarkDownWikiRenderer extends Doku_Renderer{
             $this->doc .= "\n";
         }
     }
-    
+
     function document_start() {
         $this->starting=TRUE;
     }
@@ -105,7 +105,7 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
     function listo_close() {}
 
     function listitem_open($level) {
-        // s'han d'afegir 2 espais per nivell, però el nivell per ara no es calcula
+        // TODO[Xavi] s'han d'afegir 2 espais per nivell, però el nivell per ara no es calcula
         $this->doc .= "  * ";
     }
 
@@ -117,11 +117,23 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
     }
 
     function listcontent_close() {}
+
+    function code($aux, $state, $text) {
+        // el primer arriba null
+        // el segon es l'atribut {data-block-state="pre"}
+        // el tercer es el text
+//        $this->_highlight('code',$text);
+
+        // TODO[Xavi] quan s'afegeixin els llenguatges del block de codi cal especificar-lo com atribut
+        $this->doc .= "<code>" . $text . "</code>";
+    }
+
+
 }
 
 class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
     private $headers = array();
-    
+
     function header($text, $level, $numLevels) {
         $strNum = "";
         for($i=0; $i<$level; $i++){
@@ -211,5 +223,10 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
 
     function listcontent_close() {
         $this->doc .= "\n";
+    }
+
+    function code($text, $lang= null, $file = null) {
+//        $this->doc .= '```' . $text . '```';
+        $this->doc .= "~~~~\n" . $text . "\n~~~~";
     }
 }

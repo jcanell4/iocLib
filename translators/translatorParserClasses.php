@@ -198,7 +198,7 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
 //
         'deleted'=> array (
             'entry'=>'~~(?=.*~~)',
-            'exit'=>'~~',
+            'exit'=>'~~',~
             'sort'=>130
         ),
 
@@ -257,7 +257,7 @@ class Doku_Parser_Mode_md2dw_formatting extends Doku_Parser_Mode {
     }
 }
 
-class Doku_Parser_Mode_dw2md_listblock extends Doku_Parser_Mode_listblock {
+class Doku_Parser_Mode_dw2md_listblock extends Doku_Parser_Mode {
 
     function Doku_Parser_Mode_dw2md_listblock () {
         global $PARSER_MODES;
@@ -291,7 +291,7 @@ class Doku_Parser_Mode_dw2md_listblock extends Doku_Parser_Mode_listblock {
 }
 
 
-class Doku_Parser_Mode_md2dw_listblock extends Doku_Parser_Mode_listblock {
+class Doku_Parser_Mode_md2dw_listblock extends Doku_Parser_Mode {
 
     function Doku_Parser_Mode_md2dw_listblock() {
         global $PARSER_MODES;
@@ -331,4 +331,34 @@ class Doku_Parser_Mode_md2dw_listblock extends Doku_Parser_Mode_listblock {
     }
 }
 
+class Doku_Parser_Mode_md2dw_code extends Doku_Parser_Mode {
 
+    function connectTo($mode) {
+//        $this->Lexer->addEntryPattern('```',$mode,'code');
+        $this->Lexer->addEntryPattern('~~~~',$mode,'code');
+    }
+
+    function postConnect() {
+//        $this->Lexer->addExitPattern('```','code');
+        $this->Lexer->addExitPattern('~~~~','code');
+    }
+
+    function getSort() {
+        return 0;
+    }
+}
+
+class Doku_Parser_Mode_dw2md_code extends Doku_Parser_Mode {
+
+    function connectTo($mode) {
+        $this->Lexer->addEntryPattern('<code\b(?=.*</code>)',$mode,'code');
+    }
+
+    function postConnect() {
+        $this->Lexer->addExitPattern('</code>','code');
+    }
+
+    function getSort() {
+        return 0;
+    }
+}
