@@ -223,7 +223,7 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
             // containers are complex modes that can contain many other modes
             // hr breaks the principle but they shouldn't be used in tables / lists
             // so they are put here
-            'container'    => array('dw2md_listblock'/*,'dw2md_table','dw2md_quote','dw2md_hr'*/),
+            'container'    => array('dw2md_listblock'/*,'dw2md_table','dw2md_quote'*/),
 
             // some mode are allowed inside the base mode only
             'baseonly'     => array('dw2md_header'),

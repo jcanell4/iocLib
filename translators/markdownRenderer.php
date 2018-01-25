@@ -119,10 +119,9 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
     function listcontent_close() {}
 
     function code($aux, $state, $text) {
-        // el primer arriba null
+        // el primer arriba null (hauria de ser el text, però no ho es)
         // el segon es l'atribut {data-block-state="pre"}
         // el tercer es el text
-//        $this->_highlight('code',$text);
 
         // TODO[Xavi] quan s'afegeixin els llenguatges del block de codi cal especificar-lo com atribut
         $this->doc .= "<code>" . $text . "</code>";
@@ -230,3 +229,4 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
         $this->doc .= "~~~~\n" . $text . "\n~~~~";
     }
 }
+
