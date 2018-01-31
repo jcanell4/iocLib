@@ -71,6 +71,7 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
         $this->permission->setInfoWritable(WikiIocInfoManager::getInfo('writable'));
         $this->permission->setInfoIsadmin(WikiIocInfoManager::getInfo('isadmin'));
         $this->permission->setInfoIsmanager(WikiIocInfoManager::getInfo('ismanager'));
+        $this->permission->setIsValidUser($this->isValidUser($command->getParams('user')));
         $this->permission->setUserGroups(array());
     }
 
@@ -83,4 +84,9 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
         }
         return $found;
     }
+
+    private function isValidUser($user) {
+        return $_SERVER['REMOTE_USER'] === $user;
+    }
+
 }

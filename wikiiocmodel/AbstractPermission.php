@@ -7,10 +7,11 @@
 if (!defined('DOKU_INC') ) die();
 
 abstract class AbstractPermission {
-    
+
     protected $authenticatedUsersOnly;  //bool (de command_class)
     protected $isSecurityTokenVerified;
     protected $isUserAuthenticated;     // bool
+    protected $isValidUser;
     protected $idPage;
     protected $hasPermissionFor;
     protected $info_writable;
@@ -18,7 +19,7 @@ abstract class AbstractPermission {
     protected $info_ismanager;
     protected $permissionLoaded = FALSE;
     protected $userGroups;
-    
+
     public function getPermissionLoaded() {
         return $this->permissionLoaded;
     }
@@ -38,7 +39,7 @@ abstract class AbstractPermission {
     public function getPermissionFor() {
         return $this->hasPermissionFor;
     }
-  
+
     public function setPermissionLoaded($permissionLoaded) {
         $this->permissionLoaded = $permissionLoaded;
     }
@@ -66,31 +67,31 @@ abstract class AbstractPermission {
     public function setPermissionFor($permissionFor) {
         $this->hasPermissionFor = $permissionFor;
     }
-  
+
     public function getInfoWritable() {
         return $this->info_writable;
     }
-  
+
     public function setInfoWritable($info_writable) {
         $this->info_writable = $info_writable;
     }
-  
+
     public function getInfoIsadmin() {
         return $this->info_isadmin;
     }
-  
+
     public function setInfoIsadmin($info_isadmin) {
         $this->info_isadmin = $info_isadmin;
     }
-  
+
     public function getInfoIsmanager() {
         return $this->info_ismanager;
     }
-  
+
     public function setInfoIsmanager($info_ismanager) {
         $this->info_ismanager = $info_ismanager;
     }
-  
+
     public function isAdminOrManager( $checkIsmanager = TRUE ) {
 	return $this->getInfoIsadmin() || $checkIsmanager && $this->getInfoIsmanager();
     }
@@ -101,6 +102,14 @@ abstract class AbstractPermission {
 
     public function getUserGroups() {
         return $this->userGroups;
+    }
+
+    public function getIsValidUser() {
+        return $this->isValidUser;
+    }
+
+    public function setIsValidUser($isValidUser) {
+        $this->isValidUser = $isValidUser;
     }
 
 }

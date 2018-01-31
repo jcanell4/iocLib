@@ -841,6 +841,20 @@ class AjaxCmdResponseGenerator {
         );
     }
 
+    public function addUserProfile($id, $ns, $title, $content) {
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::USER_PROFILE,
+                array(
+                    'id' => $id,
+                    'ns' => $ns,
+                    'title' => $title,
+                    'content' => $content
+                )
+            )
+        );
+    }
+
     /**
      * Afegeix una resposta de tipus REVISIONS al generador de respostes.
      *
