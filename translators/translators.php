@@ -156,8 +156,8 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
 
             // modes where the token is simply replaced - they can not contain any
             // other modes
-            'substition'   => array(/*'md2dw_internallink','md2dw_media',
-                                    'md2dw_externallink','md2dw_linebreak','md2dw_emaillink',
+            'substition'   => array('md2dw_externallink', /*'md2dw_internallink','md2dw_media',
+                                    ,'md2dw_linebreak','md2dw_emaillink',
                                     'md2dw_windowssharelink','md2dw_filelink','md2dw_notoc',
                                     'md2dw_nocache','md2dw_multiplyentity','md2dw_quotes','md2dw_rss'*/),
 
@@ -178,9 +178,9 @@ class MarkDown2DikuWikiTranslator extends AbstractMarkDownTranslator{
     function getStdModes(){
         // add default modes
         $std_modes = array('md2dw_listblock',/*'md2dw_preformatted','md2dw_notoc','md2dw_nocache',*/
-                'md2dw_header', 'md2dw_code'/*,'md2dw_table','md2dw_linebreak','md2dw_footnote','md2dw_hr',
+                'md2dw_header', 'md2dw_code','md2dw_externallink'/*,'md2dw_table','md2dw_linebreak','md2dw_footnote','md2dw_hr',
                 'md2dw_unformatted','md2dw_php','md2dw_html','md2dw_file','md2dw_quote',
-                'md2dw_internallink','md2dw_rss','md2dw_media','md2dw_externallink',
+                'md2dw_internallink','md2dw_rss','md2dw_media',
                 'md2dw_emaillink','md2dw_windowssharelink'*/,'mddweol');
         if(WikiGlobalConfig::getConf('typography')){
             /*$std_modes[] = 'md2dw_quotes';
@@ -234,8 +234,8 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
 
             // modes where the token is simply replaced - they can not contain any
             // other modes
-            'substition'   => array(/*'dw2md_internallink','dw2md_media',
-                                    'dw2md_externallink','dw2md_linebreak','dw2md_emaillink',
+            'substition'   => array('dw2md_externallink', /*'dw2md_internallink','dw2md_media',
+                                    ,'dw2md_linebreak','dw2md_emaillink',
                                     'dw2md_windowssharelink','dw2md_filelink','dw2md_notoc',
                                     'dw2md_nocache','dw2md_multiplyentity','dw2md_quotes','dw2md_rss'*/),
 
@@ -256,9 +256,9 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
     function getStdModes(){
         // add default modes
         $std_modes = array('dw2md_listblock',/*'dw2md_preformatted','dw2md_notoc','dw2md_nocache',*/
-                'dw2md_header', 'dw2md_code'/*,'dw2md_table','dw2md_linebreak','dw2md_footnote','dw2md_hr',
+                'dw2md_header', 'dw2md_code','dw2md_externallink'/*,'dw2md_table','dw2md_linebreak','dw2md_footnote','dw2md_hr',
                 'dw2md_unformatted','dw2md_php','dw2md_html','dw2md_file','dw2md_quote',
-                'dw2md_internallink','dw2md_rss','dw2md_media','dw2md_externallink',
+                'dw2md_internallink','dw2md_rss','dw2md_media',
                 'dw2md_emaillink','dw2md_windowssharelink'*/,'mddweol');
         if(WikiGlobalConfig::getConf('typography')){
             /*$std_modes[] = 'dw2md_quotes';

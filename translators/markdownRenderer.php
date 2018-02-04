@@ -127,6 +127,9 @@ class MarkDown2DokuWikiRender extends MarkDownWikiRenderer{
         $this->doc .= "<code>" . $text . "</code>";
     }
 
+    function externallink($url, $name = null) {
+        $this->doc .= '[[' . $url .'|' . $name.']]';
+    }
 
 }
 
@@ -227,6 +230,10 @@ class DokuWiki2MarkDownRender extends MarkDownWikiRenderer{
     function code($text, $lang= null, $file = null) {
 //        $this->doc .= '```' . $text . '```';
         $this->doc .= "~~~~\n" . $text . "\n~~~~";
+    }
+
+    function externallink($url, $name = null) {
+        $this->doc .= '[' . $name .'](' . $url .')';
     }
 }
 

@@ -362,3 +362,48 @@ class Doku_Parser_Mode_dw2md_code extends Doku_Parser_Mode {
         return 0;
     }
 }
+
+class Doku_Parser_Mode_md2dw_externallink extends Doku_Parser_Mode {
+    var $schemes = array();
+    var $patterns = array();
+
+    function preConnect() {
+        if(count($this->patterns)) return;
+
+        $this->patterns[] = '\[.*\]\(.*\)';
+
+    }
+
+    function connectTo($mode) {
+
+        foreach ( $this->patterns as $pattern ) {
+            $this->Lexer->addSpecialPattern($pattern,$mode,'externallink');
+        }
+    }
+
+    function getSort() {
+        return 0;
+    }
+}
+
+class Doku_Parser_Mode_dw2md_externallink extends Doku_Parser_Mode {
+    var $schemes = array();
+    var $patterns = array();
+
+    function preConnect() {
+
+        $this->patterns[] = '\[\[.*\|.*\]\]';
+
+    }
+
+    function connectTo($mode) {
+
+        foreach ( $this->patterns as $pattern ) {
+            $this->Lexer->addSpecialPattern($pattern,$mode,'externallink');
+        }
+    }
+
+    function getSort() {
+        return 0;
+    }
+}

@@ -89,6 +89,18 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
         return true;
     }
 
+    function externallink($match, $state, $pos) {
+        preg_match('/\[(.*)\]/', $match, $matches);
+        $name = $matches[1];
+
+        preg_match('/\((.*)\)/', $match, $matches);
+        $url = $matches[1];
+
+        $this->_addCall('externallink',array($url, $name, $pos), $pos); // nom de la funció, paràmetres que arribaran al render, punt d'analisis
+
+        return true;
+    }
+
 /*
     function emphasis($match, $state, $pos)
     {
@@ -168,6 +180,18 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
         }
 
         $this->_addCall('header',array($title,$level,$numLevels, $pos), $pos);
+        return true;
+    }
+
+    function externallink($match, $state, $pos) {
+        preg_match('/\[\[(.*)\|/', $match, $matches);
+        $url= $matches[1];
+
+        preg_match('/\|(.*)\]\]/', $match, $matches);
+        $name = $matches[1];
+
+        $this->_addCall('externallink',array($url, $name, $pos), $pos); // nom de la funció, paràmetres que arribaran al render, punt d'analisis
+
         return true;
     }
 
