@@ -1013,6 +1013,26 @@ class AjaxCmdResponseGenerator {
     }
 
     /**
+     * Afegeix una resposta de tipus PROJECT al generador de respostes.
+     */
+    public function addProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $extra = []) {
+        $contentData['id'] = $id;
+        $contentData['ns'] = $ns;
+        $contentData['title'] = $title;
+        $contentData['content'] = $form;
+        $contentData['originalContent'] = $values;
+        if ($autosaveTimer) $contentData['autosaveTimer'] = $autosaveTimer;
+        $contentData['extra'] = $extra;
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::PROJECT,
+                $contentData
+            )
+        );
+    }
+
+    /**
      * Afegeix una resposta de tipus HTML_TYPE al generador de respostes.
      *
      * @param string $id
