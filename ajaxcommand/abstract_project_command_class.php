@@ -28,17 +28,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
     }
 
     public function getAuthorizationType() {
-        $dokey = $this->params[AjaxKeys::KEY_DO];
-        switch ($dokey) {
-            case ProjectKeys::KEY_EDIT:
-            case ProjectKeys::KEY_CREATE:
-            case ProjectKeys::KEY_GENERATE:
-            case ProjectKeys::KEY_SAVE:
-                $dokey .= "Project";
-                break;
-            default:
-                $dokey = "admin";
-        }
+        $dokey = $this->params[AjaxKeys::KEY_DO] . "Project";
         return $dokey;
     }
 
