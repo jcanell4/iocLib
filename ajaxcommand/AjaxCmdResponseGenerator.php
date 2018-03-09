@@ -1015,13 +1015,18 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT al generador de respostes.
      */
-    public function addProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $extra = []) {
+    public function addProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $hasDraft=NULL, $originalLastmod=NULL, $extra = []) {
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
         $contentData['content'] = $form;
         $contentData['originalContent'] = $values;
-        if ($autosaveTimer) $contentData['autosaveTimer'] = $autosaveTimer;
+        if ($autosaveTimer)
+            $contentData['autosaveTimer'] = $autosaveTimer;
+        if ($hasDraft)
+            $contentData['hasDraft'] = $hasDraft;
+        if ($originalLastmod)
+            $contentData['originalLastmod'] = $originalLastmod;
         $contentData['extra'] = $extra;
 
         $this->response->add(
