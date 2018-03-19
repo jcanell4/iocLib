@@ -12,7 +12,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
         $this->types[AjaxKeys::KEY_ID] = self::T_STRING;
         $this->types[AjaxKeys::KEY_DO] = self::T_STRING;
 
-        $defaultValues = [AjaxKeys::KEY_DO => ProjectKeys::KEY_EDIT];
+        $defaultValues = [AjaxKeys::KEY_DO => ProjectKeys::KEY_VIEW];
         $this->setParameters($defaultValues);
     }
 

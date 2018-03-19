@@ -1013,9 +1013,9 @@ class AjaxCmdResponseGenerator {
     }
 
     /**
-     * Afegeix una resposta de tipus PROJECT al generador de respostes.
+     * Afegeix una resposta de tipus PROJECT_EDIT al generador de respostes.
      */
-    public function addProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $hasDraft=NULL, $originalLastmod=NULL, $extra = []) {
+    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $hasDraft=NULL, $originalLastmod=NULL, $extra=[]) {
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
@@ -1031,7 +1031,28 @@ class AjaxCmdResponseGenerator {
 
         $this->response->add(
             new JSonGeneratorImpl(
-                JSonGenerator::PROJECT,
+                JSonGenerator::PROJECT_EDIT_TYPE,
+                $contentData
+            )
+        );
+    }
+
+    /**
+     * Afegeix una resposta de tipus PROJECT_VIEW al generador de respostes.
+     */
+    public function addViewProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $extra=[]) {
+        $contentData['id'] = $id;
+        $contentData['ns'] = $ns;
+        $contentData['title'] = $title;
+        $contentData['content'] = $form;
+        $contentData['originalContent'] = $values;
+        if ($hasDraft)
+            $contentData['hasDraft'] = $hasDraft;
+        $contentData['extra'] = $extra;
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::PROJECT_VIEW_TYPE,
                 $contentData
             )
         );
