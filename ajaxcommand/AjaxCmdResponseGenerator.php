@@ -1015,7 +1015,7 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_EDIT al generador de respostes.
      */
-    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $hasDraft=NULL, $originalLastmod=NULL, $extra=[]) {
+    public function addEditProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $autosaveTimer=NULL, $originalLastmod=NULL, $extra=[]) {
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
