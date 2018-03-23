@@ -55,8 +55,11 @@ class AuthorizationNotUserAuthenticated extends WikiIocModelException {
     }
 }
 class AuthorizationNotCommandAllowed extends WikiIocModelException {
-    public function __construct($codeMessage="auth_CommadNotAllowed", $code=9022, $previous=NULL) {
-        parent::__construct($codeMessage, $code, $previous);
+    public function __construct($target=NULL) {
+        $codeMessage="auth_CommadNotAllowed";
+        $code=9022;
+        $previous=NULL;
+        parent::__construct($codeMessage, $code, $previous, $target);
     }
 }
 class FileIsLockedException extends WikiIocModelException {

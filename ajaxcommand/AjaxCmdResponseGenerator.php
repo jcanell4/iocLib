@@ -178,6 +178,17 @@ class AjaxCmdResponseGenerator {
         );
     }
 
+    public function addDiffProject($rdata, $extra) {
+        $contentData = $rdata;
+        $contentData['extra'] = $extra;
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::PROJECT_DIFF_TYPE,
+                $contentData)
+        );
+    }
+
     public function addNotificationResponse($action, $params)
     {
         $contentData = array(
