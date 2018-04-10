@@ -18,6 +18,7 @@ class ajaxCall {
     protected $commandClass;
     protected $request_params;
     protected $extra_url_params;
+    protected $respHandlerdDir = NULL;
 
     public static function Instance() {
         static $inst = NULL;
@@ -160,32 +161,32 @@ class ajaxCall {
                 }
             }else{
                 foreach ($pluginList as $plugin) {
-                    $p = explode('_', $plugin, 3);
-                    if ($p[1] == 'projects') { //fa referencia a un projecte dins del plugin
-                        $c = explode('_', $p[2], 2);
+                    $p = explode("_", $plugin, 3);
+                    if ($p[1] == "projects") { //fa referencia a un projecte dins del plugin
+                        $c = explode("_", $p[2], 2);
                         if (count($c) === 2) {  //es un fichero del directorio 'command'
                             $file = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command/{$c[1]}.php";
                             $noms = array($c[1], "{$c[0]}_{$c[1]}", "{$p[0]}_{$c[0]}_{$c[1]}", "{$p[0]}_{$p[1]}_{$c[0]}_{$c[1]}");
-                            //$nom_curt = $c[1];
-                            //$nom_breu = "{$p[0]}_{$p[1]}_{$c[0]}_{$c[1]}";
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}_{$c[0]}_{$c[1]}";
-                            //$nom = $nom_curt;
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command/responseHandler/";
                         }else {
                             $file = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command.php";
-                            //$nom = "{$p[0]}_{$p[1]}_{$c[0]}";
                             $noms = array($c[0], "{$p[0]}_{$c[0]}", "{$p[0]}_{$p[1]}_{$c[0]}");
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}_{$c[0]}";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/responseHandler/";
                         }
                     }else {
-                        $p = explode('_', $plugin, 2);
+                        $p = explode("_", $plugin, 2);
                         if (count($p) === 2) {
                             $file = "$DOKU_PLUGINS{$p[0]}/command/{$p[1]}.php";
                             $noms = array($p[1], "{$p[0]}_{$p[1]}");
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/command/responseHandler/";
                         }else {
                             $file = "$DOKU_PLUGINS{$p[0]}/command.php";
                             $noms = array($p[0]);
                             $commandClass = "command_plugin_{$p[0]}";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/responseHandler/";
                         }
                     }
                     if (in_array($this->call, $noms)) {
@@ -213,22 +214,11 @@ class ajaxCall {
      * @return string el resultat de executar el command en format JSON o un missatge d'error
      */
     function callCommand( $respHandDir=NULL ) {
-        $respHandObj = NULL;
 
-        if (!$respHandDir) {
-            $respHandDir = DOKU_TPL_INCDIR . 'cmd_response_handler/';
-        }
-        $respHandClass = $this->call . '_response_handler';
-        $respHandFile  = $respHandDir . $respHandClass . '.php';
-
-        if (!@file_exists($respHandFile)) {
-            $respHandClass = $this->camelCase($this->call, 'ResponseHandler');
-            $respHandFile  = $respHandDir . $respHandClass . '.php';
-        }
-
-        if (@file_exists($respHandFile)) {
-            require_once($respHandFile);
-            $respHandObj = new $respHandClass();
+        $resp = $this->getResponseHandlerClass($respHandDir);
+        if ($resp) {
+            require_once($resp['respHandFile']);
+            $respHandObj = new $resp['respHandClass']($this->commandClass);
         }
 
         $str_command = $this->commandClass;
@@ -291,9 +281,42 @@ class ajaxCall {
         $this->request_params = $request_params;
     }
 
-    function camelCase($str, $extra) {
-        return strtoupper(substr($str, 0, 1)) . strtolower(substr($str, 1)) . $extra;
+    private function getResponseHandlerClass( $respHandDir=NULL ) {
+        if (!$respHandDir)
+            $respHandDir = $this->respHandlerdDir;
+
+        if (!$respHandDir)
+            $respHandDir = DOKU_TPL_INCDIR . "cmd_response_handler/";
+
+        $respHandClass = $this->call . "_response_handler";
+        $respHandFile  = $respHandDir . $respHandClass . ".php";
+
+        if (!@file_exists($respHandFile)) {
+            $respHandClass = $this->call . "ResponseHandler";
+            $respHandFile  = $respHandDir . $respHandClass . ".php";
+        }
+        if (!@file_exists($respHandFile)) {
+            $respHandClass = $this->camelCase($this->call, "ResponseHandler");
+            $respHandFile  = $respHandDir . $respHandClass . ".php";
+        }
+        if (!@file_exists($respHandFile)) {
+            $respHandClass = $this->camelCase($this->call, "ResponseHandler", "inicial");
+            $respHandFile  = $respHandDir . $respHandClass . ".php";
+        }
+        if (@file_exists($respHandFile)) {
+            $ret = ['respHandClass' => $respHandClass,
+                    'respHandFile' => $respHandFile];
+        }
+        return $ret;
     }
+
+    private function camelCase($str, $extra, $type="camel") {
+        if ($type==="camel")
+            return strtoupper(substr($str, 0, 1)) . strtolower(substr($str, 1)) . $extra;
+        else
+            return strtoupper(substr($str, 0, 1)) . substr($str, 1) . $extra;
+    }
+
 }
 
 /**
