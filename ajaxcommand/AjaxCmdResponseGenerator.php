@@ -1026,7 +1026,11 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_EDIT al generador de respostes.
      */
-    public function addEditProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $autosaveTimer=NULL, $originalLastmod=NULL, $extra=[]) {
+    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $timer=NULL, $extra=[]) {
+        global $plugin_controller;
+        if (!$extra['projectType'])
+            $extra['projectType'] = $plugin_controller->getCurrentProject();
+
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
@@ -1034,10 +1038,8 @@ class AjaxCmdResponseGenerator {
         $contentData['originalContent'] = $values;
         if ($autosaveTimer)
             $contentData['autosaveTimer'] = $autosaveTimer;
-        if ($hasDraft)
-            $contentData['hasDraft'] = $hasDraft;
-        if ($originalLastmod)
-            $contentData['originalLastmod'] = $originalLastmod;
+        if ($timer)
+            $contentData['timer'] = $timer;
         $contentData['extra'] = $extra;
 
         $this->response->add(
@@ -1051,14 +1053,16 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_VIEW al generador de respostes.
      */
-    public function addViewProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $extra=[]) {
+    public function addViewProject($id, $ns, $title, $form, $values, $extra=[]) {
+        global $plugin_controller;
+        if (!$extra['projectType'])
+            $extra['projectType'] = $plugin_controller->getCurrentProject();
+
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
         $contentData['content'] = $form;
         $contentData['originalContent'] = $values;
-        if ($hasDraft)
-            $contentData['hasDraft'] = $hasDraft;
         $contentData['extra'] = $extra;
 
         $this->response->add(
