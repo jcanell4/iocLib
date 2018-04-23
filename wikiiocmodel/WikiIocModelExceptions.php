@@ -87,8 +87,8 @@ class UnknownUserException extends WikiIocModelException {
 }
 
 class IncorrectParametersException extends WikiIocModelException {
-    public function __construct($user, $codeMessage='IncorrectParameters', $code=9027, $previous=NULL) {
-        parent::__construct($codeMessage, $code, $previous, $user);
+    public function __construct($codeMessage='IncorrectParameters', $code=9027, $previous=NULL) {
+        parent::__construct($codeMessage, $code, $previous);
     }
 }
 
