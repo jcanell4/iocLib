@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * WikiIocInfoManager: Carrega la variable global $INFO
  */
 if (!defined('DOKU_INC')) die();
@@ -18,22 +18,22 @@ class WikiIocInfoManager {
 
     public static function getInfo($key){
         global $INFO;
-        self::loadInfo();        
+        self::loadInfo();
         $ret = (isset($INFO[$key])) ? $INFO[$key] : $key;
         return $ret;
     }
-    
+
     public static function setIsMediaAction($value){
         self::$isMediaAction = $value;
     }
-    
+
     public static function setInfo($key, $value){
         global $INFO;
         self::loadInfo();
         $INFO[$key] = $value;
         self::updateJsInfo();
     }
-    
+
     public static function loadInfo() {
         if (self::$isMediaAction){
             self::loadMediaInfo();
@@ -41,7 +41,7 @@ class WikiIocInfoManager {
             self::fillInfo();
         }
     }
-    
+
     public static function getMediaInfo($key){
         global $INFO;
         self::loadMediaInfo();
@@ -70,20 +70,22 @@ class WikiIocInfoManager {
             $INFO['userinfo']['grps'][] = 'admin';
         if ($INFO['ismanager'] && !in_array('manager', $INFO['userinfo']['grps']))
             $INFO['userinfo']['grps'][] = 'manager';
-        
+
 	self::$infoLoaded = TRUE;
     }
-    
+
     private static function updateJsInfo(){
 	global $JSINFO;
 	global $INFO;
-        
+
 	$JSINFO['isadmin']   = $INFO['isadmin'];
 	$JSINFO['ismanager'] = $INFO['ismanager'];
-        if (in_array('projectmanager', $INFO['userinfo']['grps']))
-            $JSINFO['isprojectmanager'] = TRUE;
+        if ($INFO['userinfo'] && $INFO['userinfo']['grps']) {
+            if (in_array('projectmanager', $INFO['userinfo']['grps']))
+                $JSINFO['isprojectmanager'] = TRUE;
+        }
     }
-    
+
     public static function setParams($params){
         global $ID;
         global $ACT;
@@ -110,7 +112,7 @@ class WikiIocInfoManager {
             }
             $IMG = $params['image'];
         }
-        
+
         if($params['media']){
             $IMG = $params['image'] = $params['media'];
             if(!$params['id']){
@@ -118,13 +120,13 @@ class WikiIocInfoManager {
                 $params['id']= $params['ns'].":*";
             }
         }
-        
+
         if ($params['ns']){
             $NS = $params['ns'];
         }else if($params['id']){
             $NS = $params['ns'] =getNS($params['id']);
         }
-        
+
 
         self::$infoLoaded = FALSE;
         self::$mediaInfoLoaded = FALSE;

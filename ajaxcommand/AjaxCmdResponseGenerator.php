@@ -1026,7 +1026,11 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_EDIT al generador de respostes.
      */
-    public function addEditProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $autosaveTimer=NULL, $originalLastmod=NULL, $extra=[]) {
+    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $timer=NULL, $extra=[]) {
+        global $plugin_controller;
+        if (!$extra['projectType'])
+            $extra['projectType'] = $plugin_controller->getCurrentProject();
+
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
         $contentData['title'] = $title;
@@ -1034,10 +1038,8 @@ class AjaxCmdResponseGenerator {
         $contentData['originalContent'] = $values;
         if ($autosaveTimer)
             $contentData['autosaveTimer'] = $autosaveTimer;
-        if ($hasDraft)
-            $contentData['hasDraft'] = $hasDraft;
-        if ($originalLastmod)
-            $contentData['originalLastmod'] = $originalLastmod;
+        if ($timer)
+            $contentData['timer'] = $timer;
         $contentData['extra'] = $extra;
 
         $this->response->add(
@@ -1051,21 +1053,50 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_VIEW al generador de respostes.
      */
-    public function addViewProject($id, $ns, $title, $form, $values, $hasDraft=NULL, $extra=[]) {
-        $contentData['id'] = $id;
-        $contentData['ns'] = $ns;
-        $contentData['title'] = $title;
-        $contentData['content'] = $form;
-        $contentData['originalContent'] = $values;
-        if ($hasDraft)
-            $contentData['hasDraft'] = $hasDraft;
-        $contentData['extra'] = $extra;
+    public function addViewProject($id, $ns, $title, $form, $values, $extra=[]) {
+        global $plugin_controller;
+        if (!$extra['projectType'])
+            $extra['projectType'] = $plugin_controller->getCurrentProject();
+
+        $contentData = [
+            'id' => $id,
+            'ns' => $ns,
+            'title' => $title,
+            'content' => $form,
+            'originalContent' => $values,
+            'extra' => $extra
+        ];
 
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::PROJECT_VIEW_TYPE,
                 $contentData
             )
+        );
+    }
+
+    public function addRequireProject($id, $ns, $title, $content, $originalContent, $action, $timer, $dialog=NULL, $extra=[]) {
+        global $plugin_controller;
+        if (!$extra['projectType'])
+            $extra['projectType'] = $plugin_controller->getCurrentProject();
+
+        $contentData = [
+            'id' => $id,
+            'ns' => $ns,
+            'title' => $title,
+            'content' => $content,
+            'originalContent' => $originalContent,
+            'action' => $action,
+            'timer' => $timer,
+            'extra' => $extra
+        ];
+        if ($dialog)
+            $contentData['dialog'] = $dialog;
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::PROJECT_REQUIRE_TYPE,
+                $contentData)
         );
     }
 
@@ -1134,83 +1165,12 @@ class AjaxCmdResponseGenerator {
         );
     }
 
-    /**
-     * Genera un element amb la informació correctament formatada i afegeix el timestamp. Si no s'especifica el id
-     * s'assignarà el id del document que s'estigui gestionant actualment.
-     *
-     * Per generar un info associat al esdeveniment global s'ha de passar el id com a buit, es a dir
-     *
-     * @param string $type - tipus de missatge [notify, info, success, warning, error, debug]
-     * @param string|string[] $message - Missatge o missatges associats amb aquesta informació
-     * @param string $id - id del document al que pertany el missatge
-     * @param int $duration - Si existeix indica la quantitat de segons que es mostrarà el missatge
-     *
-     * @return array - array amb la configuració del item de informació
-     */
-    public static function generateInfo($type, $message, $id = '', $duration = -1)
-    {
-        return [
-            "id" => str_replace(':', '_', $id),  //netejar l'ID i posar : a _
-            "type" => $type,
-            "message" => $message,
-            "duration" => $duration,
-            "timestamp" => date("d-m-Y H:i:s")
-        ];
+    public static function generateInfo($type, $message, $id = '', $duration = -1) {
+        return IocCommon::generateInfo($type, $message, $id, $duration);
     }
 
-    // En els casos en que hi hagi discrepancies i no hi haci cap preferencia es fa servir el valor de A
-    public static function addInfoToInfo($infoA, $infoB)
-    {
-        // Els tipus global de la info serà el de major gravetat: "debug" > "error" > "warning" > "info"
-        $info = [];
-
-        if ($infoA['type'] == 'debug' || $infoB['type'] == 'debug') {
-            $info['type'] = 'debug';
-        } else if ($infoA['type'] == 'error' || $infoB['type'] == 'error') {
-            $info['type'] = 'error';
-        } else if ($infoA['type'] == 'warning' || $infoB['type'] == 'warning') {
-            $info['type'] = 'warning';
-        } else {
-            $info['type'] = $infoA['type'];
-        }
-
-        // Si algun dels dos te duració ilimitada, aquesta perdura
-        if ($infoA['duration'] == -1 || $infoB['duration'] == -1) {
-            $info['duration'] = -1;
-        } else {
-            $info['duration'] = $infoA['duration'];
-        }
-
-        // El $id i el timestamp ha de ser el mateix per a tots dos
-        $info ['timestamp'] = $infoA['timestamp'];
-        $info ['id'] = $infoA['id'];
-
-        $messageStack = [];
-
-        if (is_string($infoA ['message'])) {
-
-            $messageStack[] = $infoA['message'];
-
-        } else if (is_array($infoA['message'])) {
-
-            $messageStack = $infoA['message'];
-
-        }
-
-        if (is_string($infoB ['message'])) {
-
-            $messageStack[] = $infoB['message'];
-
-        } else if (is_array($infoB['message'])) {
-
-            $messageStack = array_merge($messageStack, $infoB['message']);
-
-        }
-
-        $info['message'] = $messageStack;
-
-        return $info;
+    public static function addInfoToInfo($infoA, $infoB) {
+        return IocCommon::addInfoToInfo($infoA, $infoB);
     }
-
 
 }

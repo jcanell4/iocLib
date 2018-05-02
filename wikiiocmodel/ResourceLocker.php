@@ -8,8 +8,8 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     public static $ST_LOCKED_BEFORE = ResourceLockerInterface::LOCKED_BEFORE; // El recurs està bloquejat pel mateix usuari des d'un altre ordinador
 
     //RETORNAT PER requireResource o leaveResource
-    public static $RS_LOCKED = ResourceLockerInterface::LOCKED; // El recurs no es troba bloquejat per ningú
-    public static $RS_REQUIRED = ResourceLockerInterface::REQUIRED; // // El recurs es troba bloquejat per un altre usuari
+    public static $RS_LOCKED = ResourceLockerInterface::LOCKED; // El recurs no es trobava bloquejat per ningú I s'ha aconseguit bloquejar
+    public static $RS_REQUIRED = ResourceLockerInterface::REQUIRED; // El recurs es troba bloquejat per un altre usuari i es guarda una petició
     public static $RS_LOCKED_BEFORE = ResourceLockerInterface::LOCKED_BEFORE; // El recurs està bloquejat pel mateix usuari des d'un altre ordinador
 
     protected $lockDataQuery;
@@ -32,7 +32,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * resultat obtingut de la petició.
      *
      * @param bool $lock
-     * @return int
+     * @return [state:int, info:string]
      */
     public function requireResource($lock = FALSE) {
         return $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
@@ -125,4 +125,5 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     public function updateLock() {
         return $this->_requireResource(TRUE, TRUE);
     }
+    
 }
