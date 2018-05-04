@@ -218,7 +218,7 @@ class ajaxCall {
         $resp = $this->getResponseHandlerClass($respHandDir);
         if ($resp) {
             require_once($resp['respHandFile']);
-            $respHandObj = new $resp['respHandClass']($this->commandClass);
+            $respHandObj = new $resp['respHandClass'](str_replace("_command", "", $this->commandClass));
         }
 
         $str_command = $this->commandClass;
