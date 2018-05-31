@@ -103,6 +103,19 @@ abstract class abstract_rest_command_class extends abstract_command_class {
     }
 
     /**
+     * Extreu els paràmetres de la url passada com argument i els estableix com a paràmetres del objecte.
+     * @param string[] $extra_url_params paràmetres per extreure
+     */
+    public function setParamValuesFromUrl($extra_url_params) {
+        //trata los $extra_url_params como [name]/[value]
+        if (is_array($extra_url_params)) {
+            for ($i=1; $i<count($extra_url_params); $i+=2) {
+                $this->params[$extra_url_params[$i]] = $extra_url_params[$i+1];
+            }
+        }
+    }
+
+    /**
      * Configura la capçalera amb l'error 405 (MethodNotAllowedResponse)
      */
     protected function methodNotAllowedResponse() {
