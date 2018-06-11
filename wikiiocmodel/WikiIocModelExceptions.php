@@ -105,6 +105,11 @@ class IllegalCallExeption extends WikiIocModelException {
     }
 }
 
+class CantCreatePageInProjectException extends WikiIocModelException {
+    public function __construct($param='', $message='cantCreatePageInProject', $code=9030, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $param);
+    }
+}
 
 /**
  * Excepciones propias de los proyectos

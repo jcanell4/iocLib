@@ -43,12 +43,6 @@ class InsufficientPermissionToUploadMediaException extends WikiIocModelException
     }
 }
 
-class CantCreatePageInProjectException extends WikiIocModelException {
-    public function __construct($param='', $message='cantCreatePageInProject', $code=7107, $previous=NULL) {
-        parent::__construct($message, $code, $previous, $param);
-    }
-}
-
 class FailToUploadMediaException extends WikiIocModelException {
     public function __construct($errorCode, $codeMessage = 'uploadfail', $code=7108, $previous=NULL) {
         parent::__construct($codeMessage, $code, $previous, $errorCode);
