@@ -107,10 +107,12 @@ abstract class abstract_rest_command_class extends abstract_command_class {
      * @param string[] $extra_url_params paràmetres per extreure
      */
     public function setParamValuesFromUrl($extra_url_params) {
-        //trata los $extra_url_params como [name]/[value]
+        //trata los $extra_url_params como: name/value
         if (is_array($extra_url_params)) {
-            for ($i=1; $i<count($extra_url_params); $i+=2) {
-                $this->params[$extra_url_params[$i]] = $extra_url_params[$i+1];
+            for ($i=0; $i<count($extra_url_params); $i+=2) {
+                if ($extra_url_params[$i] != NULL) {
+                    $this->params[$extra_url_params[$i]] = $extra_url_params[$i+1];
+                }
             }
         }
     }

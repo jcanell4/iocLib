@@ -459,4 +459,10 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return preg_replace('/_command$/', '', get_class($this));
     }
 
+    //sobreescribe el método de abstract_project_command_class para el caso en que no exista $dataProject,
+    //por ejemplo, cuando proviene de abstract_rest_command_class
+    public function getKeyDataProject() {
+        return NULL;
+    }
+
 }
