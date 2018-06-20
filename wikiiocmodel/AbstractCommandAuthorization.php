@@ -13,12 +13,11 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
                              ,self::EXCEPTION_KEY => ''
                              ,self::EXTRA_PARAM_KEY => NULL
                            );
-    /**
-     * getPermissionInstance: Devuelve una nueva instancia de la clase Permission
-     */
-    abstract protected function getPermissionInstance();
 
     public function __construct() {}
+
+    abstract public function setPermissionInstance($permission);
+    abstract protected function getPermissionInstance();
 
     /**
      * Responde a la pregunta: ¿los permisos permiten la ejecución del comando?
@@ -62,7 +61,7 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
     }
 
     private function _createPermission($command) {
-        $this->permission = $this->getPermissionInstance();
+        //$this->permission = $this->getPermissionInstance();
 
         $this->permission->setPermissionFor($command->getPermissionFor());
         $this->permission->setAuthenticatedUsersOnly($command->getAuthenticatedUsersOnly());
