@@ -55,9 +55,9 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
     public function setPermission($command) {
         WikiIocInfoManager::setIsMediaAction($command->getNeedMediaInfo());
         WikiIocInfoManager::setParams($command->getParams());
-        if ($this->permission === NULL) {
+//        if ($this->permission === NULL) {
             $this->_createPermission($command);
-        }
+//        }
     }
 
     private function _createPermission($command) {
