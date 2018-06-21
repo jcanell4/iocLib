@@ -1,12 +1,12 @@
 <?php
 /**
  * AbstractCommandAuthorization: define la clase de autorizaciones de los comandos
- *
  * @author Rafael Claver
  */
 if (!defined('DOKU_INC') ) die();
 
 abstract class AbstractCommandAuthorization implements AuthorizationKeys{
+
     protected $permission;
     protected $errorAuth = array(
                               self::ERROR_KEY => TRUE
@@ -55,14 +55,10 @@ abstract class AbstractCommandAuthorization implements AuthorizationKeys{
     public function setPermission($command) {
         WikiIocInfoManager::setIsMediaAction($command->getNeedMediaInfo());
         WikiIocInfoManager::setParams($command->getParams());
-        if ($this->permission === NULL) {
-            $this->_createPermission($command);
-        }
+        $this->_setPermission($command);
     }
 
-    private function _createPermission($command) {
-        //$this->permission = $this->getPermissionInstance();
-
+    private function _setPermission($command) {
         $this->permission->setPermissionFor($command->getPermissionFor());
         $this->permission->setAuthenticatedUsersOnly($command->getAuthenticatedUsersOnly());
         $this->permission->setSecurityTokenVerified($this->isSecurityTokenVerified());
