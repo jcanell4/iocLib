@@ -20,8 +20,6 @@ abstract class abstract_project_command_class extends abstract_command_class {
         parent::init($modelManager);
         $projectMetaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery();
         $ns = ($this->params[ProjectKeys::KEY_NS]) ? $this->params[ProjectKeys::KEY_NS] : $this->params[ProjectKeys::KEY_ID];
-        $projectMetaDataQuery->init([ProjectKeys::KEY_ID => $this->params[ProjectKeys::KEY_ID],
-                                     ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE]]);
         $this->dataProject = $projectMetaDataQuery->getDataProject($ns, $this->params[ProjectKeys::KEY_PROJECT_TYPE], TRUE);
     }
 
