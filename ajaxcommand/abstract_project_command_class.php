@@ -32,4 +32,6 @@ abstract class abstract_project_command_class extends abstract_command_class {
         return $dokey;
     }
 
+    protected function getDefaultResponse($response, &$responseGenerator) {}
+
 }
