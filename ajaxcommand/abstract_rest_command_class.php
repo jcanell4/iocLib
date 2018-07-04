@@ -159,7 +159,6 @@ abstract class abstract_rest_command_class extends abstract_command_class {
      *
      * @return void
      */
-    protected function getDefaultResponse($response, &$responseGenerator) {
-    }
+    protected function getDefaultResponse($response, &$responseGenerator) {}
 
 }
