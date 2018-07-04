@@ -13,20 +13,29 @@ require_once(WIKI_IOC_MODEL . 'persistence/BasicPersistenceEngine.php');
 abstract class AbstractModelManager {
 
     private $persistenceEngine;
+    private $projectType;
 
-    public function __construct() {
+    public function __construct($projectType=NULL) {
+        $this->projectType = $projectType;
         $this->persistenceEngine = new \BasicPersistenceEngine();
     }
 
     public static function Instance($projectType){
-        if (!$projectType) $projectType = "defaultProject";
+        if (!$projectType) {
+            global $plugin_controller;
+            $projectType = $plugin_controller->getCurrentProject();
+        }
         $inst = self::createModelManager($projectType);
         return $inst;
     }
 
-    private static function createModelManager($type){
-        require_once(WIKI_IOC_MODEL . "projects/$type/DokuModelManager.php");
-        return new DokuModelManager();
+    private static function createModelManager($projectType){
+        require_once(WIKI_IOC_MODEL . "projects/$projectType/DokuModelManager.php");
+        return new DokuModelManager($projectType);
+    }
+
+    public function getProjectType() {
+        return $this->projectType;
     }
 
     public function getNotifyModel($type) {
