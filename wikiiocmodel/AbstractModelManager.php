@@ -53,9 +53,14 @@ abstract class AbstractModelManager {
     }
 
     public function getActionInstance($className, $params=NULL){
-        $classPath = WIKI_IOC_MODEL."actions/$className.php";
+        $classPath = WIKI_IOC_MODEL . "projects/{$this->projectType}/actions/$className.php";
         if (@file_exists($classPath)) {
             require_once $classPath;
+        }else{
+            $classPath = WIKI_IOC_MODEL."actions/$className.php";
+            if (@file_exists($classPath)) {
+                require_once $classPath;
+            }
         }
         if ($params===NULL){
             $instance = new $className;
