@@ -67,12 +67,16 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         global $plugin_controller;
 
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-            $plugin_controller->setCurrentProject($this->params[AjaxKeys::PROJECT_TYPE]);
+            $plugin_controller->setCurrentProject($this->params[AjaxKeys::PROJECT_TYPE], $this->params[AjaxKeys::PROJECT_SOURCE_TYPE], $this->params[AjaxKeys::PROJECT_OWNER]);
         }
 
         if (!$modelManager) {
             $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
+
+        // TODO: el persistence del modelManager (getPersistenceEngine o així) al plugin_controller
+        // el plugin controller: getSourceData (la que ja està creada): a partir del persistence engine i
+
         $this->setModelManager($modelManager);
     }
 
@@ -432,6 +436,8 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         }
+
+        // Afegir el project owner
     }
 
     protected function preResponse(&$ajaxCmdResponseGenerator) {
