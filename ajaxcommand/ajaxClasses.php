@@ -36,7 +36,7 @@ class ajaxCall {
          * dinámica de proyectos
          */
         global $plugin_controller;
-        $plugin_controller->setCurrentProject('defaultProject');
+        $plugin_controller->setCurrentProject('defaultProject', $_REQUEST[AjaxKeys::PROJECT_SOURCE_TYPE], $_REQUEST[AjaxKeys::PROJECT_OWNER]);
     }
 
     public function initialize() {
