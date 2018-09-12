@@ -437,7 +437,11 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             }
         }
 
-        // Afegir el project owner
+        if ($this->params[ProjectKeys::PROJECT_OWNER]) {
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
+        }
+
     }
 
     protected function preResponse(&$ajaxCmdResponseGenerator) {
