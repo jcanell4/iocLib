@@ -8,6 +8,7 @@ require_once(DOKU_INC . 'lib/plugins/ajaxcommand/defkeys/ResponseHandlerKeys.php
 
 abstract class AbstractResponseHandler {
     private $cmd;
+    private $subcmd = "";    //Tractament especial d'alguns $params['do'] de project_command
     private $modelAdapter;
     private $modelManager;
     private $permission;
@@ -18,15 +19,17 @@ abstract class AbstractResponseHandler {
      * @param instance $modelAdapter
      * @param instance $permission
      */
-    public function __construct($cmd) {
+    public function __construct($cmd, $subcmd="") {
         $this->cmd = $cmd;
+        $this->subcmd = $subcmd;
     }
 
-    /**
-     * @return string
-     */
+    public function setSubCmd($subcmd) {
+        $this->subcmd = $subcmd;
+    }
+
     public function getCommandName() {
-        return $this->cmd;
+        return $this->cmd . $this->subcmd;
     }
 
     public function getModelManager() {
