@@ -74,8 +74,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
 
-        // TODO: el persistence del modelManager (getPersistenceEngine o així) al plugin_controller
-        // el plugin controller: getSourceData (la que ja està creada): a partir del persistence engine i
+        $plugin_controller->setPersistenceEngine($modelManager->getPersistenceEngine());
 
         $this->setModelManager($modelManager);
     }
