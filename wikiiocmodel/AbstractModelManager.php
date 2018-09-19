@@ -14,6 +14,7 @@ abstract class AbstractModelManager {
 
     private $persistenceEngine;
     private $projectType;
+    private $confProjectType;
 
     public function __construct($projectType=NULL) {
         $this->projectType = $projectType;
@@ -36,6 +37,12 @@ abstract class AbstractModelManager {
 
     public function getProjectType() {
         return $this->projectType;
+    }
+
+    public function getConfigProjectType() {
+        if (!$this->confProjectType)
+            $this->confProjectType = WikiGlobalConfig::getConf('projects','wikiiocmodel')['configuration'];
+        return $this->confProjectType;
     }
 
     public function getNotifyModel($type) {
