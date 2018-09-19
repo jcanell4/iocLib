@@ -67,12 +67,15 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         global $plugin_controller;
 
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-            $plugin_controller->setCurrentProject($this->params[AjaxKeys::PROJECT_TYPE]);
+            $plugin_controller->setCurrentProject($this->params[AjaxKeys::PROJECT_TYPE], $this->params[AjaxKeys::PROJECT_SOURCE_TYPE], $this->params[AjaxKeys::PROJECT_OWNER]);
         }
 
         if (!$modelManager) {
             $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
+
+        $plugin_controller->setPersistenceEngine($modelManager->getPersistenceEngine());
+
         $this->setModelManager($modelManager);
     }
 
@@ -432,6 +435,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         }
+
+        if ($this->params[ProjectKeys::PROJECT_OWNER]) {
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
+        }
+
     }
 
     protected function preResponse(&$ajaxCmdResponseGenerator) {

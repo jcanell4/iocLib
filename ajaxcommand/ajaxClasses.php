@@ -36,7 +36,7 @@ class ajaxCall {
          * dinámica de proyectos
          */
         global $plugin_controller;
-        $plugin_controller->setCurrentProject('defaultProject');
+        $plugin_controller->setCurrentProject('defaultProject', $_REQUEST[AjaxKeys::PROJECT_SOURCE_TYPE], $_REQUEST[AjaxKeys::PROJECT_OWNER]);
     }
 
     public function initialize() {
@@ -131,7 +131,7 @@ class ajaxCall {
         if (!$ret) {
             if ($this->request_params[RequestParameterKeys::PROJECT_TYPE]) {
                 global $plugin_controller;
-                $plugin_controller->setCurrentProject($this->request_params[RequestParameterKeys::PROJECT_TYPE]);
+                $plugin_controller->setCurrentProject($this->request_params[RequestParameterKeys::PROJECT_TYPE], $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE], $this->request_params[RequestParameterKeys::PROJECT_OWNER]);
             }
             $pluginList = plugin_list('command');
             $DOKU_PLUGINS = DOKU_INC . "lib/plugins/";
@@ -378,5 +378,6 @@ class ajaxRest extends ajaxCall {
         }
         return $ret;
     }
+
 
 }
