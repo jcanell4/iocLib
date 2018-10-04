@@ -244,6 +244,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      */
     public function run() {
         $ret = NULL;
+        $this->triggerStartEvents();
         $this->authorization->setPermission($this);
         $retAuth = $this->authorization->canRun();
         if ($retAuth) {
@@ -263,7 +264,32 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         if (isset($this->params['iframe'])) {
             $ret = "<html><body><textarea>" . $ret. "</textarea></body></html>";
         }
+        $this->triggerEndEvents();
         return $ret;
+    }
+    
+    protected function triggerStartEvents() {
+        $cn = $this->getCommandName();
+        $tmp = array();
+        $evt = new Doku_Event("WIOC_AJAX_COMMAND_".$cn, $tmp);
+        $evt->advise_before();
+        unset($evt);
+        $tmp = array("call" => $cn);
+        $evt = new Doku_Event("WIOC_AJAX_COMMAND", $tmp);
+        $evt->advise_before();
+        unset($evt);
+    }
+
+    protected function triggerEndEvents() {
+        $cn = $this->getCommandName();
+        $tmp = array();
+        $evt = new Doku_Event("WIOC_AJAX_COMMAND_".$cn, $tmp);
+        $evt->advise_after();
+        unset($evt);
+        $tmp = array("call" => $cn);
+        $evt = new Doku_Event("WIOC_AJAX_COMMAND", $tmp);
+        $evt->advise_after();
+        unset($evt);
     }
 
     protected function handleError($e, &$responseGenerator){
