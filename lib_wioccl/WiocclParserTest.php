@@ -94,21 +94,21 @@ $dataSource = [
 //</WIOCCL:FOREACH>';
 
 /* Test foreach amb filtre */
-//$t = 'Les dates clau del semestre, que també podeu consultar al calendari de l\'aula, són les següents: (veure:table:TA1:).
-//
-//::table:TA1
-//  :title:Dates clau
-//  :type:io_pt
-//  :footer::
-//^  unitat  ^  data de publicació de l\'enunciat  ^ data de publicació de la solució ^ data de publicació de la qualificació ^
-//<WIOCCL:FOREACH var="item" array="{##datesAC##}" filter="{##item[unitat]##}=={##testitem[unitat]##}">
-//| U{##item[unitat]##} | {#_DATE("{##item[enunciat]##}")_#} | {#_DATE("{##item[lliurament]##}")_#} | {#_DATE("{##item[solució]##}")_#} | {#_DATE("{##item[qualificació]##}")_#} |
-//</WIOCCL:FOREACH>
-//:::
-//Test array length: {#_ARRAY_LENGTH({##datesAC##})_#}
-//Test count distinct: {#_COUNTDISTINCT({##datesAC##}, ["unitat", "test"])_#}
-//
-//';
+$t = 'Les dates clau del semestre, que també podeu consultar al calendari de l\'aula, són les següents: (veure:table:TA1:).
+
+::table:TA1
+  :title:Dates clau
+  :type:io_pt
+  :footer::
+^  unitat  ^  data de publicació de l\'enunciat  ^ data de publicació de la solució ^ data de publicació de la qualificació ^
+<WIOCCL:FOREACH var="item" array="{##datesAC##}" filter="{##item[unitat]##}=={##testitem[unitat]##}">
+| U{##item[unitat]##} | {#_DATE("{##item[enunciat]##}")_#} | {#_DATE("{##item[lliurament]##}")_#} | {#_DATE("{##item[solució]##}")_#} | {#_DATE("{##item[qualificació]##}")_#} |
+</WIOCCL:FOREACH>
+:::
+Test array length: {#_ARRAY_LENGTH({##datesAC##})_#}
+Test count distinct: {#_COUNTDISTINCT({##datesAC##}, ["unitat", "test"])_#}
+
+';
 
 /* Test subset, first i last */
 
@@ -124,8 +124,8 @@ $dataSource = [
 //
 //</WIOCCL:SUBSET>
 //';
-$t = '!!TEST START!! <WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF>
-<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
+//$t = '!!TEST START!! <WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF>
+//<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
 
 $p = new WiocclParser($t, ['testitem'=>['unitat'=>1]], $dataSource);
 print_r('<pre>');
