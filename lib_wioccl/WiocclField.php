@@ -11,6 +11,9 @@ class WiocclField extends WiocclParser {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
+            if (!isset($this->arrays[$varName])) {
+                print_r($token['value']);
+            }
             return $this->arrays[$varName][$key];
         } else {
             $fieldName = $token['value'];

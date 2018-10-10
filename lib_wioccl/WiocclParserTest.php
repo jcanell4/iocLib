@@ -125,7 +125,7 @@ Test count distinct: {#_COUNTDISTINCT({##datesAC##}, ["unitat", "test"])_#}
 //</WIOCCL:SUBSET>
 //';
 //$t = '!!TEST START!! <WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF>
-//<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
+////<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
 
 $p = new WiocclParser($t, ['testitem'=>['unitat'=>1]], $dataSource);
 print_r('<pre>');
