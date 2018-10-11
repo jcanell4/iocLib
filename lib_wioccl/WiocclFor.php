@@ -1,5 +1,6 @@
 <?php
 require_once "WiocclParser.php";
+require_once "_WiocclLoop.php";
 
 class WiocclFor extends WiocclParser {
     
@@ -7,6 +8,8 @@ class WiocclFor extends WiocclParser {
     private $from;
     private $to;
     private $counterName;
+
+    protected $iterator;
 
     public function __construct($value = null, $arrays = [], $dataSource)
     {
@@ -16,52 +19,13 @@ class WiocclFor extends WiocclParser {
         $this->from = $this->extractNumber($value, "from");
         $this->to = $this->extractNumber($value, "to");
 
+        $this->iterator = new _WiocclLoop($value, $this);
     }
 
-    protected function parseTokens($tokens, &$tokenIndex)
-    {
-
-        $result = '';
-        $startTokenIndex = $tokenIndex;
-        $lastBlockIndex = null;
-        $lastTokenIndex = 0;
-
-        if($this->from > $this->to){
-            $this->parseTokensOfItem($tokens, $tokenIndex);
-        }else{
-            for ($arrayIndex = $this->from; $arrayIndex<=$this->to; $arrayIndex+= $this->step) {
-
-                $tokenIndex = $startTokenIndex;
-                $this->arrays[$this->counterName] = $arrayIndex;
-
-                $result .= $this->parseTokensOfItem($tokens, $tokenIndex);
-
-                $lastTokenIndex = $tokenIndex;
-
-            }
-            
-            $tokenIndex = $lastTokenIndex;
-        }
-
-
-        return $result;
+    public function parseTokens($tokens, &$tokenIndex=0) {
+        return $this->iterator->loop($tokens, $tokenIndex, $this->from, $this->to);
     }
-    
-    protected function parseTokensOfItem($tokens, &$tokenIndex){
-        $result = '';
-        while ($tokenIndex < count($tokens)) {
 
-            $parsedValue =  $this->parseToken($tokens, $tokenIndex);
 
-            if ($parsedValue === null) { // tancament del foreach
-                break;
-
-            }
-            $result .= $parsedValue;
-
-            ++$tokenIndex;
-        }
-        return $result;
-    }
 
 }

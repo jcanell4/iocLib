@@ -15,10 +15,12 @@ class WiocclParser
     protected static $instancesCounter=0;
 
 
+    // ALERTA: canviar el nom, posar com a protected i ficar un getter?
     // TODO: El datasource es passarà al constructor del parser desde la wiki
-    protected $dataSource = [];
+    public $dataSource = [];
 
-    protected $arrays = [];
+    // ALERTA: canviar el nom, posar com a protected i ficar un getter?
+    public $arrays = [];
 
     /* TODO: els noms dels WIOOCCL s'extrauran automàticament */
     protected $tokenPatterns = [
@@ -180,7 +182,7 @@ class WiocclParser
         return $token;
     }
 
-    protected function parseTokens($tokens, &$tokenIndex = 0)
+    public function parseTokens($tokens, &$tokenIndex = 0)
     {
 
         $result = '';
@@ -199,7 +201,7 @@ class WiocclParser
     }
 
     // l'index del token analitzat s'actualitza globalment per referència
-    protected function parseToken($tokens, &$tokenIndex)
+    public function parseToken($tokens, &$tokenIndex)
     {
 
         $currentToken = $tokens[$tokenIndex];
@@ -245,7 +247,7 @@ class WiocclParser
     }
 
 
-    /** TODO: ELIMINAR! */
+    /** TODO: ELIMINAR? es troba al condition */
     protected function normalizeArg($arg)
     {
         if (strtolower($arg) == 'true') {
@@ -264,7 +266,7 @@ class WiocclParser
 
     }
 
-    protected function extractNumber($value, $attr, $mandatory=true) {
+    public function extractNumber($value, $attr, $mandatory=true) {
         $ret = 0;
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
             $ret = (new WiocclParser($matches[1], $this->arrays, $this->dataSource))->getValue();
@@ -277,7 +279,7 @@ class WiocclParser
         return $ret;
     }
     
-    protected function extractVarName($value, $attr="var", $mandatory=true) {
+    public function extractVarName($value, $attr="var", $mandatory=true) {
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
             return $matches[1];
         } else if($mandatory){
@@ -286,7 +288,7 @@ class WiocclParser
         return "";
     }
 
-    protected function extractArray($value) {
+    public function extractArray($value) {
         $jsonString = '';
         // ALERTA: El $value pot ser un json directament o una variable, s'ha de fer un parse del $value
         if (preg_match('/array="(.*?)"/', $value, $matches)) {

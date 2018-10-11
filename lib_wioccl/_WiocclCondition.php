@@ -8,30 +8,20 @@ class _WiocclCondition
     protected $arg2;
     protected $operator;
 
-    protected $arrays;
-    protected $dataSource;
+    protected $source;
 
-    public function __construct($value, $arrays = [], $dataSource = [])
+    public function __construct($value, $source)
     {
-        $this->arrays = $arrays;
-        $this->dataSource = $dataSource;
+        $this->source = $source;
 
         $this->extractArgs($value);
     }
 
-    public function validate($arrays=null, $dataSource=null)
+
+    public function validate()
     {
 
-        if ($arrays !== null) {
-            $this->arrays = $arrays;
-        }
-
-        if ($dataSource !== null) {
-            $this->dataSource = $dataSource;
-        }
-
         $this->parseArgs($arg1, $arg2);
-
 
         return $this->resolveCondition($arg1, $arg2, $this->operator);
     }
@@ -46,12 +36,10 @@ class _WiocclCondition
 
     }
 
-
     protected function parseArgs(&$arg1, &$arg2)
     {
-        $arg1 = self::normalizeArg((new WiocclParser($this->arg1, $this->arrays, $this->dataSource))->getValue());
-        $arg2 = self::normalizeArg((new WiocclParser($this->arg2, $this->arrays, $this->dataSource))->getValue());
-
+        $arg1 = self::normalizeArg((new WiocclParser($this->arg1, $this->source->arrays, $this->source->dataSource))->getValue());
+        $arg2 = self::normalizeArg((new WiocclParser($this->arg2, $this->source->arrays, $this->source->dataSource))->getValue());
     }
 
     protected function resolveCondition($arg1, $arg2, $operator)

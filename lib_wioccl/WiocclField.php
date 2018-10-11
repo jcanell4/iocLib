@@ -33,7 +33,7 @@ class WiocclField extends WiocclParser {
 
     }
 
-    protected function parseTokens($tokens, &$tokenIndex)
+    public function parseTokens($tokens, &$tokenIndex)
     {
 
         $result = '';

@@ -18,7 +18,7 @@ class WiocclSubset extends WiocclParser
         $this->fullArray = $this->extractArray($value);
         $this->itemName = $this->extractVarName($value, "arrayitem");
 
-        $this->validator = new _WiocclCondition($value, $arrays, $dataSource);
+        $this->validator = new _WiocclCondition($value, $this);
         $this->arrays[$this->varName] = $this->generateSubset();
     }
 
@@ -31,7 +31,7 @@ class WiocclSubset extends WiocclParser
 
             $this->arrays[$this->itemName] = $row;
 
-            if (!$this->validator->validate($this->arrays)) {
+            if (!$this->validator->validate()) {
                 continue;
             }
             $subset[] = $row;

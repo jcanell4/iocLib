@@ -30,7 +30,7 @@ class WiocclFunction extends WiocclParser
         return $jsonArgs;
     }
     
-    protected function parseTokens($tokens, &$tokenIndex)
+    public function parseTokens($tokens, &$tokenIndex)
     {
         $result = '';
         $textFunction = '';

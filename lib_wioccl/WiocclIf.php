@@ -11,11 +11,11 @@ class WiocclIf extends WiocclParser
     {
         parent::__construct($value, $arrays, $dataSource);
 
-        $this->condition = (new _WiocclCondition($value, $arrays, $dataSource))->validate();
+        $this->condition = (new _WiocclCondition($value, $this))->validate();
 
     }
 
-    protected function parseTokens($tokens, &$tokenIndex=0)
+    public function parseTokens($tokens, &$tokenIndex=0)
     {
 
         $result = '';
