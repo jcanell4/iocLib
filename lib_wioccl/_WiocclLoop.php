@@ -6,12 +6,14 @@ class _WiocclLoop
 {
 
     protected $source;
+    protected $type;
 
     // FOR
     protected $counterName;
     protected $from;
     protected $to;
     protected $step;
+    protected $defaultStep=1;
 
     // FOREACH
     // Els format dels arrays al fullArray es similar a (sense els index 0, 1, etc):
@@ -27,7 +29,9 @@ class _WiocclLoop
     protected $varName;
     protected $validator;
 
-    protected $type;
+
+
+
 
     public function __construct($value, $source)
     {
@@ -37,8 +41,6 @@ class _WiocclLoop
             $this->initializeIterator($value);
         } else if (substr($value, 0, 11) === "<WIOCCL:FOR") {
             $this->initializeLoop($value);
-        } else {
-            throw new Exception("Unknown iterator type");
         }
 
     }
@@ -51,24 +53,36 @@ class _WiocclLoop
 
     protected function initializeIterator($value)
     {
-        $this->type = 'iterator';
+        $this->type = 'ITERATOR';
         $this->varName = $this->source->extractVarName($value);
     }
 
 
-    // TODO: Fer una funció genérica que seleccioni el loop o iterate segons el $type que s'ha autodefinit a la inicialització?
+    public function loop($tokens, &$tokenIndex = 0, $arg1, $arg2, $arg3 = null)
+    {
+        switch ($this->type) {
+            case 'LOOP':
+                return $this->runLoop($tokens, $tokenIndex, $arg1, $arg2, $arg3);
 
-    public function loop($tokens, &$tokenIndex = 0, $from, $to, $step = 1)
+            case 'ITERATOR':
+                return $this->runIterate($tokens, $tokenIndex, $arg1, $arg2);
+
+            default:
+                return '[ERROR: Undefined iterator type]';
+        }
+    }
+
+    public function runloop($tokens, &$tokenIndex = 0, $from, $to, $step)
     {
         $this->from = $from;
         $this->to = $to;
-        $this->step = $step;
+        $this->step = $step !== null ? $step : $this->defaultStep;
 
         return $this->parseTokensLoop($tokens, $tokenIndex);
     }
 
-    // pel foreach
-    public function iterate($tokens, &$tokenIndex = 0, $collection, $validator)
+
+    public function runIterate($tokens, &$tokenIndex = 0, $collection, $validator)
     {
         $this->fullArray = $collection;
         $this->validator = $validator;

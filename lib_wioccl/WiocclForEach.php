@@ -24,7 +24,7 @@ class WiocclForEach extends WiocclParser
 
     public function parseTokens($tokens, &$tokenIndex = 0)
     {
-        return $this->iterator->iterate($tokens, $tokenIndex, $this->fullArray, $this->validator);
+        return $this->iterator->loop($tokens, $tokenIndex, $this->fullArray, $this->validator);
     }
 
 }
