@@ -11,16 +11,22 @@ abstract class abstract_project_command_class extends abstract_command_class {
         parent::__construct();
         $this->types[ProjectKeys::KEY_ID] = self::T_STRING;
         $this->types[ProjectKeys::KEY_DO] = self::T_STRING;
-
-        $defaultValues = [ProjectKeys::KEY_DO => ProjectKeys::KEY_VIEW];
-        $this->setParameters($defaultValues);
+        //Set default values to $params
+        $this->setParameters([ProjectKeys::KEY_DO => ProjectKeys::KEY_VIEW,
+                              ProjectKeys::KEY_METADATA_SUBSET => ProjectKeys::VAL_DEFAULTSUBSET]);
     }
 
     public function init( $modelManager = NULL ) {
         parent::init($modelManager);
         $projectMetaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery();
-        $ns = ($this->params[ProjectKeys::KEY_NS]) ? $this->params[ProjectKeys::KEY_NS] : $this->params[ProjectKeys::KEY_ID];
-        $this->dataProject = $projectMetaDataQuery->getDataProject($ns, $this->params[ProjectKeys::KEY_PROJECT_TYPE], NULL, TRUE);
+        $id = ($this->params[ProjectKeys::KEY_NS]) ? $this->params[ProjectKeys::KEY_NS] : $this->params[ProjectKeys::KEY_ID];
+        $parms = [ProjectKeys::KEY_ID => $id,
+                  ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
+                  ProjectKeys::KEY_PROJECTTYPE_DIR => $this->getModelManager()->getProjectTypeDir(),
+                  ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
+                  'extra' => TRUE
+                 ];
+        $this->dataProject = $projectMetaDataQuery->getDataProject($parms);
     }
 
     public function getKeyDataProject($key=NULL) {
@@ -28,8 +34,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
     }
 
     public function getAuthorizationType() {
-        $dokey = $this->params[ProjectKeys::KEY_DO] . "Project";
-        return $dokey;
+        return $this->params[ProjectKeys::KEY_DO] . "Project";
     }
 
     protected function getDefaultResponse($response, &$responseGenerator) {}
