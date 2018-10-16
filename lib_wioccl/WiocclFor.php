@@ -1,10 +1,9 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 require_once "_WiocclLoop.php";
 
-class WiocclFor extends WiocclParser {
-    
-    private $step = 1;
+class WiocclFor extends WiocclInstruction {
+
     private $from;
     private $to;
     private $counterName;
@@ -15,11 +14,11 @@ class WiocclFor extends WiocclParser {
     {
         parent::__construct($value, $arrays, $dataSource);
 
-        $this->counterName = $this->extractVarName($value, "counter");
-        $this->from = $this->extractNumber($value, "from");
-        $this->to = $this->extractNumber($value, "to");
+        $this->counterName = $this->parser->extractVarName($value, "counter");
+        $this->from = $this->parser->extractNumber($value, "from");
+        $this->to = $this->parser->extractNumber($value, "to");
 
-        $this->iterator = new _WiocclLoop($value, $this);
+        $this->iterator = new _WiocclLoop($value, $this->parser);
     }
 
     public function parseTokens($tokens, &$tokenIndex=0) {

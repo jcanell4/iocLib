@@ -28,14 +28,17 @@ class _WiocclLoop
     protected $fullArray;
     protected $varName;
     protected $validator;
+    protected $parser;
 
 
 
 
-
-    public function __construct($value, $source)
+    public function __construct($value, $parser, $source = null)
     {
-        $this->source = $source;
+        $this->parser = $parser;
+
+        $this->source = $source === null ? $parser : $source;
+
 
         if (substr($value, 0, 15) === "<WIOCCL:FOREACH") {
             $this->initializeIterator($value);
@@ -48,13 +51,13 @@ class _WiocclLoop
     protected function initializeLoop($value)
     {
         $this->type = 'LOOP';
-        $this->counterName = $this->source->extractVarName($value, "counter");
+        $this->counterName = $this->parser->extractVarName($value, "counter");
     }
 
     protected function initializeIterator($value)
     {
         $this->type = 'ITERATOR';
-        $this->varName = $this->source->extractVarName($value);
+        $this->varName = $this->parser->extractVarName($value);
     }
 
 
@@ -158,7 +161,7 @@ class _WiocclLoop
         $result = '';
         while ($tokenIndex < count($tokens)) {
 
-            $parsedValue = $this->source->parseToken($tokens, $tokenIndex);
+            $parsedValue = $this->parser->parseToken($tokens, $tokenIndex, $this->source);
 
             if ($parsedValue === null) { // tancament del foreach
                 break;

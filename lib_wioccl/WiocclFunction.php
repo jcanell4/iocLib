@@ -1,7 +1,7 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 
-class WiocclFunction extends WiocclParser
+class WiocclFunction extends WiocclInstruction
 {
 
     protected $functionName = '';
@@ -15,28 +15,17 @@ class WiocclFunction extends WiocclParser
         };
 
         $this->functionName = $matches[1];
-        $this->arguments = $this->extractArgs($matches[2]);
+        $this->arguments = $this->parser->extractArgs($matches[2]);
     }
 
 
-    protected function extractArgs($string)
-    {
-        $string = preg_replace("/'/", '"', $string);
-        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
-        $string = "[" . $string . "]";
-
-        $jsonArgs = json_decode($string, true);
-
-        return $jsonArgs;
-    }
-    
     public function parseTokens($tokens, &$tokenIndex)
     {
         $result = '';
         $textFunction = '';
         while ($tokenIndex<count($tokens)) {
 
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
+            $parsedValue = $this->parser->parseToken($tokens, $tokenIndex);
 
             if ($parsedValue === null) { // tancament del field
                 $this->init($textFunction);

@@ -5,27 +5,25 @@ class WiocclField extends WiocclInstruction {
 
     public function getContent ($token) {
 
-        // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
+        // és un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
         if (preg_match ('/(.*?)\[(.*?)\]/', $token['value'], $matches)===1) {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
-            if (!isset($this->arrays[$varName])) {
+            if (!isset($this->parser->arrays[$varName])) {
                 print_r($token['value']);
             }
-            return $this->arrays[$varName][$key];
+            return $this->parser->arrays[$varName][$key];
         } else {
             $fieldName = $token['value'];
 
             // Primer comprovem als arrays i si no es troba comprovem el datasource
-            if (isset($this->arrays[$fieldName])) {
-                return json_encode($this->arrays[$fieldName]);
-            } else if (isset($this->dataSource[$fieldName])) {
-                return $this->dataSource[$fieldName];
+            if (isset($this->parser->arrays[$fieldName])) {
+                return json_encode($this->parser->arrays[$fieldName]);
+            } else if (isset($this->parser->dataSource[$fieldName])) {
+                return $this->parser->dataSource[$fieldName];
             }
-
-
 
         }
 

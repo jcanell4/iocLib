@@ -1,8 +1,8 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 require_once "_WiocclLoop.php";
 
-class WiocclForEach extends WiocclParser
+class WiocclForEach extends WiocclInstruction
 {
 
     protected $varName;
@@ -16,10 +16,10 @@ class WiocclForEach extends WiocclParser
     {
         parent::__construct($value, $arrays, $dataSource);
 
-        $this->varName = $this->extractVarName($value);
-        $this->fullArray = $this->extractArray($value);
-        $this->validator = new _WiocclCondition($value, $this);
-        $this->iterator = new _WiocclLoop($value, $this);
+        $this->varName = $this->parser->extractVarName($value);
+        $this->fullArray = $this->parser->extractArray($value);
+        $this->validator = new _WiocclCondition($value, $this->parser);
+        $this->iterator = new _WiocclLoop($value, $this->parser, $this->parser);
     }
 
     public function parseTokens($tokens, &$tokenIndex = 0)
@@ -27,4 +27,7 @@ class WiocclForEach extends WiocclParser
         return $this->iterator->loop($tokens, $tokenIndex, $this->fullArray, $this->validator);
     }
 
+    public function getContent($token) {
+        return $this->parser->getContent($token);
+    }
 }

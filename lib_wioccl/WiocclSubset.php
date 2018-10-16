@@ -1,7 +1,7 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 
-class WiocclSubset extends WiocclParser
+class WiocclSubset extends WiocclInstruction
 {
 
     protected $varName;
@@ -14,12 +14,12 @@ class WiocclSubset extends WiocclParser
     {
         parent::__construct($value, $arrays, $dataSource);
 
-        $this->varName = $this->extractVarName($value, "subsetvar");
-        $this->fullArray = $this->extractArray($value);
-        $this->itemName = $this->extractVarName($value, "arrayitem");
+        $this->varName = $this->parser->extractVarName($value, "subsetvar");
+        $this->fullArray = $this->parser->extractArray($value);
+        $this->itemName = $this->parser->extractVarName($value, "arrayitem");
 
-        $this->validator = new _WiocclCondition($value, $this);
-        $this->arrays[$this->varName] = $this->generateSubset();
+        $this->validator = new _WiocclCondition($value, $this->parser);
+        $this->parser->arrays[$this->varName] = $this->generateSubset();
     }
 
 
@@ -29,7 +29,7 @@ class WiocclSubset extends WiocclParser
 
         foreach ($this->fullArray as $row) {
 
-            $this->arrays[$this->itemName] = $row;
+            $this->parser->arrays[$this->itemName] = $row;
 
             if (!$this->validator->validate()) {
                 continue;
@@ -37,9 +37,10 @@ class WiocclSubset extends WiocclParser
             $subset[] = $row;
         }
 
-        unset($this->arrays[$this->itemName]);
+        unset($this->parser->arrays[$this->itemName]);
 
         return $subset;
 
     }
+
 }

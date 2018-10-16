@@ -22,6 +22,8 @@ class WiocclParser
     // ALERTA: canviar el nom, posar com a protected i ficar un getter?
     public $arrays = [];
 
+    public $contextStack = [];
+
     /* TODO: els noms dels WIOOCCL s'extrauran automàticament */
     protected $tokenPatterns = [
         '{##' => [
@@ -283,7 +285,7 @@ class WiocclParser
         }
         return $ret;
     }
-    
+
     public function extractVarName($value, $attr="var", $mandatory=true) {
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
             return $matches[1];
@@ -304,5 +306,16 @@ class WiocclParser
 
 
         return json_decode($jsonString, true);
+    }
+
+    public function extractArgs($string)
+    {
+        $string = preg_replace("/'/", '"', $string);
+        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
+        $string = "[" . $string . "]";
+
+        $jsonArgs = json_decode($string, true);
+
+        return $jsonArgs;
     }
 }

@@ -7,11 +7,11 @@ class WiocclIf extends WiocclInstruction
 
     protected $condition = false;
 
-    public function __construct($value = null, $arrays = [], $dataSource, $parser)
+    public function __construct($value = null, $arrays = [], $dataSource)
     {
-        parent::__construct($value, $arrays, $dataSource, $parser);
+        parent::__construct($value, $arrays, $dataSource);
 
-        $this->condition = (new _WiocclCondition($value, $this))->validate();
+        $this->condition = (new _WiocclCondition($value, $this->parser))->validate();
 
     }
 
