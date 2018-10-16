@@ -105,6 +105,7 @@ class WiocclParser
 
     public function getTokensValue($tokens, &$tokenIndex)
     {
+
         return $this->parseTokens($tokens, $tokenIndex);
     }
 
@@ -114,7 +115,7 @@ class WiocclParser
         return $this->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
     }
 
-    protected function getContent($token)
+    public function getContent($token)
     {
         return $token['value'];
     }
@@ -201,8 +202,12 @@ class WiocclParser
     }
 
     // l'index del token analitzat s'actualitza globalment per referència
-    public function parseToken($tokens, &$tokenIndex)
+    public function parseToken($tokens, &$tokenIndex, $context = null)
     {
+
+        if ($context === null) {
+            $context = $this;
+        }
 
         $currentToken = $tokens[$tokenIndex];
         $result = '';
@@ -216,7 +221,7 @@ class WiocclParser
 
         switch ($action) {
             case 'content':
-                $result .= $this->getContent($currentToken);
+                $result .= $context->getContent($currentToken);
                 break;
 
             case 'open':
@@ -243,7 +248,7 @@ class WiocclParser
     protected function getClassForToken($token)
     {
         // TODO: pasar el datasource i els arrays al constructor
-        return new $token['class']($token['value'], $this->arrays, $this->dataSource);
+        return new $token['class']($token['value'], $this->arrays, $this->dataSource, $this);
     }
 
 

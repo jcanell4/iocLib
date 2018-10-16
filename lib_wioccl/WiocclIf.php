@@ -1,15 +1,15 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 require_once "_WiocclCondition.php";
 
-class WiocclIf extends WiocclParser
+class WiocclIf extends WiocclInstruction
 {
 
     protected $condition = false;
 
-    public function __construct($value = null, $arrays = [], $dataSource)
+    public function __construct($value = null, $arrays = [], $dataSource, $parser)
     {
-        parent::__construct($value, $arrays, $dataSource);
+        parent::__construct($value, $arrays, $dataSource, $parser);
 
         $this->condition = (new _WiocclCondition($value, $this))->validate();
 
@@ -21,7 +21,7 @@ class WiocclIf extends WiocclParser
         $result = '';
 
         while ($tokenIndex < count($tokens)) {
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
+            $parsedValue = $this->parser->parseToken($tokens, $tokenIndex, $this);
 
             if ($parsedValue === null) { // tancament del if
                 break;
@@ -36,4 +36,5 @@ class WiocclIf extends WiocclParser
 
         return ($this->condition ? $result : '');
     }
+
 }

@@ -1,9 +1,9 @@
 <?php
-require_once "WiocclParser.php";
+require_once "WiocclInstruction.php";
 
-class WiocclField extends WiocclParser {
+class WiocclField extends WiocclInstruction {
 
-    protected function getContent ($token) {
+    public function getContent ($token) {
 
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
@@ -41,7 +41,7 @@ class WiocclField extends WiocclParser {
 
         while ($tokenIndex<count($tokens)) {
 
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
+            $parsedValue = $this->parser->parseToken($tokens, $tokenIndex, $this);
 
             if ($parsedValue === null) { // tancament del field
                 break;
@@ -55,4 +55,5 @@ class WiocclField extends WiocclParser {
 
         return $result;
     }
+
 }
