@@ -500,4 +500,13 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return NULL;
     }
 
+    protected function getFormat()
+    {
+        if (preg_match('/.*-(.*)$/', $this->params[PageKeys::KEY_ID], $matches)) {
+            return $matches[1];
+        } else {
+            return $this->defaultFormat;
+        }
+
+    }
 }
