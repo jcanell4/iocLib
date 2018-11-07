@@ -1,6 +1,4 @@
 <?php
-require_once "WiocclInstruction.php";
-
 class WiocclFunction extends WiocclInstruction
 {
 
@@ -15,17 +13,29 @@ class WiocclFunction extends WiocclInstruction
         };
 
         $this->functionName = $matches[1];
-        $this->arguments = $this->parser->extractArgs($matches[2]);
+        $this->arguments = $this->extractArgs($matches[2]);
     }
 
 
+    protected function extractArgs($string)
+    {
+        $string = preg_replace("/''/", '"', $string);
+//        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
+        $string = WiocclParser::getValue($string, $this->arrays, $this->dataSource);
+        $string = "[" . $string . "]";
+
+        $jsonArgs = json_decode($string, true);
+
+        return $jsonArgs;
+    }
+    
     public function parseTokens($tokens, &$tokenIndex)
     {
         $result = '';
         $textFunction = '';
         while ($tokenIndex<count($tokens)) {
 
-            $parsedValue = $this->parser->parseToken($tokens, $tokenIndex);
+            $parsedValue = $this->parseToken($tokens, $tokenIndex);
 
             if ($parsedValue === null) { // tancament del field
                 $this->init($textFunction);
@@ -42,6 +52,15 @@ class WiocclFunction extends WiocclInstruction
         return $result;
     }
 
+    protected function YEAR($date=NULL){
+        if($date==NULL){
+            $ret = date("Y");
+        }else{
+            date("Y", strtotime(str_replace('/', '-', $date)));
+        }
+        return $ret;
+    }
+    
     protected function DATE($date, $sep="-")
     {
         return date("d".$sep."m".$sep."Y", strtotime(str_replace('/', '-', $date)));
@@ -80,6 +99,39 @@ class WiocclFunction extends WiocclInstruction
     protected function LAST($array, $template)
     {
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
+    }
+
+    protected function SUBS($value1, $value2)
+    {
+        if(!is_numeric($value1) || !is_numeric($value2)){
+            return "[ERROR! paràmetres incorrectes ($value1, $value2)]"; //TODO: internacionalitzar
+        }
+        return $value1 - $value2;
+    }
+
+    protected function SUMA($value1, $value2)
+    {
+        if(!is_numeric($value1) || !is_numeric($value2)){
+            return "[ERROR! paràmetres incorrectes ($value1, $value2)]"; //TODO: internacionalitzar
+        }
+        return $value1 + $value2;
+    }
+
+    protected function UPPERCASE($value1, $value2, $value3=0)
+    {
+        $ret;
+        if(!is_numeric($value2) || !is_numeric($value3)){
+            return "[ERROR! paràmetres incorrectes ($value1, $value2, $value3)]"; //TODO: internacionalitzar
+        }
+        if($value3==0){
+            $value3 = $value2;
+            $value2 = 0;
+        }
+        $ret = strtoupper(substr($value1, $value2, $value3));
+        if($value3< strlen($value1)){
+            $ret .= substr($value1, $value3, strlen($value1));
+        }
+        return $ret;
     }
 
     // $template pot tenir tres formes:

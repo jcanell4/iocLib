@@ -96,7 +96,7 @@ abstract class AbstractProjectUpdateProcessor{
 
 class FieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
-        if (in_array($field, $projectMetaData)) {
+        if (isset($projectMetaData[$field])) {
             $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
             if($obj->hasParam("concat")){
                 $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
@@ -110,7 +110,7 @@ class FieldProjectUpdateProcessor{
 
 class ArrayFieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
-         if (in_array($field, $projectMetaData)) {
+        if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
             if(is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
                 foreach ($keysOfArray[$field] as $arrayKey){
