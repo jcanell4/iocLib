@@ -6,52 +6,196 @@
  */
 if (!defined('DOKU_INC')) die();
 
-/**
- * Copia un único valor en los campos especificados del archivo de datos de un proyecto
- */
-class FieldSingleSubstitutionProjectUpdateProcessor {
+abstract class AbstractProjectUpdateProcessor{
+    protected abstract function getFieldValue($fieldValue);
+    protected $value;
+    protected $params;
+    protected $idField;
+    
+    public function init($value, $params) {
+        $this->value = $value;
+        $this->setParams($params);
+    }
+    
+    public function getIdField(){
+        return $this->idField;
+    }
+    
+    public function getValue(){
+        return $this->value;
+    }
+    
+    public function hasParam($key){
+        return isset($this->params[$key]);
+    }
+    
+    public function getParam($key){
+        return $this->params[$key];
+    }
+    
+    public function getParams(){
+        return $this->params;
+    }
+    
+    private function setParams($p){
+        if(is_string($p)){
+            $this->params = json_decode($p, TRUE);
+        }else{
+            $this->params = $p;
+        }        
+    }
+
+    public function runProcess(&$projectMetaData){
+        if(isset($this->params["field"])){
+            $this->runProcessField($this->params["field"], $projectMetaData);
+        }
+        if(isset($this->params["fields"])){
+            $this->runProcessFields($this->params["fields"], $projectMetaData);
+        }
+    }
+    
+    protected function runProcessFields($fields, &$projectMetaData){
+        for($this->idField=0;$this->idField<count($fields);$this->idField++) {
+            $this->runProcessField($fields[$this->idField], $projectMetaData);
+        }        
+    }
+    
+    protected function runProcessField($field, &$projectMetaData){
+        FieldProjectUpdateProcessor::runProcessField($this, $field, $projectMetaData);
+    }
+
+    public function returnType($value, $type){
+        if($type==="date"){
+            if(is_string($value)){
+                $fecha = DateTime::createFromFormat('d#m#Y', $value);
+            }else{
+                $fecha = $value;
+            }
+            $ret =  $fecha->format('Y-m-d'); 
+        }else{
+            $ret = settype($value, $type);
+        }
+        return $ret;
+    }
+    
+    public function concat($str, $objectValues){
+        foreach ($objectValues as $objectValue){
+            switch ($objectValue["type"]){
+                case "literal":
+                    $str .= $objectValue["value"];
+                    break;
+                case "function":
+                    $str .= call_user_func($objectValue["name"], $objectValue["parameters"]);
+                    break;
+            }
+        }
+        return $str;
+    }
+}
+
+class FieldProjectUpdateProcessor{
+    public static function runProcessField($obj, $field, &$projectMetaData){
+        if (isset($projectMetaData[$field])) {
+            $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
+            if($obj->hasParam("concat")){
+                $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
+            }
+            if($obj->hasParam("returnType")){
+                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
+            }            
+        }
+    }    
+}
+
+class ArrayFieldProjectUpdateProcessor{
+    public static function runProcessField($obj, $field, &$projectMetaData){
+        if (isset($projectMetaData[$field])) {
+            $keysOfArray = $obj->getParam("keysOfArray");
+            if(is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
+                foreach ($keysOfArray[$field] as $arrayKey){
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+                }            
+            }else{
+                foreach ($keysOfArray[$obj->getIdField()] as $arrayKey){
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+                }
+            }
+         }
+    }
+    
+    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey){
+        if(is_string($projectMetaData[$field])){
+            $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
+        }
+        for ($i=0; $i<count($projectMetaData[$field]); $i++ ){
+            $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
+            if($obj->hasParam("concat")){
+                $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+            }
+            if($obj->hasParam("returnType")){
+                $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
+            }            
+        }
+    }
+}
+
+
+class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProcessor{
     /**
      * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
      * @param string $value : valor que se utiliza en la substitución
      * @param array $params : conjunto de campos sobre los que se aplica la sustitución
      * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
      */
-    public function runProcess($value, $params, &$projectMetaData) {
-        foreach ($params as $field) {
-            if (in_array($field, $projectMetaData)) {
-                $projectMetaData[$field] = $value;
-            }
-        }
+    public function getFieldValue($fieldValue) {
+        return $this->value;
     }
 }
 
 /**
  * Incrementa el valor en los campos especificados del archivo de datos de un proyecto
  */
-class FieldIncrementProjectUpdateProcessor {
+class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcessor {
+    protected $dateFormat='Y-m-d';
     /**
      * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
      * @param string $value : valor que se utiliza para incrementar el valor del campo
      * @param array $params : array de campos [key, type, value] sobre los que se aplica el incremento
      * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
      */
-    public function runProcess($value, $params, &$projectMetaData) {
-        foreach ($params['fields'] as $field) {
-            if (in_array($field, $projectMetaData)) {
-                switch ($params['type']) {
-                    case 'module':
-                        $projectMetaData[$field] = (($projectMetaData[$field] - 1 + $value) % $params['value']) + 1;
-                        break;
-                    case 'data':
-                        $fecha = new DateTime($projectMetaData[$field]);
-                        $fecha->add(new DateInterval('P'.$value.$params['value']));
-                        $projectMetaData[$field] = $fecha->format('Y-m-d');
-                        break;
-                    default:
-                        break;
-                }
-            }
+    public function getFieldValue($fieldValue) {
+        $ret  = $fieldValue;
+        switch ($this->params['type']) {
+            case 'loop':
+                $ret = $this->incrementLoop($fieldValue, $this->value, $this->params["min"], $this->params["max"]);
+                break;
+            case 'data':
+                $ret = $this->incrementData($fieldValue, $this->value, $this->params['unit']);
+                break;
+            default:
+                break;
         }
+        return $ret;
+    }
+    
+    protected function incrementData($value, $inc, $unit){
+        $fecha = new DateTime($value);
+        $fecha->add(new DateInterval('P'.$inc.$unit));
+        return $fecha->format($this->dateFormat);        
+    }
+    
+    protected function incrementLoop($value, $inc, $min, $max){
+        $mod = $max-$min+1;
+        return ($value+$min+$inc)%$mod+$min;
+    }
+}
+
+class ArrayIncrementProjectUpdateProcessor extends FieldIncrementProjectUpdateProcessor{
+    public function __construct() {
+        $this->dateFormat="Y/m/d";
+    }
+    protected function runProcessField($field, &$projectMetaData) {
+        ArrayFieldProjectUpdateProcessor::runProcessField($this, $field, $projectMetaData);
     }
 }
 
