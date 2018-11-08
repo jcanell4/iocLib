@@ -20,15 +20,7 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
 
     public function parseTokens($tokens, &$tokenIndex)
     {
-
-        if($this->from > $this->to){
-            $this->arrays[$this->counterName] = -1;
-            $this->wiocclLoop->parseTokensOfItem($tokens, $tokenIndex);
-            $result = '';
-        }else{
-            $result = $this->wiocclLoop->loop($tokens, $tokenIndex);
-        }
-        return $result;
+        return $this->wiocclLoop->loop($tokens, $tokenIndex);
     }
 
     public function getFrom() {

@@ -52,6 +52,109 @@ class WiocclFunction extends WiocclInstruction
         return $result;
     }
 
+    protected function COUNTINARRAY($array, $fields, $values=NULL){
+        if($values==NULL){
+            if(is_array($fields)){
+                $ret = $this->_countValuesInArray($array, $fields);
+            }else{
+                $ret = $this->_countValueInArray($array, $fields);
+            }
+        }else if(is_array($fields)){
+            if(count($values)>0 && is_array($values[0])){
+                $ret = $this->_countValuesInFieldsOfArray($array, $fields, $values);
+            }else{
+                $ret = $this->_countValueInFieldsObjectArray($array, $fields);
+            }
+        }else{
+            if(is_array($values)){
+                $ret = $this->_countValuesInFieldOfArray($array, $fields, $values);
+            }else{
+                $ret = $this->_countValueInFieldOfArray($array, $fields, $values);
+            }
+        }
+        return $ret;
+    }
+    
+    private function _countValueInArray($array, $value){
+        $cont=0;
+        foreach ($array as $item) {
+            if ($item==$value) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+    
+    private function _countValuesInArray($array, $values){
+        $compliant = false;
+        $cont=0;
+        foreach ($array as $item) {
+            for($ind=0; !$compliant && $ind<count($values); $ind++) {
+                $compliant = $item==$values[$ind];
+            }
+            if ($compliant) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+    
+    private function _countValueInFieldOfArray($array, $field, $value){
+        $cont=0;
+        foreach ($array as $item) {
+            if ($item[$field]==$value) {
+                $cont++;
+            }
+        }
+        return $cont;        
+    }
+    
+    private function _countValuesInFieldOfArray($array, $field, $values){
+        $compliant = false;
+        $cont=0;
+        foreach ($array as $item) {
+            for($ind=0; !$compliant && $ind<count($values); $ind++) {
+                $compliant = $item[$field]==$values[$ind];
+            }
+            if ($compliant) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+    
+    private function _countValuesInFieldsOfArray($array, $fields, $valuesOfValues){
+        $compliantField = true;
+        $compliantValue = false;
+        $cont=0;
+        foreach ($array as $item) {
+            for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
+                for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
+                    $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
+                }                
+                $compliantField = $compliantValue;
+            }
+            if ($compliantField) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+    
+    private function _countValueInFieldsObjectArray($array, $fields, $values){
+        $compliant = true;
+        $cont=0;
+        foreach ($array as $item) {
+            for($ind=0; $compliant && $ind<count($fields); $ind++) {
+                $compliant = $item[$fields[$ind]]==$values[$ind];
+            }
+            if ($compliant) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+    
     protected function YEAR($date=NULL){
         if($date==NULL){
             $ret = date("Y");
