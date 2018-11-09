@@ -20,9 +20,10 @@ abstract class abstract_project_command_class extends abstract_command_class {
         parent::init($modelManager);
         $projectMetaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery();
         $id = ($this->params[ProjectKeys::KEY_NS]) ? $this->params[ProjectKeys::KEY_NS] : $this->params[ProjectKeys::KEY_ID];
+        $projectTypeDir = ($this->params[ProjectKeys::KEY_PROJECTTYPE_DIR]) ? $this->params[ProjectKeys::KEY_PROJECTTYPE_DIR] : $this->getModelManager()->getProjectTypeDir();
         $parms = [ProjectKeys::KEY_ID => $id,
                   ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                  ProjectKeys::KEY_PROJECTTYPE_DIR => $this->getModelManager()->getProjectTypeDir(),
+                  ProjectKeys::KEY_PROJECTTYPE_DIR => $projectTypeDir,
                   ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
                   'extra' => TRUE
                  ];
