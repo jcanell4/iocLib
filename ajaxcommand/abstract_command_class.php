@@ -462,7 +462,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
-        } else if ($data['command'] !== 'notify') {
+        } else if ($data['command'] !== 'notify' && $data['command'] != 'draft') {
             // Només s'afegeix el format si no es tracta d'un projecte
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::FORMAT, $this->getFormat());
         }
