@@ -70,13 +70,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
                                                    AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
                                                    AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
-                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET],
-                                                   AjaxKeys::PROJECT_TYPE_DIR    => $this->params[AjaxKeys::PROJECT_TYPE_DIR]
+                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET]
                                                 ]);
         }
 
         if (!$modelManager) {
-            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
+            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);  //mirar per què es només s'envia el project type i no la resta de partàmetres?
         }
 
         $plugin_controller->setPersistenceEngine($modelManager->getPersistenceEngine());
@@ -272,7 +271,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         $this->triggerEndEvents();
         return $ret;
     }
-    
+
     protected function triggerStartEvents() {
         $cn = $this->getCommandName();
         $tmp = array();

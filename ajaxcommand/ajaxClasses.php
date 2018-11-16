@@ -35,11 +35,11 @@ class ajaxCall {
          * sin embargo, es necesario establecer un mecanismo para la asignación
          * dinámica de proyectos
          */
-        global $plugin_controller;
-        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => 'defaultProject',
-                                               AjaxKeys::PROJECT_SOURCE_TYPE => $_REQUEST[AjaxKeys::PROJECT_SOURCE_TYPE],
-                                               AjaxKeys::PROJECT_OWNER       => $_REQUEST[AjaxKeys::PROJECT_OWNER]
-                                            ]);
+//        global $plugin_controller;
+//        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => 'defaultProject',
+//                                               AjaxKeys::PROJECT_SOURCE_TYPE => $_REQUEST[AjaxKeys::PROJECT_SOURCE_TYPE],
+//                                               AjaxKeys::PROJECT_OWNER       => $_REQUEST[AjaxKeys::PROJECT_OWNER]
+//                                            ]);
     }
 
     public function initialize() {
@@ -110,6 +110,14 @@ class ajaxCall {
             }
         }
     }
+    
+    function uploadParamsInPluginController(){
+        global $plugin_controller;
+        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
+                                               AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
+                                               AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
+                                               AjaxKeys::METADATA_SUBSET    => $this->request_params[RequestParameterKeys::METADATA_SUBSET]]);
+    }
 
     /**
      * Si existeix el fitxer amb el nom passat com argument el carrega i retorna true,
@@ -129,16 +137,18 @@ class ajaxCall {
             require_once($file);
             $this->commandClass = $this->call . '_command';
         }
+        
+        $this->uploadParamsInPluginController();
 
         //'commands' definits a altres plugins
         if (!$ret) {
-            if ($this->request_params[RequestParameterKeys::PROJECT_TYPE]) {
-                global $plugin_controller;
-                $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
-                                                       AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
-                                                       AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER]
-                                                    ]);
-            }
+//            if ($this->request_params[RequestParameterKeys::PROJECT_TYPE]) {
+//                global $plugin_controller;
+//                $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
+//                                                       AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
+//                                                       AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER]
+//                                                    ]);
+//            }
             $pluginList = plugin_list('command');
             $DOKU_PLUGINS = DOKU_INC . "lib/plugins/";
 
