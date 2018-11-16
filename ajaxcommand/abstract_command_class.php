@@ -69,8 +69,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
             $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
                                                    AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
-                                                   AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
-                                                   AjaxKeys::PROJECT_TYPE_DIR    => $this->params[AjaxKeys::PROJECT_TYPE_DIR]
+                                                   AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER]
                                                 ]);
         }
 

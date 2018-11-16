@@ -33,17 +33,21 @@ abstract class AbstractModelManager {
 
     private static function createModelManager($projectType){
         global $plugin_controller;
-        $plugin_list = $plugin_controller->getList('action');
-
-        //busca el tipo de proyecto solicitado en todos los directorios de plugins del tipo action
-        foreach ($plugin_list as $plugin) {
-            $file = realpath(DOKU_INC."lib/plugins/$plugin/projects/$projectType/DokuModelManager.php");
-            if (file_exists($file)) {
-                require_once($file);
-                return new DokuModelManager($projectType);
-            }
-        }
-        throw new UnknownPojectTypeException();
+        $dir = $plugin_controller->getProjectTypeDir($projectType);
+        $file = realpath("{$dir}DokuModelManager.php");
+        require_once $file;
+        return new DokuModelManager($projectType);
+//        $plugin_list = $plugin_controller->getList('action');
+//
+//        //busca el tipo de proyecto solicitado en todos los directorios de plugins del tipo action
+//        foreach ($plugin_list as $plugin) {
+//            $file = realpath(DOKU_INC."lib/plugins/$plugin/projects/$projectType/DokuModelManager.php");
+//            if (file_exists($file)) {
+//                require_once($file);
+//                return new DokuModelManager($projectType);
+//            }
+//        }
+//        throw new UnknownPojectTypeException();
     }
 
     public function getPersistenceEngine() {
