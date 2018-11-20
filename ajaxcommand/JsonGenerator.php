@@ -97,7 +97,6 @@ interface JsonGenerator {
 class JSonGeneratorImpl implements JsonGenerator {
     private $value;
     private $type;
-    private $encoder;
 
     /**
      * Constructor del generador que admet el tipus que ha de ser un dels valors constants declarats a la interface, i
@@ -111,7 +110,6 @@ class JSonGeneratorImpl implements JsonGenerator {
         if ($valueToSend != NULL) {
             $this->value = $valueToSend;
         }
-        $this->encoder = new JSON();
     }
 
     /**
@@ -131,7 +129,7 @@ class JSonGeneratorImpl implements JsonGenerator {
      */
     public function getJsonEncoded() {
         $dataToEncode = $this->getJson();
-        return $this->encoder->encode($dataToEncode); //json_encode($dataToEncode);
+        return json_encode($dataToEncode);
     }
 }
 
@@ -141,15 +139,12 @@ class JSonGeneratorImpl implements JsonGenerator {
  */
 class ArrayJSonGenerator implements JsonGenerator {
     private $items;
-    private $encoder;
 
     /**
      * El constructor d'aquesta classe no accepta paràmetres,
      * els valors a codificar s'afegeixen cridant al mètode add().
      */
-    public function __construct() {
-        $this->encoder = new JSON();
-    }
+    public function __construct() {}
 
     /**
      * @return JsonGenerator array d'elements afegits per codificar
@@ -162,7 +157,7 @@ class ArrayJSonGenerator implements JsonGenerator {
      * @return string dades codificades en format JSON
      */
     public function getJsonEncoded() {
-        return $this->encoder->encode($this->getJson());
+        return json_encode($this->getJson());
     }
 
     /**
