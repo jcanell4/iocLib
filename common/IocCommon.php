@@ -113,8 +113,7 @@ class IocCommon {
                                       's' => array (
                                                 'urlBase' => "lib/exe/ioc_ajax.php?call=project",
                                                 'params' => [ProjectKeys::PROJECT_TYPE,
-                                                             ProjectKeys::KEY_METADATA_SUBSET,
-                                                             ProjectKeys::PROJECT_TYPE_DIR]
+                                                             ProjectKeys::KEY_METADATA_SUBSET]
                                               )
                                      )
         );
