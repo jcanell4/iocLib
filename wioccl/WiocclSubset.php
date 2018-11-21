@@ -13,7 +13,7 @@ class WiocclSubset extends WiocclInstruction {
     const ARRAY_ITEM_ATTR = "arrayitem";    
     const SUBSET_VAR_ATTR = "subsetvar";    
 
-    public function __construct($value = null, $arrays = [], $dataSource, $generateSubset = true)
+    public function __construct($value = null, $arrays = [], $dataSource=[])
     {
         parent::__construct($value, $arrays, $dataSource);
 

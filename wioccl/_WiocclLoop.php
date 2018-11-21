@@ -13,35 +13,40 @@ class _WiocclLoop
     {
         
         $result = '';
-        $startTokenIndex = $tokenIndex;
-        $lastBlockIndex = null;
-        $lastTokenIndex = 0;
-
-        for ($this->index = $this->looperInstruction->getFrom(); $this->index <= $this->looperInstruction->getTo(); $this->index+= $this->looperInstruction->getStep()) {
-
-            $tokenIndex = $startTokenIndex;
-            
+        if($this->looperInstruction->getFrom() > $this->looperInstruction->getTo()){
+            $this->index = -1;
             $this->looperInstruction->updateLoop();
+            $this->parseTokensOfItem($tokens, $tokenIndex);
+        }else{
+            $startTokenIndex = $tokenIndex;
+            $lastBlockIndex = null;
+            $lastTokenIndex = 0;
 
-            $process = $this->looperInstruction->validateLoop();
+            for ($this->index = $this->looperInstruction->getFrom(); $this->index <= $this->looperInstruction->getTo(); $this->index+= $this->looperInstruction->getStep()) {
 
-            if (!$process && $lastTokenIndex > 0) {
-                // Ja s'ha processat previament el token de tancament i no s'acompleix la condició, no cal continuar processant
-                continue;
+                $tokenIndex = $startTokenIndex;
+
+                $this->looperInstruction->updateLoop();
+
+                $process = $this->looperInstruction->validateLoop();
+
+                if (!$process && $lastTokenIndex > 0) {
+                    // Ja s'ha processat previament el token de tancament i no s'acompleix la condició, no cal continuar processant
+                    continue;
+                }
+
+                $parseValue = $this->parseTokensOfItem($tokens, $tokenIndex);
+
+                if($process){
+                    $result .= $parseValue;
+                }
+
+                $lastTokenIndex = $tokenIndex;
+
             }
 
-            $parseValue = $this->parseTokensOfItem($tokens, $tokenIndex);
-
-            if($process){
-                $result .= $parseValue;
-            }
-
-            $lastTokenIndex = $tokenIndex;
-
+            $tokenIndex = $lastTokenIndex;
         }
-
-        $tokenIndex = $lastTokenIndex;
-
         return $result;
     }
     
