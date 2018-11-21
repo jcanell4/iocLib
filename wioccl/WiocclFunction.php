@@ -101,6 +101,38 @@ class WiocclFunction extends WiocclInstruction
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
     }
 
+    protected function MIN($array, $template)
+    {
+        if(count($array)>0){
+            $min=$this->formatItem($array[0], 'MIN', $template);
+            for($pos=1; $pos<count($array); $pos++){
+                $valorItem = $this->formatItem($array[$pos], 'MIN', $template);
+                if($valorItem<$min){
+                    $min = $valorItem;
+                }
+            }
+        }else{
+            return "[ERROR! array buit]"; //TODO: internacionalitzar
+        }
+        return $min;
+    }
+
+    protected function MAX($array, $template)
+    {
+        if(count($array)>0){
+            $max=$this->formatItem($array[0], 'MAX', $template);
+            for($pos=1; $pos<count($array); $pos++){
+                $valorItem = $this->formatItem($array[$pos], 'MAX', $template);
+                if($valorItem>$max){
+                    $max = $valorItem;
+                }
+            }
+        }else{
+            return "[ERROR! array buit]"; //TODO: internacionalitzar
+        }
+        return $max;
+    }
+
     protected function SUBS($value1, $value2)
     {
         if(!is_numeric($value1) || !is_numeric($value2)){
