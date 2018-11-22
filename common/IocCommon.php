@@ -125,4 +125,14 @@ class IocCommon {
                                             );
 
     }
+    
+    public static function getFormat($id="", $def="undefined"){
+        if (preg_match('/.*-(.*)$/', $id, $matches)) {
+            return $matches[1];
+        } else {
+            return $def;
+        }
+
+    }
+
 }

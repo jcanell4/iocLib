@@ -468,8 +468,9 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         } else if ($data['command'] !== 'notify') {
-            // Només s'afegeix el format si no es tracta d'un projecte
-            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::FORMAT, $this->getFormat());
+            if(isset($responseData[AjaxKeys::KEY_ID])){
+                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::FORMAT, $this->getFormat());
+            }
         }
 
         if ($this->params[ProjectKeys::PROJECT_OWNER]) {
@@ -513,14 +514,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return NULL;
     }
 
-    // ALERTA[Xavi] Duplicat al WikiIocResponseHandler.php
-    protected function getFormat()
-    {
-        if (preg_match('/.*-(.*)$/', $this->params[PageKeys::KEY_ID], $matches)) {
-            return $matches[1];
-        } else {
-            return $this->defaultFormat;
-        }
-
+    protected function getFormat(){
+        return IocCommon::getFormat($this->params[PageKeys::KEY_ID], $this->defaultFormat);
     }
 }
