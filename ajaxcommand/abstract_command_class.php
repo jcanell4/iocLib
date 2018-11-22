@@ -55,6 +55,8 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     public $error = FALSE;
     public $errorMessage = '';
 
+    protected $defaultFormat = 'undefined';
+
     public function __construct( $modelAdapter=NULL, $authorization=NULL ) {
         $this->modelAdapter  = $modelAdapter;
         $this->authorization = $authorization;
@@ -465,12 +467,18 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
+        } else if ($data['command'] !== 'notify') {
+            // Només s'afegeix el format si no es tracta d'un projecte
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::FORMAT, $this->getFormat());
         }
 
         if ($this->params[ProjectKeys::PROJECT_OWNER]) {
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
         }
+
+
+
 
     }
 
@@ -505,6 +513,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return NULL;
     }
 
+    // ALERTA[Xavi] Duplicat al WikiIocResponseHandler.php
     protected function getFormat()
     {
         if (preg_match('/.*-(.*)$/', $this->params[PageKeys::KEY_ID], $matches)) {
