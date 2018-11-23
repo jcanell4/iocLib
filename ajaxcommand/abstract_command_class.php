@@ -69,11 +69,15 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         global $plugin_controller;
 
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-            $plugin_controller->setCurrentProject($this->params[AjaxKeys::PROJECT_TYPE], $this->params[AjaxKeys::PROJECT_SOURCE_TYPE], $this->params[AjaxKeys::PROJECT_OWNER]);
+            $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
+                                                   AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
+                                                   AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
+                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET]
+                                                ]);
         }
 
         if (!$modelManager) {
-            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
+            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);  //mirar per què es només s'envia el project type i no la resta de partàmetres?
         }
 
         $plugin_controller->setPersistenceEngine($modelManager->getPersistenceEngine());
@@ -269,7 +273,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         $this->triggerEndEvents();
         return $ret;
     }
-    
+
     protected function triggerStartEvents() {
         $cn = $this->getCommandName();
         $tmp = array();
@@ -352,7 +356,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      *
      * @return mixed
      */
-    protected abstract function getDefaultResponse($response, &$responseGenerator);
+    abstract protected function getDefaultResponse($response, &$responseGenerator);
 
     /**
      * Retorna la resposta per defecte quan el process llença una excepció.
@@ -444,10 +448,9 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
 
     /**
      * Processa el command.
-     *
      * @return mixed varia segons la implementació del command
      */
-    protected abstract function process();
+    abstract protected function process();
 
     protected function postResponse($responseData, &$ajaxCmdResponseGenerator) {
         $data = $this->_getDataEvent($ajaxCmdResponseGenerator, $responseData);
@@ -458,18 +461,21 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         $evt->advise_after();
         unset($evt);
         $ajaxCmdResponseGenerator->addSetJsInfo($this->getJsInfo());
+
+        //[NOTA: Rafael] Considero que este código ya no es necesario
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
             if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
-                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
+                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
-        } else if ($data['command'] !== 'notify' && $data['command'] != 'draft') {
-            // Només s'afegeix el format si no es tracta d'un projecte
-            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], AjaxKeys::FORMAT, $this->getFormat());
+        } else if ($data['command'] !== 'notify') {
+            if(isset($responseData[AjaxKeys::KEY_ID])){
+                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::FORMAT, $this->getFormat());
+            }
         }
 
         if ($this->params[ProjectKeys::PROJECT_OWNER]) {
-            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
-            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData['id'], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
         }
 
 
@@ -508,14 +514,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         return NULL;
     }
 
-    // ALERTA[Xavi] Duplicat al WikiIocResponseHandler.php
-    protected function getFormat()
-    {
-        if (preg_match('/.*-(.*)$/', $this->params[PageKeys::KEY_ID], $matches)) {
-            return $matches[1];
-        } else {
-            return $this->defaultFormat;
-        }
-
+    protected function getFormat(){
+        return IocCommon::getFormat($this->params[PageKeys::KEY_ID], $this->defaultFormat);
     }
 }

@@ -161,3 +161,9 @@ class UnknownPojectTypeException extends WikiIocProjectException {
         parent::__construct($codeMessage, $code, $page);
     }
 }
+
+class NotAllowedPojectCommandException extends WikiIocProjectException {
+    public function __construct($page, $codeMessage='NotAllowedPojectCommandException', $code=7008) {
+        parent::__construct($codeMessage, $code, $page);
+    }
+}

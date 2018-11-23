@@ -203,37 +203,99 @@ class WiocclFunction extends WiocclInstruction
     {
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
     }
-
-    protected function MIN($array, $template)
-    {
-        if(count($array)>0){
-            $min=$this->formatItem($array[0], 'MIN', $template);
-            for($pos=1; $pos<count($array); $pos++){
-                $valorItem = $this->formatItem($array[$pos], 'MIN', $template);
-                if($valorItem<$min){
-                    $min = $valorItem;
-                }
-            }
+    
+    private static function _compareMultiObjectFields($obj1, $obj2, $type, $fields, $pos=0){
+        if($pos >= count($fields)){
+            $ret = substr($type, 1, 1)==="=";            
+        }else if($obj1[$fields[$pos]]==$obj2[$fields[$pos]]){
+            $ret = self::_compareMultiObjectFields($obj1, $obj2, $fields, $type, $pos+1);
         }else{
-            return "[ERROR! array buit]"; //TODO: internacionalitzar
+            $ret = self::_compareSingleValues($obj1[$fields[$pos]], $obj2[$fields[$pos]], $type);
         }
-        return $min;
+        return $ret;
+    }
+    
+    private static function _compareSingleObjectFields($obj1, $obj2, $type, $field){
+        return self::_compareSingleValues($obj1[$field], $obj2[$field], $type);
+    }
+    
+    private static function _compareSingleValues($v1, $v2, $type, $field){
+        $ret = FALSE;
+        switch ($type){
+            case "<":
+                $ret = $v1<$v2;
+                break;
+            case ">":
+                $ret = $v1>$v2;
+                break;
+            case "<=":
+                $ret = $v1<=$v2;
+                break;
+            case ">=":
+                $ret = $v1>=$v2;
+                break;
+        }
+        return $ret;
     }
 
-    protected function MAX($array, $template)
-    {
+    protected function MIN($array, $template="MIN", $fields=NULL){
+        $valuesFromTemplate = FALSE;
+        if($fields==NULL){ //ARRAY
+            $compare = "_compareSingleValues";
+            $valueFromTemplate = $template!=="MIN";
+        } else if(is_array($fields)){ //OBJECT and multi field comparation
+            $compare = "_compareMultiObjectFields";            
+        }else{  //OBJECT and single fiels comparation
+            $compare = "_compareSingleObjectFields";
+        }
         if(count($array)>0){
-            $max=$this->formatItem($array[0], 'MAX', $template);
+            $min=0;
             for($pos=1; $pos<count($array); $pos++){
-                $valorItem = $this->formatItem($array[$pos], 'MAX', $template);
-                if($valorItem>$max){
-                    $max = $valorItem;
+                if($valueFromTemplate){
+                    $v1 = $this->formatItem($array[$pos], 'MIN', $template);
+                    $v2 = $this->formatItem($array[$min], 'MIN', $template);
+                }else{
+                    $v1 = $array[$pos];
+                    $v2 = $array[$min];
+                }
+                if(self::{$compare}($v1, $v2, "<", $fields)){
+                    $min = $pos;
                 }
             }
         }else{
             return "[ERROR! array buit]"; //TODO: internacionalitzar
         }
-        return $max;
+        return $this->formatItem($array[$min], 'MIN', $template);
+    }
+
+    protected function MAX($array, $template="MAX", $fields=NULL){
+        $valuesFromTemplate = FALSE;
+        if($fields==NULL){ //ARRAY
+            $compare = "_compareSingleValues";
+            $valueFromTemplate = $template!=="MAX";
+        } else if(is_array($fields)){ //OBJECT and multi field comparation
+            $compare = "_compareMultiObjectFields";            
+        }else{  //OBJECT and single fiels comparation
+            $compare = "_compareSingleObjectFields";
+        }
+        if(count($array)>0){
+            $max=0;
+            for($pos=1; $pos<count($array); $pos++){
+                if($valueFromTemplate){
+                    $v1 = $this->formatItem($array[$pos], 'MAX', $template);
+                    $v2 = $this->formatItem($array[$max], 'MAX', $template);
+                }else{
+                    $v1 = $array[$pos];
+                    $v2 = $array[$max];
+                }
+                if(self::{$compare}($array[$pos], $array[$max], ">", $fields)){
+                    $max = $pos;
+                }
+            }
+        }else{
+            return "[ERROR! array buit]"; //TODO: internacionalitzar
+        }
+        return $this->formatItem($array[$max], 'MAX', $template);
     }
 
     protected function SUBS($value1, $value2)

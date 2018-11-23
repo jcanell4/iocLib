@@ -5,7 +5,8 @@
  * @author Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_INC . "lib/plugins/wikiiocmodel/");
+if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
+if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
 require_once WIKI_IOC_MODEL . "datamodel/TimerNotifyModel.php";
 require_once WIKI_IOC_MODEL . "datamodel/WebsocketNotifyModel.php";
 require_once(WIKI_IOC_MODEL . 'persistence/BasicPersistenceEngine.php');
@@ -31,8 +32,26 @@ abstract class AbstractModelManager {
     }
 
     private static function createModelManager($projectType){
-        require_once(WIKI_IOC_MODEL . "projects/$projectType/DokuModelManager.php");
+        global $plugin_controller;
+        $dir = $plugin_controller->getProjectTypeDir($projectType);
+        $file = realpath("{$dir}DokuModelManager.php");
+        require_once $file;
         return new DokuModelManager($projectType);
+//        $plugin_list = $plugin_controller->getList('action');
+//
+//        //busca el tipo de proyecto solicitado en todos los directorios de plugins del tipo action
+//        foreach ($plugin_list as $plugin) {
+//            $file = realpath(DOKU_INC."lib/plugins/$plugin/projects/$projectType/DokuModelManager.php");
+//            if (file_exists($file)) {
+//                require_once($file);
+//                return new DokuModelManager($projectType);
+//            }
+//        }
+//        throw new UnknownPojectTypeException();
+    }
+
+    public function getPersistenceEngine() {
+        return $this->persistenceEngine;
     }
 
     public function getProjectType() {
@@ -53,14 +72,10 @@ abstract class AbstractModelManager {
         }
     }
 
-    public abstract function getProjectDir();
-
-    public function getPersistenceEngine() {
-        return $this->persistenceEngine;
-    }
+    public abstract function getProjectTypeDir();
 
     public function getActionInstance($className, $params=NULL){
-        $classPath = WIKI_IOC_MODEL . "projects/{$this->projectType}/actions/$className.php";
+        $classPath = $this->getProjectTypeDir()."actions/$className.php";
         if (@file_exists($classPath)) {
             require_once $classPath;
         }else{

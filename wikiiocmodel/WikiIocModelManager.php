@@ -4,12 +4,13 @@
  * @culpable Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
-require_once(DOKU_INC . 'lib/lib_ioc/wikiiocmodel/AbstractModelManager.php');
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC . "lib/lib_ioc/");
+require_once(DOKU_LIB_IOC . "wikiiocmodel/AbstractModelManager.php");
 
 class WikiIocModelManager extends AbstractModelManager {
 
-    public function getProjectDir(){
-      throw new IllegalCallExeption("WikiIocModelManager: getProjectDir()");
+    public function getProjectTypeDir(){
+        throw new IllegalCallExeption("WikiIocModelManager: getProjectTypeDir()");
     }
 
 }

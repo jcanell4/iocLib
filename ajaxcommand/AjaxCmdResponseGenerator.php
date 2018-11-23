@@ -52,6 +52,16 @@ class AjaxCmdResponseGenerator {
     }
 
     /**
+     * Afegeix una resposta amb tipus RECALL al generador de respostes.
+     * @param array $data [do, id, projectType, metadataSubSet]
+     */
+    public function addRecall($data) {
+        $this->response->add(
+            new JSonGeneratorImpl(JSonGenerator::RECALL, $data)
+        );
+    }
+
+    /**
      * Afegeix una resposta amb tipus TITTLE_TYPE al generador de respostes.
      * @param string $tit títol per afegir al generador de respostes
      */

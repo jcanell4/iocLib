@@ -1,5 +1,9 @@
 <?php
 if (!defined('DOKU_INC')) die();
+if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC."lib/plugins/ajaxcommand/");
+require_once(DOKU_COMMAND.'defkeys/ResponseHandlerKeys.php');
+require_once(DOKU_COMMAND.'defkeys/ProjectKeys.php');
+require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
 /**
  * Class ioc_common: Contiene funciones comunes
  * @culpable Rafael
@@ -8,7 +12,6 @@ class IocCommon {
 
     /**
      * Genera un element amb la informació correctament formatada i afegeix el timestamp.
-     *
      * Per generar un info associat al esdeveniment global s'ha de passar el id com a buit
      *
      * @param string          $type     - tipus de missatge
@@ -86,5 +89,50 @@ class IocCommon {
         return $info;
     }
 
+    public function addResponseTab($dades, &$ajaxCmdResponseGenerator) {
+        $containerClass = "ioc/gui/ContentTabNsTreeListFromPage";;
+        $urlBase = "lib/exe/ioc_ajax.php?call=page";
+        $urlTree = "lib/exe/ioc_ajaxrest.php/ns_tree_rest/";
+
+        $contentParams = array(
+            "id" => cfgIdConstants::TB_SHORTCUTS,
+            "title" =>  $dades['title'],
+            "standbyId" => cfgIdConstants::BODY_CONTENT,
+            "urlBase" => $urlBase,
+            "data" => $dades["content"],
+            "treeDataSource" => $urlTree,
+            'typeDictionary' => array('p' => array (
+                                                'urlBase' => "lib/exe/ioc_ajax.php?call=project",
+                                                'params' => [ResponseHandlerKeys::PROJECT_TYPE]
+                                             ),
+                                      'pf' => array (
+                                                'urlBase' => "lib/exe/ioc_ajax.php?call=page",
+                                                'params' => [ResponseHandlerKeys::PROJECT_OWNER,
+                                                             ResponseHandlerKeys::PROJECT_SOURCE_TYPE]
+                                              ),
+                                      's' => array (
+                                                'urlBase' => "lib/exe/ioc_ajax.php?call=project",
+                                                'params' => [ProjectKeys::PROJECT_TYPE,
+                                                             ProjectKeys::KEY_METADATA_SUBSET]
+                                              )
+                                     )
+        );
+        $ajaxCmdResponseGenerator->addAddTab(cfgIdConstants::ZONA_NAVEGACIO,
+                                             $contentParams,
+                                             ResponseHandlerKeys::FIRST_POSITION,
+                                             $dades['selected'],
+                                             $containerClass
+                                            );
+
+    }
+    
+    public static function getFormat($id="", $def="undefined"){
+        if (preg_match('/.*-(.*)$/', $id, $matches)) {
+            return $matches[1];
+        } else {
+            return $def;
+        }
+
+    }
 
 }

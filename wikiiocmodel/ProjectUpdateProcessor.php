@@ -5,7 +5,6 @@
  * @author Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_INC . "lib/plugins/wikiiocmodel/");
 
 abstract class AbstractProjectUpdateProcessor{
     protected abstract function getFieldValue($fieldValue);
