@@ -6,6 +6,12 @@ class WiocclParser
     
     /* TODO: els noms dels WIOOCCL s'extrauran automàticament */
     protected static $tokenPatterns = [
+        '{@@' => [
+            'state' => 'open_extra',
+        ],
+        '@@}' => [
+            'state' => 'close_extra',
+        ],
         '{##' => [
             'state' => 'open_field',
         ],
@@ -59,6 +65,8 @@ class WiocclParser
         '</WIOCCL:IF>' => ['state' => 'close_if', 'type' => 'if', 'action' => 'close'],
         '<WIOCCL:SUBSET' => ['state' => 'open_subset', 'type' => 'subset', 'class' => 'WiocclSubset', 'action' => 'open'],
         '</WIOCCL:SUBSET>' => ['state' => 'close_subset', 'type' => 'subset', 'action' => 'close'],
+        '{@@' => ['state' => 'open_extra', 'type' => 'extra', 'class' => 'WiocclExtra', 'action' => 'open'],
+        '@@}' => ['state' => 'close_extra', 'type' => 'extra', 'action' => 'close'],
         '{##' => ['state' => 'open_field', 'type' => 'field', 'class' => 'WiocclField', 'action' => 'open'],
         '##}' => ['state' => 'close_field', 'type' => 'field', 'action' => 'close'],
         '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
