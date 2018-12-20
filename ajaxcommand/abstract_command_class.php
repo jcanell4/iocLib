@@ -464,7 +464,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
 
         //[NOTA: Rafael] Considero que este código ya no es necesario
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-            if (!$responseData['projectExtraData'][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
+            if (!$responseData[ProjectKeys::KEY_PROJECT_EXTRADATA][AjaxKeys::PROJECT_TYPE]) { //es una página de un proyecto
                 $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::PROJECT_TYPE, $this->params[AjaxKeys::PROJECT_TYPE]);
             }
         } else if ($data['command'] !== 'notify') {
