@@ -1166,15 +1166,14 @@ class AjaxCmdResponseGenerator {
         );
     }
 
-    public function addUpdateLocalDrafts($ns, $drafts)
-    {
+    public function addUpdateLocalDrafts($ns, $drafts, $extra=[]) {
+        $contentData = $extra;
+        $contentData['ns'] = $ns;
+        $contentData['drafts'] = $drafts;
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::UPDATE_LOCAL_DRAFTS,
-                [
-                    'ns' => $ns,
-                    'drafts' => $drafts
-                ]
+                $contentData
             )
         );
     }
