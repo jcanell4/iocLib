@@ -1106,6 +1106,8 @@ class AjaxCmdResponseGenerator {
         ];
         if ($dialog)
             $contentData['dialog'] = $dialog;
+        if ($extra['metaDataSubset'])
+            $contentData['metaDataSubset'] = $extra['metaDataSubset'];
 
         $this->response->add(
             new JSonGeneratorImpl(
