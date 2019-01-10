@@ -21,7 +21,10 @@ class IocCommon {
      *
      * @return array - array amb la configuració de l'item de informació
      */
-    public function generateInfo($type, $message, $id='', $duration=-1) {
+    public function generateInfo($type, $message, $id='', $duration=-1, $subSet=NULL) {
+        if ($id !== '' && $subSet && $subSet !== ProjectKeys::VAL_DEFAULTSUBSET) {
+            $id .= "-$subSet";
+        }
         return [
             'id'        => str_replace(':', '_', $id),
             'type'      => $type,
@@ -125,7 +128,7 @@ class IocCommon {
                                             );
 
     }
-    
+
     public static function getFormat($id="", $def="undefined"){
         if (preg_match('/.*-(.*)$/', $id, $matches)) {
             return $matches[1];
