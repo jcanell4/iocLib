@@ -23,7 +23,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
 
     public function init($params){
         $this->params = $params;
-        $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : "";
+        $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? "-".$params[ProjectKeys::KEY_METADATA_SUBSET] : "";
     }
 
     /**
@@ -87,7 +87,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * @return int
      */
     public function leaveResource($unlock = FALSE) {
-        
+
         $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
         $lockState = $this->lockDataQuery->checklock($docId, TRUE);
 
