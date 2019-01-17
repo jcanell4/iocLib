@@ -14,6 +14,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
 
     protected $lockDataQuery;
     protected $params;
+    protected $metaDataSubSet;
 
     public function __construct(BasicPersistenceEngine $persistenceEngine, $params=NULL) {
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
@@ -22,6 +23,7 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
 
     public function init($params){
         $this->params = $params;
+        $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? "-".$params[ProjectKeys::KEY_METADATA_SUBSET] : "";
     }
 
     /**
@@ -34,16 +36,14 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * @param bool $lock
      * @return [state:int, info:string]
      */
-    public function requireResource($lock = FALSE) {
+    public function requireResource($lock=FALSE) {
         return $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
     }
 
-    public function _requireResource($lock = FALSE, $refresh=FALSE) {
-
-        $docId = $this->params[PageKeys::KEY_ID];
-
-        $lockState = $this->lockDataQuery->checklock($docId);
+    public function _requireResource($lock=FALSE, $refresh=FALSE) {
         $state = array();
+        $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
+        $lockState = $this->lockDataQuery->checklock($docId);
 
         switch ($lockState) {
             case LockDataQuery::LOCKED:
@@ -88,10 +88,8 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      */
     public function leaveResource($unlock = FALSE) {
 
-        $docId = $this->params[PageKeys::KEY_ID];
-
-        // Estat del lock?
-        $lockState  = $this->lockDataQuery->checklock($docId, TRUE);
+        $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
+        $lockState = $this->lockDataQuery->checklock($docId, TRUE);
 
         switch ($lockState) {
             case LockDataQuery::LOCAL_LOCKED_BEFORE:
@@ -119,11 +117,11 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     }
 
     public function checklock() {
-        return $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID]);
+        return $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID].$this->metaDataSubSet);
     }
 
     public function updateLock() {
         return $this->_requireResource(TRUE, TRUE);
     }
-    
+
 }
