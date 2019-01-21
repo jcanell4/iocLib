@@ -110,13 +110,13 @@ class ajaxCall {
             }
         }
     }
-    
+
     function uploadParamsInPluginController(){
         global $plugin_controller;
         $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
                                                AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
                                                AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
-                                               AjaxKeys::METADATA_SUBSET    => $this->request_params[RequestParameterKeys::METADATA_SUBSET]]);
+                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET]]);
     }
 
     /**
@@ -137,18 +137,11 @@ class ajaxCall {
             require_once($file);
             $this->commandClass = $this->call . '_command';
         }
-        
+
         $this->uploadParamsInPluginController();
 
         //'commands' definits a altres plugins
         if (!$ret) {
-//            if ($this->request_params[RequestParameterKeys::PROJECT_TYPE]) {
-//                global $plugin_controller;
-//                $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
-//                                                       AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
-//                                                       AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER]
-//                                                    ]);
-//            }
             $pluginList = plugin_list('command');
             $DOKU_PLUGINS = DOKU_INC . "lib/plugins/";
 

@@ -1106,6 +1106,8 @@ class AjaxCmdResponseGenerator {
         ];
         if ($dialog)
             $contentData['dialog'] = $dialog;
+        if ($extra['metaDataSubset'])
+            $contentData['metaDataSubset'] = $extra['metaDataSubset'];
 
         $this->response->add(
             new JSonGeneratorImpl(
@@ -1166,21 +1168,20 @@ class AjaxCmdResponseGenerator {
         );
     }
 
-    public function addUpdateLocalDrafts($ns, $drafts)
-    {
+    public function addUpdateLocalDrafts($ns, $drafts, $extra=[]) {
+        $contentData = $extra;
+        $contentData['ns'] = $ns;
+        $contentData['drafts'] = $drafts;
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::UPDATE_LOCAL_DRAFTS,
-                [
-                    'ns' => $ns,
-                    'drafts' => $drafts
-                ]
+                $contentData
             )
         );
     }
 
-    public static function generateInfo($type, $message, $id = '', $duration = -1) {
-        return IocCommon::generateInfo($type, $message, $id, $duration);
+    public static function generateInfo($type, $message, $id='', $duration=-1, $subSet=NULL) {
+        return IocCommon::generateInfo($type, $message, $id, $duration, $subSet);
     }
 
     public static function addInfoToInfo($infoA, $infoB) {

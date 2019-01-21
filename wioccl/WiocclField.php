@@ -31,26 +31,26 @@ class WiocclField extends WiocclInstruction {
 
     }
 
-    public function parseTokens($tokens, &$tokenIndex)
-    {
-
-        $result = '';
-
-
-        while ($tokenIndex<count($tokens)) {
-
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-
-            if ($parsedValue === null) { // tancament del field
-                break;
-
-            } else {
-                $result .= $parsedValue;
-            }
-
-            ++$tokenIndex;
-        }
-
-        return $result;
-    }
+//    public function parseTokens($tokens, &$tokenIndex)
+//    {
+//
+//        $result = '';
+//
+//
+//        while ($tokenIndex<count($tokens)) {
+//
+//            $parsedValue = $this->parseToken($tokens, $tokenIndex);
+//
+//            if ($parsedValue === null) { // tancament del field
+//                break;
+//
+//            } else {
+//                $result .= $parsedValue;
+//            }
+//
+//            ++$tokenIndex;
+//        }
+//
+//        return $result;
+//    }
 }
