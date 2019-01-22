@@ -29,9 +29,12 @@ class UpgradeManager {
 
         $dir = WikiIocPluginController::getProjectTypeDir($this->projectType) . "upgrader";
         for ($i=$ver_project; $i<=$ver_config; $i++) {
-            $udir = "$dir/upgrader_$i";
+            $uclass = "upgrader_$i";
+            $udir = "$dir/$uclass.php";
             if (file_exists($udir)) {
                 require_once $udir;
+                $iupgrade = new $uclass($this->model);
+                $iupgrade->process();
             }
         }
     }
