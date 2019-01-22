@@ -219,7 +219,7 @@ class WiocclFunction extends WiocclInstruction
         return self::_compareSingleValues($obj1[$field], $obj2[$field], $type);
     }
     
-    private static function _compareSingleValues($v1, $v2, $type, $field){
+    private static function _compareSingleValues($v1, $v2, $type){
         $ret = FALSE;
         switch ($type){
             case "<":
