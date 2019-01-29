@@ -2,42 +2,23 @@
 /**
  * CommonUpgrader: Colección de funciones de transformación, para los datos de proyecto,
  *                 entre estructuras de distintas versiones
- * @author rafael
+ * @culpable rafael
  */
 if (!defined("DOKU_INC")) die();
 
 class CommonUpgrader {
 
     /**
-     * Modifica el nombre de un campo (modifica el nombre de una clave del array de datos del proyecto)
-     * @param dataProject : array de datos del proyecto (del archivo mdprojects/.../.../*.mdpr)
-     * @param name_0 : nombre de clave original (versión 0)
-     * @param name_1 : nuevo nombre de clave (versión 1)
+     * Modifica el nombre de un campo perteneciente a una tabla (multirregistro)
+     * (modifica el nombre de una clave del array de datos del proyecto)
+     * @param array $data : array de datos del proyecto (del archivo mdprojects/.../.../*.mdpr)
+     * @param array $u0 : ruta completa (del array multinivel) de la clave original (versión 0)
+     * @param array $u1 : ruta completa (del array multinivel) de la nueva clave (versión 1)
      */
-    public function changeFieldNameArray($data, $name_0, $name_1) {
-        $items0 = (is_array($name_0)) ? $name_0 : explode(":", $name_0);
-        $items1 = (is_array($name_1)) ? $name_1 : explode(":", $name_1);
-        $rama = array();
-        for ($i=0; $i<=count($items0); $i++) {
-            $rama = $data[$items0[$i]];
-            $a = json_decode($rama, TRUE);
-            if (is_array($a) && isset($items0[$i+1])) {
-                if (is_array($a[0])) {
-                    for ($j=0; $j<count($a); $j++) {
-                        $ret[$j] = $this->changeFieldNameArray($a[$j], $items0[$i+1], $items1[$i+1]);
-                    }
-                }else{
-                    $ret = $this->changeFieldNameArray($a, $items0[$i+1], $items1[$i+1]);
-                }
-            }else {
-                $data[$items1[$i]] = $rama;
-                return $data;
-            }
-        }
-//        for ($i=0; $i<=count($items0); $i++) {
-//            unset($dataProject[$items0[$i]]);
-//        }
-        return $data;
+    public function changeFieldNameInArrayMultiRow($data, $u0, $u1) {
+        $data = $this->changeFieldName($data, $u0[0], $u1[0]);
+        $data[$u1[0]] = $this->changeFieldNameInMultiRow($data[$u1[0]], $u0[1], $u1[1]);
+        return $data ;
     }
 
     /**
@@ -58,30 +39,78 @@ class CommonUpgrader {
         return $dataChanged;
     }
 
+    public function changeFieldNameInMultiRow($rama, $u0, $u1) {
+        $rama = (is_array($rama)) ? $rama : json_decode($rama, TRUE);
+        if (is_array($rama[0])) { //es un conjunto de filas de una tabla
+            for ($j=0; $j<count($rama); $j++) {
+                $ret = $this->changeFieldName($rama[$j], $u0, $u1);
+                $rama[$j] = json_encode($ret);
+            }
+        }else {
+            $rama = $this->changeFieldName($rama, $u0, $u1);
+        }
+        return json_encode($rama);
+    }
+
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //                                  PROVES
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    private function bajaSube($rama, $u0, $i) {
+        $dato = json_decode($rama, TRUE);
+        if ($i < count($u0)-1) {
+            $dato[$u0[$i]] = $this->bajaSube($dato[$u0[$i]], $u0, $i+1);
+            $ret = json_encode($dato);
+        }else {
+            $ret = json_encode($dato);
+        }
+        return $ret;
+    }
     /**
-     * Modifica el nombre de un campo (modifica el nombre de una clave del array de datos del proyecto)
-     * @param dataProject : array de datos del proyecto (del archivo mdprojects/.../.../*.mdpr)
-     * @param name_0 : nombre de clave original (versión 0)
-     * @param name_1 : nuevo nombre de clave (versión 1)
+     * Lee el contenido de una rama de un array
+     * @param array $rama : array de datos
+     * @param array $u0 : ruta completa (del array multinivel) de la clave a leer
+     * @param integer $i : nivel
      */
-    public function fieldNameArrayChanged($dataProject, $name_0, $name_1) {
-        $items0 = explode(":", $name_0);
-        $items1 = explode(":", $name_1);
-        $old_value = $dataProject;
-        for ($i=0; $i<=count($items0); $i++) {
-            if ($old_value[$items0[$i]]) {
-                $a = json_decode($old_value[$items0[$i]], TRUE);
-                $old_value = &$old_value[$items0[$i]];
-                if ($old_value) {
-                    //unset($dataProject[$items0[$i]]);
-                    $dataProject[$items1[$i]] = $old_value; //insert
-                }
+    private function readArrayBranch(&$rama, $u0, $u1, $i) {
+        $rama = (is_array($rama)) ? $rama : json_decode($rama, TRUE);
+        if (is_array($rama[0])) { //es un conjunto de filas de una tabla
+            $rama = $rama[0];
+        }
+        $tmp = $rama[$u0[$i]];
+        if ($i < count($u0) - 1) {
+            $ret = $this->readArrayBranch($tmp, $u0, $u1, $i+1);
+        }else {
+            unset($rama[$u0[$i]]);
+            $rama[$u1[$i]] = $tmp;
+            $ret = json_encode($rama);
+         }
+        return $ret;
+    }
+
+    /**
+     * Lee el contenido de una rama de un array
+     * @param array $rama : array de datos
+     * @param array $u0 : ruta completa (del array multinivel) de la clave a leer
+     * @param integer $i : nivel
+     */
+    private function readArrayBranchMultiRow(&$rama, $u0, $u1, $i) {
+        $rama = (is_array($rama)) ? $rama : json_decode($rama, TRUE);
+        if (is_array($rama[0])) { //es un conjunto de filas de una tabla
+            for ($j=0; $j<count($rama); $j++) {
+                $ret = $this->readArrayBranchMultiRow($rama[$j], $u0, $u1, $i);
+            }
+        }else {
+            $tmp = $rama[$u0[$i]];
+            unset($rama[$u0[$i]]);
+            $rama[$u1[$i]] = $tmp;
+            if ($i < count($u0)-1) {
+                $ret = $this->readArrayBranchMultiRow($tmp, $u0, $u1, $i+1);
+            }else {
+                $ret = $rama;
             }
         }
-//        for ($i=0; $i<=count($items0); $i++) {
-//            unset($dataProject[$items0[$i]]);
-//        }
-        return $dataProject;
+        return $ret;
     }
 
     //Transforma el objeto en un array puro
