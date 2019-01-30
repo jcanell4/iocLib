@@ -7,31 +7,37 @@
 if (!defined("DOKU_INC")) die();
 
 class CommonUpgrader {
-
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //                    Actualización de nombres de campo del formulario
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
      * Modifica el nombre de un campo perteneciente a una tabla (multirregistro)
      * (modifica el nombre de una clave del array de datos del proyecto)
      * @param array $data : array de datos del proyecto (del archivo mdprojects/.../.../*.mdpr)
      * @param array $u0 : ruta completa (del array multinivel) de la clave original (versión 0)
      * @param array $u1 : ruta completa (del array multinivel) de la nueva clave (versión 1)
+     * @return array de datos con los nombres de las claves $u0 cambiados a $u1
      */
-    public function changeFieldNameInArrayMultiRow($data, $u0, $u1) {
+    public function changeFieldNameInArray($data, $u0, $u1) {
         $data = $this->changeFieldName($data, $u0[0], $u1[0]);
-        $data[$u1[0]] = $this->changeFieldNameInMultiRow($data[$u1[0]], $u0[1], $u1[1]);
+        for ($i=0; $i<count($u0)-1; $i++) {
+            $data[$u1[$i]] = $this->changeFieldNameInMultiRow($data[$u1[$i]], $u0[$i+1], $u1[$i+1]);
+        }
         return $data ;
     }
 
     /**
      * Modifica el nombre de una clave de un array y retorna el array con la clave renombrada
-     * @param arrayData : array de datos
-     * @param name_0 : nombre de clave original
-     * @param name_1 : nuevo nombre de clave
+     * @param array $data : array de datos
+     * @param string $u0 : nombre de clave original
+     * @param string $u1 : nuevo nombre de clave
+     * @return array de datos con el nombre de la clave $u0 cambiado a $u1
      */
-    public function changeFieldName($arrayData, $name_0, $name_1) {
+    public function changeFieldName($data, $u0, $u1) {
         $dataChanged = array();
-        foreach ($arrayData as $key => $value) {
-            if ($key === $name_0) {
-                $dataChanged[$name_1] = $value;
+        foreach ($data as $key => $value) {
+            if ($key === $u0) {
+                $dataChanged[$u1] = $value;
             }else {
                 $dataChanged[$key] = $value;
             }
@@ -52,10 +58,33 @@ class CommonUpgrader {
         return json_encode($rama);
     }
 
-    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    //                                  PROVES
-    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //                              Actualización de plantillas
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    /**
+     * Aplica una nueva plantilla a un documento creado con una plantilla antigua
+     * NOTA: las 2 plantillas y el documento deben tener el mismo número de fragmentos [##TODO
+     *       Se equiparan los frangmentos por su número de orden de aparición, independientemente de su contenido
+     * @param string $t0 : texto de la plantilla original
+     * @param string $t1 : texto de la nueva plantilla
+     * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
+     * @return string transformado
+     */
+    public function comparaTemplates($t0, $t1, $doc) {
+        $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $st1 = preg_split('/(\[##TODO.*##\])/', $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
 
+        for ($i=0; $i<count($st0); $i++) {
+            $st0[$i] = "/".preg_quote($st0[$i], '/')."/";
+        }
+
+        $ret = preg_replace($st0, $st1, $doc);
+        return $ret;
+    }
+
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //                                  PROVES
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     private function bajaSube($rama, $u0, $i) {
         $dato = json_decode($rama, TRUE);
         if ($i < count($u0)-1) {
@@ -140,7 +169,8 @@ class CommonUpgrader {
         return $temp;
     }
 
-    //Obtiene un array (de 1 dimensión) en el que el conjunto de sus claves especifican, en orden inverso, la localización de la clave buscada
+    //Obtiene un array (de 1 dimensión) en el que el conjunto de sus claves especifican, en orden inverso,
+    //la localización de la clave buscada
     public function getKeyPathArray($arr, $lookup) {
         if (array_key_exists($lookup, $arr)) {
             return array($lookup);
