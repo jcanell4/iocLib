@@ -70,7 +70,7 @@ class CommonUpgrader {
      * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
      * @return string transformado
      */
-    public function comparaTemplates($t0, $t1, $doc) {
+    public function updateDocToNewTemplate($t0, $t1, $doc) {
         $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
         $st1 = preg_split('/(\[##TODO.*##\])/', $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -79,6 +79,111 @@ class CommonUpgrader {
         }
 
         $ret = preg_replace($st0, $st1, $doc);
+        return $ret;
+    }
+
+    /**
+     * Aplica una nueva plantilla, con token numerado, a un documento creado con una plantilla antigua
+     * NOTA: las 2 plantillas pueden tener distinto número de fragmentos [##TODO_n:
+     *       Se equiparan los frangmentos por su número de [##TODO_n:
+     * @param string $t0 : texto de la plantilla original
+     * @param string $t1 : texto de la nueva plantilla
+     * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
+     * @return string transformado
+     */
+    public function updateDocToNewTemplateNumbered($t0, $t1, $doc) {
+
+//        $ret = $this->updateDocToNewTemplateNumbered_1($t0, $t1, $doc);
+//        $ret = $this->updateDocToNewTemplateNumbered_2($t0, $t1, $doc);
+        $ret = $this->updateDocToNewTemplateNumbered_3($t0, $t1, $doc);
+
+        return $ret;
+    }
+
+    // Este modelo reemplaza los tokens en el mismo orden en que los encuentra
+    public function updateDocToNewTemplateNumbered_1($t0, $t1, $doc) {
+        $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        //busca los tokens del template 0 en el template 1 y los marca con [##TTODO
+        for ($i=0; $i<count($st0); $i++) {
+            preg_match("/^\[##TODO_(\d+):/", $st0[$i], $p);
+            if ($p[0]) {
+                $t1 = preg_replace("/\\{$p[0]}/", "[##TTODO_{$p[1]}:", $t1);
+            }
+            //aprovecha el bucle para convertir cada elemento en un patrón de búsqueda
+            $st0[$i] = "/".preg_quote($st0[$i], '/')."/";
+        }
+        $st1 = preg_split("/(\[##TTODO_.*##\])/", $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        $ret = preg_replace($st0, $st1, $doc);
+        $ret = preg_replace("/\[##TTODO_(\d+):/", "[##TODO_$1:", $ret);
+        return $ret;
+    }
+
+    // Este modelo reemplaza los tokens según su número token
+    public function updateDocToNewTemplateNumbered_2($t0, $t1, $doc) {
+        $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        //busca los tokens del template 0 en el template 1 y los marca con [##TTODO
+        for ($i=0; $i<count($st0); $i++) {
+            preg_match("/^\[##TODO_(\d+):/", $st0[$i], $p);
+            if ($p[0]) {
+                $t1 = preg_replace("/\\{$p[0]}/", "[##TTODO_{$p[1]}:", $t1);
+            }
+        }
+        $st1 = preg_split("/(\[##TTODO_.*##\])/", $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        //Reemplaza en el $doc los tokens numerados correspondientes al template 0
+        //por los tokens numerados equivalentes del template 1
+        for ($i=0; $i<count($st0); $i++) {
+            preg_match("/^\[##TODO_(\d+):/", $st0[$i], $p);
+            $st0[$i] = "/".preg_quote($st0[$i], '/')."/";  //convierte el elemento en patrón de búsqueda
+            if ($p[0]) {
+                for ($j=0; $j<count($st1); $j++) {
+                    preg_match("/^\[##TTODO_{$p[1]}:.*##]/", $st1[$j], $p1);
+                    if ($p1[0]) {
+                        $doc = preg_replace($st0[$i], $p1[0], $doc);
+                        break;
+                    }
+                }
+            }else {
+                $doc = preg_replace($st0[$i], $st1[$i], $doc);
+            }
+        }
+        $ret = preg_replace("/\[##TTODO_(\d+):/", "[##TODO_$1:", $doc);
+        return $ret;
+    }
+
+    // Este modelo reemplaza los tokens, emparejados con su predecesor, según su número token
+    public function updateDocToNewTemplateNumbered_3($t0, $t1, $doc) {
+        $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        //busca los tokens del template 0 en el template 1 y los marca con [##TTODO
+        for ($i=0; $i<count($st0); $i++) {
+            preg_match("/^\[##TODO_(\d+):/", $st0[$i], $p);
+            if ($p[0]) {
+                $t1 = preg_replace("/\\{$p[0]}/", "[##TTODO_{$p[1]}:", $t1);
+            }
+        }
+        $st1 = preg_split("/(\[##TTODO_.*##\])/", $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        //Reemplaza en el $doc los tokens numerados, emparejados con su predecesor,
+        //correspondientes al template 0, por los tokens equivalentes del template 1
+        for ($i=0; $i<count($st0); $i++) {
+            preg_match("/^\[##TODO_(\d+):/", $st0[$i], $p);
+            $st0[$i] = "/".preg_quote($st0[$i], '/')."/";  //convierte el elemento en patrón de búsqueda
+            if ($p[0]) {
+                for ($j=0; $j<count($st1); $j++) {
+                    preg_match("/^\[##TTODO_{$p[1]}:.*##]/", $st1[$j], $p1);
+                    if ($p1[0]) {
+                        $doc = preg_replace($st0[$i-1], $st1[$j-1], $doc);
+                        $doc = preg_replace($st0[$i], $p1[0], $doc);
+                        break;
+                    }
+                }
+            }
+        }
+        $ret = preg_replace("/\[##TTODO_(\d+):/", "[##TODO_$1:", $doc);
         return $ret;
     }
 
