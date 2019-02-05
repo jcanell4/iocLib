@@ -62,17 +62,111 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
+     * Mueve un trozo de texto de una posición a otra del documento
+     * @param string $doc : texto del documento a modificar
+     * @param array $aTokens : matriz de elementos [regexp0, (expresión regular que determina el texto que se desea mover)
+     *                                              regexp1, (expresión regular que determina el lugar al que hay que mover el texto)
+     *                                              pos, (posición el la que se inserta el texto: 0:antes, 1:después de regexp1)
+     *                                              modif (optativo. modificadores de PCRE: m:multiline i:ignorecase)]
+     */
+    public function updateTemplateMove($doc, $aTokens) {
+        foreach ($aTokens as $tok) {
+            $m = ($tok['modif']) ? $tok['modif'] : "";
+            $t0 = "/".$tok['regexp0']."/$m";
+            if (preg_match($t0, $doc, $stmp0) === 1) {
+                $t1 = "/".$tok['regexp1']."/$m";
+                if (preg_match($t1, $doc, $stmp1) === 1) {
+                    $doc = preg_replace($t0, "", $doc);  //Delete
+                    $s = ($tok['pos']===0) ? $stmp1[0].$stmp0[0] : $stmp0[0].$stmp1[0];
+                    $doc = preg_replace($t1, $s, $doc);   //Insert
+                }
+            }
+        }
+        return $doc;
+    }
+
+    /**
+     * Inserta en el documento trozos de texto en las posiciones indicadas por cada una de las expresiones regulares
+     * @param string $doc : texto del documento a modificar
+     * @param array $aTokens : matriz de elementos [regexp, (expresión regular para buscar el lugar en el que se insertará el nuevo texto)
+     *                                              text, (texto a insertar)
+     *                                              pos, (posición el la que se inserta el texto: 0:antes, 1:después)
+     *                                              modif (optativo. modificadores de PCRE: m:multiline i:ignorecase)]
+     *                         que indican el lugar en el que hay que insertar un nuevo texto
+     */
+    public function updateTemplateInsert($doc, $aTokens) {
+        $ret = $doc;
+        foreach ($aTokens as $tok) {
+            $m = ($tok['modif']) ? $tok['modif'] : "";
+            $t = "/".$tok['regexp']."/$m";
+            if (preg_match($t, $doc, $stmp) === 1) {
+                $s = ($tok['pos']===0) ? $tok['text'].$stmp[0] : $stmp[0].$tok['text'];
+                $ret = preg_replace($t, $s, $ret);
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Elimina del documento los fragmentos de texto que cumplen con cada una de las expresiones regulares
+     * @param string $doc : texto del documento a modificar
+     * @param array $aTokens : matriz de expresiones regulares que establecen los fragmentos de texto a eliminar
+     */
+    public function updateTemplateDelete($doc, $aTokens) {
+        foreach ($aTokens as $tok) {
+            $doc = preg_replace("/$tok/m", "", $doc);
+        }
+        return $doc;
+    }
+
+    /**
+     * Aplica una nueva plantilla a un documento que fue creado con una plantilla antigua
+     * @param string $t0 : texto de la plantilla original
+     * @param string $t1 : texto de la nueva plantilla
+     * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
+     * @param string $token0 : expresión regular mediante la cual se dividirán la plantilla original y el documento
+     * @param array $aTokens : matriz de expresiones regulares mediante las cuales se dividirá la nueva plantilla
+     */
+    public function updateTemplateReplace($t0, $t1, $doc, $token0, $aTokens) {
+        //dividimos en fragmentos la plantilla original mediante la expresión de $token0
+        $st0 = preg_split("/($token0)/", $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        if (count($st0) !== count($aTokens)) {
+            throw new Exception("El nombre d'elements de la matriu d'expressions regulars és incorrecte.");
+        }
+
+        //convierte cada elemento, generado por la expresión regular en la plantilla original, en un patrón de búsqueda
+        for ($i=0; $i<count($st0); $i++) {
+            $st0[$i] = "/".preg_quote($st0[$i], '/')."/";
+        }
+
+        //construye un array de strings de sustitución buscando expresiones regulares en la nueva plantilla
+        foreach ($aTokens as $tok) {
+            if (preg_match($tok, $t1, $stmp) === 1)
+                $st1[] = $stmp[0];
+        }
+        if (count($st0) !== count($st1)) {
+            throw new Exception("No hi ha prou correspondències a la llista d'expressions regulars.");
+        }
+
+        $ret = preg_replace($st0, $st1, $doc);
+        return $ret;
+    }
+
+    /**
      * Aplica una nueva plantilla a un documento creado con una plantilla antigua
      * NOTA: las 2 plantillas y el documento deben tener el mismo número de fragmentos [##TODO
      *       Se equiparan los frangmentos por su número de orden de aparición, independientemente de su contenido
      * @param string $t0 : texto de la plantilla original
      * @param string $t1 : texto de la nueva plantilla
      * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
+     * @param string $token : expresión regular mediante la cual se dividirán las plantillas y el documento
      * @return string transformado
      */
-    public function updateDocToNewTemplate($t0, $t1, $doc) {
-        $st0 = preg_split('/(\[##TODO.*##\])/', $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $st1 = preg_split('/(\[##TODO.*##\])/', $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
+    public function updateDocToNewTemplate($t0, $t1, $doc, $token=NULL) {
+        if (!$token) $token = "\[##TODO.*##\]";
+        $st0 = preg_split("/($token)/", $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $st1 = preg_split("/($token)/", $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         for ($i=0; $i<count($st0); $i++) {
             $st0[$i] = "/".preg_quote($st0[$i], '/')."/";
