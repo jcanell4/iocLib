@@ -25,10 +25,12 @@ class WiocclFunction extends WiocclInstruction
         $string = "[" . $string . "]";
 
         $jsonArgs = json_decode($string, true);
+        //return $jsonArgs;
 
-        return $jsonArgs;
+        //ALERTA: cal verificar quan es produeix una situació en la que $jsonArgs té un valor incorrecte
+        return ($jsonArgs!==NULL || !is_array($jsonArgs)) ? $jsonArgs : [];
     }
-    
+
     public function parseTokens($tokens, &$tokenIndex)
     {
         $result = '';
@@ -74,7 +76,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $ret;
     }
-    
+
     private function _countValueInArray($array, $value){
         $cont=0;
         foreach ($array as $item) {
@@ -84,7 +86,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $cont;
     }
-    
+
     private function _countValuesInArray($array, $values){
         $compliant = false;
         $cont=0;
@@ -98,7 +100,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $cont;
     }
-    
+
     private function _countValueInFieldOfArray($array, $field, $value){
         $cont=0;
         foreach ($array as $item) {
@@ -106,9 +108,9 @@ class WiocclFunction extends WiocclInstruction
                 $cont++;
             }
         }
-        return $cont;        
+        return $cont;
     }
-    
+
     private function _countValuesInFieldOfArray($array, $field, $values){
         $compliant = false;
         $cont=0;
@@ -122,7 +124,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $cont;
     }
-    
+
     private function _countValuesInFieldsOfArray($array, $fields, $valuesOfValues){
         $compliantField = true;
         $compliantValue = false;
@@ -131,7 +133,7 @@ class WiocclFunction extends WiocclInstruction
             for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
                 for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
                     $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
-                }                
+                }
                 $compliantField = $compliantValue;
             }
             if ($compliantField) {
@@ -140,7 +142,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $cont;
     }
-    
+
     private function _countValueInFieldsObjectArray($array, $fields, $values){
         $compliant = true;
         $cont=0;
@@ -154,7 +156,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $cont;
     }
-    
+
     protected function YEAR($date=NULL){
         if($date==NULL){
             $ret = date("Y");
@@ -163,7 +165,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $ret;
     }
-    
+
     protected function DATE($date, $sep="-")
     {
         return date("d".$sep."m".$sep."Y", strtotime(str_replace('/', '-', $date)));
@@ -203,10 +205,10 @@ class WiocclFunction extends WiocclInstruction
     {
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
     }
-    
+
     private static function _compareMultiObjectFields($obj1, $obj2, $type, $fields, $pos=0){
         if($pos >= count($fields)){
-            $ret = substr($type, 1, 1)==="=";            
+            $ret = substr($type, 1, 1)==="=";
         }else if($obj1[$fields[$pos]]==$obj2[$fields[$pos]]){
             $ret = self::_compareMultiObjectFields($obj1, $obj2, $fields, $type, $pos+1);
         }else{
@@ -214,11 +216,11 @@ class WiocclFunction extends WiocclInstruction
         }
         return $ret;
     }
-    
+
     private static function _compareSingleObjectFields($obj1, $obj2, $type, $field){
         return self::_compareSingleValues($obj1[$field], $obj2[$field], $type);
     }
-    
+
     private static function _compareSingleValues($v1, $v2, $type){
         $ret = FALSE;
         switch ($type){
@@ -244,7 +246,7 @@ class WiocclFunction extends WiocclInstruction
             $compare = "_compareSingleValues";
             $valueFromTemplate = $template!=="MIN";
         } else if(is_array($fields)){ //OBJECT and multi field comparation
-            $compare = "_compareMultiObjectFields";            
+            $compare = "_compareMultiObjectFields";
         }else{  //OBJECT and single fiels comparation
             $compare = "_compareSingleObjectFields";
         }
@@ -274,7 +276,7 @@ class WiocclFunction extends WiocclInstruction
             $compare = "_compareSingleValues";
             $valueFromTemplate = $template!=="MAX";
         } else if(is_array($fields)){ //OBJECT and multi field comparation
-            $compare = "_compareMultiObjectFields";            
+            $compare = "_compareMultiObjectFields";
         }else{  //OBJECT and single fiels comparation
             $compare = "_compareSingleObjectFields";
         }
