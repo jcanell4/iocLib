@@ -23,20 +23,26 @@ class UpgradeManager {
     }
 
     public function process($ver_project=0, $ver_config=0) {
+        $ret = $ver_project;
         if ($ver_project) $this->ver_project = $ver_project;
         if ($ver_config) $this->ver_config = $ver_config;
         $this->validaProcessVersion();
 
         $dir = WikiIocPluginController::getProjectTypeDir($this->projectType) . "upgrader";
-        for ($i=$ver_project; $i<=$ver_config; $i++) {
+        for ($i=$ver_project+1; $i<=$ver_config; $i++) {
             $uclass = "upgrader_$i";
             $udir = "$dir/$uclass.php";
             if (file_exists($udir)) {
                 require_once $udir;
                 $iupgrade = new $uclass($this->model);
                 $iupgrade->process();
+                $ret = $i;
+            }else{
+                $i=$ver_config+1;
             }
         }
+        
+        return $ret;
     }
 
     private function validaProcessVersion() {
