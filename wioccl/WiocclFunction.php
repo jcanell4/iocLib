@@ -8,7 +8,7 @@ class WiocclFunction extends WiocclInstruction
 
     protected function init($value)
     {
-        if (preg_match('/(.*?)\((.*?)\)/s', $value, $matches) === 0) {
+        if (preg_match('/(.*?)\((.*)\)/s', $value, $matches) === 0) {
             throw new Exception("Incorrect function structure");
         };
 
