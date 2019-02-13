@@ -62,6 +62,18 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
+     * Reemplaza en el documento los fragmentos de texto que cumplen con cada una de las expresiones regulares
+     * @param string $doc : texto del documento a modificar
+     * @param array $aTokens : matriz de parejas [regexp_search, text_substitute] que establecen los fragmentos de texto a reemplazar
+     */
+    public function updateTemplateByReplace($doc, $aTokens) {
+        foreach ($aTokens as $tok) {
+            $doc = preg_replace("/$tok[0]/m", $tok[1], $doc);
+        }
+        return $doc;
+    }
+
+    /**
      * Mueve un trozo de texto de una posición a otra del documento
      * @param string $doc : texto del documento a modificar
      * @param array $aTokens : matriz de elementos [regexp0, (expresión regular que determina el texto que se desea mover)
@@ -69,7 +81,7 @@ class CommonUpgrader {
      *                                              pos, (posición el la que se inserta el texto: 0:antes, 1:después de regexp1)
      *                                              modif (optativo. modificadores de PCRE: m:multiline i:ignorecase)]
      */
-    public function updateTemplateMove($doc, $aTokens) {
+    public function updateTemplateByMove($doc, $aTokens) {
         foreach ($aTokens as $tok) {
             $m = ($tok['modif']) ? $tok['modif'] : "";
             $t0 = "/".$tok['regexp0']."/$m";
@@ -94,7 +106,7 @@ class CommonUpgrader {
      *                                              modif (optativo. modificadores de PCRE: m:multiline i:ignorecase)]
      *                         que indican el lugar en el que hay que insertar un nuevo texto
      */
-    public function updateTemplateInsert($doc, $aTokens) {
+    public function updateTemplateByInsert($doc, $aTokens) {
         $ret = $doc;
         foreach ($aTokens as $tok) {
             $m = ($tok['modif']) ? $tok['modif'] : "";
@@ -112,7 +124,7 @@ class CommonUpgrader {
      * @param string $doc : texto del documento a modificar
      * @param array $aTokens : matriz de expresiones regulares que establecen los fragmentos de texto a eliminar
      */
-    public function updateTemplateDelete($doc, $aTokens) {
+    public function updateTemplateByDelete($doc, $aTokens) {
         foreach ($aTokens as $tok) {
             $doc = preg_replace("/$tok/m", "", $doc);
         }
@@ -127,7 +139,7 @@ class CommonUpgrader {
      * @param string $token0 : expresión regular mediante la cual se dividirán la plantilla original y el documento
      * @param array $aTokens : matriz de expresiones regulares mediante las cuales se dividirá la nueva plantilla
      */
-    public function updateTemplateReplace($t0, $t1, $doc, $token0, $aTokens) {
+    public function updateTemplateReplacingTokens($t0, $t1, $doc, $token0, $aTokens) {
         //dividimos en fragmentos la plantilla original mediante la expresión de $token0
         $st0 = preg_split("/($token0)/", $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
 

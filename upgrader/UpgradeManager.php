@@ -35,13 +35,16 @@ class UpgradeManager {
             if (file_exists($udir)) {
                 require_once $udir;
                 $iupgrade = new $uclass($this->model);
-                $iupgrade->process();
-                $ret = $i;
+                if ($iupgrade->process()) {
+                    $ret = $i;
+                }else {
+                    break;
+                }
             }else{
                 $i=$ver_config+1;
             }
         }
-        
+
         return $ret;
     }
 
