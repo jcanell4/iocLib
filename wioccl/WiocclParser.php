@@ -47,6 +47,12 @@ class WiocclParser
         ],
         '</WIOCCL:SUBSET>(\n)?' => [
             'state' => 'close_subset',
+        ],
+        '<WIOCCL:SET .*?[^\\\\]>(\n)?' => [
+            'state' => 'open_set',
+        ],
+        '</WIOCCL:SET>(\n)?' => [
+            'state' => 'close_set',
         ]
 
 
@@ -65,6 +71,8 @@ class WiocclParser
         '</WIOCCL:IF>' => ['state' => 'close_if', 'type' => 'if', 'action' => 'close'],
         '<WIOCCL:SUBSET' => ['state' => 'open_subset', 'type' => 'subset', 'class' => 'WiocclSubset', 'action' => 'open'],
         '</WIOCCL:SUBSET>' => ['state' => 'close_subset', 'type' => 'subset', 'action' => 'close'],
+        '<WIOCCL:SET' => ['state' => 'open_set', 'type' => 'set', 'class' => 'WiocclSet', 'action' => 'open'],
+        '</WIOCCL:SET>' => ['state' => 'close_set', 'type' => 'set', 'action' => 'close'],
         '{@@' => ['state' => 'open_extra', 'type' => 'extra', 'class' => 'WiocclExtra', 'action' => 'open'],
         '@@}' => ['state' => 'close_extra', 'type' => 'extra', 'action' => 'close'],
         '{##' => ['state' => 'open_field', 'type' => 'field', 'class' => 'WiocclField', 'action' => 'open'],

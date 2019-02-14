@@ -156,9 +156,23 @@ class WiocclInstruction
         // ALERTA: El $value pot ser un json directament o una variable, s'ha de fer un parse del $value
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
 //            $jsonString = (new WiocclParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
-            $jsonString = WiocclParser::getValue($matches[1], $this->getArrays(), $this->getDataSource());
+            $string = preg_replace("/''/", '"', $matches[1]);
+            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource());
         } else if($mandatory){
             throw new Exception("Array is missing");
+        }
+        return json_decode($jsonString, true);
+    }
+
+    protected function extractMap($value, $attr="map", $mandatory=true) {
+        $jsonString = '{}';
+        // ALERTA: El $value pot ser un json directament o una variable, s'ha de fer un parse del $value
+        if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
+//            $jsonString = (new WiocclParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
+            $string = preg_replace("/''/", '"', $matches[1]);
+            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource());
+        } else if($mandatory){
+            throw new Exception("Map is missing");
         }
         return json_decode($jsonString, true);
     }
