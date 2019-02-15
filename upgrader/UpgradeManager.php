@@ -62,7 +62,7 @@ class UpgradeManager {
      * del archivo de sistema "_wikiIocSystem_.mdpr" del proyecto en curso.
      * Los valores constantes de esta función son constantes porque describen la historia real de los cambios
      */
-    public static function preUpgrade($model, $subSet) {
+    public static function preUpgrade($model, $projectType, $subSet) {
         //Averigua si el archivo está en la versión actual:
         //  {"state":{"generated":false},"main":{"versions":{"fields":0,"templates":{"continguts":0}}}}
         $ver = $model->getProjectSystemSubSetAttr("versions", $subSet);
@@ -70,10 +70,21 @@ class UpgradeManager {
         if (!$ver) {
             //preguntamos por la versión 0, corresponde con: {"state":{"generated":true},"main":{"version":1}}
             $ver = $model->getProjectSystemSubSetAttr("version", $subSet);
-            if ($ver===NULL || empty($ver)) $ver = 0;
             $versions_project = array();
-            $versions_project['templates']['continguts'] = $ver;
-            $ret = $model->setProjectSystemSubSetAttr("versions", $versions_project, $subSet);
+            if ($ver===NULL || empty($ver)) $ver = 0;
+
+            switch ($projectType) {
+                case "ptfploe":
+                    $versions_project['templates']['continguts'] = $ver;
+                    break;
+                default:
+                    $ret = TRUE;
+                    break;
+            }
+            
+            if (!empty($versions_project)) {
+                $ret = $model->setProjectSystemSubSetAttr("versions", $versions_project, $subSet);
+            }
         }
         return $ret;
     }
