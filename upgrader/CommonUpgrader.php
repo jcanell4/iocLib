@@ -62,6 +62,23 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
+     * Busca en el documento origen un trozo de texto mediante una expresión regular y lo guarda en una variable,
+     * a continuación hace una búsqueda (con regex) y sustitución (con texto guardado) en el documento destino
+     * @param string $doc0 : texto del documento en el que se busca (plantilla)
+     * @param string $doc1 : texto del documento a modificar
+     * @param array $aTokens : matriz de expresiones regulares [regexp_search] que establecen los fragmentos de texto a buscar
+     */
+    public function updateTemplateBySubstitute($doc0, $doc1, $aTokens) {
+        foreach ($aTokens as $tok) {
+            $t0 = "/$tok/m";
+            if (preg_match($t0, $doc0, $stmp0) === 1) {
+                $doc1 = preg_replace($t0, $stmp0[0], $doc1);
+            }
+        }
+        return $doc1;
+    }
+
+    /**
      * Reemplaza en el documento los fragmentos de texto que cumplen con cada una de las expresiones regulares
      * @param string $doc : texto del documento a modificar
      * @param array $aTokens : matriz de parejas [regexp_search, text_substitute] que establecen los fragmentos de texto a reemplazar
