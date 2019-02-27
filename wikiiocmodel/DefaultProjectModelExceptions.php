@@ -7,6 +7,12 @@
 if (!defined('DOKU_INC')) die();
 require_once(DOKU_INC . 'inc/common.php');
 
+class ImageNotFoundException extends WikiIocModelException {
+    public function __construct($image, $codeMessage = "imageNotFound", $code=7101, $previous=NULL) {
+        parent::__construct($codeMessage, $code, $previous, $image);
+    }
+}
+
 class PageNotFoundException extends WikiIocModelException {
     public function __construct($page, $codeMessage = "pageNotFound", $code=7101, $previous=NULL) {
         parent::__construct($codeMessage, $code, $previous, $page);
