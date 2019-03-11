@@ -96,15 +96,41 @@ abstract class AbstractProjectUpdateProcessor{
 class FieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
-            $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
-            if($obj->hasParam("concat")){
-                $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
+            $projectMetaData[$field] = self::_resolveUpdateValue($obj, $projectMetaData[$field]);
+//            $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
+//            if($obj->hasParam("concat")){
+//                $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
+//            }
+//            if($obj->hasParam("returnType")){
+//                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
+//            }            
+        }else if(strpos($field, "#")>0){
+            $b = false;
+            $data = &$projectMetaData;
+            $akeys = explode("#", $field);
+            $lim = count($akeys)-1;
+            for($i=0; !$b && $i<$lim; $i++){
+                $b = !isset($data[$akeys[$i]]);
+                if(!$b){
+                    $data = &$data[$akeys[$i]];
+                }
             }
-            if($obj->hasParam("returnType")){
-                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
-            }            
-        }
+            if(!$b){
+                $data[$akeys[$lim]]= self::_resolveUpdateValue($obj, $data[$akeys[$lim]]);
+            }
+        }        
     }    
+    
+    private static function _resolveUpdateValue($obj, $currentfieldValue){
+        $ret = $obj->getFieldValue($currentfieldValue);
+        if($obj->hasParam("concat")){
+            $ret = $obj->concat($ret, $obj->getParam("concat"));
+        }
+        if($obj->hasParam("returnType")){
+            $ret = $obj->returnType($ret, $obj->getParam("returnType"));
+        }            
+        return $ret;
+    }
 }
 
 class ArrayFieldProjectUpdateProcessor{
