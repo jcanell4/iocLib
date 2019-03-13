@@ -11,7 +11,19 @@ class WiocclField extends WiocclInstruction {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
-            $ret =$this->arrays[$varName][$key];
+            if (isset($this->arrays[$varName][$key])) {
+                $ret =$this->arrays[$varName][$key];
+            } else if (isset($this->dataSource[$varName][$key])) {
+                $ret =$this->dataSource[$varName][$key];
+            }else{
+                $ret=NULL;
+            }
+            if(strlen($token['value'])> strlen($matches[0])){
+                $this->arrays["_TMP_"]=$ret;
+                $newkey = substr($token['value'], strlen($matches[0]));
+                $ret = $this->getContent(["state"=>"content","value"=>"_TMP_$newkey"]);
+                unset($this->arrays["_TMP_"]);
+            }
         } else {
             $fieldName = $token['value'];
 
@@ -21,6 +33,12 @@ class WiocclField extends WiocclInstruction {
                 $ret =$this->arrays[$fieldName];
             } else if (isset($this->dataSource[$fieldName])) {
                 $ret =$this->dataSource[$fieldName];
+            }else if(strpos($fieldName, "#")>0){
+                $akeys = explode("#", $fieldName);
+                $ret = $this->dataSource;
+                for ($i=0; $i<count($akeys); $i++) {
+                    $ret = $ret[$akeys[$i]];
+                }
             }
         }
 
@@ -30,7 +48,7 @@ class WiocclField extends WiocclInstruction {
         return $ret;
 
     }
-
+    
 //    public function parseTokens($tokens, &$tokenIndex)
 //    {
 //
