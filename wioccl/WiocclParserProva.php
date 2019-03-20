@@ -157,10 +157,6 @@ $dataSource = [
 //
 //';
 
-
-$t = '==== TEST INSERT ====
-<WIOCCL:INSERT ns="lalala:lelel:lilil"/>';
-
 /* Test foreach amb filtre */
 //$t = 'Les dates clau del semestre, que també podeu consultar al calendari de l\'aula, són les següents: (veure:table:TA1:).
 //
@@ -212,6 +208,8 @@ $t = '==== TEST INSERT ====
 //$t = '!!TEST START!! <WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF>
 ////<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
 
+$t = '==== TEST INSERT ====
+<WIOCCL:INSERT ns="lalala:lelel:lilil"/>';
 
 global $conf;
 
