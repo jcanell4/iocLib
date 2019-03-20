@@ -1,7 +1,16 @@
 <?php
 if (!defined('DOKU_INC')) define('DOKU_INC', realpath('../../../') . '/');
+if(!defined('DOKU_CONF')) define('DOKU_CONF',DOKU_INC.'conf/');
+
+//require_once DOKU_INC.'inc/preload.php';
+
 require_once DOKU_INC.'inc/inc_ioc/ioc_load.php';
 require_once DOKU_INC.'inc/inc_ioc/ioc_project_load.php';
+
+require_once DOKU_INC.'inc/init.php';
+
+
+
 
 //$t = 'Text normal al començament <WIOCCL:IF condition="{##semestre##}==2">(primer if la condició es certa) segona opció parsejada: {##itinerariRecomanatS2##} lalala <WIOCCL:IF condition="{##semestre##}==2">(if niuat la condició es certa) segona opció parsejada: {##itinerariRecomanatS3##}</WIOCCL:IF>lelele </WIOCCL:IF> (això està fora dels if) asdfasd fasd un altre de diferent: <WIOCCL:IF condition="{##semestre##}==3">(això es un altre if la condició es falsa) segona opció parsejada: {##itinerariRecomanatS2##}</WIOCCL:IF> (això es el final sense ifs) dddd';
 
@@ -79,71 +88,78 @@ $dataSource = [
 	}
 ]'
 ];
-$t = '
+//$t = '
+//
+//====== TEST: IF======
+//<WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF><WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF>
+//semestre de l\'itinerari formatiu i suposa una **dedicació setmanal mínima  de {##dedicacio##}h.**
+//
+//Per cursar aquest {##tipusModulBloc##} és requisit NO cursar simultàniamentDiria que hi ha 3 casos: (1)no cursar simultàniament, (2)cursar simultàniament o haver superat i (3)haver superat. En qualsevol cas manquen camps amb aquesta informació. És una inmnformació necessària a aquí?. Una solucó parcial seria reflectir tots els casos al camp requisit. Ho parlem haver superat els mòduls: {##requisits##} (en cas d\' idncompatibilitats) no entenc aquest parèntesi.
+//
+//El material que treballareu és el següent
+//<WIOCCL:IF condition="{##tipusModulBloc##}==\'\'mòdul\'\'">
+//  * XXXX
+//  * XXXX
+//  * XXXX
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##tipusModulBloc##}==\'\'dul\'\'">
+//  * NNNN
+//  * NNNN
+//  * NNNN
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##tipusModulBloc##}!=\'\'mòdul\'\'">
+//  * YYYY
+//  * YYYY
+//  * YYYY
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>0">
+//funciona condition \'\'>\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>1">
+//NO funciona condition \'\'>\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=1">
+//Funciona condition \'\'>=\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=2">
+//No funciona condition \'\'>=\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=2&&{##tipusModulBloc##}==\'\'mòdul\'\'">
+//No funciona condition \'\'AND\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\<=2&&{##tipusModulBloc##}==\'\'mòdul\'\'">
+//Funciona condition \'\'AND\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=2||{##tipusModulBloc##}==\'\'mòdul\'\'">
+//Funciona condition \'\'OR\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=2||{##tipusModulBloc##}!=\'\'mòdul\'\'">
+//No funciona condition \'\'OR\'\'
+//</WIOCCL:IF>
+//
+//<WIOCCL:IF condition="{##semestre##}\>=2&&{##tipusModulBloc##}==\'\'mòdul\'\'||{##semestre##}\>=1&&{##tipusModulBloc##}!=\'\'res\'\'">
+//Funciona condition \'\'AND OR\'\'
+//</WIOCCL:IF>
+//
+//==== TEST INSERT ====
+//<WIOCCL:INSERT ns="lalala:lelel:lilil"/>
+//
+//
+//';
 
-====== TEST: IF======
-<WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF><WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> 
-semestre de l\'itinerari formatiu i suposa una **dedicació setmanal mínima  de {##dedicacio##}h.**
 
-Per cursar aquest {##tipusModulBloc##} és requisit NO cursar simultàniamentDiria que hi ha 3 casos: (1)no cursar simultàniament, (2)cursar simultàniament o haver superat i (3)haver superat. En qualsevol cas manquen camps amb aquesta informació. És una inmnformació necessària a aquí?. Una solucó parcial seria reflectir tots els casos al camp requisit. Ho parlem haver superat els mòduls: {##requisits##} (en cas d\' idncompatibilitats) no entenc aquest parèntesi.
-
-El material que treballareu és el següent
-<WIOCCL:IF condition="{##tipusModulBloc##}==\'\'mòdul\'\'">
-  * XXXX
-  * XXXX
-  * XXXX
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##tipusModulBloc##}==\'\'dul\'\'">
-  * NNNN
-  * NNNN
-  * NNNN
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##tipusModulBloc##}!=\'\'mòdul\'\'">
-  * YYYY
-  * YYYY
-  * YYYY
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>0">
-funciona condition \'\'>\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>1">
-NO funciona condition \'\'>\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=1">
-Funciona condition \'\'>=\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=2">
-No funciona condition \'\'>=\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=2&&{##tipusModulBloc##}==\'\'mòdul\'\'">
-No funciona condition \'\'AND\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\<=2&&{##tipusModulBloc##}==\'\'mòdul\'\'">
-Funciona condition \'\'AND\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=2||{##tipusModulBloc##}==\'\'mòdul\'\'">
-Funciona condition \'\'OR\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=2||{##tipusModulBloc##}!=\'\'mòdul\'\'">
-No funciona condition \'\'OR\'\'
-</WIOCCL:IF>
-
-<WIOCCL:IF condition="{##semestre##}\>=2&&{##tipusModulBloc##}==\'\'mòdul\'\'||{##semestre##}\>=1&&{##tipusModulBloc##}!=\'\'res\'\'">
-Funciona condition \'\'AND OR\'\'
-</WIOCCL:IF>
-
-
-';
+$t = '==== TEST INSERT ====
+<WIOCCL:INSERT ns="lalala:lelel:lilil"/>';
 
 /* Test foreach amb filtre */
 //$t = 'Les dates clau del semestre, que també podeu consultar al calendari de l\'aula, són les següents: (veure:table:TA1:).
@@ -195,6 +211,12 @@ Funciona condition \'\'AND OR\'\'
 //';
 //$t = '!!TEST START!! <WIOCCL:IF condition="{##semestre##}==1">{##itinerariRecomanatS1##}</WIOCCL:IF>
 ////<WIOCCL:IF condition="{##semestre##}==2">{##itinerariRecomanatS2##}</WIOCCL:IF> !!TEST END!!';
+
+
+global $conf;
+
+$conf["datadir"] = "/var/www/html/dokuwiki_30/dataTest"; // Aquesta ruta s'agafa de la configuració de la wiki automàticament
+
 
 //$p = new WiocclParser($t,['testitem'=>['unitat'=>1]], $dataSource);
 print_r('<pre>');

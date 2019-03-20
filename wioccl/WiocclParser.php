@@ -53,12 +53,14 @@ class WiocclParser
         ],
         '</WIOCCL:SET>(\n)?' => [
             'state' => 'close_set',
-        ]
+        ],
 
+        '<WIOCCL:INSERT .*?[^\\\\]/>(\n)?' => [
+            'state' => 'insert',
+        ],
 
     ];
 
-    // ALERTA: eliminar el nom de la las
     // TODO: automatitzar la creació a partir del token patterns? <-- no seria posible en el cas del open del if
     // TODO: Determinar si es necessari coneixer el tipus o només cal l'state
     // Automatitzar la generació de noms de les classes a partir del wioccl:**
@@ -78,7 +80,8 @@ class WiocclParser
         '{##' => ['state' => 'open_field', 'type' => 'field', 'class' => 'WiocclField', 'action' => 'open'],
         '##}' => ['state' => 'close_field', 'type' => 'field', 'action' => 'close'],
         '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
-        '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close']
+        '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close'],
+        '<WIOCCL:INSERT' =>  ['state' => 'insert', 'type' => 'inser', 'class' => 'WiocclInsert', 'action' => 'content'],
     ];
 
 

@@ -80,7 +80,15 @@ class WiocclInstruction
 
         switch ($action) {
             case 'content':
-                $result .= $this->getContent($currentToken);
+
+                if (isset($currentToken['class'])) {
+                    $item = $this->getClassForToken($currentToken);
+                    $result .= $item->getContent($currentToken);
+
+                } else {
+                    $result .= $this->getContent($currentToken);
+                }
+
                 break;
 
             case 'open':
