@@ -213,8 +213,6 @@ $t = '==== TEST INSERT ====
 
 global $conf;
 
-$conf["datadir"] = "/var/www/html/dokuwiki_30/dataTest"; // Aquesta ruta s'agafa de la configuració de la wiki automàticament
-
 
 //$p = new WiocclParser($t,['testitem'=>['unitat'=>1]], $dataSource);
 print_r('<pre>');
