@@ -54,11 +54,6 @@ class WiocclParser
         '</WIOCCL:SET>(\n)?' => [
             'state' => 'close_set',
         ],
-
-        '<WIOCCL:INSERT .*?[^\\\\]/>(\n)?' => [
-            'state' => 'insert',
-        ],
-
     ];
 
     // TODO: automatitzar la creació a partir del token patterns? <-- no seria posible en el cas del open del if
@@ -81,7 +76,6 @@ class WiocclParser
         '##}' => ['state' => 'close_field', 'type' => 'field', 'action' => 'close'],
         '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
         '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close'],
-        '<WIOCCL:INSERT' =>  ['state' => 'insert', 'type' => 'inser', 'class' => 'WiocclInsert', 'action' => 'content'],
     ];
 
 
