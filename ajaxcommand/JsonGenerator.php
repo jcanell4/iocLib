@@ -60,6 +60,7 @@ interface JsonGenerator {
     const PROJECT_DIFF_TYPE      = "project_diff";      //47;
     const PROJECT_REQUIRE_TYPE   = "project_require";   //48;
     const RECALL                 = "recall";            //49;
+    const PROJECT_PARTIAL_TYPE   = "project_partial";
 
     // Aquestes constants es fan servir com a subtipus
     const ADD_ADMIN_TAB     = "add_admin_tab";

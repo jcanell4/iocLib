@@ -1040,7 +1040,8 @@ class AjaxCmdResponseGenerator {
     /**
      * Afegeix una resposta de tipus PROJECT_EDIT al generador de respostes.
      */
-    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $timer=NULL, $extra=[]) {
+    public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $timer=NULL, $extra=[],
+                                   $responseType = JSonGenerator::PROJECT_EDIT_TYPE) {
         global $plugin_controller;
         if (!$extra['projectType'])
             $extra['projectType'] = $plugin_controller->getCurrentProject();
@@ -1058,7 +1059,7 @@ class AjaxCmdResponseGenerator {
 
         $this->response->add(
             new JSonGeneratorImpl(
-                JSonGenerator::PROJECT_EDIT_TYPE,
+                $responseType,
                 $contentData
             )
         );
