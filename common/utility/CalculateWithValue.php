@@ -11,4 +11,8 @@ abstract class CalculateWithValue extends AbstractCalculate {
     function init($ns) {
         $this->ns = $ns;
     }
+    
+    function getCalculatorTypeData(){
+        return "from_values";
+    }
 }
