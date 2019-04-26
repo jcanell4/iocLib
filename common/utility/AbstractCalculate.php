@@ -4,7 +4,10 @@
  * @culpable rafa
  */
 abstract class AbstractCalculate {
-
-    abstract function calculate($data);
+    public function getCalculatorTypeData(){
+        return "";
+    }
+    
+    public abstract function calculate($data);
 
 }
