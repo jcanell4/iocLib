@@ -12,13 +12,13 @@ class TranslatorHandler extends Doku_Handler{
 }
 
 class MarkDown2DokuWikiHandler extends TranslatorHandler{
-    
+
     function header($match, $state, $pos) {
         // get level and title
         $title = trim($match);
         $level = strspn($title,'#');
         if($level==0){
-            $aTitle = split("\n", $title);
+            $aTitle = explode("\n", $title);
             $title = $aTitle[0];
             if($aTitle[1][0]=='='){
                 $level = 1;
@@ -34,7 +34,7 @@ class MarkDown2DokuWikiHandler extends TranslatorHandler{
         $this->_addCall('eol',array(),$pos);
 
         return true;
-    }    
+    }
 }
 
 class DokuWiki2MarkDownHandler extends TranslatorHandler{
@@ -44,7 +44,7 @@ class DokuWiki2MarkDownHandler extends TranslatorHandler{
         parent::__construct();
         $this->rootLevelValues = $rootLevelValues;
     }
-    
+
     function header($match, $state, $pos) {
         // get level and title
         $title = trim($match);
