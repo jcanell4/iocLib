@@ -157,6 +157,10 @@ class WiocclFunction extends WiocclInstruction
         return $cont;
     }
 
+    protected function IS_STR_EMPTY($text=""){
+        return empty($text);
+    }
+    
     protected function YEAR($date=NULL){
         if($date==NULL){
             $ret = date("Y");
@@ -169,6 +173,48 @@ class WiocclFunction extends WiocclInstruction
     protected function DATE($date, $sep="-")
     {
         return date("d".$sep."m".$sep."Y", strtotime(str_replace('/', '-', $date)));
+    }
+
+    protected function LONG_DATE($date, $includeDay)
+    {
+        $format = '';
+
+        if ($includeDay) {
+            //$format .= "l, ";
+            $format .= "%A, ";
+        }
+
+        setlocale(LC_TIME,"ca_ES.utf8");
+        $format .= "%e de %B de %G";
+
+        return strftime($format, strtotime($date));
+        //return date($format, strtotime(str_replace('/', '-', $date)));
+    }
+
+    protected function SUM_DATE($date, $days, $months=0, $years=0, $sep="-") {
+        if(!is_numeric($days) || !is_numeric($months) || !is_numeric($years)){
+            return "[ERROR! paràmetres incorrectes ($days, $months, $years)]"; //TODO: internacionalitzar
+        }
+
+        $newDate = $date;
+
+        if ($days>0) {
+            $calculated = strtotime("+" . $days . " day", strtotime($date));
+            $newDate = date("Y".$sep."m".$sep."d", $calculated);
+        }
+
+        if ($months>0) {
+
+            $calculated = strtotime("+" . $months . " month", strtotime($newDate));
+            $newDate = date("Y".$sep."m".$sep."d", $calculated);
+        }
+
+        if ($years>0) {
+            $calculated = strtotime("+" . $years . " year", strtotime($newDate));
+            $newDate = date("Y".$sep."m".$sep."d", $calculated);
+        }
+
+        return $newDate;
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -332,6 +378,12 @@ class WiocclFunction extends WiocclInstruction
         }
         return $ret;
     }
+
+    // Uppercase només pel primer caràcter
+    protected function UCFIRST($value) {
+        return ucfirst($value);
+    }
+
 
     // $template pot tenir tres formes:
     // FIRST: retorna tota la fila com a json

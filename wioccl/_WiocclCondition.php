@@ -43,6 +43,8 @@ class _LogicParser{
                 $ret = new _ConditionOperation($text);
             }else if(preg_match('/!/', $text) === 1){// NotOperation
                 $ret = new _NotOperation(_LogicParser::getOperator($text));
+            }else if(preg_match('/ in /', $text) === 1){// In, argument 1 (value) is in argument 2 (array)
+                $ret = new _ConditionOperation($text);
             }else{//LITERAL
                 $ret = new _Literal($text);
             }
@@ -183,12 +185,12 @@ class _ConditionOperation extends _LogicOperation{
     }
 
     protected function extractFilterArgs($value) {
-        if (preg_match('/(.*?)([><=!]=?)(.*)/', $value, $matches) === 1) {
+        if (preg_match('/(.*?)([><=!]=?| in )(.*)/', $value, $matches) === 1) {
             // ALERTA: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura
 
             $arg1 = $matches[1];
             $arg2 = $matches[3];
-            $operator = $matches[2];
+            $operator = trim($matches[2]);
 
 
 
@@ -216,9 +218,14 @@ class _ConditionOperation extends _LogicOperation{
             case '!=':
                 return $arg1 != $arg2;
 
+            case 'in':
+                // el arg2 ha de ser un array
+                return in_array($arg1, json_decode($arg2));
+
             default:
                 return $arg1 && $arg2;
         }
 
     }
+
 }

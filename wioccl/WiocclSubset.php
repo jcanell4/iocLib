@@ -7,11 +7,13 @@ class WiocclSubset extends WiocclInstruction {
     protected $fullArray =[];
     protected $itemName;
     protected $filter;
-    
+    protected $fieldName; // això s'utilitza per crear un array que contingui només els valors del camp seleccionat
+
     const FILTER_ATTR = "filter";    
     const ARRAY_ATTR = "array";    
     const ARRAY_ITEM_ATTR = "arrayitem";    
-    const SUBSET_VAR_ATTR = "subsetvar";    
+    const SUBSET_VAR_ATTR = "subsetvar";
+    const FIELD_VAR_ATTR = "field";
 
     public function __construct($value = null, $arrays = [], $dataSource=[])
     {
@@ -25,7 +27,12 @@ class WiocclSubset extends WiocclInstruction {
         $this->itemName = $this->extractVarName($value, self::ARRAY_ITEM_ATTR);
 //        $this->filterArgs = $this->extractFilterArgs($value);
         $strFilter = $this->extractVarName($value, self::FILTER_ATTR, true);
+
+        $this->fieldName = $this->extractVarName($value, self::FIELD_VAR_ATTR, false);
+
+
         $this->filter = new _WiocclCondition($strFilter);
+
 
         $subset = $this->generateSubset();
         $this->arrays[$this->varName] = $subset;
@@ -43,7 +50,13 @@ class WiocclSubset extends WiocclInstruction {
             
             $this->filter->parseData($this->arrays, $this->dataSource);
             if ($this->filter->validate()) {
-                $subset[] = $row;
+
+                if ($this->fieldName) {
+                    $subset[] = $row[$this->fieldName];
+                } else {
+                    $subset[] = $row;
+                }
+
             }
         }
 

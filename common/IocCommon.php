@@ -9,6 +9,24 @@ require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
  * @culpable Rafael
  */
 class IocCommon {
+    
+    public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values) {
+        if (isset($calcDefProp)) {
+            $className = $calcDefProp['class'];
+            $calculator = new $className;
+            if ($calculator) {
+                switch ($calculator->getCalculatorTypeData()){
+                    case "from_values":
+                        $calculator->init($projectId);
+                        $value = $calculator->calculate($values[$calcDefProp['data']]);
+                        break;
+                    default :
+                        $value = $calculator->calculate($calcDefProp['data']);
+                }
+            }
+        }
+        return $value;
+    }
 
     /**
      * Genera un element amb la informació correctament formatada i afegeix el timestamp.
