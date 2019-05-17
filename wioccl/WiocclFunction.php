@@ -157,6 +157,10 @@ class WiocclFunction extends WiocclInstruction
         return $cont;
     }
 
+    protected function IS_STR_EMPTY($text=""){
+        return empty($text);
+    }
+    
     protected function YEAR($date=NULL){
         if($date==NULL){
             $ret = date("Y");
