@@ -138,4 +138,33 @@ class IocCommon {
 
     }
 
+    public static function removeDir($directory) {
+        if (!file_exists($directory) || !is_dir($directory)) {
+            $ret = FALSE;
+        }elseif(!is_readable($directory)) {
+            $ret = FALSE;
+        }else {
+            $dh = opendir($directory);
+
+            while ($contents = readdir($dh)) {
+                if ($contents != '.' && $contents != '..') {
+                    $path = "$directory/$contents";
+                    if (is_dir($path)) {
+                        self::removeDir($path);
+                    }else {
+                        unlink($path);
+                    }
+                }
+            }
+            closedir($dh);
+
+            $ret = TRUE;
+            if (file_exists($directory)) {
+                if (!rmdir($directory)) {
+                    $ret = FALSE;
+                }
+            }
+            return $ret;
+        }
+    }
 }
