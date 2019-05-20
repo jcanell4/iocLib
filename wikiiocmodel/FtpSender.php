@@ -18,14 +18,17 @@ class FtpSender{
         //tractar les respostes a la variable $response per tal de poder informar del que
         //ha passat duarnt la connexió
         foreach ($this->ftpObjectToSendList as $oFtp) {
-            switch ($oFtp->getAction()) {
-                case FtpObjectToSend::COPY_ACTION:
-                    $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
-                    break;
+            $action = $oFtp->getAction();
+            foreach ($action as $act) {
+                switch ($act) {
+                    case FtpObjectToSend::COPY_ACTION:
+                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
+                        break;
 
-                case FtpObjectToSend::UNZIP_AND_COPY_ACTION:
-                    $response = $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
-                    break;
+                    case FtpObjectToSend::UNZIP_AND_COPY_ACTION:
+                        $response = $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
+                        break;
+                }
             }
         }
 
@@ -106,7 +109,7 @@ class FtpObjectToSend {
     private $remoteDir;
     private $action;
 
-    public function __construct($file, $local, $remoteBase, $remoteDir, $action=0) {
+    public function __construct($file, $local, $remoteBase, $remoteDir, $action) {
         $this->file = $file;
         $this->local = $local;
         $this->remoteBase= $remoteBase;
