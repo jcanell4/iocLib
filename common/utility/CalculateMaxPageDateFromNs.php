@@ -10,7 +10,7 @@ class CalculateMaxPageDateFromNs extends CalculateWithValue {
         $maxdate =$this->getMaxFileDateOf($dir);
         return date('d/m/Y', $maxdate);
     }
-    
+
     private function getMaxFileDateOf($dir){
         $maxDate = 0;
         $arrayRet = array();
@@ -21,7 +21,7 @@ class CalculateMaxPageDateFromNs extends CalculateWithValue {
             foreach ($arrayDir as $item){
                 $fn = "$dir$item";
                 if (is_dir($fn)){
-                    $date = $this->getMaxFileDateOf($fn);
+                    $date = $this->getMaxFileDateOf("$fn/");
                 }else{
                     $date= filemtime($fn);
                 }
@@ -30,8 +30,8 @@ class CalculateMaxPageDateFromNs extends CalculateWithValue {
                 }
             }
         }
-        
-        return $maxDate; 
+
+        return $maxDate;
     }
 
 }
