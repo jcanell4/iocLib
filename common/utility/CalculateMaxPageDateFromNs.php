@@ -21,7 +21,7 @@ class CalculateMaxPageDateFromNs extends CalculateWithValue {
             foreach ($arrayDir as $item){
                 $fn = "$dir$item";
                 if (is_dir($fn)){
-                    $date = $this->getMaxFileDateOf($fn);
+                    $date = $this->getMaxFileDateOf("$fn/");
                 }else{
                     $date= filemtime($fn);
                 }
