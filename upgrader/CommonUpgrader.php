@@ -58,6 +58,23 @@ class CommonUpgrader {
         return json_encode($rama);
     }
 
+    /**
+     * Añade un nuevo campo (y su valor) a todos los registros de un multirregistro
+     * @param array $data : array de datos original
+     * @param string $row : clave del multirregistro
+     * @param string $newkey : clave a añadir
+     * @param mixed $newvalue : valor de la clave añadida
+     * @return array de datos con la nueva clave añadida
+     */
+    public function addFieldInMultiRow($data, $row, $newkey, $newvalue) {
+        $rama = (is_array($data[$row])) ? $data[$row] : json_decode($data[$row], TRUE);
+        foreach ($rama as $k => $v) {
+            $rama[$k][$newkey] = $newvalue;
+        }
+        $data[$row] = $rama;
+        return $data;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
