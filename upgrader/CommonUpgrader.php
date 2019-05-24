@@ -89,7 +89,8 @@ class CommonUpgrader {
         foreach ($aTokens as $tok) {
             $t0 = "/$tok/m";
             if (preg_match($t0, $doc0, $stmp0) === 1) {
-                $doc1 = preg_replace($t0, $stmp0[0], $doc1);
+                $stmp = addcslashes($stmp0[0], '\\');
+                $doc1 = preg_replace($t0, $stmp, $doc1);
             }
         }
         return $doc1;
