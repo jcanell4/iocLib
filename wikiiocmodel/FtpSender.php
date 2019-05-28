@@ -9,8 +9,8 @@ class FtpSender{
         $this->ftpObjectToSendList = array();
     }
 
-    public function addObjectToSendList($file, $local, $remoteBase, $remoteDir, $action=0){
-        $this->ftpObjectToSendList[] = new FtpObjectToSend($file, $local, $remoteBase, $remoteDir, $action);
+    public function addObjectToSendList($file, $local, $remoteBase, $remoteDir, $action=0, $remoteFile=""){
+        $this->ftpObjectToSendList[] = new FtpObjectToSend($file, $local, $remoteBase, $remoteDir, $action, $remoteFile);
     }
 
     public function process() {
@@ -22,7 +22,7 @@ class FtpSender{
             foreach ($action as $act) {
                 switch ($act) {
                     case FtpObjectToSend::COPY_ACTION:
-                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
+                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteFile(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
                         break;
 
                     case FtpObjectToSend::UNZIP_AND_COPY_ACTION:
@@ -63,7 +63,7 @@ class FtpSender{
                     if (is_dir("$source$file")) {
                         $ret = $ret && $this->_iocUnzipAndFtpSend("$source$file/", "$destination$file/");
                     }else{
-                        $ret = $ret && $this->remoteSSH2Copy($file, $source, $destination);
+                        $ret = $ret && $this->remoteSSH2Copy($file, $source, $file, $destination);
                     }
                 }
             }
@@ -71,7 +71,7 @@ class FtpSender{
         return $ret;
     }
 
-    private function remoteSSH2Copy($file, $local, $remote) {
+    private function remoteSSH2Copy($file, $local, $remoteFile, $remote) {
         $ret = FALSE;
         $host = WikiGlobalConfig::getConf("sendftp_host", "iocexportl");
         $user = WikiGlobalConfig::getConf("sendftp_u", "iocexportl");
@@ -106,22 +106,28 @@ class FtpObjectToSend {
     const COPY_ACTION = 0;
     const UNZIP_AND_COPY_ACTION = 1;
 
+    private $remoteFile;
     private $file;
     private $local;
     private $remoteBase;
     private $remoteDir;
     private $action;
 
-    public function __construct($file, $local, $remoteBase, $remoteDir, $action) {
+    public function __construct($file, $local, $remoteBase, $remoteDir, $action, $remoteFile="") {
         $this->file = $file;
         $this->local = $local;
         $this->remoteBase= $remoteBase;
         $this->remoteDir= $remoteDir;
         $this->action= $action;
+        $this->remoteFile= empty($remoteFile)?$file:$remoteFile;
     }
 
     public function getFile(){
         return $this->file;
+    }
+
+    public function getRemoteFile(){
+        return $this->remoteFile;
     }
 
     public function getLocal(){
