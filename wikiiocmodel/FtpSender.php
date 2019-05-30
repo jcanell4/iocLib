@@ -74,9 +74,10 @@ class FtpSender{
     private function remoteSSH2Copy($file, $local, $remote) {
         $ret = FALSE;
         $host = WikiGlobalConfig::getConf("sendftp_host", "iocexportl");
+        $port = WikiGlobalConfig::getConf("sendftp_port", "iocexportl");
         $user = WikiGlobalConfig::getConf("sendftp_u", "iocexportl");
         $pass = WikiGlobalConfig::getConf("sendftp_p", "iocexportl");
-        $connection = ssh2_connect($host, 2111);
+        $connection = ssh2_connect($host, $port);
         if ($connection) {
             if (($ret = ssh2_auth_password($connection, $user, $pass))) {
                 $ret = $sftp = ssh2_sftp($connection);
