@@ -69,16 +69,29 @@ class ResultsWithFiles {
     private static function copyFiles(&$result){
         $result["dest"]=array();
         $ok=false;
+
         $dest = preg_replace('/:/', '/', $result['ns']);
-        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
-        if (!file_exists($path_dest)){
-            mkdir($path_dest, 0755, TRUE);
-        }
+
+        $path_default = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
+
+
         if(is_array($result["files"])){
             $ok=true;
             for($i=0; $i<count($result["files"]); $i++) {
-                $ok = $ok && copy($result["files"][$i], $path_dest.'/'.$result["fileNames"][$i]);
-                $result["dest"][$i]=$path_dest.'/'.$result["fileNames"][$i];
+                if (isset($result['custom_url'][$result["fileNames"][$i]])) {
+                    $path_dest = $result['custom_url'][$result["fileNames"][$i]];
+                } else {
+                    $path_dest = $path_default;
+                }
+
+                if (!file_exists($path_dest)){
+                    mkdir($path_dest, 0755, TRUE);
+                }
+
+                $fullPath = $path_dest.'/'.$result["fileNames"][$i];
+
+                $ok = $ok && copy($result["files"][$i], $fullPath);
+                $result["dest"][$i]=$fullPath;
             }
         }
         return $ok;
