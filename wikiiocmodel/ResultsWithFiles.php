@@ -69,7 +69,6 @@ class ResultsWithFiles {
     private static function copyFiles(&$result){
         $result["dest"]=array();
         $ok=false;
-
         $dest = preg_replace('/:/', '/', $result['ns']);
 
         $path_default = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
