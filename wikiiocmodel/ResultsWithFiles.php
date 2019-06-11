@@ -12,7 +12,7 @@
  * @author josep
  */
 class ResultsWithFiles {
-    
+
     //MULTI
     public static function get_html_metadata($result){
         $ext = $result["ext"]?$result["ext"]:".zip";
@@ -24,7 +24,7 @@ class ResultsWithFiles {
                     throw new Exception("Error en la còpia dels arxius d 'esportació des de la ubicació temporal");
                 }
             }
-            $ret = self::_getHtmlMetadataMultiFile($result);                
+            $ret = self::_getHtmlMetadataMultiFile($result);
         }else{
             if($result["zipFile"]){
                 $ext=".zip";
@@ -37,7 +37,7 @@ class ResultsWithFiles {
                     throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
                 }
             }
-            $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) .'/'.preg_replace('/:/', '_', $result['ns']);                
+            $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) .'/'.preg_replace('/:/', '_', $result['ns']);
             $ret = self::_getHtmlMetadataFile($result['ns'], $file, $ext);
         }
         return $ret;
@@ -70,27 +70,15 @@ class ResultsWithFiles {
         $result["dest"]=array();
         $ok=false;
         $dest = preg_replace('/:/', '/', $result['ns']);
-
-        $path_default = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
-
-
+        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
+        if (!file_exists($path_dest)){
+            mkdir($path_dest, 0755, TRUE);
+        }
         if(is_array($result["files"])){
             $ok=true;
             for($i=0; $i<count($result["files"]); $i++) {
-                if (isset($result['custom_url'][$result["fileNames"][$i]])) {
-                    $path_dest = $result['custom_url'][$result["fileNames"][$i]];
-                } else {
-                    $path_dest = $path_default;
-                }
-
-                if (!file_exists($path_dest)){
-                    mkdir($path_dest, 0755, TRUE);
-                }
-
-                $fullPath = $path_dest.'/'.$result["fileNames"][$i];
-
-                $ok = $ok && copy($result["files"][$i], $fullPath);
-                $result["dest"][$i]=$fullPath;
+                $ok = $ok && copy($result["files"][$i], $path_dest.'/'.$result["fileNames"][$i]);
+                $result["dest"][$i]=$path_dest.'/'.$result["fileNames"][$i];
             }
         }
         return $ok;
@@ -137,7 +125,7 @@ class ResultsWithFiles {
     }
 
     private static function copyFile($result, $keyFile, $keyName){
-        $dest = preg_replace('/:/', '/', $result['ns']); 
+        $dest = preg_replace('/:/', '/', $result['ns']);
         $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
         if (!file_exists($path_dest)){
             mkdir($path_dest, 0755, TRUE);
@@ -145,7 +133,7 @@ class ResultsWithFiles {
         $ok = copy($result[$keyFile], $path_dest.'/'.$result[$keyName]);
         return $ok;
     }
-    
+
 //    private static function copyZip($result){
 //        $dest = preg_replace('/:/', '/', $result['ns']);
 //        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
@@ -155,7 +143,7 @@ class ResultsWithFiles {
 //        $ok = copy($result["zipFile"], $path_dest.'/'.$result["zipName"]);
 //        return $ok;
 //    }
-    
+
     /**
      * Remove specified dir
      * @param string $directory
@@ -185,7 +173,7 @@ class ResultsWithFiles {
 //            }
 //            return TRUE;
 //        }
-    }    
-    
-    
+    }
+
+
 }
