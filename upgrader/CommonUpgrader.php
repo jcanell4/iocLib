@@ -99,11 +99,17 @@ class CommonUpgrader {
     /**
      * Reemplaza en el documento los fragmentos de texto que cumplen con cada una de las expresiones regulares
      * @param string $doc : texto del documento a modificar
-     * @param array $aTokens : matriz de parejas [regexp_search, text_substitute] que establecen los fragmentos de texto a reemplazar
+     * @param array $aTokens : matriz [regexp_search, text_substitute, flags] que establecen los fragmentos de texto a
+     * reemplazar y flags a utilizar
      */
     public function updateTemplateByReplace($doc, $aTokens) {
+
         foreach ($aTokens as $tok) {
-            $doc = preg_replace("/$tok[0]/m", $tok[1], $doc);
+
+            $extraFlags = isset($tok[2]) ? $tok[2] : '';
+            $pattern = "/$tok[0]/m" . $extraFlags;
+            $doc = preg_replace($pattern , $tok[1], $doc);
+
         }
         return $doc;
     }
