@@ -68,6 +68,9 @@ class CommonUpgrader {
      */
     public function addFieldInMultiRow($data, $row, $newkey, $newvalue) {
         $rama = (is_array($data[$row])) ? $data[$row] : json_decode($data[$row], TRUE);
+        if($rama==NULL){
+            $rama=[];
+        }
         foreach ($rama as $k => $v) {
             $rama[$k][$newkey] = $newvalue;
         }
