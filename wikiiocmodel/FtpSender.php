@@ -5,12 +5,19 @@
 class FtpSender{
     private $ftpObjectToSendList;
 
+    protected $connectionData;
+
     public function __construct() {
         $this->ftpObjectToSendList = array();
     }
 
     public function addObjectToSendList($file, $local, $remoteBase, $remoteDir, $action=0, $remoteFile=""){
-        $this->ftpObjectToSendList[] = new FtpObjectToSend($file, $local, $remoteBase, $remoteDir, $action, $remoteFile);
+
+        if ($this->connectionData == NULL) {
+            throw new Exception("S'ha de passar la informació de conexió mitjançant setConnectionData abans d'afegir objectes a la llista");
+        }
+
+        $this->ftpObjectToSendList[] = new FtpObjectToSend($file, $local, $remoteBase, $remoteDir, $action, $remoteFile, $this->connectionData);
     }
 
     public function process() {
@@ -73,10 +80,19 @@ class FtpSender{
 
     private function remoteSSH2Copy($file, $local, $remoteFile, $remote) {
         $ret = FALSE;
-        $host = WikiGlobalConfig::getConf("sendftp_host", "iocexportl");
-        $port = WikiGlobalConfig::getConf("sendftp_port", "iocexportl");
-        $user = WikiGlobalConfig::getConf("sendftp_u", "iocexportl");
-        $pass = WikiGlobalConfig::getConf("sendftp_p", "iocexportl");
+//        $host = WikiGlobalConfig::getConf("sendftp_host", "iocexportl");
+//        $port = WikiGlobalConfig::getConf("sendftp_port", "iocexportl");
+//        $user = WikiGlobalConfig::getConf("sendftp_u", "iocexportl");
+//        $pass = WikiGlobalConfig::getConf("sendftp_p", "iocexportl");
+
+        $host = $this->connectionData['sendftp_host'];
+        $port = $this->connectionData['sendftp_port'];
+        $user = $this->connectionData['sendftp_u'];
+        $pass = $this->connectionData['sendftp_p'];
+
+//        error_reporting(E_ALL);
+//        ini_set('display_errors', 1);
+
         $connection = ssh2_connect($host, $port);
         if ($connection) {
             if (($ret = ssh2_auth_password($connection, $user, $pass))) {
@@ -101,6 +117,9 @@ class FtpSender{
         }
     }
 
+    public function setConnectionData($connectionData) {
+        $this->connectionData = $connectionData;
+    }
 }
 
 class FtpObjectToSend {
@@ -113,14 +132,16 @@ class FtpObjectToSend {
     private $remoteBase;
     private $remoteDir;
     private $action;
+    private $connectionData;
 
-    public function __construct($file, $local, $remoteBase, $remoteDir, $action, $remoteFile="") {
+    public function __construct($file, $local, $remoteBase, $remoteDir, $action, $remoteFile="", $connectionData=NULL) {
         $this->file = $file;
         $this->local = $local;
         $this->remoteBase= $remoteBase;
         $this->remoteDir= $remoteDir;
         $this->action= $action;
         $this->remoteFile= empty($remoteFile)?$file:$remoteFile;
+        $this->connectionData = $connectionData;
     }
 
     public function getFile(){
