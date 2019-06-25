@@ -42,7 +42,14 @@ class FtpSender{
         return $response;
     }
 
-    public function iocUnzipAndFtpSend($file, $source, $destination) {
+    /**
+     * @param string $file nom del fitxer zip
+     * @param string $source ruta d'origen
+     * @param string $destination ruta de destí
+     * @param string $directory opcional, si
+     * @return bool
+     */
+    public function iocUnzipAndFtpSend($file, $source, $destination, $directory = '') {
         if (!defined('EXPORT_TMP')) define('EXPORT_TMP', DOKU_PLUGIN."tmp/latex/");
         $tmp_dir = realpath(EXPORT_TMP)."/".rand()."/";
         if (!file_exists($tmp_dir)) mkdir($tmp_dir, 0775, TRUE);
@@ -52,6 +59,12 @@ class FtpSender{
             $zip->close();
             $ret = TRUE;
         }
+
+        if ($directory === '') {
+            $directory = substr($file   , 0, -4);
+        }
+
+        $destination .= "$directory/";
 
         if ($ret) {
             $ret = $this->_iocUnzipAndFtpSend($tmp_dir, $destination);
@@ -80,18 +93,11 @@ class FtpSender{
 
     private function remoteSSH2Copy($file, $local, $remoteFile, $remote) {
         $ret = FALSE;
-//        $host = WikiGlobalConfig::getConf("sendftp_host", "iocexportl");
-//        $port = WikiGlobalConfig::getConf("sendftp_port", "iocexportl");
-//        $user = WikiGlobalConfig::getConf("sendftp_u", "iocexportl");
-//        $pass = WikiGlobalConfig::getConf("sendftp_p", "iocexportl");
-
         $host = $this->connectionData['sendftp_host'];
         $port = $this->connectionData['sendftp_port'];
         $user = $this->connectionData['sendftp_u'];
         $pass = $this->connectionData['sendftp_p'];
 
-//        error_reporting(E_ALL);
-//        ini_set('display_errors', 1);
 
         $connection = ssh2_connect($host, $port);
         if ($connection) {

@@ -478,7 +478,9 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
         }
 
-
+        if ($responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]){
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::KEY_FTPSEND_BUTTON, $responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]);
+        }
 
 
     }
