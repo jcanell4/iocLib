@@ -65,13 +65,19 @@ abstract class AbstractProjectUpdateProcessor{
     }
 
     public function returnType($value, $type){
-        if($type==="date"){
+        if($type==="date" || $type="future_date"){
             if(is_string($value)){
                 $fecha = DateTime::createFromFormat('d#m#Y', $value);
             }else{
                 $fecha = $value;
             }
-            $ret =  $fecha->format('Y-m-d'); 
+            if($type=="future_date"){
+                $today = new DateTime();
+                if($fecha <  $today){                    
+                    $fecha->add(new DateInterval('P1Y'));
+                }
+            }
+            $ret =  $fecha->format('Y-m-d');
         }else{
             $ret = settype($value, $type);
         }
@@ -85,7 +91,13 @@ abstract class AbstractProjectUpdateProcessor{
                     $str .= $objectValue["value"];
                     break;
                 case "function":
-                    $str .= call_user_func($objectValue["name"], $objectValue["parameters"]);
+                    if(is_callable([$this, $objectValue["name"]])){
+                        $str .= call_user_func([$this, $objectValue["name"]], $objectValue["parameters"]);
+                    }else if(is_callable($objectValue["name"])){
+                        $str .= call_user_func($objectValue["name"], $objectValue["parameters"]);
+                    }else{
+                        //ERROR
+                    }
                     break;
             }
         }

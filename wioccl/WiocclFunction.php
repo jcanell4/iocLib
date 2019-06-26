@@ -384,6 +384,16 @@ class WiocclFunction extends WiocclInstruction
         return ucfirst($value);
     }
 
+    // Uppercase només pel primer caràcter
+    protected function STR_REPLACE($search, $replace, $subject, $count=FALSE) {
+        if($count===FALSE){
+            $ret = str_replace($search, $replace, $subject);
+        }else{
+            $ret = str_replace($search, $replace, $subject, $count);
+        }
+        return $ret;        
+    }
+
 
     // $template pot tenir tres formes:
     // FIRST: retorna tota la fila com a json
