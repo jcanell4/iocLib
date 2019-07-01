@@ -7,6 +7,8 @@ class WiocclInstruction
     protected $fullInstruction="";
     protected static $instancesCounter=0;
 
+    public $updateParentArray = false;
+
 //    // TODO: El datasource es passarà al constructor del parser desde la wiki
     protected $dataSource = [];
 
@@ -87,6 +89,11 @@ class WiocclInstruction
                 $mark = self::$instancesCounter==0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken);
+
+                if ($item->updateParentArray) {
+                    $this->arrays = $item->arrays;
+                }
+
                 if($mark){
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
 //                    $result .= "<mark title='${$this->fullInstruction}'>".$item->getTokensValue($tokens, ++$tokenIndex)."</mark>";
