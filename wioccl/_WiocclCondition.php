@@ -2,7 +2,7 @@
 
 class _WiocclCondition {
     protected $strCondition;
-    protected $logicOp;
+    public $logicOp;
 
     public function __construct($strCondition) {
         $this->strCondition = empty($strCondition) ? 'false' : $strCondition;
@@ -25,6 +25,7 @@ class _WiocclCondition {
     public function setValue2($value) {
         $this->logicOp->setValue2($value);
     }
+
 
 }
 

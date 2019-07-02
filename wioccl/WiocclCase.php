@@ -13,7 +13,7 @@ class WiocclCase extends WiocclInstruction{
     {
         parent::__construct($value, $arrays, $dataSource);
 
-        $this->chooseId = $this->extractVarName($value, self::FORCHOOSE_ATTR, true);
+        $this->chooseId = WiocclChoose::PREFIX . $this->extractVarName($value, self::FORCHOOSE_ATTR, true);
 
         $value = str_replace("\\", "", $value);
 
