@@ -3,7 +3,6 @@
 class WiocclCase extends WiocclInstruction{
     const COND_ATTR = 'condition';
     const FORCHOOSE_ATTR = 'forchoose';
-    const CASE_RETURN = '__parsedCase';
 
     public $updateParentArray = true;
 
@@ -14,7 +13,6 @@ class WiocclCase extends WiocclInstruction{
     {
         parent::__construct($value, $arrays, $dataSource);
 
-//        $this->counterName = $this->extractVarName($value, "counter");
         $this->chooseId = $this->extractVarName($value, self::FORCHOOSE_ATTR, true);
 
         $value = str_replace("\\", "", $value);
@@ -23,8 +21,6 @@ class WiocclCase extends WiocclInstruction{
         $this->arrays[$this->chooseId][] = [
             'condition' => $this->extractVarName($value, self::COND_ATTR, true)
         ];
-
-//        $this->condition = $this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true));
 
     }
 
@@ -48,7 +44,7 @@ class WiocclCase extends WiocclInstruction{
 
         $this->arrays[$this->chooseId][$this->index]['value'] = $result;
 
-        return self::CASE_RETURN;
+        return true;
     }
 
 }

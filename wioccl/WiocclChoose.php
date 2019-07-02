@@ -1,12 +1,11 @@
 <?php
 
-class WiocclChoose extends WiocclInstruction{
+class WiocclChoose extends WiocclInstruction {
 
     protected $chooseId;
     protected $value;
 
-    public function __construct($value = null, $arrays = [], $dataSource=[])
-    {
+    public function __construct($value = null, $arrays = [], $dataSource = []) {
         parent::__construct($value, $arrays, $dataSource);
 
         $this->chooseId = $this->extractVarName($value, "var", true);
@@ -14,27 +13,25 @@ class WiocclChoose extends WiocclInstruction{
 
     }
 
-    public function parseTokens($tokens, &$tokenIndex)
-    {
-
+    public function parseTokens($tokens, &$tokenIndex) {
         while ($tokenIndex < count($tokens)) {
 
-            // Aquest valor no es fa servir, però serveix per determinar que s'ha de deixar de parsejar
+            // Aquest valor no es fa servir, però serveix per determinar el tancament
             $parsedValue = $this->parseToken($tokens, $tokenIndex);
 
-            if ($parsedValue != WiocclCase::CASE_RETURN) { // tancament del if
+            if ($parsedValue == null) {
                 break;
             }
-
             ++$tokenIndex;
+
         }
 
         // Comprovem si s'ha obtingut les condicions i valors dels case
         $cases = $this->arrays[$this->chooseId];
 
-        // recorrem tots els checks fins trobar el primer que acompleixi la condició
+        // recorrem tots els casos fins trobar el primer que acompleixi la condició
 
-        for ($i=0; $i<count($cases); $i++) {
+        for ($i = 0; $i < count($cases); $i++) {
             $condition = $this->evaluateCondition($cases[$i]['condition']);
             if ($condition) {
                 return $cases[$i]['value'];
@@ -44,7 +41,7 @@ class WiocclChoose extends WiocclInstruction{
         return '';
     }
 
-    private function evaluateCondition($strCondition){
+    private function evaluateCondition($strCondition) {
         $_condition = new _WiocclCondition($strCondition);
         $_condition->parseData($this->getArrays(), $this->getDataSource());
 

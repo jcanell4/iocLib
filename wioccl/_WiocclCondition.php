@@ -1,20 +1,20 @@
 <?php
 
-class _WiocclCondition{
+class _WiocclCondition {
     protected $strCondition;
     protected $logicOp;
 
-    public function __construct($strCondition){
-        $this->strCondition = empty($strCondition)?'false':$strCondition;
+    public function __construct($strCondition) {
+        $this->strCondition = empty($strCondition) ? 'false' : $strCondition;
         $this->logicOp = _LogicParser::getOperator($strCondition);
     }
 
 
-    public function parseData($arrays, $dataSource){
+    public function parseData($arrays, $dataSource) {
         $this->logicOp->parseData($arrays, $dataSource);
     }
-    
-    public function validate(){
+
+    public function validate() {
         return $this->logicOp->getValue();
     }
 
@@ -28,33 +28,33 @@ class _WiocclCondition{
 
 }
 
-class _LogicParser{
+class _LogicParser {
 //    protected $text;
 //    function __construct($text) {
 //        $this->text = $text;
 //    }        
-    
-    public static function getOperator($text){
-        $ret=NULL;
+
+    public static function getOperator($text) {
+        $ret = NULL;
 //        if(preg_match('/\(.*\)/', $text, $matches) === 1){
 //            
 //        }
         $aOrOp = explode("||", $text, 2);
-        if(count($aOrOp)>1){//OR
+        if (count($aOrOp) > 1) {//OR
             $ret = new _OrOperation(_LogicParser::getOperator($aOrOp[0]), _LogicParser::getOperator($aOrOp[1]));
-        }else{//AND
+        } else {//AND
             $aAndOp = explode("&&", $text, 2);
-            if(count($aAndOp)>1){
+            if (count($aAndOp) > 1) {
                 $ret = new _AndOperation(_LogicParser::getOperator($aAndOp[0]), _LogicParser::getOperator($aAndOp[1]));
-            }else if(preg_match('/[=!]=/', $text) === 1){//CONDITION == o !=
+            } else if (preg_match('/[=!]=/', $text) === 1) {//CONDITION == o !=
                 $ret = new _ConditionOperation($text);
-            }else if(preg_match('/[><]=?/', $text) === 1){//CONDITION <, >, <=, <=
+            } else if (preg_match('/[><]=?/', $text) === 1 || (preg_match('/(ls|gt)(eq)?/', $text) == 1)) {//CONDITION <, >, <=, <=
                 $ret = new _ConditionOperation($text);
-            }else if(preg_match('/!/', $text) === 1){// NotOperation
+            } else if (preg_match('/!/', $text) === 1) {// NotOperation
                 $ret = new _NotOperation(_LogicParser::getOperator($text));
-            }else if(preg_match('/ in /', $text) === 1){// In, argument 1 (value) is in argument 2 (array)
+            } else if (preg_match('/ in /', $text) === 1) {// In, argument 1 (value) is in argument 2 (array)
                 $ret = new _ConditionOperation($text);
-            }else{//LITERAL
+            } else {//LITERAL
                 $ret = new _Literal($text);
             }
         }
@@ -62,12 +62,12 @@ class _LogicParser{
     }
 }
 
-abstract class _LogicOperation{
+abstract class _LogicOperation {
     abstract function getValue();
-    
+
     abstract function parseData($arrays, $datasource);
-    
-    protected function normalizeArg($arg){
+
+    protected function normalizeArg($arg) {
         if (strtolower($arg) == 'true') {
             return true;
         } else if (strtolower($arg) == 'false') {
@@ -82,61 +82,61 @@ abstract class _LogicOperation{
             return $arg;
         }
 
-    }    
+    }
 }
 
-abstract class _BinaryOperation extends _LogicOperation{    
+abstract class _BinaryOperation extends _LogicOperation {
     private $operator1;
     private $operator2;
 
-    function __construct($op1, $op2=NULL) {
+    function __construct($op1, $op2 = NULL) {
         $this->operator1 = $op1;
         $this->operator2 = $op2;
     }
 
-    public function getOperator1(){
+    public function getOperator1() {
         return $this->operator1;
     }
-    
-    public function getOperator2(){
+
+    public function getOperator2() {
         return $this->operator2;
     }
 
-    public function setOperator1($operator1){
+    public function setOperator1($operator1) {
         $this->operator1 = $operator1;
     }
-    
-    public function setOperator2($operator2){
+
+    public function setOperator2($operator2) {
         $this->operator2 = $operator2;
     }
-    
-    public function parseData($arrays, $datasource){
+
+    public function parseData($arrays, $datasource) {
         $this->operator1->parseData($arrays, $datasource);
-        if($this->operator2!==NULL){
+        if ($this->operator2 !== NULL) {
             $this->operator2->parseData($arrays, $datasource);
         }
     }
 }
 
-class _Literal extends _LogicOperation{
+class _Literal extends _LogicOperation {
     private $literal;
     private $value;
-    
+
     function __construct($text) {
         $this->literal = $this->normalizeArg($text);
     }
 
     public function getValue() {
-        return $this->value?$this->normalizeArg($this->value):true;
+        return $this->value ? $this->normalizeArg($this->value) : true;
     }
-    
+
     public function parseData($arrays, $datasource) {
 //        $this->value = (new WiocclParser($this->literal, $arrays, $datasource))->getValue();
         $this->value = WiocclParser::getValue($this->literal, $arrays, $datasource);
     }
 }
 
-class _NotOperation extends _BinaryOperation{
+class _NotOperation extends _BinaryOperation {
     function __construct($operator1) {
         parent::__construct($operator1);
     }
@@ -146,8 +146,8 @@ class _NotOperation extends _BinaryOperation{
     }
 }
 
-class _AndOperation extends _BinaryOperation{
-    
+class _AndOperation extends _BinaryOperation {
+
     function __construct($operator1, $operator2) {
         parent::__construct($operator1, $operator2);
     }
@@ -157,8 +157,8 @@ class _AndOperation extends _BinaryOperation{
     }
 }
 
-class _OrOperation extends _BinaryOperation{
-    
+class _OrOperation extends _BinaryOperation {
+
     function __construct($operator1, $operator2) {
         parent::__construct($operator1, $operator2);
     }
@@ -168,7 +168,7 @@ class _OrOperation extends _BinaryOperation{
     }
 }
 
-class _ConditionOperation extends _LogicOperation{
+class _ConditionOperation extends _LogicOperation {
     private $operation;
     private $arg1;
     private $arg2;
@@ -182,7 +182,7 @@ class _ConditionOperation extends _LogicOperation{
     public function setValue2($value) {
         $this->value2 = $value;
     }
-            
+
     function __construct($expression) {
         $ac = $this->extractFilterArgs($expression);
         $this->arg1 = $ac[0];
@@ -202,13 +202,12 @@ class _ConditionOperation extends _LogicOperation{
     }
 
     protected function extractFilterArgs($value) {
-        if (preg_match('/(.*?)([><=!]=?| in )(.*)/', $value, $matches) === 1) {
-            // ALERTA: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura
+        if (preg_match('/(.*?)([><=!]=?| in |lseq|gteq|ls|gt)(.*)/', $value, $matches) === 1) {
+            // ALERTA[Xavi]: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura, s'ha de fer servir gt i gteq
 
             $arg1 = $matches[1];
             $arg2 = $matches[3];
             $operator = trim($matches[2]);
-
 
 
             return [$arg1, $operator, $arg2];
@@ -217,21 +216,29 @@ class _ConditionOperation extends _LogicOperation{
         return null;
     }
 
-    protected function resolveCondition($arg1, $arg2, $operator)
-    {
+    protected function resolveCondition($arg1, $arg2, $operator) {
 
         switch ($operator) {
 
             case '==':
                 return $arg1 == $arg2;
+
             case '<=':
+            case 'lseq':
                 return $arg1 <= $arg2;
+
             case '<':
+            case 'ls':
                 return $arg1 < $arg2;
+
             case '>=':
+            case'gteq':
                 return $arg1 >= $arg2;
+
             case '>':
+            case 'gt':
                 return $arg1 > $arg2;
+
             case '!=':
                 return $arg1 != $arg2;
 
