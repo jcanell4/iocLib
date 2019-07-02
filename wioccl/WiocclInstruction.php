@@ -90,16 +90,17 @@ class WiocclInstruction
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken);
 
-                if ($item->updateParentArray) {
-                    $this->arrays = $item->arrays;
-                }
-
                 if($mark){
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
 //                    $result .= "<mark title='${$this->fullInstruction}'>".$item->getTokensValue($tokens, ++$tokenIndex)."</mark>";
                 }else{
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 }
+
+                if ($item->updateParentArray) {
+                    $this->arrays = $item->arrays;
+                }
+
                 self::$instancesCounter--;
                 break;
 

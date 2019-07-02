@@ -60,6 +60,18 @@ class WiocclParser
         '</WIOCCL:RESET>(\n)?' => [
             'state' => 'close_set',
         ],
+        '<WIOCCL:CHOOSE .*?[^\\\\]>(\n)?' => [
+            'state' => 'open_set',
+        ],
+        '</WIOCCL:CHOOSE>(\n)?' => [
+            'state' => 'close_set',
+        ],
+        '<WIOCCL:CASE .*?[^\\\\]>(\n)?' => [
+            'state' => 'open_set',
+        ],
+        '</WIOCCL:CASE>(\n)?' => [
+            'state' => 'close_set',
+        ],
     ];
 
     // TODO: automatitzar la creació a partir del token patterns? <-- no seria posible en el cas del open del if
@@ -83,8 +95,11 @@ class WiocclParser
         '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
         '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close'],
         '<WIOCCL:RESET' => ['state' => 'open_set', 'type' => 'reset', 'class' => 'WiocclReSet', 'action' => 'open'],
-//        '<WIOCCL:RESET' => ['state' => 'open_set', 'type' => 'reset', 'class' => 'WiocclSet', 'action' => 'open'],
         '</WIOCCL:RESET>' => ['state' => 'close_set', 'type' => 'reset', 'action' => 'close'],
+        '<WIOCCL:CHOOSE' => ['state' => 'open_set', 'type' => 'choose', 'class' => 'WiocclChoose', 'action' => 'open'],
+        '</WIOCCL:CHOOSE>' => ['state' => 'close_set', 'type' => 'choose', 'action' => 'close'],
+        '<WIOCCL:CASE' => ['state' => 'open_set', 'type' => 'case', 'class' => 'WiocclCase', 'action' => 'open'],
+        '</WIOCCL:CASE>' => ['state' => 'close_set', 'type' => 'case', 'action' => 'close'],
     ];
 
 

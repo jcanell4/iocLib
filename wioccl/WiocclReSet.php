@@ -5,7 +5,7 @@ class WiocclReSet extends WiocclSet {
 
     public $updateParentArray = true;
 
-    public function __construct($value = null, &$arrays = [], $dataSource = []) {
+    public function __construct($value = null, $arrays = [], $dataSource = []) {
         parent::__construct($value, $arrays, $dataSource);
 
         $varName = $this->extractVarName($value, self::VAR_ATTR);
@@ -17,10 +17,10 @@ class WiocclReSet extends WiocclSet {
         }
 
         if ($type === self::LITERAL_TYPE) {
-            $arrays[$varName] = $v;
+            $this->arrays[$varName] = $v;
         } elseif ($type === self::MAP_TYPE) {
             $map = $this->extractMap($value, self::MAP_ATTR);
-            $arrays[$varName] = $map[$v];
+            $this->$arrays[$varName] = $map[$v];
         }
     }
 }

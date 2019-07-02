@@ -17,6 +17,15 @@ class _WiocclCondition{
     public function validate(){
         return $this->logicOp->getValue();
     }
+
+    public function setValue1($value) {
+        $this->logicOp->setValue1($value);
+    }
+
+    public function setValue2($value) {
+        $this->logicOp->setValue2($value);
+    }
+
 }
 
 class _LogicParser{
@@ -165,6 +174,14 @@ class _ConditionOperation extends _LogicOperation{
     private $arg2;
     private $value1;
     private $value2;
+
+    public function setValue1($value) {
+        $this->value1 = $value;
+    }
+
+    public function setValue2($value) {
+        $this->value2 = $value;
+    }
             
     function __construct($expression) {
         $ac = $this->extractFilterArgs($expression);
