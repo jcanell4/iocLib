@@ -82,6 +82,120 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
+     * Reemplaza en el documeto de usuario ($doc_1) el contenido diferente $plant_6,
+     * habiendo tomando como base $plant_5
+     * @param string $plant_5 : texto del documento que sirve para la comparación base
+     * @param string $plant_6 : texto de la plantilla final
+     * @param string $doc_1 : texto del documento a modificar
+     */
+    public function updateTemplateInsertTags($plant_5, $plant_6, $doc_1) {
+        $offset_5 = 0;
+        $offset_6 = 0;
+        $offset_1 = 0;
+        $errmsg = "Error en l'actualització. Canvis incontrolats al document de l'usuari.";
+
+        while (true) {
+            //busca el tag ##TODO en la plantilla $plant_5, a partir de la última aparición
+            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_5, $match, PREG_OFFSET_CAPTURE, $offset_5) === 1) {
+                $bloque_5 = substr($plant_5, $offset_5, $match[0][1]-$offset_5);
+                $bloque_todo = $match[0][0];
+                $offset_5 = $match[0][1] + strlen($match[0][0]);
+
+                //busca el tag ##TODO en la plantilla $plant_6, a partir de la última aparición
+                preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_6, $match, PREG_OFFSET_CAPTURE, $offset_6);
+                $bloque_6 = substr($plant_6, $offset_6, $match[0][1]-$offset_6);
+                $offset_6 = $match[0][1] + strlen($match[0][0]);
+
+                if ($bloque_5 === "") continue;
+
+                //busca el $bloque_5 en $doc_1 y, si lo encuentra, lo sustituye por $bloque_6
+                $bloque_5 = "/".preg_quote($bloque_5,"/")."/m";
+                if (preg_match($bloque_5, $doc_1, $match) === 1) {
+                    $doc_1 = preg_replace($bloque_5, $bloque_6, $doc_1);
+                }else {
+                    if (preg_match("/".preg_quote($bloque_todo,"/")."/m", $doc_1, $match, PREG_OFFSET_CAPTURE, $offset_1) === 1) {
+                        $doc_1 = preg_replace("/".preg_quote($match[0][0],"/")."/m", $bloque_6, $doc_1);
+                        $offset_1 = $match[0][1] + strlen($match[0][0]);
+                    }else {
+                        throw new Exception($errmsg);
+                    }
+                }
+            }else {
+                //Tratamiento del resto del documento después del último ##TODO
+                $resto_5 = "/".preg_quote(substr($plant_5, $offset_5),"/")."/m";
+                $resto_6 = substr($plant_6, $offset_6);
+                if (preg_match($resto_5, $doc_1, $match) === 1) {
+                    $doc_1 = preg_replace($resto_5, $resto_6, $doc_1);
+                }else {
+                    if (preg_match("/".preg_quote($bloque_todo,"/")."/m", $doc_1, $match, PREG_OFFSET_CAPTURE, $offset_1) === 1) {
+                        $doc_1 = substr($doc_1, 0, $match[0][1] + strlen($match[0][0])) . $resto_6;
+                    }else {
+                        throw new Exception($errmsg);
+                    }
+                }
+                break;
+            }
+        }
+        return $doc_1;
+    }
+
+    /**
+     * Reemplaza en el documeto de usuario ($doc_1) el contenido que está fuera de los
+     * tags ##TODO, contenido tomado de la plantilla ($doc_0)
+     * @param string $doc_0 : texto del documento en el que se busca (plantilla)
+     * @param string $doc_1 : texto del documento a modificar
+     */
+    public function updateTemplateInsertTags_2($doc_0, $doc_1) {
+        $ret = "";
+        $offset_0 = 0;
+        $offset_1 = 0;
+
+        while (true) {
+            //busca el tag ##TODO en la plantilla ($doc_0), a partir de la última aparición
+            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $doc_0, $match, PREG_OFFSET_CAPTURE, $offset_0) === 1) {
+                $bloque = substr($doc_0, $offset_0, $match[0][1]);
+                $offset_0 = $match[0][1] + strlen($match[0][0]);
+                //busca el tag ##TODO en $doc_1, a partir de la última aparición
+                if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $doc_1, $match, PREG_OFFSET_CAPTURE, $offset_1) === 1) {
+                    $ret .= $bloque . $match[0][0];
+                    $offset_1 = $match[0][1] + strpos($match[0][0], "[##TODO") + 7;
+                }
+            }else {
+                break;
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Inserta en el documeto de usuario ($doc1) los tags ($tag_ini, $tag_fin) tomando como referencia
+     * la disposición de esos tags en la plantilla ($doc0)
+     * @param string $doc0 : texto del documento en el que se busca (plantilla)
+     * @param string $doc1 : texto del documento a modificar
+     * @param string $tag_ini : tag de inicio a buscar
+     * @param string $tag_fin : tag de finalización a buscar
+     */
+    public function updateTemplateInsertTags_1($doc0, $doc1, $tag_ini, $tag_fin) {
+        $ret = "";
+        $nl = "\n";
+        $offset = 0;
+        //desmenuza la plantilla ($doc0) en bloques de tags
+        $bloques = explode($tag_fin, $doc0);
+
+        foreach ($bloques as $bloque) {
+            $abloq = explode($tag_ini, $bloque);
+            $bloque = ($abloq[1]) ? $abloq[1] : $abloq[0];
+            $ret .= $tag_ini.$bloque.$nl.$tag_fin;
+            //busca el tag ##TODO en el documento del usuario ($doc1), a partir de la última aparición
+            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $doc1, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
+                $offset = $match[0][1] + strpos($match[0][0], "[##TODO") + 7;
+                $ret .= $match[0][0];
+            }
+        }
+        return $ret;
+    }
+
+    /**
      * Busca en el documento origen un trozo de texto mediante una expresión regular y lo guarda en una variable,
      * a continuación hace una búsqueda (con regex) y sustitución (con texto guardado) en el documento destino
      * @param string $doc0 : texto del documento en el que se busca (plantilla)
@@ -106,13 +220,10 @@ class CommonUpgrader {
      * reemplazar y flags a utilizar
      */
     public function updateTemplateByReplace($doc, $aTokens) {
-
         foreach ($aTokens as $tok) {
-
             $extraFlags = isset($tok[2]) ? $tok[2] : '';
             $pattern = "/$tok[0]/m" . $extraFlags;
             $doc = preg_replace($pattern , $tok[1], $doc);
-
         }
         return $doc;
     }
@@ -212,7 +323,7 @@ class CommonUpgrader {
     /**
      * Aplica una nueva plantilla a un documento creado con una plantilla antigua
      * NOTA: las 2 plantillas y el documento deben tener el mismo número de fragmentos [##TODO
-     *       Se equiparan los frangmentos por su número de orden de aparición, independientemente de su contenido
+     *       Se equiparan los fragmentos por su número de orden de aparición, independientemente de su contenido
      * @param string $t0 : texto de la plantilla original
      * @param string $t1 : texto de la nueva plantilla
      * @param string $doc : texto del documento de usuario (basado en la plantilla orginal)
@@ -220,9 +331,9 @@ class CommonUpgrader {
      * @return string transformado
      */
     public function updateDocToNewTemplate($t0, $t1, $doc, $token=NULL) {
-        if (!$token) $token = "\[##TODO.*##\]";
-        $st0 = preg_split("/($token)/", $t0, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $st1 = preg_split("/($token)/", $t1, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if (!$token) $token = "/\[##TODO.*##\]/m";
+        $st0 = preg_split("$token", $t0);
+        $st1 = preg_split("$token", $t1);
 
         for ($i=0; $i<count($st0); $i++) {
             $st0[$i] = "/".preg_quote($st0[$i], '/')."/";
