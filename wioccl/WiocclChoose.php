@@ -68,7 +68,7 @@ class WiocclChoose extends WiocclInstruction {
         $_condition->parseData($this->getArrays(), $this->getDataSource());
 
         if (get_class($_condition->logicOp)== "_Literal") {
-            return $_condition->validate() == $this->lExpression || $_condition->validate() == $this->rExpression;
+            return $_condition->validate() === true || $_condition->validate() === $this->lExpression || $_condition->validate() === $this->rExpression;
         } else {
 
             // Només es sobreescriu si no existeix

@@ -11,10 +11,23 @@ class WiocclField extends WiocclInstruction {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
+
+            // Provem a fer la conversió de les dades en arrays si no ho son
+            if (!is_array($this->dataSource[$varName])) {
+                $this->dataSource[$varName] = json_decode($this->dataSource[$varName], true);
+            }
+
+            if (!is_array($this->arrays[$varName])) {
+                $this->arrays[$varName] = json_decode($this->arrays[$varName], true);
+            }
+
+
             if (isset($this->arrays[$varName][$key])) {
                 $ret =$this->arrays[$varName][$key];
             } else if (isset($this->dataSource[$varName][$key])) {
+
                 $ret =$this->dataSource[$varName][$key];
+
             }else{
                 $ret=NULL;
             }
