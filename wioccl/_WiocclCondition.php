@@ -18,12 +18,12 @@ class _WiocclCondition {
         return $this->logicOp->getValue();
     }
 
-    public function setValue1($value) {
-        $this->logicOp->setValue1($value);
+    public function setValue1($value, $override = true) {
+        $this->logicOp->setValue1($value, $override);
     }
 
-    public function setValue2($value) {
-        $this->logicOp->setValue2($value);
+    public function setValue2($value, $override = true) {
+        $this->logicOp->setValue2($value, $override);
     }
 
 
@@ -128,7 +128,17 @@ class _Literal extends _LogicOperation {
     }
 
     public function getValue() {
-        return $this->value ? $this->normalizeArg($this->value) : true;
+
+        // Si el literal es true o false ho retornem, quan es fa el parser dels valors es converteixen en enters.
+        if ($this->literal === TRUE || $this->literal === FALSE) {
+            return $this->literal;
+        } else {
+            return $this->value!== FALSE ?  $this->normalizeArg($this->value) : TRUE;
+        }
+
+
+        // ALERTA[Xavi] aquesta era la implementació original, no es correcte perque 0 s'avalua com a false i per tant retorna true.
+        //return $this->value ? $this->normalizeArg($this->value) : true;
     }
 
     public function parseData($arrays, $datasource) {
@@ -176,12 +186,18 @@ class _ConditionOperation extends _LogicOperation {
     private $value1;
     private $value2;
 
-    public function setValue1($value) {
-        $this->value1 = $value;
+    public function setValue1($value, $override = true) {
+        if ($this->value1 == NULL || $override) {
+            $this->value1 = $value;
+        }
     }
 
-    public function setValue2($value) {
-        $this->value2 = $value;
+    public function setValue2($value, $override = true) {
+
+        if ($this->value2 == NULL || $override) {
+            $this->value2 = $value;
+        }
+
     }
 
     function __construct($expression) {

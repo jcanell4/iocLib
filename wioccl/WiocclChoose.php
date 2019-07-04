@@ -3,17 +3,30 @@
 class WiocclChoose extends WiocclInstruction {
 
     const PREFIX = '__';
+    const LEXPRESSION = 'lExpression';
+    const REXPRESSION = 'rExpression';
 
     protected $chooseId;
-    protected $value;
+
+    protected $lExpression;
+    protected $rExpression;
 
     public function __construct($value = null, $arrays = [], $dataSource = []) {
 
 
-        $this->chooseId = $this->extractVarName($value, "var", true);
-        $this->value = $this->extractVarName($value, "value", true);
+        $this->chooseId = $this->extractVarName($value, "id", true);
 
-        $arrays[$this->chooseId] = $this->value;
+        // obligatori
+        $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource ));
+
+        // opcional
+        $aux = $this->extractVarName($value, self::REXPRESSION, false);
+        if ($aux) {
+            $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource));
+        }
+
+
+        $arrays[$this->chooseId] = $this->lExpression;
 
         parent::__construct($value, $arrays, $dataSource);
 
@@ -37,8 +50,12 @@ class WiocclChoose extends WiocclInstruction {
 
         // recorrem tots els casos fins trobar el primer que acompleixi la condició
         for ($i = 0; $i < count($cases); $i++) {
-            $condition = $this->evaluateCondition($cases[$i]['condition']);
-            if ($condition) {
+
+            $condition = $cases[$i]['condition']['lvalue'] . $cases[$i]['condition']['operator'] . $cases[$i]['condition']['rvalue'];
+
+            $evaluation= $this->evaluateCondition($condition);
+
+            if ($evaluation) {
                 return $cases[$i]['value'];
             }
         }
@@ -51,9 +68,18 @@ class WiocclChoose extends WiocclInstruction {
         $_condition->parseData($this->getArrays(), $this->getDataSource());
 
         if (get_class($_condition->logicOp)== "_Literal") {
-            return $_condition->validate() == $this->value;
+            return $_condition->validate() == $this->lExpression || $_condition->validate() == $this->rExpression;
         } else {
-            $_condition->setValue1($this->value);
+
+            // Només es sobreescriu si no existeix
+            $_condition->setValue1($this->lExpression, false);
+
+            if ($this->rExpression !== NULL) {
+                $_condition->setValue2($this->rExpression, false);
+            }
+
+
+
             return $_condition->validate();
         }
 
