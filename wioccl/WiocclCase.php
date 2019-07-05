@@ -17,7 +17,7 @@ class WiocclCase extends WiocclInstruction {
     protected $chooseId;
     protected $index;
 
-    public function __construct($value = null, &$arrays = [], $dataSource = [], $mandatoryCondition = true) {
+    public function __construct($value = null, $arrays = [], $dataSource = [], $mandatoryCondition = true) {
         parent::__construct($value, $arrays, $dataSource);
 
         $this->chooseId = WiocclChoose::PREFIX . $this->extractVarName($value, self::FORCHOOSE_ATTR, true);

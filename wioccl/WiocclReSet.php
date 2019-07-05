@@ -3,6 +3,8 @@ require_once "WiocclParser.php";
 
 class WiocclReSet extends WiocclSet {
 
+    const PREFIX = '$$';
+
     public $updateParentArray = true;
 
     public function __construct($value = null, $arrays = [], $dataSource = []) {
@@ -15,6 +17,9 @@ class WiocclReSet extends WiocclSet {
         if (!isset($this->arrays[$varName])) {
             throw new Exception("S'ha de fer set d'una variable abans de poder reassignar el valor");
         }
+
+
+        $this->arrays[self::PREFIX . $varName] = true;
 
         if ($type === self::LITERAL_TYPE) {
             $this->arrays[$varName] = $v;

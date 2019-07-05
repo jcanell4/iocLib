@@ -2,7 +2,7 @@
 
 class WiocclDefaultCase extends WiocclCase {
 
-    public function __construct($value = null, &$arrays = [], $dataSource=[])
+    public function __construct($value = null, $arrays = [], $dataSource=[])
     {
 
         parent::__construct($value, $arrays, $dataSource, false);

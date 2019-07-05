@@ -14,13 +14,15 @@ class WiocclChoose extends WiocclInstruction {
     public function __construct($value = null, $arrays = [], $dataSource = []) {
 
 
+        parent::__construct($value, $arrays, $dataSource);
+
         $this->chooseId = $this->extractVarName($value, "id", true);
 
         // obligatori
         $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource ));
 
         // opcional
-        $aux = $this->extractVarName($value, self::REXPRESSION, false);
+        $aux = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::REXPRESSION, false), $arrays, $dataSource ));
         if ($aux) {
             $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource));
         }
@@ -28,7 +30,7 @@ class WiocclChoose extends WiocclInstruction {
 
         $arrays[$this->chooseId] = $this->lExpression;
 
-        parent::__construct($value, $arrays, $dataSource);
+
 
     }
 
@@ -77,8 +79,6 @@ class WiocclChoose extends WiocclInstruction {
             if ($this->rExpression !== NULL) {
                 $_condition->setValue2($this->rExpression, false);
             }
-
-
 
             return $_condition->validate();
         }
