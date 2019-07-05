@@ -98,8 +98,18 @@ class WiocclInstruction
                 }
 
                 if ($item->updateParentArray) {
-                    $this->arrays = $item->arrays;
+                    $this->arrays = array_merge($this->arrays, $item->arrays);
                 }
+
+                // Copiem els valors resetted al parè
+                foreach ($item->arrays as $key => $value) {
+                    if (strpos($key, WiocclReSet::PREFIX)===0) {
+                        $this->arrays[$key] = true;
+                        $realKey = substr($key, strlen(WiocclReSet::PREFIX));
+                        $this->arrays[$realKey] = $item->arrays[$realKey];
+                    }
+                }
+
 
                 self::$instancesCounter--;
                 break;
