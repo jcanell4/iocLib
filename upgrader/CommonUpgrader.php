@@ -82,53 +82,53 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
-     * Reemplaza en el documeto de usuario ($doc_1) el contenido diferente $plant_6,
-     * habiendo tomando como base $plant_5
-     * @param string $plant_5 : texto del documento que sirve para la comparación base
-     * @param string $plant_6 : texto de la plantilla final
-     * @param string $doc_1 : texto del documento a modificar
+     * Reemplaza en el documeto de usuario ($doc) el contenido diferente $plant_1,
+     * habiendo tomando como base $plant_0
+     * @param string $plant_0 : texto del documento que sirve para la comparación base (plantilla versión anterior)
+     * @param string $plant_1 : texto de la plantilla final (plantilla nueva versión)
+     * @param string $doc : texto del documento a modificar
      */
-    public function updateTemplateInsertTags($plant_5, $plant_6, $doc_1) {
-        $offset_5 = 0;
-        $offset_6 = 0;
+    public function updateTemplateInsertTags($plant_0, $plant_1, $doc) {
+        $offset_0 = 0;
         $offset_1 = 0;
+        $offset_doc = 0;
         $errmsg = "Error en l'actualització. Canvis incontrolats al document de l'usuari.";
 
         while (true) {
-            //busca el tag ##TODO en la plantilla $plant_5, a partir de la última aparición
-            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_5, $match, PREG_OFFSET_CAPTURE, $offset_5) === 1) {
-                $bloque_5 = substr($plant_5, $offset_5, $match[0][1]-$offset_5);
-                $bloque_todo = $match[0][0];
-                $offset_5 = $match[0][1] + strlen($match[0][0]);
+            //busca el tag ##TODO en la plantilla $plant_0, a partir de la última aparición
+            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_0, $match, PREG_OFFSET_CAPTURE, $offset_0) === 1) {
+                $bloque_0 = substr($plant_0, $offset_0, $match[0][1]-$offset_0);
+                $bloque_TODO = $match[0][0];
+                $offset_0 = $match[0][1] + strlen($match[0][0]);
 
-                //busca el tag ##TODO en la plantilla $plant_6, a partir de la última aparición
-                preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_6, $match, PREG_OFFSET_CAPTURE, $offset_6);
-                $bloque_6 = substr($plant_6, $offset_6, $match[0][1]-$offset_6);
-                $offset_6 = $match[0][1] + strlen($match[0][0]);
+                //busca el tag ##TODO en la plantilla $plant_1, a partir de la última aparición
+                preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_1, $match, PREG_OFFSET_CAPTURE, $offset_1);
+                $bloque_1 = substr($plant_1, $offset_1, $match[0][1]-$offset_1);
+                $offset_1 = $match[0][1] + strlen($match[0][0]);
 
-                if ($bloque_5 === "") continue;
+                if ($bloque_0 === "") continue;
 
-                //busca el $bloque_5 en $doc_1 y, si lo encuentra, lo sustituye por $bloque_6
-                $bloque_5 = "/".preg_quote($bloque_5,"/")."/m";
-                if (preg_match($bloque_5, $doc_1, $match) === 1) {
-                    $doc_1 = preg_replace($bloque_5, $bloque_6, $doc_1);
+                //busca el $bloque_0 en $doc y, si lo encuentra, lo sustituye por $bloque_1
+                $bloque_0 = "/".preg_quote($bloque_0,"/")."/m";
+                if (preg_match($bloque_0, $doc, $match) === 1) {
+                    $doc = preg_replace($bloque_0, $bloque_1, $doc);
                 }else {
-                    if (preg_match("/".preg_quote($bloque_todo,"/")."/m", $doc_1, $match, PREG_OFFSET_CAPTURE, $offset_1) === 1) {
-                        $doc_1 = preg_replace("/".preg_quote($match[0][0],"/")."/m", $bloque_6, $doc_1);
-                        $offset_1 = $match[0][1] + strlen($match[0][0]);
+                    if (preg_match("/".preg_quote($bloque_TODO,"/")."/m", $doc, $match, PREG_OFFSET_CAPTURE, $offset_doc) === 1) {
+                        $doc = preg_replace("/".preg_quote($match[0][0],"/")."/m", $bloque_1, $doc);
+                        $offset_doc = $match[0][1] + strlen($match[0][0]);
                     }else {
                         throw new Exception($errmsg);
                     }
                 }
             }else {
                 //Tratamiento del resto del documento después del último ##TODO
-                $resto_5 = "/".preg_quote(substr($plant_5, $offset_5),"/")."/m";
-                $resto_6 = substr($plant_6, $offset_6);
-                if (preg_match($resto_5, $doc_1, $match) === 1) {
-                    $doc_1 = preg_replace($resto_5, $resto_6, $doc_1);
+                $resto_0 = "/".preg_quote(substr($plant_0, $offset_0),"/")."/m";
+                $resto_1 = substr($plant_1, $offset_1);
+                if (preg_match($resto_0, $doc, $match) === 1) {
+                    $doc = preg_replace($resto_0, $resto_1, $doc);
                 }else {
-                    if (preg_match("/".preg_quote($bloque_todo,"/")."/m", $doc_1, $match, PREG_OFFSET_CAPTURE, $offset_1) === 1) {
-                        $doc_1 = substr($doc_1, 0, $match[0][1] + strlen($match[0][0])) . $resto_6;
+                    if (preg_match("/".preg_quote($bloque_TODO,"/")."/m", $doc, $match, PREG_OFFSET_CAPTURE, $offset_doc) === 1) {
+                        $doc = substr($doc, 0, $match[0][1] + strlen($match[0][0])) . $resto_1;
                     }else {
                         throw new Exception($errmsg);
                     }
@@ -136,7 +136,7 @@ class CommonUpgrader {
                 break;
             }
         }
-        return $doc_1;
+        return $doc;
     }
 
     /**
@@ -321,6 +321,37 @@ class CommonUpgrader {
     }
 
     /**
+     * Aplica los cambios especificados en la nueva plantilla a un documento
+     * NOTA: los 2 documentos deben tener el mismo número de fragmentos 'protected'
+     *       Se equiparan los fragmentos por su número de orden de aparición, independientemente de su contenido
+     * @param string $tpl : texto de la nueva plantilla
+     * @param string $doc : texto del documento de usuario
+     * @param string $token : expresión regular mediante la cual se dividirán la plantilla y el documento
+     * @return string transformado
+     */
+    public function updateDocToNewTemplate($tpl, $doc, $token=NULL) {
+        if (!$token) {
+            $token="/:###.*?###:/ims";
+        }
+        //Recorremos todo el documento de usuario buscando bloques definidos en el $token (por defecto, bloques 'protected')
+        //que serán sustituidos por bloques $token de la plantilla
+        $offset = 0;
+        while (preg_match($token, $doc, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            $match_doc[] = "/".preg_quote($match[0][0], '/')."/ims";
+            $offset = $match[0][1] + strlen($match[0][0]);
+        }
+        //Buscamos bloques 'protected' en la plantilla
+        $offset = 0;
+        while (preg_match($token, $tpl, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            $match_tpl[] = $match[0][0];
+            $offset = $match[0][1] + strlen($match[0][0]);
+        }
+
+        $ret = preg_replace($match_doc, $match_tpl, $doc);
+        return $ret;
+    }
+
+    /**
      * Aplica una nueva plantilla a un documento creado con una plantilla antigua
      * NOTA: las 2 plantillas y el documento deben tener el mismo número de fragmentos [##TODO
      *       Se equiparan los fragmentos por su número de orden de aparición, independientemente de su contenido
@@ -330,7 +361,7 @@ class CommonUpgrader {
      * @param string $token : expresión regular mediante la cual se dividirán las plantillas y el documento
      * @return string transformado
      */
-    public function updateDocToNewTemplate($t0, $t1, $doc, $token=NULL) {
+    public function updateDocToNewTemplateFromTemplate($t0, $t1, $doc, $token=NULL) {
         if (!$token) $token = "/\[##TODO.*##\]/m";
         $st0 = preg_split("$token", $t0);
         $st1 = preg_split("$token", $t1);
