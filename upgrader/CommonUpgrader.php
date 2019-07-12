@@ -104,13 +104,13 @@ class CommonUpgrader {
 
         while (true) {
             //busca el tag ##TODO en la plantilla $plant_0, a partir de la última aparición
-            if (preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_0, $match, PREG_OFFSET_CAPTURE, $offset_0) === 1) {
+            if (preg_match("/\[##TODO:.*##\]/m", $plant_0, $match, PREG_OFFSET_CAPTURE, $offset_0) === 1) {
                 $bloque_0 = substr($plant_0, $offset_0, $match[0][1]-$offset_0);
                 $bloque_TODO = $match[0][0];
                 $offset_0 = $match[0][1] + strlen($match[0][0]);
 
                 //busca el tag ##TODO en la plantilla $plant_1, a partir de la última aparición
-                preg_match("/\n.*\[##TODO:.*##\].*\n/m", $plant_1, $match, PREG_OFFSET_CAPTURE, $offset_1);
+                preg_match("/\[##TODO:.*##\]/m", $plant_1, $match, PREG_OFFSET_CAPTURE, $offset_1);
                 $bloque_1 = substr($plant_1, $offset_1, $match[0][1]-$offset_1);
                 $offset_1 = $match[0][1] + strlen($match[0][0]);
 
@@ -120,10 +120,16 @@ class CommonUpgrader {
                 $bloque_0 = "/".preg_quote($bloque_0,"/")."/m";
                 if (preg_match($bloque_0, $doc, $match) === 1) {
                     $doc = preg_replace($bloque_0, $bloque_1, $doc);
+                    if (preg_match("/".preg_quote($bloque_TODO,"/")."/m", $doc, $match, PREG_OFFSET_CAPTURE, $offset_doc) === 1) {
+                        $offset_doc = $match[0][1] + strlen($match[0][0]);
+                    }else {
+                        throw new Exception($errmsg);
+                    }
                 }else {
                     if (preg_match("/".preg_quote($bloque_TODO,"/")."/m", $doc, $match, PREG_OFFSET_CAPTURE, $offset_doc) === 1) {
-                        $doc = preg_replace("/".preg_quote($match[0][0],"/")."/m", $bloque_1, $doc);
-                        $offset_doc = $match[0][1] + strlen($match[0][0]);
+                        $doc = substr($doc, 0, $offset_doc).$bloque_1.substr($doc, $match[0][1]);
+                        //$doc = preg_replace("/".preg_quote($match[0][0],"/")."/m", $bloque_1, $doc);
+                        $offset_doc += strlen($bloque_1) + strlen($match[0][0]);
                     }else {
                         throw new Exception($errmsg);
                     }
