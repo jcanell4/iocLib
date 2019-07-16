@@ -49,7 +49,7 @@ class _LogicParser {
                 $ret = new _AndOperation(_LogicParser::getOperator($aAndOp[0]), _LogicParser::getOperator($aAndOp[1]));
             } else if (preg_match('/[=!]=/', $text) === 1) {//CONDITION == o !=
                 $ret = new _ConditionOperation($text);
-            } else if (preg_match('/[><]=?/', $text) === 1 || (preg_match('/(ls|gt)(eq)?/', $text) == 1)) {//CONDITION <, >, <=, <=
+            } else if (preg_match('/[><]=?/', $text) === 1) {//CONDITION <, >, <=, <=
                 $ret = new _ConditionOperation($text);
             } else if (preg_match('/!/', $text) === 1) {// NotOperation
                 $ret = new _NotOperation(_LogicParser::getOperator($text));
@@ -219,8 +219,8 @@ class _ConditionOperation extends _LogicOperation {
     }
 
     protected function extractFilterArgs($value) {
-        if (preg_match('/(.*?)([><=!]=?| in |lseq|gteq|ls|gt)(.*)/', $value, $matches) === 1) {
-            // ALERTA[Xavi]: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura, s'ha de fer servir gt i gteq
+        if (preg_match('/(.*?)([><=!]=?| in )(.*)/', $value, $matches) === 1) {
+            // ALERTA: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura
 
             $arg1 = $matches[1];
             $arg2 = $matches[3];
@@ -239,23 +239,14 @@ class _ConditionOperation extends _LogicOperation {
 
             case '==':
                 return $arg1 == $arg2;
-
             case '<=':
-            case 'lseq':
                 return $arg1 <= $arg2;
-
             case '<':
-            case 'ls':
                 return $arg1 < $arg2;
-
             case '>=':
-            case'gteq':
                 return $arg1 >= $arg2;
-
             case '>':
-            case 'gt':
                 return $arg1 > $arg2;
-
             case '!=':
                 return $arg1 != $arg2;
 
