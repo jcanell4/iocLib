@@ -9,8 +9,8 @@ class WiocclSet extends WiocclInstruction {
     const MAP_TYPE = "map";    
     const LITERAL_TYPE = "literal";    
     
-    public function __construct($value = null, $arrays = [], $dataSource=[]){
-        parent::__construct($value, $arrays, $dataSource);
+    public function __construct($value = null, $arrays = [], $dataSource=[], &$parentInstruction=NULL){
+        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
 
         $varName = $this->extractVarName($value, self::VAR_ATTR);
         $type = $this->extractVarName($value, self::TYPE_ATTR);
@@ -22,4 +22,15 @@ class WiocclSet extends WiocclInstruction {
             $this->arrays[$varName] = $map[$v];            
         }
     }
+
+    public function updateParentArray($fromType, $key=null) {
+        if($fromType !== self::FROM_RESET){
+            parent::updateParentArray($fromType, $key);
+        }        
+    }
+
+    public function setUpdatableInstructions($ui){
+      $this->updatableInstructions= $ui;
+    }
+
 }

@@ -133,7 +133,7 @@ class _Literal extends _LogicOperation {
         if ($this->literal === TRUE || $this->literal === FALSE) {
             return $this->literal;
         } else {
-            return $this->value!== FALSE ?  $this->normalizeArg($this->value) : TRUE;
+            return isset($this->value) ?  $this->normalizeArg($this->value) : TRUE;
         }
 
 

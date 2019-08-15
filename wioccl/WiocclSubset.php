@@ -15,9 +15,9 @@ class WiocclSubset extends WiocclInstruction {
     const SUBSET_VAR_ATTR = "subsetvar";
     const FIELD_VAR_ATTR = "field";
 
-    public function __construct($value = null, $arrays = [], $dataSource=[])
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource);
+        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
 
         // varName correspón a la propietat var i es el nom de l'array
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field

@@ -26,6 +26,12 @@ class WiocclParser
         '_#}' => [
             'state' => 'close_function',
         ],
+        '{%%' => [
+            'state' => 'open_lazyfield',
+        ],
+        '%%}' => [
+            'state' => 'close_lazyfield',
+        ],
         '<WIOCCL:IF .*?[^\\\\]>(\n)?' => [
             'state' => 'open_if',
         ],
@@ -57,28 +63,40 @@ class WiocclParser
             'state' => 'close_set',
         ],
         '<WIOCCL:RESET .*?[^\\\\]>(\n)?' => [
-            'state' => 'open_set',
+            'state' => 'open_reset',
         ],
         '</WIOCCL:RESET>(\n)?' => [
-            'state' => 'close_set',
+            'state' => 'close_reset',
         ],
         '<WIOCCL:CHOOSE .*?[^\\\\]>(\n)?' => [
-            'state' => 'open_set',
+            'state' => 'open_choose',
         ],
         '</WIOCCL:CHOOSE>(\n)?' => [
-            'state' => 'close_set',
+            'state' => 'close_choose',
         ],
         '<WIOCCL:CASE .*?[^\\\\]>(\n)?' => [
-            'state' => 'open_set',
+            'state' => 'open_case',
         ],
         '</WIOCCL:CASE>(\n)?' => [
-            'state' => 'close_set',
+            'state' => 'close_case',
         ],
         '<WIOCCL:DEFAULTCASE.*?[^\\\\]>(\n)?' => [
-            'state' => 'open_set',
+            'state' => 'open_defaultcase',
         ],
         '</WIOCCL:DEFAULTCASE>(\n)?' => [
-            'state' => 'close_set',
+            'state' => 'close_defaultcase',
+        ],
+        '<WIOCCL:REPARSE>(\n)?' => [
+            'state' => 'open_reparse',
+        ],
+        '</WIOCCL:REPARSE>(\n)?' => [
+            'state' => 'close_reparse',
+        ],
+        '<WIOCCL:REPARSESET.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_reparseset',
+        ],
+        '</WIOCCL:REPARSESET>(\n)?' => [
+            'state' => 'close_reparseset',
         ],
     ];
 
@@ -102,14 +120,20 @@ class WiocclParser
         '##}' => ['state' => 'close_field', 'type' => 'field', 'action' => 'close'],
         '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
         '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close'],
-        '<WIOCCL:RESET' => ['state' => 'open_set', 'type' => 'reset', 'class' => 'WiocclReSet', 'action' => 'open'],
-        '</WIOCCL:RESET>' => ['state' => 'close_set', 'type' => 'reset', 'action' => 'close'],
-        '<WIOCCL:CHOOSE' => ['state' => 'open_set', 'type' => 'choose', 'class' => 'WiocclChoose', 'action' => 'open'],
-        '</WIOCCL:CHOOSE>' => ['state' => 'close_set', 'type' => 'choose', 'action' => 'close'],
-        '<WIOCCL:CASE' => ['state' => 'open_set', 'type' => 'case', 'class' => 'WiocclCase', 'action' => 'open'],
-        '</WIOCCL:CASE>' => ['state' => 'close_set', 'type' => 'case', 'action' => 'close'],
-        '<WIOCCL:DEFAULTCASE' => ['state' => 'open_set', 'type' => 'case', 'class' => 'WiocclDefaultCase', 'action' => 'open'],
-        '</WIOCCL:DEFAULTASE>' => ['state' => 'close_set', 'type' => 'case', 'action' => 'close'],
+        '{%%' => ['state' => 'open_lazyfield', 'type' => 'lazyfield', 'class' => 'WiocclLazyField', 'action' => 'open'],
+        '%%}' => ['state' => 'close_lazyfield', 'type' => 'lazyfield', 'action' => 'close'],
+        '<WIOCCL:RESET' => ['state' => 'open_reset', 'type' => 'reset', 'class' => 'WiocclReSet', 'action' => 'open'],
+        '</WIOCCL:RESET>' => ['state' => 'close_reset', 'type' => 'reset', 'action' => 'close'],
+        '<WIOCCL:CHOOSE' => ['state' => 'open_choose', 'type' => 'choose', 'class' => 'WiocclChoose', 'action' => 'open'],
+        '</WIOCCL:CHOOSE>' => ['state' => 'close_choose', 'type' => 'choose', 'action' => 'close'],
+        '<WIOCCL:CASE' => ['state' => 'open_case', 'type' => 'case', 'class' => 'WiocclCase', 'action' => 'open'],
+        '</WIOCCL:CASE>' => ['state' => 'close_case', 'type' => 'case', 'action' => 'close'],
+        '<WIOCCL:DEFAULTCASE' => ['state' => 'open_case', 'type' => 'case', 'class' => 'WiocclDefaultCase', 'action' => 'open'],
+        '</WIOCCL:DEFAULTCASE>' => ['state' => 'close_case', 'type' => 'case', 'action' => 'close'],
+        '<WIOCCL:REPARSE>' => ['state' => 'open_reparse', 'type' => 'reparse', 'class' => 'WiocclReparse', 'action' => 'open'],
+        '</WIOCCL:REPARSE>' => ['state' => 'close_reparse', 'type' => 'reparse', 'action' => 'close'],
+        '<WIOCCL:REPARSESET' => ['state' => 'open_reparseset', 'type' => 'reparseset', 'class' => 'WiocclReparseSet', 'action' => 'open'],
+        '</WIOCCL:REPARSESET>' => ['state' => 'close_reparseset', 'type' => 'reparseset', 'action' => 'close'],
     ];
 
     public static function getValue($text = null, $arrays = [], $dataSource = [])

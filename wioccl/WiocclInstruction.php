@@ -2,12 +2,17 @@
 
 class WiocclInstruction
 {
+    const FROM_CASE = "fromCase";
+    const FROM_RESET = "fromReset";
+    const FROM_REPARSESET = "fromReparseset";
 
     protected $rawValue;
     protected $fullInstruction="";
     protected static $instancesCounter=0;
-
-    public $updateParentArray = false;
+    protected $updatableInstructions = [];
+    protected $parentInstruction=NULL;
+    protected $updatable = FALSE;
+    protected $updatablePrefix="";
 
 //    // TODO: El datasource es passarà al constructor del parser desde la wiki
     protected $dataSource = [];
@@ -15,33 +20,60 @@ class WiocclInstruction
     protected $arrays = [];
 
     // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
-    public function __construct($value = null, $arrays = [], $dataSource = []){
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL, $prefixid=""){
         $this->rawValue = $value;
         $this->arrays += $arrays;
         $this->dataSource = $dataSource; // TODO: Reactivar quan es comprovi que funciona
+        $this->parentInstruction = $parentInstruction;
+    }
+    
+   protected function deleteInstructions(&$updatableInstructions){
+        foreach ($updatableInstructions as $item) {
+            unset($item);
+        }
     }
 
-
-//    public function getValue()
-//    {
-//        return $this->parse($this->rawValue);
-//    }
-
-//    public function getRender()
-//    {
-//        return '<mark>' . $this->parse($this->rawValue) . '</mark>';
-//    }
+    protected function updateInstructions($updatableInstructions, $rightValue){
+        foreach ($updatableInstructions as $item) {
+            $item->update($rightValue);
+        }
+    }
+    
+    public function setUpdatableInstructions($ui){
+      $this->updatableInstructions= $ui;
+      if($this->parentInstruction!==NULL){
+          $this->parentInstruction->setUpdatableInstructions($ui);
+      }
+    }
+    public function isUpdatable(){
+        return $this->updatable;
+    }
+    
+    public function updateParentArray($fromType, $key=NULL){
+        self::stc_updateParentArray($this, $fromType, $key);
+    }
+    
+    public static function stc_updateParentArray(&$obj, $fromType, $key=NULL){
+        if($obj->parentInstruction!=NULL){
+            if($obj===NULL){
+                $obj->parentInstruction->arrays = array_merge($obj->parentInstruction->arrays, $obj->arrays);
+            }else if(isset ($obj->arrays[$key])){
+                $obj->parentInstruction->arrays[$key] = $obj->arrays[$key];
+            }else if(isset($obj->parentInstruction->arrays[$key])){
+                unset($obj->parentInstruction->arrays[$key]);
+            }
+            $obj->parentInstruction->updateParentArray($fromType, $key);
+        }
+    }
+    
+    protected function resolveOnClose($result){
+        return $result;
+    }
 
     public function getTokensValue($tokens, &$tokenIndex)
     {
         return $this->parseTokens($tokens, $tokenIndex);
     }
-
-//    protected function parse($value)
-//    {
-//        $tokens = $this->tokenize($value); // això ha de retornar els tokens
-//        return $this->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
-//    }
 
     protected function getContent($token)
     {
@@ -62,8 +94,8 @@ class WiocclInstruction
             }
             ++$tokenIndex;
         }
-
-        return $result;
+        
+        return $this->resolveOnClose($result);
     }
 
     // l'index del token analitzat s'actualitza globalment per referència
@@ -89,6 +121,7 @@ class WiocclInstruction
                 $mark = self::$instancesCounter==0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken);
+                $item->setUpdatableInstructions($this->updatableInstructions);
 
                 if($mark){
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
@@ -96,19 +129,23 @@ class WiocclInstruction
                 }else{
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 }
-
-                if ($item->updateParentArray) {
-                    $this->arrays = array_merge($this->arrays, $item->arrays);
+                
+                if($item->isUpdatable()){
+                    $this->updatableInstructions[] = $item;
                 }
 
-                // Copiem els valors resetted al parè
-                foreach ($item->arrays as $key => $value) {
-                    if (strpos($key, WiocclReSet::PREFIX)===0) {
-                        $this->arrays[$key] = true;
-                        $realKey = substr($key, strlen(WiocclReSet::PREFIX));
-                        $this->arrays[$realKey] = $item->arrays[$realKey];
-                    }
-                }
+//                if ($item->updateParentArray) {
+//                    $this->arrays = array_merge($this->arrays, $item->arrays);
+//                }
+//
+//                // Copiem els valors resetted al parè
+//                foreach ($item->arrays as $key => $value) {
+//                    if (strpos($key, WiocclReSet::PREFIX)===0) {
+//                        $this->arrays[$key] = true;
+//                        $realKey = substr($key, strlen(WiocclReSet::PREFIX));
+//                        $this->arrays[$realKey] = $item->arrays[$realKey];
+//                    }
+//                }
 
 
                 self::$instancesCounter--;
@@ -125,7 +162,7 @@ class WiocclInstruction
     protected function getClassForToken($token)
     {
         // TODO: pasar el datasource i els arrays al constructor
-        return new $token['class']($token['value'], $this->getArrays(), $this->getDataSource());
+        return new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this);
     }
 
     protected function normalizeArg($arg)

@@ -8,17 +8,11 @@ class WiocclCase extends WiocclInstruction {
     const REXPRESSION = 'rExpression';
     const RELATION = 'relation';
 
-//    protected $lExpression;
-//    protected $rExpression;
-//    protected $relation;
-
-    public $updateParentArray = true;
-
     protected $chooseId;
     protected $index;
 
-    public function __construct($value = null, $arrays = [], $dataSource = [], $mandatoryCondition = true) {
-        parent::__construct($value, $arrays, $dataSource);
+    public function __construct($value = null, $arrays = [], $dataSource = [], &$parentInstruction=NULL, $mandatoryCondition = true) {
+        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
 
         $this->chooseId = WiocclChoose::PREFIX . $this->extractVarName($value, self::FORCHOOSE_ATTR, true);
 
@@ -26,11 +20,6 @@ class WiocclCase extends WiocclInstruction {
 
         $this->index = count($this->arrays[$this->chooseId]);
 
-//        if ($mandatoryCondition) {
-//            $this->arrays[$this->chooseId][] = [
-//                'condition' => $this->extractVarName($value, self::COND_ATTR, $mandatoryCondition)
-//            ];
-//        }
         if ($mandatoryCondition) {
             $this->arrays[$this->chooseId][] = [
                 'condition' => [
@@ -42,27 +31,38 @@ class WiocclCase extends WiocclInstruction {
         }
 
     }
-
-    public function parseTokens($tokens, &$tokenIndex) {
-
-        $result = '';
-
-        while ($tokenIndex < count($tokens)) {
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-
-            if ($parsedValue === null) { // tancament del if
-                break;
-
-            } else {
-                $result .= $parsedValue;
-            }
-
-            ++$tokenIndex;
-        }
-
+    
+    protected function resolveOnClose($result) {
         $this->arrays[$this->chooseId][$this->index]['value'] = $result;
-
-        return true;
+        $this->arrays[$this->chooseId][$this->index]['updatableInstructions'] = &$this->updatableInstructions;
+        $this->updateParentArray(self::FROM_CASE, $this->chooseId);
+        return "";
     }
+
+    public function setUpdatableInstructions($ui){
+      $this->updatableInstructions= $ui;
+    }
+
+//    public function parseTokens($tokens, &$tokenIndex) {
+//
+//        $result = '';
+//
+//        while ($tokenIndex < count($tokens)) {
+//            $parsedValue = $this->parseToken($tokens, $tokenIndex);
+//
+//            if ($parsedValue === null) { // tancament del if
+//                break;
+//
+//            } else {
+//                $result .= $parsedValue;
+//            }
+//
+//            ++$tokenIndex;
+//        }
+//
+//        $this->arrays[$this->chooseId][$this->index]['value'] = $result;
+//        
+//        return true;
+//    }
 
 }

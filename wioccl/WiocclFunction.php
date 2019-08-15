@@ -30,27 +30,10 @@ class WiocclFunction extends WiocclInstruction
         //ALERTA: cal verificar quan es produeix una situació en la que $jsonArgs té un valor incorrecte
         return ($jsonArgs!==NULL || !is_array($jsonArgs)) ? $jsonArgs : [];
     }
-
-    public function parseTokens($tokens, &$tokenIndex)
-    {
-        $result = '';
-        $textFunction = '';
-        while ($tokenIndex<count($tokens)) {
-
-            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-
-            if ($parsedValue === null) { // tancament del field
-                $this->init($textFunction);
-                $result = call_user_func_array(array($this, $this->functionName), $this->arguments);
-                break;
-
-            } else {
-                $textFunction .= $parsedValue;
-            }
-
-            ++$tokenIndex;
-        }
-
+    
+    protected function resolveOnClose($result) {
+        $this->init($result);
+        $result = call_user_func_array(array($this, $this->functionName), $this->arguments);
         return $result;
     }
 
@@ -383,19 +366,48 @@ class WiocclFunction extends WiocclInstruction
     protected function UCFIRST($value) {
         return ucfirst($value);
     }
+    
+    protected function STR_CONTAINS($subs, $string){
+        return strpos($string, $subs)!==FALSE;
+    }
 
     // Uppercase només pel primer caràcter
     protected function STR_REPLACE($search, $replace, $subject, $count=FALSE) {
-        if($count===FALSE){
-            $ret = str_replace($search, $replace, $subject);
+        if(is_int($count)){
+            if($count>0){
+                $ret = implode($replace, $this->explode($search, $subject, $count+1));
+            }else{
+                $aSubject = $this->explode($search, $subject);
+                $len = count($aSubject);
+                $limit = $len+$count;
+                $ret=$aSubject[0];
+                $csearch = is_array($search)?$search[0]:$search;
+                for($i= 1; $i<$limit; $i++){
+                    $ret .= $csearch;
+                    $ret .= $aSubject[$i];
+                }
+                for($i= $limit; ($limit>0 && $i<$len); $i++){
+                    $ret .= $replace;
+                    $ret .= $aSubject[$i];
+                }
+            }
         }else{
-            $ret = str_replace($search, $replace, $subject, $count);
+            $ret = str_replace($search, $replace, $subject);
         }
         return $ret;        
     }
+    
+    protected function explode($delim, $string){
+        if(is_array($delim)){
+            $nstring = str_replace($delim, $delim[0], $string);
+            $ret = explode($delim[0], $nstring);
+        }else{
+            $ret = explode($delim, $string);
+        }
+        return $ret;
+    }
 
-
-    // $template pot tenir tres formes:
+        // $template pot tenir tres formes:
     // FIRST: retorna tota la fila com a json
     // FIRST[camp]: retorna el valor del camp com a string
     // {"a":{##camX##}, "b":LAST[xx], "c":10, "d":"hola", "f":true})#}: retorna la mateixa plantilla amb els valors reemplaçats com a json.

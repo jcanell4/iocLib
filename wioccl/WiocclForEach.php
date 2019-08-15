@@ -5,13 +5,13 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     protected $fullArray =[];
     protected $filter;
     protected $wiocclLoop;
-
+    
     const ARRAY_INDEX_ATTR = "counter";
     const FILTER_ATTR = "filter";
 
-    public function __construct($value = null, $arrays = [], $dataSource=[])
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource);
+        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
 
         // varName correspón a la propietat var i es el nom de l'array
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
@@ -24,7 +24,6 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
         }
         $this->filter = new _WiocclCondition($strFilter);
         $this->wiocclLoop = new _WiocclLoop($this);
-
     }
 
     public function parseTokens($tokens, &$tokenIndex = 0)
@@ -49,7 +48,7 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
         $this->setArrayValue($this->varName, $row);
         if(!empty($this->counterName)){
             $this->setArrayValue($this->counterName, $this->wiocclLoop->getCounter());
-        }        
+        }
     }
 
     public function validateLoop() {

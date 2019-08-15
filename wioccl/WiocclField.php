@@ -2,12 +2,16 @@
 require_once "WiocclParser.php";
 
 class WiocclField extends WiocclInstruction {
-
+            
     protected function getContent ($token) {
+        return $token['value'];
+    }
+    
+    protected function resolveOnClose ($field) {
         $ret = '[ERROR: undefined field]';
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
-        if (preg_match ('/(.*?)\[(.*?)\]/', $token['value'], $matches)===1) {
+        if (preg_match ('/(.*?)\[(.*?)\]/', $field, $matches)===1) {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
@@ -31,14 +35,14 @@ class WiocclField extends WiocclInstruction {
             }else{
                 $ret=NULL;
             }
-            if(strlen($token['value'])> strlen($matches[0])){
+            if(strlen($field)> strlen($matches[0])){
                 $this->arrays["_TMP_"]=$ret;
-                $newkey = substr($token['value'], strlen($matches[0]));
+                $newkey = substr($field, strlen($matches[0]));
                 $ret = $this->getContent(["state"=>"content","value"=>"_TMP_$newkey"]);
                 unset($this->arrays["_TMP_"]);
             }
         } else {
-            $fieldName = $token['value'];
+            $fieldName = $field;
 
             // Primer comprovem als arrays i si no es troba comprovem el datasource
             if (isset($this->arrays[$fieldName])) {
@@ -60,14 +64,10 @@ class WiocclField extends WiocclInstruction {
         }
         return $ret;
 
-    }
-    
-//    public function parseTokens($tokens, &$tokenIndex)
-//    {
-//
+    }    
+
+//    public function parseTokens($tokens, &$tokenIndex){
 //        $result = '';
-//
-//
 //        while ($tokenIndex<count($tokens)) {
 //
 //            $parsedValue = $this->parseToken($tokens, $tokenIndex);
