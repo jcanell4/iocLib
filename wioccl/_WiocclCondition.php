@@ -77,7 +77,7 @@ abstract class _LogicOperation {
             return intval($arg);
         } else if (is_numeric($arg)) {
             return floatval($arg);
-        } else if (preg_match("/^''(.*?)''$/", $arg, $matches) === 1) {
+        } else if (preg_match("/^\s*''(.*?)''\s*$/", $arg, $matches) === 1) {
             return $this->normalizeArg($matches[1]);
         } else {
             return $arg;
