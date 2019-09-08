@@ -201,6 +201,34 @@ class WiocclFunction extends WiocclInstruction
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    protected function SEARCH_VALUE($toSearch, $array, $column=NULL)
+    {
+        if($column!=NULL){
+            $key = array_search($toSearch, array_column($array, $column));
+        }else{
+            $key = array_search($toSearch, $array);
+        }
+        $ret = $key ===false?"null":$array[$key];
+        return self::_normalizeValue($ret);
+    }
+
+    // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    protected function SEARCH_KEY($toSearch, $array, $column=NULL)
+    {
+        if($column!=NULL){
+            $key = array_search($toSearch, array_column($array, $column));
+        }else{
+            $key = array_search($toSearch, $array);
+        }
+        return $key;
+    }
+    // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    protected function ARRAY_GET_VALUE($key, $array)
+    {
+        return  $array[$key];
+    }
+    
+    // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_LENGTH($array)
     {
         return count($array);
@@ -233,6 +261,15 @@ class WiocclFunction extends WiocclInstruction
     protected function LAST($array, $template)
     {
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
+    }
+    
+    private static function _normalizeValue($ret){
+        if(is_array($ret) || is_object($ret)){
+            $ret= json_encode($ret);
+//        }else if(is_string($ret)){
+//            $ret = "\"$ret\"";
+        }
+        return $ret;
     }
 
     private static function _compareMultiObjectFields($obj1, $obj2, $type, $fields, $pos=0){

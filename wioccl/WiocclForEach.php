@@ -52,7 +52,7 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     }
 
     public function validateLoop() {
-        $this->filter->parseData($this->arrays, $this->datasource);
+        $this->filter->parseData($this->arrays, $this->dataSource);
         return $this->filter->validate();        
     }
  }
