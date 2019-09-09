@@ -82,16 +82,16 @@ class CommonUpgrader {
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /**
-     * Sean $plant_0 i $plant_1, plantillas diferentes de texto donde se encuantran 
+     * Sean $plant_0 i $plant_1, plantillas diferentes de texto donde se encuantran
      * insertadas etiquetas TODO, en la misma cantida i conetenido, en ambas plantillas.
-     * La función extrae cada uno de los bloques de texto contenidos entre las 
-     * etiquetas TODO i entre el inicio i la primera etiqueta TODO así como la 
-     * últilma etiqueta i el final de la plantilla. Una vez extraidos los boques 
-     * se buscan en el documento del usuario ($doc), cada uno de los bloques de la plantilla %plant_0 
+     * La función extrae cada uno de los bloques de texto contenidos entre las
+     * etiquetas TODO i entre el inicio i la primera etiqueta TODO así como la
+     * últilma etiqueta i el final de la plantilla. Una vez extraidos los boques
+     * se buscan en el documento del usuario ($doc), cada uno de los bloques de la plantilla %plant_0
      * i se sustituyen por cada uno los bloques correspondientes (segun el orden encontrado) de $plant_1. Esto
-     * mantiene intacto, en el documento del usuario ($doc), el texto situado entre 
+     * mantiene intacto, en el documento del usuario ($doc), el texto situado entre
      * los bloques definidos en las plantillas.
-     * 
+     *
      * @param string $plant_0 : texto del documento que sirve para la comparación base (plantilla versión anterior)
      * @param string $plant_1 : texto de la plantilla final (plantilla nueva versión)
      * @param string $doc : texto del documento a modificar
@@ -182,7 +182,7 @@ class CommonUpgrader {
 //        return $ret;
 //    }
 
-// [JOSEP]: No acabo d'entrendre per a què serveix aquesta funció. No queda clar què 
+// [JOSEP]: No acabo d'entrendre per a què serveix aquesta funció. No queda clar què
 // és tag_ini, tag_fin, ni la seva relació amb TODO (literal)
 //    /**
 //     * Inserta en el documeto de usuario ($doc1) los tags ($tag_ini, $tag_fin) tomando como referencia
