@@ -7,7 +7,9 @@ class WiocclExtra extends WiocclField{
         $ret = '[ERROR: undefined extra data]';
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
-        $fieldName = $token['value'];
+        // ALERTA[Xavi] Arriba un string, no un array, així que $token['value'] no es vàlid
+        //$fieldName = $token['value'];
+        $fieldName = $token;
         if(isset($this->dataSource["dadesExtres"])){
             $ret = $this->_getExtraValue(json_decode($this->dataSource["dadesExtres"], true), $fieldName, $ret);
         }

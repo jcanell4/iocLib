@@ -114,6 +114,7 @@ class WiocclFunction extends WiocclInstruction
         $cont=0;
         foreach ($array as $item) {
             for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
+                // ALERTA[Xavi] $values no està definit, ha de ser $valuesOfValues?
                 for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
                     $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
                 }
@@ -307,7 +308,7 @@ class WiocclFunction extends WiocclInstruction
     }
 
     protected function MIN($array, $template="MIN", $fields=NULL){
-        $valuesFromTemplate = FALSE;
+        $valueFromTemplate = FALSE;
         if($fields==NULL){ //ARRAY
             $compare = "_compareSingleValues";
             $valueFromTemplate = $template!=="MIN";
@@ -337,7 +338,7 @@ class WiocclFunction extends WiocclInstruction
     }
 
     protected function MAX($array, $template="MAX", $fields=NULL){
-        $valuesFromTemplate = FALSE;
+        $valueFromTemplate = FALSE;
         if($fields==NULL){ //ARRAY
             $compare = "_compareSingleValues";
             $valueFromTemplate = $template!=="MAX";
