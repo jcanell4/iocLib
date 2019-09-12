@@ -5,56 +5,28 @@ class WiocclIf extends WiocclInstruction{
 
     protected $condition = false;
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
+        $this->resetables->addNewContext();
         $value = str_replace("\\", "", $value);
         $this->condition = $this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true));
-
     }
     
     public function resolveOnClose($result){
-        $this->updateInstructions($this->updatableInstructions, $this->condition);
-        if($this->parentInstruction!==NULL){
-            $this->setUpdatableInstructions($this->updatableInstructions);
-        }
         if($this->condition){
             $ret = $result;
         }else{
             $ret = "";
         }
+
+        $this->resetables->RemoveLastContext($this->condition);
         return $ret;
     }
 
-    public function setUpdatableInstructions($ui){
-      $this->updatableInstructions= $ui;
-    }
-
-//    public function parseTokens($tokens, &$tokenIndex)
-//    {
-//
-//        $result = '';
-//
-//        while ($tokenIndex < count($tokens)) {
-//            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-//
-//            if ($parsedValue === null) { // tancament del if
-//                break;
-//
-//            } else {
-//                $result .= $parsedValue;
-//            }
-//
-//            ++$tokenIndex;
-//        }
-//
-//
-//        return ($this->condition ? $result : '');
-//    }
-
     private function evaluateCondition($strCondition){
         $_condition = new _WiocclCondition($strCondition);
-        $_condition->parseData($this->getArrays(), $this->getDataSource());
+        $_condition->parseData($this->getArrays(), $this->getDataSource(), $this->resetables);
         return $_condition->validate();
         
     }

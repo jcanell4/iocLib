@@ -44,12 +44,16 @@ class WiocclField extends WiocclInstruction {
         } else {
             $fieldName = $field;
 
-            // Primer comprovem als arrays i si no es troba comprovem el datasource
-            if (isset($this->arrays[$fieldName])) {
+            // Primer comprovem als resetables i si no es troba comprovem a l'arrays
+            if ($this->resetables->issetKey($fieldName)) {
+                $ret = $this->resetables->getValue($fieldName);
+            // despés comprovem als arrays i si no es troba comprovem el datasource
+            }else if(isset($this->arrays[$fieldName])) {
 //                $ret =json_encode($this->arrays[$fieldName]);
                 $ret =$this->arrays[$fieldName];
             } else if (isset($this->dataSource[$fieldName])) {
                 $ret =$this->dataSource[$fieldName];
+            // Si no està en lloc, potser es tracti d'un nom de camp compost 
             }else if(strpos($fieldName, "#")>0){
                 $akeys = explode("#", $fieldName);
                 $ret = $this->dataSource;
@@ -65,23 +69,4 @@ class WiocclField extends WiocclInstruction {
         return $ret;
 
     }    
-
-//    public function parseTokens($tokens, &$tokenIndex){
-//        $result = '';
-//        while ($tokenIndex<count($tokens)) {
-//
-//            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-//
-//            if ($parsedValue === null) { // tancament del field
-//                break;
-//
-//            } else {
-//                $result .= $parsedValue;
-//            }
-//
-//            ++$tokenIndex;
-//        }
-//
-//        return $result;
-//    }
 }

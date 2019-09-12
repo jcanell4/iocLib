@@ -21,7 +21,7 @@ class WiocclFunction extends WiocclInstruction
     {
         $string = preg_replace("/''/", '"', $string);
 //        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
-        $string = WiocclParser::getValue($string, $this->arrays, $this->dataSource);
+        $string = WiocclParser::getValue($string, $this->arrays, $this->dataSource, $this->resetables);
         $string = "[" . $string . "]";
 
         $jsonArgs = json_decode($string, true);

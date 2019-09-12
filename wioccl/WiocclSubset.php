@@ -15,9 +15,9 @@ class WiocclSubset extends WiocclInstruction {
     const SUBSET_VAR_ATTR = "subsetvar";
     const FIELD_VAR_ATTR = "field";
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         // varName correspón a la propietat var i es el nom de l'array
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
@@ -48,7 +48,7 @@ class WiocclSubset extends WiocclInstruction {
             // TODO: Extreure a una funció a part per poder reutilizar al foreach, if i subset
             $this->arrays[$this->itemName] = $row;
             
-            $this->filter->parseData($this->arrays, $this->dataSource);
+            $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
             if ($this->filter->validate()) {
 
                 if ($this->fieldName) {
