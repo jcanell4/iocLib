@@ -2,10 +2,10 @@
 
 class WiocclDefaultCase extends WiocclCase {
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
 
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction, false);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction, false);
 
         $this->index = count($this->arrays[$this->chooseId]);
         $this->chooseId = WiocclChoose::PREFIX . $this->extractVarName($value, self::FORCHOOSE_ATTR, true);

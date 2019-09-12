@@ -9,44 +9,27 @@ class WiocclInstruction
     protected $rawValue;
     protected $fullInstruction="";
     protected static $instancesCounter=0;
-    protected $updatableInstructions = [];
     protected $parentInstruction=NULL;
-    protected $updatable = FALSE;
     protected $updatablePrefix="";
 
 //    // TODO: El datasource es passarà al constructor del parser desde la wiki
     protected $dataSource = [];
 
     protected $arrays = [];
-
+    
+    protected $resetables = null;
+    
     // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL, $prefixid=""){
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL){
         $this->rawValue = $value;
         $this->arrays += $arrays;
         $this->dataSource = $dataSource; // TODO: Reactivar quan es comprovi que funciona
         $this->parentInstruction = $parentInstruction;
-    }
-    
-   protected function deleteInstructions(&$updatableInstructions){
-        foreach ($updatableInstructions as $item) {
-            unset($item);
+        if($resetables==NULL){
+            $this->resetables = new WiocclResetableData();
+        }else{
+            $this->resetables = $resetables;
         }
-    }
-
-    protected function updateInstructions($updatableInstructions, $rightValue){
-        foreach ($updatableInstructions as $item) {
-            $item->update($rightValue);
-        }
-    }
-    
-    public function setUpdatableInstructions($ui){
-      $this->updatableInstructions= $ui;
-      if($this->parentInstruction!==NULL){
-          $this->parentInstruction->setUpdatableInstructions($ui);
-      }
-    }
-    public function isUpdatable(){
-        return $this->updatable;
     }
     
     public function updateParentArray($fromType, $key=NULL){
@@ -55,7 +38,7 @@ class WiocclInstruction
     
     public static function stc_updateParentArray(&$obj, $fromType, $key=NULL){
         if($obj->parentInstruction!=NULL){
-            if($obj===NULL){
+            if($key===NULL){
                 $obj->parentInstruction->arrays = array_merge($obj->parentInstruction->arrays, $obj->arrays);
             }else if(isset ($obj->arrays[$key])){
                 $obj->parentInstruction->arrays[$key] = $obj->arrays[$key];
@@ -121,7 +104,6 @@ class WiocclInstruction
                 $mark = self::$instancesCounter==0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken);
-                $item->setUpdatableInstructions($this->updatableInstructions);
 
                 if($mark){
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
@@ -130,24 +112,6 @@ class WiocclInstruction
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 }
                 
-                if($item->isUpdatable()){
-                    $this->updatableInstructions[] = $item;
-                }
-
-//                if ($item->updateParentArray) {
-//                    $this->arrays = array_merge($this->arrays, $item->arrays);
-//                }
-//
-//                // Copiem els valors resetted al parè
-//                foreach ($item->arrays as $key => $value) {
-//                    if (strpos($key, WiocclReSet::PREFIX)===0) {
-//                        $this->arrays[$key] = true;
-//                        $realKey = substr($key, strlen(WiocclReSet::PREFIX));
-//                        $this->arrays[$realKey] = $item->arrays[$realKey];
-//                    }
-//                }
-
-
                 self::$instancesCounter--;
                 break;
 
@@ -162,7 +126,7 @@ class WiocclInstruction
     protected function getClassForToken($token)
     {
         // TODO: pasar el datasource i els arrays al constructor
-        return new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this);
+        return new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
     }
 
     protected function normalizeArg($arg)
@@ -187,7 +151,7 @@ class WiocclInstruction
         $ret = 0;
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
 //            $ret = (new WiocclParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
-            $ret = WiocclParser::getValue($matches[1], $this->getArrays(), $this->getDataSource());
+            $ret = WiocclParser::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if($mandatory){
             throw new Exception("$attr is missing");
         }
@@ -212,7 +176,7 @@ class WiocclInstruction
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
 //            $jsonString = (new WiocclParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
-            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource());
+            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if($mandatory){
             throw new Exception("Array is missing");
         }
@@ -225,11 +189,15 @@ class WiocclInstruction
         if (preg_match('/'.$attr.'="(.*?)"/', $value, $matches)) {
 //            $jsonString = (new WiocclParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
-            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource());
+            $jsonString = WiocclParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if($mandatory){
             throw new Exception("Map is missing");
         }
         return json_decode($jsonString, true);
+    }
+
+    public function getResetables(){
+        return $this->resetables;
     }
 
     public function getDataSource(){
@@ -246,5 +214,9 @@ class WiocclInstruction
     
     public function getRawValue(){
         return $this->rawValue;
+    }
+
+    public function update($rightValue, $result=""){
+        throw new Exception("This class is not updatable");
     }
 }

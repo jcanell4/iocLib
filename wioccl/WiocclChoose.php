@@ -11,31 +11,25 @@ class WiocclChoose extends WiocclInstruction {
     protected $lExpression;
     protected $rExpression;
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL) {
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL) {
 
 
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         $this->chooseId = $this->extractVarName($value, "id", true);
 
         // obligatori
-        $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource ));
+        $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource, $resetables ));
 
         // opcional
-        $aux = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::REXPRESSION, false), $arrays, $dataSource ));
+        $aux = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::REXPRESSION, false), $arrays, $dataSource, $resetables ));
         if ($aux) {
-            $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource));
+            $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource, $resetables));
         }
-
-
-//        $arrays[$this->chooseId] = $this->lExpression;
-
-
-
     }
     
     public function updateParentArray($fromType, $key=NULL){
-        if($fromType !== self::FROM_CASE){
+        if($fromType !== self::FROM_CASE || $key !== self::PREFIX .$this->chooseId){
             parent::updateParentArray($fromType, $key);
         }
     }
@@ -53,10 +47,12 @@ class WiocclChoose extends WiocclInstruction {
             $condition = $lv . $op . $rv;
 
             $evaluation= $this->evaluateCondition($condition);
+            
+            $aux = $cases[$i]["resetables"];
+            $ctx = $aux->RemoveLastContext(FALSE);
 
-            $this->updateInstructions($cases[$i]["updatableInstructions"], $evaluation);
-            $this->setUpdatableInstructions($cases[$i]["updatableInstructions"]);
             if ($evaluation) {
+                $this->resetables->updateData($ctx);
                 return $cases[$i]['value'];
             }
         }
@@ -81,23 +77,8 @@ class WiocclChoose extends WiocclInstruction {
 
     private function evaluateCondition($strCondition) {
         $_condition = new _WiocclCondition($strCondition);
-        $_condition->parseData($this->getArrays(), $this->getDataSource());
+        $_condition->parseData($this->getArrays(), $this->getDataSource(), $this->resetables);
         
         return $_condition->validate();
-
-//        if (get_class($_condition->logicOp)== "_Literal") {
-//            return $_condition->validate() === true || $_condition->validate() === $this->lExpression || $_condition->validate() === $this->rExpression;
-//        } else {
-//
-//            // Només es sobreescriu si no existeix
-//            $_condition->setValue1($this->lExpression, false);
-//
-//            if ($this->rExpression !== NULL) {
-//                $_condition->setValue2($this->rExpression, false);
-//            }
-//
-//            return $_condition->validate();
-//        }
-
     }
 }

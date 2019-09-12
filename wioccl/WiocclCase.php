@@ -11,8 +11,9 @@ class WiocclCase extends WiocclInstruction {
     protected $chooseId;
     protected $index;
 
-    public function __construct($value = null, $arrays = [], $dataSource = [], &$parentInstruction=NULL, $mandatoryCondition = true) {
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+    public function __construct($value = null, $arrays = [], $dataSource = [], &$resetables=NULL, &$parentInstruction=NULL, $mandatoryCondition = true) {
+        $aux = new WiocclResetableData($resetables);
+        parent::__construct($value, $arrays, $dataSource, $aux, $parentInstruction);
 
         $this->chooseId = WiocclChoose::PREFIX . $this->extractVarName($value, self::FORCHOOSE_ATTR, true);
 
@@ -34,35 +35,8 @@ class WiocclCase extends WiocclInstruction {
     
     protected function resolveOnClose($result) {
         $this->arrays[$this->chooseId][$this->index]['value'] = $result;
-        $this->arrays[$this->chooseId][$this->index]['updatableInstructions'] = &$this->updatableInstructions;
+        $this->arrays[$this->chooseId][$this->index]['resetables'] = &$this->resetables;
         $this->updateParentArray(self::FROM_CASE, $this->chooseId);
         return "";
     }
-
-    public function setUpdatableInstructions($ui){
-      $this->updatableInstructions= $ui;
-    }
-
-//    public function parseTokens($tokens, &$tokenIndex) {
-//
-//        $result = '';
-//
-//        while ($tokenIndex < count($tokens)) {
-//            $parsedValue = $this->parseToken($tokens, $tokenIndex);
-//
-//            if ($parsedValue === null) { // tancament del if
-//                break;
-//
-//            } else {
-//                $result .= $parsedValue;
-//            }
-//
-//            ++$tokenIndex;
-//        }
-//
-//        $this->arrays[$this->chooseId][$this->index]['value'] = $result;
-//        
-//        return true;
-//    }
-
 }
