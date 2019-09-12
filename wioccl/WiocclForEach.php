@@ -9,9 +9,9 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     const ARRAY_INDEX_ATTR = "counter";
     const FILTER_ATTR = "filter";
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         // varName correspón a la propietat var i es el nom de l'array
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
@@ -52,7 +52,7 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     }
 
     public function validateLoop() {
-        $this->filter->parseData($this->arrays, $this->dataSource);
+        $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
         return $this->filter->validate();        
     }
  }

@@ -136,18 +136,18 @@ class WiocclParser
         '</WIOCCL:REPARSESET>' => ['state' => 'close_reparseset', 'type' => 'reparseset', 'action' => 'close'],
     ];
 
-    public static function getValue($text = null, $arrays = [], $dataSource = [])
+    public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
     {
         $replacements = array_fill(0, count(self::$removeTokenPatterns), '');
 
         $text = preg_replace(self::$removeTokenPatterns, $replacements, $text);
 
-        return self::parse($text, $arrays, $dataSource);
+        return self::parse($text, $arrays, $dataSource, $resetables);
     }
 
-    public static function parse($text = null, $arrays = [], $dataSource = [])
+    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
     {
-        $instruction = new WiocclInstruction($text, $arrays, $dataSource);
+        $instruction = new WiocclInstruction($text, $arrays, $dataSource, $resetables);
         $tokens = self::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
         return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
     }

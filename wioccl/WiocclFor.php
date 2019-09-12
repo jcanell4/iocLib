@@ -7,9 +7,9 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
     private $counterName;
     private $wiocclLoop;
 
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$parentInstruction=NULL)
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
-        parent::__construct($value, $arrays, $dataSource, $parentInstruction);
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         $this->counterName = $this->extractVarName($value, "counter");
         $this->from = $this->extractNumber($value, "from");

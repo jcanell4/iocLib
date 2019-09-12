@@ -10,8 +10,8 @@ class _WiocclCondition {
     }
 
 
-    public function parseData($arrays, $dataSource) {
-        $this->logicOp->parseData($arrays, $dataSource);
+    public function parseData($arrays, $dataSource, &$resetables) {
+        $this->logicOp->parseData($arrays, $dataSource, $resetables);
     }
 
     public function validate() {
@@ -66,7 +66,7 @@ class _LogicParser {
 abstract class _LogicOperation {
     abstract function getValue();
 
-    abstract function parseData($arrays, $datasource);
+    abstract function parseData($arrays, $datasource, &$resetables);
 
     protected function normalizeArg($arg) {
         if (strtolower($arg) == 'true') {
@@ -111,10 +111,10 @@ abstract class _BinaryOperation extends _LogicOperation {
         $this->operator2 = $operator2;
     }
 
-    public function parseData($arrays, $datasource) {
-        $this->operator1->parseData($arrays, $datasource);
+    public function parseData($arrays, $datasource, &$restables) {
+        $this->operator1->parseData($arrays, $datasource, $resetables);
         if ($this->operator2 !== NULL) {
-            $this->operator2->parseData($arrays, $datasource);
+            $this->operator2->parseData($arrays, $datasource, $resetables);
         }
     }
 }
@@ -141,9 +141,9 @@ class _Literal extends _LogicOperation {
         //return $this->value ? $this->normalizeArg($this->value) : true;
     }
 
-    public function parseData($arrays, $datasource) {
+    public function parseData($arrays, $datasource, &$resetables) {
 //        $this->value = (new WiocclParser($this->literal, $arrays, $datasource))->getValue();
-        $this->value = WiocclParser::getValue($this->literal, $arrays, $datasource);
+        $this->value = WiocclParser::getValue($this->literal, $arrays, $datasource, $resetables);
     }
 }
 
@@ -207,11 +207,9 @@ class _ConditionOperation extends _LogicOperation {
         $this->operation = $ac[1];
     }
 
-    public function parseData($arrays, $datasource) {
-//        $this->value1 = $this->normalizeArg((new WiocclParser($this->arg1, $arrays, $datasource))->getValue());
-//        $this->value2 = $this->normalizeArg((new WiocclParser($this->arg2, $arrays, $datasource))->getValue());
-        $this->value1 = $this->normalizeArg(WiocclParser::getValue($this->arg1, $arrays, $datasource));
-        $this->value2 = $this->normalizeArg(WiocclParser::getValue($this->arg2, $arrays, $datasource));
+    public function parseData($arrays, $datasource, &$resetables) {
+        $this->value1 = $this->normalizeArg(WiocclParser::parse($this->arg1, $arrays, $datasource, $resetables));
+        $this->value2 = $this->normalizeArg(WiocclParser::parse($this->arg2, $arrays, $datasource, $resetables));
     }
 
     public function getValue() {
