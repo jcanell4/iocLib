@@ -52,7 +52,7 @@ class _LogicParser {
             } else if (preg_match('/[><]=?/', $text) === 1) {//CONDITION <, >, <=, <=
                 $ret = new _ConditionOperation($text);
             } else if (preg_match('/!/', $text) === 1) {// NotOperation
-                $ret = new _NotOperation(_LogicParser::getOperator($text));
+                $ret = new _NotOperation($text);
             } else if (preg_match('/ in /', $text) === 1) {// In, argument 1 (value) is in argument 2 (array)
                 $ret = new _ConditionOperation($text);
             } else {//LITERAL
@@ -149,7 +149,8 @@ class _Literal extends _LogicOperation {
 
 class _NotOperation extends _BinaryOperation {
     function __construct($operator1) {
-        parent::__construct($operator1);
+        $no = substr($operator1, 1);
+        parent::__construct(_LogicParser::getOperator($no));
     }
 
     public function getValue() {

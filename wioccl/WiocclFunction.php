@@ -142,7 +142,7 @@ class WiocclFunction extends WiocclInstruction
     }
 
     protected function IS_STR_EMPTY($text=""){
-        return empty($text);
+        return empty($text)?"true":"false";
     }
     
     protected function YEAR($date=NULL){
@@ -406,7 +406,7 @@ class WiocclFunction extends WiocclInstruction
     }
     
     protected function STR_CONTAINS($subs, $string){
-        return strpos($string, $subs)!==FALSE;
+        return (strpos($string, $subs)!==FALSE)?"true":"false";
     }
 
     // Uppercase només pel primer caràcter

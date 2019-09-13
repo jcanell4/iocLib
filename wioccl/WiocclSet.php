@@ -9,7 +9,7 @@ class WiocclSet extends WiocclInstruction {
     const MAP_TYPE = "map";    
     const LITERAL_TYPE = "literal";    
     
-    public function __construct($value = null, $arrays = [], $dataSource=[], &$resetables=NULL, &$parentInstruction=NULL, $isResetable=FALSE){
+    public function __construct($value = null, $arrays = [], $dataSource=[], &$resetables=NULL, &$parentInstruction=NULL){
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         $rawVarName = $this->extractVarName($value, self::VAR_ATTR);
@@ -21,20 +21,11 @@ class WiocclSet extends WiocclInstruction {
         $varName = $this->normalizeArg(WiocclParser::parse($rawVarName, $arrays, $dataSource, $resetables ));
         $v = $this->normalizeArg(WiocclParser::parse($rawValue, $arrays, $dataSource, $resetables));
 
-        if($isResetable){
-            if ($type === self::LITERAL_TYPE) {
-                $this->resetables->setValue($varName, $v);
-            } elseif ($type === self::MAP_TYPE) {
-                $map = $this->extractMap($value, self::MAP_ATTR);
-                $this->resetables->setValue($varName, $map[$v]);
-            }            
-        }else{
-            if($type === self::LITERAL_TYPE){
-                $this->arrays[$varName] = $v;            
-            }elseif ($type === self::MAP_TYPE) {
-                $map = $this->extractMap($value, self::MAP_ATTR);
-                $this->arrays[$varName] = $map[$v];            
-            }
-        }
+        if ($type === self::LITERAL_TYPE) {
+            $this->resetables->setValue($varName, $v);
+        } elseif ($type === self::MAP_TYPE) {
+            $map = $this->extractMap($value, self::MAP_ATTR);
+            $this->resetables->setValue($varName, $map[$v]);
+        }            
     }
 }

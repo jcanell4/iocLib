@@ -17,21 +17,32 @@ class WiocclField extends WiocclInstruction {
             $key = $matches[2];
 
             // Provem a fer la conversió de les dades en arrays si no ho son
-            if (!is_array($this->dataSource[$varName])) {
+            if (isset($this->dataSource[$varName]) && !is_array($this->dataSource[$varName])) {
                 $this->dataSource[$varName] = json_decode($this->dataSource[$varName], true);
             }
 
-            if (!is_array($this->arrays[$varName])) {
-                $this->arrays[$varName] = json_decode($this->arrays[$varName], true);
-            }
-
-
-            if (isset($this->arrays[$varName][$key])) {
-                $ret =$this->arrays[$varName][$key];
-            } else if (isset($this->dataSource[$varName][$key])) {
-
-                $ret =$this->dataSource[$varName][$key];
-
+            if ($this->resetables->issetKey($varName)) {
+                $valueOfKey = $this->resetables->getValue($varName);
+                if (!is_array($valueOfKey)) {
+                    $this->resetables->setValue($varName, json_decode($valueOfKey, true));
+                }
+                if ($this->resetables->issetKey([$varName, $key])) {
+                    $ret =$this->resetables->getValue([$varName,$key]);
+                }
+            }else if (isset($this->arrays[$varName])) {
+                if (!is_array($this->arrays[$varName])) {
+                    $this->arrays[$varName] = json_decode($this->arrays[$varName], true);
+                }
+                if (isset($this->arrays[$varName][$key])){
+                    $ret =$this->arrays[$varName][$key];
+                }
+            } else if (isset($this->dataSource[$varName])) {
+                if (!is_array($this->dataSource[$varName])) {
+                    $this->dataSource[$varName] = json_decode($this->dataSource[$varName], true);
+                }
+                if (isset($this->dataSource[$varName][$key])) {
+                    $ret =$this->dataSource[$varName][$key];
+                }
             }else{
                 $ret=NULL;
             }

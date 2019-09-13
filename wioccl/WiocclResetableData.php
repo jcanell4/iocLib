@@ -67,11 +67,16 @@ class WiocclResetableData{
         if($pos>-1){
             if(is_array($key)){
                 While(!$isset && $pos>=0){
+                    $hasKey = true;
                     $item =& $this->arrays[$pos];
-                    for($i=0; $i<count($key)-1; $i++){
-                        $item = & $item[$key[$i]];
+                    for($i=0; $hasKey && $i<count($key)-1; $i++){
+                        if(($hasKey = isset($item[$key[$i]]))){
+                            $item = & $item[$key[$i]];
+                        }
                     } 
-                    $isset = isset($item[$key[count($key)-1]]);
+                    if($hasKey){
+                        $isset = isset($item[$key[count($key)-1]]);
+                    }
                     $pos--;
                 }
                 $ret = $isset;
