@@ -76,3 +76,9 @@ class IncorrectParamsException extends WikiIocModelException {
         parent::__construct($message, $code, $previous);
     }
 }
+
+class PartialEditNotSupportedException extends WikiIocModelException {
+    public function __construct($param='', $message="Aquest tipus de document no permet la edició parcial", $code=7105, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $param);
+    }
+}
