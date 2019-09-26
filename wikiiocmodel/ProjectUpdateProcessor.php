@@ -48,18 +48,18 @@ abstract class AbstractProjectUpdateProcessor{
     public function runProcess(&$projectMetaData){
         if(isset($this->params["field"])){
             $this->runProcessField($this->params["field"], $projectMetaData);
-        }
+        }        
         if(isset($this->params["fields"])){
             $this->runProcessFields($this->params["fields"], $projectMetaData);
         }
     }
-    
+
     protected function runProcessFields($fields, &$projectMetaData){
         for($this->idField=0;$this->idField<count($fields);$this->idField++) {
             $this->runProcessField($fields[$this->idField], $projectMetaData);
-        }        
-    }
-    
+        }
+    }    
+
     protected function runProcessField($field, &$projectMetaData){
         FieldProjectUpdateProcessor::runProcessField($this, $field, $projectMetaData);
     }

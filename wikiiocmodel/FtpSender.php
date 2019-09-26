@@ -24,16 +24,17 @@ class FtpSender{
         //Codificar l'enviament de cada fitxer de la llista d'acord amb els seus paràmetres
         //tractar les respostes a la variable $response per tal de poder informar del que
         //ha passat duarnt la connexió
+        Logger::debug("FtpSender::process", 0, 27, "FtpSender.php", 1, FALSE);
         foreach ($this->ftpObjectToSendList as $oFtp) {
             $action = $oFtp->getAction();
             foreach ($action as $act) {
                 switch ($act) {
                     case FtpObjectToSend::COPY_ACTION:
-                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteFile(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
+                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteFile(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
                         break;
 
                     case FtpObjectToSend::UNZIP_AND_COPY_ACTION:
-                        $response = $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteBase().$oFtp->getRemoteDir());
+                        $response = $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
                         break;
                 }
             }
@@ -90,6 +91,42 @@ class FtpSender{
         }
         return $ret;
     }
+    
+//    private function ssh2Mkdir($conection, $dir, $mode=0777){
+//        $cmd = "mkdir -R /$dir";
+//        $ret = ssh2_exec($conection, $cmd);
+//        return $ret;
+//    }
+    
+//    private function ssh2CopyFile($sftp, $srcFile, $dstFile){
+//        $ret = true;
+//        $sftpStream = @fopen('ssh2.sftp://'.$sftp.$dstFile, 'w');
+//
+//        try {
+//
+//            if (!$sftpStream) {
+//                throw new Exception("Could not open remote file: $dstFile");
+//            }
+//
+//            $data_to_send = @file_get_contents($srcFile);
+//
+//            if ($data_to_send === false) {
+//                throw new Exception("Could not open local file: $srcFile.");
+//            }
+//
+//            if (@fwrite($sftpStream, $data_to_send) === false) {
+//                throw new Exception("Could not send data from file: $srcFile.");
+//            }
+//
+//            fclose($sftpStream);
+//
+//        } catch (Exception $e) {
+//            error_log('Exception: ' . $e->getMessage());
+//            $ret = false;
+//            fclose($sftpStream);
+//        }       
+//        return $ret;
+//    }
 
     private function remoteSSH2Copy($file, $local, $remoteFile, $remote) {
         $ret = FALSE;
@@ -104,13 +141,31 @@ class FtpSender{
             if (($ret = ssh2_auth_password($connection, $user, $pass))) {
                 $ret = $sftp = ssh2_sftp($connection);
                 if ($sftp) {
+                    if($remote[0]==='/'){
+                        $remote = $remote[-strlen($remote)+1];
+                    }
+                    if($remote[strlen($remote)-1]!=='/'){
+                        $remote .= '/';
+                    }
                     $ret = ssh2_sftp_mkdir($sftp, $remote, 0777, TRUE);
-                    $ret = ssh2_scp_send($connection, "$local$file", "$remote$file", 0644);
+//                    $ret = $this->ssh2Mkdir($connection, $remote);
+                    if($ret){
+                        Logger::debug("S'ha creat el directori '$remote'", 1, 114, "FtpSender.php", 1);
+                    }
+                    $ret = ssh2_scp_send($connection, "$local$file", "$remote$remoteFile");
+//                    $ret = $this->ssh2CopyFile($sftp, "$local$file", "/$remote$remoteFile");
                 }
+                if($ret){
+                    Logger::debug("Enviament EXITOS de $local$file a $remote$remoteFile", 0, 118, "FtpSender.php", 1);
+                }else{
+                    Logger::debug("Enviament FALLIT de $local$file a $remote$remoteFile", 1, 118, "FtpSender.php", 1);
+                }
+            }else{
+                Logger::debug("Connexió fallida a $host:$port(u:$user, p:$pass)", 1, 105, "FtpSender.php", 1);
             }
-            //PHP v.5: debe usarse: unset($connection);
-            //PHP v.7: debe usarse: ssh2_disconnect($connection)
             $this->ssh2_disconnect($connection);
+        }else{
+            Logger::debug("Connexió fallida a $host:$port(u:$user, p:$pass)", 1, 103, "FtpSender.php", 1);
         }
         return $ret;
     }
