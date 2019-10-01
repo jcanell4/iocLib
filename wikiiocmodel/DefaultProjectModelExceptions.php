@@ -76,3 +76,9 @@ class IncorrectParamsException extends WikiIocModelException {
         parent::__construct($message, $code, $previous);
     }
 }
+
+class PartialEditNotSupportedException extends WikiIocModelException {
+    public function __construct($param='', $message="No es pot utilizar el codi ~~USE:WIOCCL~~ en una edició parcial, s'ha de fer servir en una edició completa.", $code=7105, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $param);
+    }
+}
