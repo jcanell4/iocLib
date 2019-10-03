@@ -45,6 +45,13 @@ class FtpSender{
         return $response;
     }
 
+    private function remoteSSH2Copy($local_file, $source, $remote_file, $remote_dir) {
+        if (($ret = $this->connectSSH2())) {
+            $ret = uploadFile($local_file, $source, $remote_file, $remote_dir);
+            $this->ssh2_disconnect($this->connection);
+        }
+    }
+
     /**
      * @param string $file nom del fitxer zip
      * @param string $source ruta d'origen
