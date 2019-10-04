@@ -4,6 +4,8 @@
  */
 class FtpSender{
     private $ftpObjectToSendList;
+    private $connection;
+    private $sftp;
 
     protected $connectionData;
 
@@ -43,6 +45,13 @@ class FtpSender{
         return $response;
     }
 
+    private function remoteSSH2Copy($local_file, $source, $remote_file, $remote_dir) {
+        if (($ret = $this->connectSSH2())) {
+            $ret = uploadFile($local_file, $source, $remote_file, $remote_dir);
+            $this->ssh2_disconnect($this->connection);
+        }
+    }
+
     /**
      * @param string $file nom del fitxer zip
      * @param string $source ruta d'origen
@@ -62,13 +71,15 @@ class FtpSender{
         }
 
         if ($directory === '') {
-            $directory = substr($file   , 0, -4);
+            $directory = substr($file, 0, -4);
         }
-
         $destination .= "$directory/";
 
         if ($ret) {
-            $ret = $this->_iocUnzipAndFtpSend($tmp_dir, $destination);
+            if (($ret = $this->connectSSH2())) {
+                $ret = $this->_iocUnzipAndFtpSend($tmp_dir, $destination);
+                $this->ssh2_disconnect($this->connection);
+            }
         }
         if ($ret) {
             IocCommon::removeDir($tmp_dir);
@@ -84,93 +95,50 @@ class FtpSender{
                     if (is_dir("$source$file")) {
                         $ret = $ret && $this->_iocUnzipAndFtpSend("$source$file/", "$destination$file/");
                     }else{
-                        $ret = $ret && $this->remoteSSH2Copy($file, $source, $file, $destination);
+                        $ret = $ret && $this->uploadFile($file, $source, $file, $destination);
                     }
                 }
             }
         }
         return $ret;
     }
-    
-//    private function ssh2Mkdir($conection, $dir, $mode=0777){
-//        $cmd = "mkdir -R /$dir";
-//        $ret = ssh2_exec($conection, $cmd);
-//        return $ret;
-//    }
-    
-//    private function ssh2CopyFile($sftp, $srcFile, $dstFile){
-//        $ret = true;
-//        $sftpStream = @fopen('ssh2.sftp://'.$sftp.$dstFile, 'w');
-//
-//        try {
-//
-//            if (!$sftpStream) {
-//                throw new Exception("Could not open remote file: $dstFile");
-//            }
-//
-//            $data_to_send = @file_get_contents($srcFile);
-//
-//            if ($data_to_send === false) {
-//                throw new Exception("Could not open local file: $srcFile.");
-//            }
-//
-//            if (@fwrite($sftpStream, $data_to_send) === false) {
-//                throw new Exception("Could not send data from file: $srcFile.");
-//            }
-//
-//            fclose($sftpStream);
-//
-//        } catch (Exception $e) {
-//            error_log('Exception: ' . $e->getMessage());
-//            $ret = false;
-//            fclose($sftpStream);
-//        }       
-//        return $ret;
-//    }
 
-    private function remoteSSH2Copy($file, $local, $remoteFile, $remote) {
+    private function uploadFile($local_file, $source, $remote_file, $remote_dir) {
+        $remote_dir = "/".trim($remote_dir,"/")."/";
+        ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
+
+        $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w');
+        if (! $stream)
+            throw new Exception("Could not open file: $remote_dir$remote_file");
+
+        $data_to_send = @file_get_contents("$source$local_file");
+        if ($data_to_send === false)
+            throw new Exception("Could not open local file: $source$local_file.");
+
+        if (@fwrite($stream, $data_to_send) === false)
+            throw new Exception("Could not send data from file: $source$local_file.");
+
+        @fclose($stream);
+        return TRUE;
+    }
+
+    private function connectSSH2() {
         $ret = FALSE;
         $host = $this->connectionData['sendftp_host'];
         $port = $this->connectionData['sendftp_port'];
         $user = $this->connectionData['sendftp_u'];
         $pass = $this->connectionData['sendftp_p'];
 
-
-        $connection = ssh2_connect($host, $port);
-        if ($connection) {
-            if (($ret = ssh2_auth_password($connection, $user, $pass))) {
-                $ret = $sftp = ssh2_sftp($connection);
-                if ($sftp) {
-                    if($remote[0]==='/'){
-                        $remote = $remote[-strlen($remote)+1];
-                    }
-                    if($remote[strlen($remote)-1]!=='/'){
-                        $remote .= '/';
-                    }
-                    $ret = ssh2_sftp_mkdir($sftp, $remote, 0777, TRUE);
-//                    $ret = $this->ssh2Mkdir($connection, $remote);
-                    if($ret){
-                        Logger::debug("S'ha creat el directori '$remote'", 1, 114, "FtpSender.php", 1);
-                    }
-                    $ret = ssh2_scp_send($connection, "$local$file", "$remote$remoteFile");
-//                    $ret = $this->ssh2CopyFile($sftp, "$local$file", "/$remote$remoteFile");
-                }
-                if($ret){
-                    Logger::debug("Enviament EXITOS de $local$file a $remote$remoteFile", 0, 118, "FtpSender.php", 1);
-                }else{
-                    Logger::debug("Enviament FALLIT de $local$file a $remote$remoteFile", 1, 118, "FtpSender.php", 1);
-                }
-            }else{
-                Logger::debug("Connexió fallida a $host:$port(u:$user, p:$pass)", 1, 105, "FtpSender.php", 1);
+        $this->connection = ssh2_connect($host, $port);
+        if ($this->connection) {
+            if (($ret = ssh2_auth_password($this->connection, $user, $pass))) {
+                $this->sftp = $ret = ssh2_sftp($this->connection);
             }
-            $this->ssh2_disconnect($connection);
-        }else{
-            Logger::debug("Connexió fallida a $host:$port(u:$user, p:$pass)", 1, 103, "FtpSender.php", 1);
         }
         return $ret;
     }
 
-    private function ssh2_disconnect($connection) {
+    private function ssh2_disconnect(&$connection) {
         if (PHP_VERSION_ID < 70000) {
             unset($connection);
         }else{
