@@ -11,8 +11,17 @@ class Html2DWInstruction extends WiocclInstruction {
 //        return parent::parseToken($tokens, $tokenIndex);
 //    }
 
+    protected $extra;
+
+
+    protected function setExtra($extraData) {
+        $this->extra = $extraData;
+    }
+
     protected function getClassForToken($token)
     {
-        return new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
+        $instance = new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
+        $instance->setExtra($token['extra']);
+        return $instance;
     }
 }

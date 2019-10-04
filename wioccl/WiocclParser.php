@@ -210,6 +210,7 @@ class WiocclParser
                 $token['state'] = $value['state'];
                 $token['class'] = isset($value['class']) ? $value['class'] : null;
                 $token['action'] = $value['action'];
+                $token['extra'] = $value['extra'];
             }
         }
 
