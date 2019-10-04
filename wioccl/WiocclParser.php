@@ -159,7 +159,7 @@ class WiocclParser
         // Creem la regexp que permet dividir el $text
         $pattern = '(';
 
-        foreach (self::$tokenPatterns as $statePattern => $data) {
+        foreach (static::$tokenPatterns as $statePattern => $data) {
             $pattern .= $statePattern . '|';
         }
 
@@ -184,7 +184,7 @@ class WiocclParser
                 $tokens[] = ['state' => 'content', 'value' => $text];
             }
 
-            $tokens[] = self::generateToken($match[0]);
+            $tokens[] = static::generateToken($match[0]);
 
             $pos = $match[1] + $len;
         }
@@ -203,7 +203,7 @@ class WiocclParser
         $token = ['state' => 'none', 'class' => null, 'value' => $tokenInfo];
 
 
-        foreach (self::$tokenKey as $key => $value) {
+        foreach (static::$tokenKey as $key => $value) {
 
             if (strpos($tokenInfo, $key) === 0) {
                 // It starts with the token

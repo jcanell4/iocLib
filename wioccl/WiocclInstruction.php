@@ -85,6 +85,7 @@ class WiocclInstruction
     public function parseToken($tokens, &$tokenIndex)
     {
 
+
         $currentToken = $tokens[$tokenIndex];
         $result = '';
 
