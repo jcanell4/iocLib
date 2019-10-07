@@ -1,6 +1,8 @@
 <?php
 
-class Html2DWParser extends WiocclParser {
+require_once "../../IocParser/IocParser.php";
+
+class Html2DWParser extends IocParser {
     // TODO: Extreure la base del WiocclParser i crear-la abstrac, de manera que no tinguem que sobrescriure totes
     // les propietats
 
@@ -30,12 +32,13 @@ class Html2DWParser extends WiocclParser {
         '</i>' => ['state' => 'close_italic', 'type' => 'italic', 'action' => 'close', 'extra' => ['replacement' => '//']],
 
     ];
+    protected static $instructionClass = "Html2DWInstruction";
 
-    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
-
-        $instruction = new Html2DWInstruction($text, $arrays, $dataSource, $resetables);
-        $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
-        return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
-    }
+//    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+//
+//        $instruction = new Html2DWInstruction($text, $arrays, $dataSource, $resetables);
+//        $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
+//        return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
+//    }
 
 }
