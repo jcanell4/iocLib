@@ -1,8 +1,7 @@
 <?php
 
 if (!defined('DOKU_INC')) die();
-
-require_once DOKU_INC.'lib_ioc/iocparser/IocInstruction.php';
+require_once DOKU_INC.'lib/lib_ioc/iocparser/IocInstruction.php';
 
 
 class WiocclInstruction extends IocInstruction
@@ -27,7 +26,7 @@ class WiocclInstruction extends IocInstruction
     public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL){
         $this->rawValue = $value;
         $this->arrays += $arrays;
-        $this->dataSource = $dataSource; // TODO: Reactivar quan es comprovi que funciona
+        $this->dataSource = $dataSource;
         $this->parentInstruction = $parentInstruction;
         if($resetables==NULL){
             $this->resetables = new WiocclResetableData();

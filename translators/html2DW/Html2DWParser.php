@@ -1,6 +1,7 @@
 <?php
 
-require_once "../../IocParser/IocParser.php";
+if (!defined('DOKU_INC')) die();
+require_once DOKU_INC.'lib/lib_ioc/iocparser/IocParser.php';
 
 class Html2DWParser extends IocParser {
     // TODO: Extreure la base del WiocclParser i crear-la abstrac, de manera que no tinguem que sobrescriure totes

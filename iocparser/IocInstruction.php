@@ -6,7 +6,7 @@ class IocInstruction
 //    const FROM_RESET = "fromReset";
 //    const FROM_REPARSESET = "fromReparseset";
 //
-//    protected $rawValue;
+    protected $rawValue;
 //    protected $fullInstruction="";
     protected static $instancesCounter=0;
 //    protected $parentInstruction=NULL;

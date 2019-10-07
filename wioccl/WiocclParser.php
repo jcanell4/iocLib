@@ -1,6 +1,7 @@
 <?php
 
-require_once "../IocParser/IocParser.php";
+if (!defined('DOKU_INC')) die();
+require_once DOKU_INC.'lib/lib_ioc/iocparser/IocParser.php';
 
 class WiocclParser extends IocParser
 {
