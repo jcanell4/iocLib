@@ -15,14 +15,16 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     protected $lockDataQuery;
     protected $params;
     protected $metaDataSubSet;
+    protected $lockProjectDir = FALSE; //indica si hay que bloquear el directorio de proyecto
 
     public function __construct(BasicPersistenceEngine $persistenceEngine, $params=NULL) {
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->params = $params;
     }
 
-    public function init($params){
+    public function init($params, $lockProjectDir=FALSE){
         $this->params = $params;
+        $this->lockProjectDir = $lockProjectDir;
         $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? "-".$params[ProjectKeys::KEY_METADATA_SUBSET] : "";
     }
 
@@ -32,17 +34,24 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
      * projectes es contempla la possibilitat de fer el bloqueig directament aquí, si es passa el paràmetre amb valor
      * TRUE. EL mètode comprova si algú està bloquejant ja el recurs i en funció d'això, retorna una constant amb el
      * resultat obtingut de la petició.
-     *
      * @param bool $lock
      * @return [state:int, info:string]
      */
     public function requireResource($lock=FALSE) {
-        return $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
+        $state = $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH]);
+        if ($this->lockProjectDir && $state["state"]===self::LOCKED)
+            $state = $this->_requireResource($lock, $this->params[PageKeys::KEY_REFRESH], $this->lockProjectDir);
+
+        return $state;
     }
 
-    public function _requireResource($lock=FALSE, $refresh=FALSE) {
+    private function _requireResource($lock=FALSE, $refresh=FALSE, $lockProjectDir=FALSE) {
         $state = array();
-        $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
+        if ($lockProjectDir)
+            $docId = $this->params[PageKeys::KEY_ID];
+        else
+            $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
+
         $lockState = $this->lockDataQuery->checklock($docId);
 
         switch ($lockState) {
@@ -76,19 +85,30 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
         return $state;
     }
 
+    public function leaveResource($unlock=FALSE) {
+        $returnState = $this->_leaveResource($unlock, FALSE);
+        if ($this->lockProjectDir)
+            $returnState = $this->_leaveResource($unlock, $this->lockProjectDir);
+
+        return $returnState;
+    }
+
     /**
      * Es tracta del mètode que hauran d'executar en iniciar el desbloqueig o també quan l'usuari cancel·la la demanda
      * de bloqueig. Per  defecte no es desbloqueja el recurs, perquè actualment el desbloqueig es realitza internament
      * a les funcions natives de la wiki. Malgrat tot, per a futurs projectes es contempla la possibilitat de fer el
      * desbloqueig directament aquí, si es passa el paràmetre amb valor TRUE. EL mètode retorna una constant amb el
      * resultat obtingut de la petició.
-     *
      * @param bool $unlock
+     * @param bool $lockProjectDir : indica si el que s'ha de bloquejar és el directori de projecte
      * @return int
      */
-    public function leaveResource($unlock = FALSE) {
+    private function _leaveResource($unlock=FALSE, $lockProjectDir=FALSE) {
+        if ($lockProjectDir)
+            $docId = $this->params[PageKeys::KEY_ID];
+        else
+            $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
 
-        $docId = $this->params[PageKeys::KEY_ID].$this->metaDataSubSet;
         $lockState = $this->lockDataQuery->checklock($docId, TRUE);
 
         switch ($lockState) {
@@ -117,7 +137,16 @@ class ResourceLocker implements ResourceLockerInterface, ResourceUnlockerInterfa
     }
 
     public function checklock() {
-        return $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID].$this->metaDataSubSet);
+        if ($this->lockProjectDir)
+            $returnState = $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID]);
+        else
+            $returnState = $this->lockDataQuery->checklock($this->params[PageKeys::KEY_ID].$this->metaDataSubSet);
+
+        return $returnState;
+    }
+
+    public function isLockedChild($id) {
+        return $this->lockDataQuery->isLockedChild($id);
     }
 
     public function updateLock() {
