@@ -16,6 +16,7 @@ class Html2DWMarkup extends Html2DWInstruction {
     }
 
     protected function resolveOnClose($field) {
+//        echo "*** $field: " . $field;
         return $field . $this->getReplacement(self::CLOSE);
     }
 }

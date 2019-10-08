@@ -77,7 +77,8 @@ class IocInstruction
             }
             ++$tokenIndex;
         }
-        
+
+
         return $this->resolveOnClose($result);
     }
 

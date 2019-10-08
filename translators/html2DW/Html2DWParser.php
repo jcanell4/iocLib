@@ -1,14 +1,14 @@
 <?php
 
 if (!defined('DOKU_INC')) die();
-require_once DOKU_INC.'lib/lib_ioc/iocparser/IocParser.php';
+require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 
 class Html2DWParser extends IocParser {
     // TODO: Extreure la base del WiocclParser i crear-la abstrac, de manera que no tinguem que sobrescriure totes
     // les propietats
 
     protected static $removeTokenPatterns = [
-        '/<br />/'
+        '/<br *.*?[^\\\\]>/'
 //        '/:###/', '/###:/'
     ];
 
@@ -44,27 +44,47 @@ class Html2DWParser extends IocParser {
         '</u>' => [
             'state' => 'close_underline',
         ],
-//        '<del>' => [
-//            'state' => 'open_strike',
-//        ],
-//        '</del>' => [
-//            'state' => 'close_strike',
-//        ],
-//        '<strike>' => [
-//            'state' => 'open_strike',
-//        ],
-//        '</strike>' => [
-//            'state' => 'close_strike',
-//        ],
         '<pre>' => [
             'state' => 'open_code',
         ],
         '</pre>' => [
             'state' => 'close_code',
         ],
-        // TODO! Element amb autotancament, comprovar si funciona o s'ha d'implementar
-        '<br />' => [
-            'state' => 'content',
+        '<h1 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h1',
+        ],
+        '</h1>' => [
+            'state' => 'close_h1',
+        ],
+        '<h2 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h2',
+        ],
+        '</h2>' => [
+            'state' => 'close_h2',
+        ],
+        '<h3 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h3',
+        ],
+        '</h3>' => [
+            'state' => 'close_h3',
+        ],
+        '<h4 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h4',
+        ],
+        '</h4>' => [
+            'state' => 'close_h4',
+        ],
+        '<h5 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h5',
+        ],
+        '</h5>' => [
+            'state' => 'close_h5',
+        ],
+        '<h6 *.*?[^\\\\]>(\n)?' => [
+            'state' => 'open_h6',
+        ],
+        '</h6>' => [
+            'state' => 'close_h6',
         ],
     ];
 
@@ -77,19 +97,27 @@ class Html2DWParser extends IocParser {
         '</p>' => ['state' => 'close_p', 'type' => 'bold', 'action' => 'close', 'extra' => ['replacement' => '\n\n']],
 
 
-
-
         '<b>' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**']],
         '</b>' => ['state' => 'close_bold', 'type' => 'bold', 'action' => 'close', 'extra' => ['replacement' => '**']],
         '<i>' => ['state' => 'open_italic', 'type' => 'italic', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '//']],
         '</i>' => ['state' => 'close_italic', 'type' => 'italic', 'action' => 'close', 'extra' => ['replacement' => '//']],
         '<u>' => ['state' => 'open_underline', 'type' => 'underline', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '__']],
         '</u>' => ['state' => 'close_underline', 'type' => 'underline', 'action' => 'close', 'extra' => ['replacement' => '__']],
-//        '<del>' => ['state' => 'open_strike', 'type' => 'strike', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '<del>']],
-//        '</del>' => ['state' => 'close_strike', 'type' => 'strike', 'action' => 'close', 'extra' => ['replacement' => '</del>']],
         '<pre>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '<code>']],
         '</pre>' => ['state' => 'close_code', 'type' => 'code', 'action' => 'close', 'extra' => ['replacement' => '</code>\n\n']],
-        // => ['state' => 'content', 'type' => 'newline', 'action' => '', 'extra' => ['replacement' => '\n']],
+        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '======']],
+        '</h1>' => ['state' => 'close_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '======']],
+        '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '=====']],
+        '</h2>' => ['state' => 'close_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '=====']],
+        '<h3' => ['state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '====']],
+        '</h3>' => ['state' => 'close_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '====']],
+        '<h4' => ['state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '===']],
+        '</h4>' => ['state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '===']],
+        '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '==']],
+        '</h5>' => ['state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '==']],
+        '<h6' => ['state' => 'open_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '=']],
+        '</h6>' => ['state' => 'close_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'close', 'extra' => ['replacement' => '=']],
+
 
     ];
     protected static $instructionClass = "Html2DWInstruction";
