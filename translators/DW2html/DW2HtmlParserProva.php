@@ -12,23 +12,24 @@ require_once DOKU_INC . 'inc/init.php';
 
 $dataSource = [];
 
-$t = '<p><b>negreta</b> <i>cursiva</i></p>
-<hr>
-<p><b>subratllat</b></p>
-<p><del>taxat</del></p>
-<p><code>codi</code></p>
-<h1 id="h1">h1</h1>
-<h2 id="h2">h2</h2>
-<h3 id="h3">h3</h3>
-<h4 id="h4">h4</h4>
-<h5 id="h5">h5</h5>
-<p><br /></p>
-<p><br /></p>
-<hr>
-<p>ssaa</p>
-<hr>
-<p>lalala</p>
-<hr>';
+$t = '**negreta** //cursiva//
+----
+__subratllat__
+<del>taxat</del>
+<code>codi</code>
+======h1======
+=====h2=====
+====h3====
+===h4===
+==h5==
+
+
+----
+ssaa
+----
+lalala
+----
+';
 //$t = '<b>negreta</b> normal';
 
 global $conf;
@@ -37,6 +38,6 @@ global $conf;
 //$p = new WiocclParser($t,['testitem'=>['unitat'=>1]], $dataSource);
 //print_r('<pre>');
 //echo 'Text original: ' . $t . "\n";
-echo "Text parsejat:\n" . Html2DWParser::getValue($t) . "\n";
+echo "Text parsejat:\n" . DW2HtmlParser::getValue($t) . "\n";
 //print_r(Html2DWParser::getValue($t,['testitem'=>['unitat'=>1]], $dataSource));
 //print_r('</pre>');
