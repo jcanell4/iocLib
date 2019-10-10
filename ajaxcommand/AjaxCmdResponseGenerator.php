@@ -460,19 +460,22 @@ class AjaxCmdResponseGenerator {
     }
 
     /**
-     * Afegeix una resposta de tipus COMMAND_TYPE::RELOAD_WIDGET_CONTENT al generador de respostes.
-     *
+     * Envía una petición RELOAD_WIDGET_CONTENT a CommandProcessor.js para el objeto cliente cuyo ID es $widgetId
      * @param string $widgetId
+     * @param array $extra : array de parámetros extra (cada procesador deberá saber qué hacer con ellos)
      */
-    public function addReloadWidgetContent($widgetId)
-    {
+    public function addReloadWidgetContent($widgetId, $extra=[]) {
+        $resp = ['type' => JSonGenerator::RELOAD_WIDGET_CONTENT,
+                 'id' => $widgetId
+                ];
+        if (!empty($extra)) {
+            $resp['extra'] = $extra;
+        }
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::COMMAND_TYPE,
-                array(
-                    "type" => JSonGenerator::RELOAD_WIDGET_CONTENT,
-                    "id" => $widgetId
-                ))
+                $resp
+            )
         );
     }
 
