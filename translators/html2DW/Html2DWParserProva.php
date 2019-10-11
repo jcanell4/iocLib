@@ -13,18 +13,18 @@ require_once DOKU_INC . 'inc/init.php';
 $dataSource = [];
 
 $t = '<p><b>negreta</b> <i>cursiva</i></p>
-<hr>
-<p><b>subratllat</b></p>
+<hr />
+<p><u>subratllat</u></p>
 <p><del>taxat</del></p>
 <p><code>codi</code></p>
-<h1 id="h1">h1</h1>
-<h2 id="h2">h2</h2>
-<h3 id="h3">h3</h3>
+<h1>h1</h1>
+<h2>h2</h2>
+<h3>h3</h3>
 <h4 id="h4">h4</h4>
-<h5 id="h5">h5</h5>
-<p><br /></p>
-<p><br /></p>
-<hr>
+<h5>h5</h5>
+<br />
+<br />
+<hr />
 <p>ssaa</p>
 <hr>
 <p>lalala</p>

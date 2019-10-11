@@ -14,13 +14,13 @@ class Html2DWParser extends IocParser {
         '<div>' => [
             'state' => 'open_div',
         ],
-        '</div>' => [
+        '</div>\n?' => [
             'state' => 'close_div',
         ],
         '<p>' => [
             'state' => 'open_p',
         ],
-        '</p>' => [
+        "</p>\n?" => [
             'state' => 'close_p',
         ],
 
@@ -45,43 +45,46 @@ class Html2DWParser extends IocParser {
         '<pre>' => [
             'state' => 'open_code',
         ],
-        '</pre>' => [
+        '</pre>\n?' => [
             'state' => 'close_code',
         ],
-        '<h1 *.*?[^\\\\]>(\n)?' => [
+        '<h1.*?>' => [
             'state' => 'open_h1',
         ],
-        '</h1>' => [
+        '</h1>\n?' => [
             'state' => 'close_h1',
         ],
-        '<h2 *.*?[^\\\\]>(\n)?' => [
+        '<h2.*?>' => [
             'state' => 'open_h2',
         ],
-        '</h2>' => [
+        '</h2>\n?' => [
             'state' => 'close_h2',
         ],
-        '<h3 *.*?[^\\\\]>(\n)?' => [
+        '<h3.*?>' => [
             'state' => 'open_h3',
         ],
-        '</h3>' => [
+        '</h3>\n?' => [
             'state' => 'close_h3',
         ],
-        '<h4 *.*?[^\\\\]>(\n)?' => [
+        '<h4.*?>' => [
             'state' => 'open_h4',
         ],
-        '</h4>' => [
+        '</h4>\n?' => [
             'state' => 'close_h4',
         ],
-        '<h5 *.*?[^\\\\]>(\n)?' => [
+        "<h5.*?>" => [
             'state' => 'open_h5',
         ],
-        '</h5>' => [
+        '</h5>\n?' => [
             'state' => 'close_h5',
         ],
-        '<hr>' => [
+        '</h6.*?>' => [
+            'state' => 'close_h6',
+        ],
+        "<hr( \/)?>\n?" => [
             'state' => 'hr',
         ],
-        '<br *.*?[^\\\\]>' => [
+        "<br( \/)?>\n?" => [
             'state' => 'br',
         ],
     ];
@@ -111,8 +114,10 @@ class Html2DWParser extends IocParser {
         '</h4>' => ['state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'close'],
         '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
         '</h5>' => ['state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<hr>' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----\n"]],
-        '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => ""]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
+        '<h6' => ['state' => 'open_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
+        '</h6>' => ['state' => 'close_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'close'],
+        '<hr' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----\n"]],
+        '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\n"]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
     ];
     protected static $instructionClass = "Html2DWInstruction";
 
