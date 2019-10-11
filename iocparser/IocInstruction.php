@@ -7,6 +7,10 @@ class IocInstruction {
     protected static $instancesCounter = 0;
     protected $arrays = [];
 
+    protected static $parserClass = "IocParser";
+
+    protected static $stack = [];
+
     // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
@@ -62,7 +66,19 @@ class IocInstruction {
             $action = $currentToken['action'];
         }
 
-//        echo "----> " . $action . "\n";
+
+        if ($action == 'open-close') {
+            // Si l'ultim element del stack es del mateix tipus el tanca
+            $top = end(static::$stack);
+
+            if (count(static::$stack) >0 && $top['state'] == $currentToken['state'] && $top['type'] == $currentToken['type']) {
+                $action = 'close';
+            } else {
+                $action = 'open';
+            }
+
+        }
+
 
 
         switch ($action) {
@@ -73,6 +89,7 @@ class IocInstruction {
 
 
             case 'open':
+                static::$stack[] = $currentToken;
                 $mark = self::$instancesCounter == 0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken);
@@ -88,21 +105,21 @@ class IocInstruction {
                 break;
 
 
+
             case 'self-contained':
-//                var_dump($currentToken);
-//                die();
+                // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
                 $item = $this->getClassForToken($currentToken);
                 $result = $item->getContent($currentToken);
                 break;
 
             case 'container':
+                // Aquest tipus no s'afegeix a l'stack perque resol el seu propi contingut
                 $item = $this->getClassForToken($currentToken);
-                $result = $item->resolveOnClose($item->getContent($currentToken));
-
-
+                $result = $item->resolveOnClose((new static::$parserClass())->getValue($item->getContent($currentToken)));
                 break;
 
             case 'close':
+                array_pop(static::$stack);
                 return null;
                 break;
         }
@@ -115,6 +132,7 @@ class IocInstruction {
     }
 
     protected function getClassForToken($token) {
+//        echo 'getting class for token >>' . $token['class'] . '<<';
         $instance = new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
         $instance->setExtra($token['extra']);
         return $instance;

@@ -9,6 +9,7 @@ require_once DOKU_INC . 'inc/inc_ioc/ioc_project_load.php';
 
 require_once DOKU_INC . 'inc/init.php';
 
+require_once 'DW2HtmlParser.php';
 
 $dataSource = [];
 
@@ -35,9 +36,5 @@ lalala
 global $conf;
 
 
-//$p = new WiocclParser($t,['testitem'=>['unitat'=>1]], $dataSource);
-//print_r('<pre>');
 //echo 'Text original: ' . $t . "\n";
 echo "Text parsejat:\n" . DW2HtmlParser::getValue($t) . "\n";
-//print_r(Html2DWParser::getValue($t,['testitem'=>['unitat'=>1]], $dataSource));
-//print_r('</pre>');
