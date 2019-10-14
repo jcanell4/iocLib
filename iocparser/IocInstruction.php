@@ -11,11 +11,9 @@ class IocInstruction {
 
     protected static $stack = [];
 
-    // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
         $this->arrays += $arrays;
-
     }
 
     protected function resolveOnClose($result) {
@@ -184,7 +182,11 @@ class IocInstruction {
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
 //            $jsonString = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
-            $jsonString = IocParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
+//            $jsonString = IocParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
+
+
+            $class = static::$parserClass;
+            $jsonString = $class::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("Array is missing");
         }

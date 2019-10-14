@@ -21,7 +21,9 @@ class WiocclInstruction extends IocInstruction
     protected $arrays = [];
     
     protected $resetables = null;
-    
+
+    protected static $parserClass = "WiocclParser";
+
     // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
     public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL){
         $this->rawValue = $value;
