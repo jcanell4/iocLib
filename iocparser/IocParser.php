@@ -24,6 +24,10 @@ class IocParser {
         $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables);
         $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
 
+
+//        var_dump($tokens);
+//        die();
+
         return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
     }
 
@@ -74,7 +78,11 @@ class IocParser {
 
             }
 
-            $tokens[] = static::generateToken($match[0]);
+            $token = static::generateToken($match[0]);
+
+//            $token['value'] = "TEST! línia IocParser.php:83";
+
+            $tokens[] = $token;
             $pos = $match[1] + $len;
         }
 
@@ -87,19 +95,56 @@ class IocParser {
 
     }
 
+//    protected static function generateToken($tokenInfo) {
+//        $token = ['state' => 'none', 'class' => null, 'value' => $tokenInfo];
+//
+//
+//        foreach (static::$tokenKey as $key => $value) {
+//
+//            $mustBeExact = isset($value['extra']) && $value['extra']['exact'] === TRUE;
+//
+//            if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0)) {
+//                $token['state'] = $value['state'];
+//                $token['class'] = isset($value['class']) ? $value['class'] : null;
+//                $token['action'] = $value['action'];
+//                $token['extra'] = $value['extra'];
+//            }
+//
+//        }
+//
+//        // Si no s'ha trobat cap coincidencia i existeix un element generic (key = '$$BLOCK$$') s'aplica aquest
+//        if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
+//
+//            $value = static::$tokenKey['$$BLOCK$$'];
+//            $token['state'] = $value['state'];
+//            $token['class'] = isset($value['class']) ? $value['class'] : null;
+//            $token['action'] = $value['action'];
+//            $token['extra'] = $value['extra'];
+//        }
+//
+//        return $token;
+//    }
+
     protected static function generateToken($tokenInfo) {
         $token = ['state' => 'none', 'class' => null, 'value' => $tokenInfo];
-
+        $pattern = null;
 
         foreach (static::$tokenKey as $key => $value) {
 
             $mustBeExact = isset($value['extra']) && $value['extra']['exact'] === TRUE;
+            $isRegex = isset($value['extra']) && $value['extra']['regex'] === TRUE;
 
-            if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0)) {
-                $token['state'] = $value['state'];
-                $token['class'] = isset($value['class']) ? $value['class'] : null;
-                $token['action'] = $value['action'];
-                $token['extra'] = $value['extra'];
+            $pattern = '/' . $key. '/';
+
+            if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0) ||
+                $isRegex && preg_match($pattern, $tokenInfo)) {
+                $token = $value;
+//                $token['state'] = $value['state'];
+//                $token['class'] = isset($value['class']) ? $value['class'] : null;
+//                $token['action'] = $value['action'];
+//                $token['extra'] = $value['extra'];
+//                $token['type'] = $value['type'];
+                break;
             }
 
         }
@@ -108,11 +153,21 @@ class IocParser {
         if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
 
             $value = static::$tokenKey['$$BLOCK$$'];
-            $token['state'] = $value['state'];
-            $token['class'] = isset($value['class']) ? $value['class'] : null;
-            $token['action'] = $value['action'];
-            $token['extra'] = $value['extra'];
+            $token = $value;
+
+//            $token['state'] = $value['state'];
+//            $token['class'] = isset($value['class']) ? $value['class'] : null;
+//            $token['action'] = $value['action'];
+//            $token['extra'] = $value['extra'];
+//            $token['type'] = $value['type'];
+
+            // No te marques d'apertura ni tancament, per tant el valor será tot el capturat.
+            $token['value'] = $tokenInfo;
         }
+
+
+        $token['raw'] = $tokenInfo;
+        $token['pattern'] = $pattern;
 
         return $token;
     }

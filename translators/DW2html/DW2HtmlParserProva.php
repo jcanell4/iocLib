@@ -30,6 +30,18 @@ ssaa
 ----
 lalala
 ----
+  * Item 1
+  * Item 2
+    * Subitem 2.1
+    * Subitem 2.2
+  * Item 3
+    * Subitem 3.1
+    * Subitem 3.2
+      * Subitem 3.2.1
+      * Subitem 3.2.2
+        * Subitem 3.2.2.1
+        * Subitem 3.2.2.2
+Aqui comença un paràgraf nou
 ';
 //$t = '<b>negreta</b> normal';
 

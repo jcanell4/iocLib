@@ -11,6 +11,9 @@ class IocInstruction {
 
     protected static $stack = [];
 
+    protected $currentToken;
+    protected $nextToken;
+
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
         $this->arrays += $arrays;
@@ -19,6 +22,12 @@ class IocInstruction {
     protected function resolveOnClose($result) {
         return $result;
     }
+
+    public function setTokens($currentToken, $nextToken) {
+        $this->currentToken = $currentToken;
+        $this->nextToken = $nextToken;
+    }
+
 
     public function getTokensValue($tokens, &$tokenIndex) {
         return $this->parseTokens($tokens, $tokenIndex);
@@ -56,6 +65,12 @@ class IocInstruction {
     public function parseToken($tokens, &$tokenIndex) {
 
         $currentToken = $tokens[$tokenIndex];
+        $nextToken = $tokenIndex + 1 < count($tokens) ? $tokens[$tokenIndex + 1] : NULL;
+
+//        var_dump(count($tokens), $tokenIndex +1, $nextToken);
+//        die();
+
+
         $result = '';
 
         if ($currentToken['state'] == 'content') {
@@ -69,7 +84,7 @@ class IocInstruction {
             // Si l'ultim element del stack es del mateix tipus el tanca
             $top = end(static::$stack);
 
-            if (count(static::$stack) >0 && $top['state'] == $currentToken['state'] && $top['type'] == $currentToken['type']) {
+            if (count(static::$stack) > 0 && $top['state'] == $currentToken['state'] && $top['type'] == $currentToken['type']) {
                 $action = 'close';
             } else {
                 $action = 'open';
@@ -78,19 +93,17 @@ class IocInstruction {
         }
 
 
-
         switch ($action) {
             case 'content':
                 $result .= $this->getContent($currentToken);
                 break;
 
 
-
             case 'open':
                 static::$stack[] = $currentToken;
                 $mark = self::$instancesCounter == 0;
                 self::$instancesCounter++;
-                $item = $this->getClassForToken($currentToken);
+                $item = $this->getClassForToken($currentToken, $nextToken);
 
                 if ($mark) {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
@@ -103,16 +116,18 @@ class IocInstruction {
                 break;
 
 
-
             case 'self-contained':
                 // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
-                $item = $this->getClassForToken($currentToken);
+                $item = $this->getClassForToken($currentToken, $nextToken);
                 $result = $item->getContent($currentToken);
                 break;
 
             case 'container':
                 // Aquest tipus no s'afegeix a l'stack perque resol el seu propi contingut
-                $item = $this->getClassForToken($currentToken);
+                $item = $this->getClassForToken($currentToken, $nextToken);
+//                var_dump($currentToken);
+//                die();
+
                 $result = $item->resolveOnClose((new static::$parserClass())->getValue($item->getContent($currentToken)));
                 break;
 
@@ -129,9 +144,10 @@ class IocInstruction {
         $this->extra = $extraData;
     }
 
-    protected function getClassForToken($token) {
+    protected function getClassForToken($token, $next) {
 //        echo 'getting class for token >>' . $token['class'] . '<<';
         $instance = new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
+        $instance->setTokens($token, $next);
         $instance->setExtra($token['extra']);
         return $instance;
     }
@@ -228,5 +244,13 @@ class IocInstruction {
 
     public function update($rightValue, $result = "") {
         throw new Exception("This class is not updatable");
+    }
+
+    public function pushState($token) {
+        static::$stack[] = $token;
+    }
+
+    public function popState() {
+        array_pop(static::$stack);
     }
 }
