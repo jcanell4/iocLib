@@ -26,9 +26,9 @@ __subratllat__
 
 
 ----
-ssaa
+Un paràgraf.
 ----
-lalala
+Un altre paràgraf.
 ----
   * Item 1
   * Item 2
@@ -41,7 +41,7 @@ lalala
       * Subitem 3.2.2
         * Subitem 3.2.2.1
         * Subitem 3.2.2.2
-Aqui comença un paràgraf nou
+Últim paràgraf.
 ';
 //$t = '<b>negreta</b> normal';
 

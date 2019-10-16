@@ -25,10 +25,31 @@ $t = '<p><b>negreta</b> <i>cursiva</i></p>
 <br />
 <br />
 <hr />
-<p>ssaa</p>
+<p>Un paràgraf.</p>
 <hr>
-<p>lalala</p>
-<hr>';
+<p>Un altre paràgraf.</p>
+<hr>
+<ul>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <ul>
+        <li>Subitem 2.1</li>
+        <li>Subitem 2.2</li>
+    </ul>
+        <li>Item 3</li>
+    <ul>
+        <li>Subitem 3.1</li>
+        <li>Subitem 3.2</li>
+        <ul>
+            <li>Subitem 3.2.1</li>
+            <li>Subitem 3.2.2</li>
+            <ul><li>Subitem 3.2.2.1</li>
+                <li>Subitem 3.2.2.2</li></ul>
+        </ul>
+    </ul>
+</ul>
+<p>Últim paràgraf.</p>
+';
 //$t = '<b>negreta</b> normal';
 
 global $conf;

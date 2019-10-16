@@ -136,6 +136,8 @@ class IocParser {
 
             $pattern = '/' . $key. '/';
 
+            var_dump($pattern);
+
             if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0) ||
                 $isRegex && preg_match($pattern, $tokenInfo)) {
                 $token = $value;

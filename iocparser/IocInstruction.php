@@ -100,7 +100,7 @@ class IocInstruction {
 
 
             case 'open':
-                static::$stack[] = $currentToken;
+                $this->pushState($currentToken);
                 $mark = self::$instancesCounter == 0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken, $nextToken);
@@ -132,7 +132,8 @@ class IocInstruction {
                 break;
 
             case 'close':
-                array_pop(static::$stack);
+                $this->popState();
+//                array_pop(static::$stack);
                 return null;
                 break;
         }

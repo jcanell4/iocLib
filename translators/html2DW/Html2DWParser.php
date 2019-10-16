@@ -87,6 +87,20 @@ class Html2DWParser extends IocParser {
         "<br( \/)?>\n?" => [
             'state' => 'br',
         ],
+
+        '\s*<ul>' => [
+            'state' => 'open_list',
+        ],
+        "</ul>\n?" => [
+            'state' => 'close_list',
+        ],
+        '\s*<li>' => [
+            'state' => 'open_li',
+        ],
+        "</li>\n?" => [
+            'state' => 'close_li',
+        ],
+
     ];
 
     protected static $tokenKey = [
@@ -118,6 +132,14 @@ class Html2DWParser extends IocParser {
         '</h6>' => ['state' => 'close_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'close'],
         '<hr' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----\n"]],
         '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\n"]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
+
+
+        '\s*<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
+        '</ul>' => ['state' => 'list', 'type' => 'ul', 'action' => 'close'],
+
+        '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "\n", 'regex' => TRUE]],
+        '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
+
     ];
     protected static $instructionClass = "Html2DWInstruction";
 

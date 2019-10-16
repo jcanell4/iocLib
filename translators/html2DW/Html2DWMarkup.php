@@ -18,7 +18,7 @@ class Html2DWMarkup extends Html2DWInstruction {
     }
 
     protected function getContent($token) {
-        return $this->getReplacement(self::OPEN) . $token['value'];
+        return $this->getReplacement(self::OPEN) . trim($token['value']);
     }
 
     protected function resolveOnClose($field) {
