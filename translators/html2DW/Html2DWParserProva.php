@@ -40,12 +40,12 @@ $t = '<p><b>negreta</b> <i>cursiva</i></p>
     <ul>
         <li>Subitem 3.1</li>
         <li>Subitem 3.2</li>
-        <ul>
+        <ol>
             <li>Subitem 3.2.1</li>
             <li>Subitem 3.2.2</li>
             <ul><li>Subitem 3.2.2.1</li>
                 <li>Subitem 3.2.2.2</li></ul>
-        </ul>
+        </ol>
     </ul>
 </ul>
 <p>Últim paràgraf.</p>

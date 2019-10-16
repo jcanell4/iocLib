@@ -94,6 +94,14 @@ class Html2DWParser extends IocParser {
         "</ul>\n?" => [
             'state' => 'close_list',
         ],
+
+        '\s*<ol>' => [
+            'state' => 'open_list',
+        ],
+        "</ol>\n?" => [
+            'state' => 'close_list',
+        ],
+
         '\s*<li>' => [
             'state' => 'open_li',
         ],
@@ -136,6 +144,9 @@ class Html2DWParser extends IocParser {
 
         '\s*<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
         '</ul>' => ['state' => 'list', 'type' => 'ul', 'action' => 'close'],
+
+        '\s*<ol>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
+        '</ol>' => ['state' => 'list', 'type' => 'ol', 'action' => 'close'],
 
         '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "\n", 'regex' => TRUE]],
         '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],

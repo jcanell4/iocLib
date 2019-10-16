@@ -282,3 +282,27 @@ class DikuWiki2MarkDownTranslator  extends AbstractMarkDownTranslator{
     }
 
 }
+
+/**
+ * Class AbstractTranslator
+ * @author Xavier Garcia
+ */
+abstract class AbstractTranslator{
+    public static function translate($text) {
+        throw new UnimplementedTranslatorException();
+    }
+}
+
+class Hmtl2DWTranslator extends AbstractTranslator {
+
+    public static function translate($text) {
+        return Html2DWParser::parse($text);
+    }
+}
+
+class DW2HtmlTranslator extends AbstractTranslator {
+
+    public static function translate($text) {
+        return DW2HtmlParser::parse($text);
+    }
+}

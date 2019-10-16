@@ -48,7 +48,7 @@ class DW2HtmlList extends DW2HtmlMarkup {
         if ($this->nextToken['state'] != 'list-item') {
             do {
 
-                $return .= '</' . $this->currentToken['extra']['container'] . ">"; // TODO: Resoldre, si s'afegeix aquí un /n es converteix en un paràgraph
+                $return .= '</' . end(static::$stack)['extra']['container'] . ">"; // TODO: Resoldre, si s'afegeix aquí un /n es converteix en un paràgraph
                 // S'han de tancar en cascada fins que no quedi cap UL obert
                 $this->popState();
 

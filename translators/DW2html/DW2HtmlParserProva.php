@@ -37,8 +37,8 @@ Un altre paràgraf.
   * Item 3
     * Subitem 3.1
     * Subitem 3.2
-      * Subitem 3.2.1
-      * Subitem 3.2.2
+      - Subitem 3.2.1
+      - Subitem 3.2.2
         * Subitem 3.2.2.1
         * Subitem 3.2.2.2
 Últim paràgraf.
