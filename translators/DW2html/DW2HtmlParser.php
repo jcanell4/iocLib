@@ -31,6 +31,12 @@ class DW2HtmlParser extends IocParser {
             'state' => 'row'
         ],
 
+
+        "\[{2}(.*?)\]{2}" => [
+            'state' => 'link'
+        ],
+
+
         "^(.*)?\n" => [
             'state' => 'paragraph'
         ],
@@ -74,7 +80,7 @@ class DW2HtmlParser extends IocParser {
         '__' => ['state' => 'underline', 'type' => 'underline', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<u>", "</u>"], 'exact' => TRUE]],
         '----' => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<hr>\n"]],
 
-
+        "\[{2}(.*?)\]{2}" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
 
         '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'exact' => TRUE]],

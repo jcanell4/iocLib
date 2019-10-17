@@ -42,6 +42,7 @@ Un altre paràgraf.
         * Subitem 3.2.2.1
         * Subitem 3.2.2.2
 Últim paràgraf.
+[[https://google.com#ancla|enllaç]]
 ';
 //$t = '<b>negreta</b> normal';
 

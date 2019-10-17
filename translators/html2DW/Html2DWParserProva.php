@@ -49,6 +49,7 @@ $t = '<p><b>negreta</b> <i>cursiva</i></p>
     </ul>
 </ul>
 <p>Últim paràgraf.</p>
+<p><a href="https://google.com#ancla">enllaç</a></p>
 ';
 //$t = '<b>negreta</b> normal';
 

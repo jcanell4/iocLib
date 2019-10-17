@@ -24,6 +24,7 @@ class Html2DWParser extends IocParser {
             'state' => 'close_p',
         ],
 
+
         '<b>' => [
             'state' => 'open_bold',
         ],
@@ -109,11 +110,21 @@ class Html2DWParser extends IocParser {
             'state' => 'close_li',
         ],
 
+        '<a ?.*?>' => [
+            'state' => 'open_anchor',
+        ],
+        '</a>' => [
+            'state' => 'close_anchor',
+        ],
     ];
 
     protected static $tokenKey = [
         // aquests són els elements buits, sense cap atribut per processar.
         // ALERTA! El replacement s'ha d'especificar al 'open', si es diferent al open i close es fa servir un array amb els dos elements (0 per open i 1 per close)
+
+        '<a ?(.*)?>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'open', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
+        '</a>' => ['state' => 'link', 'type' => 'a', 'action' => 'close'],
+
         '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
         '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],
         '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
@@ -150,6 +161,8 @@ class Html2DWParser extends IocParser {
 
         '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "\n", 'regex' => TRUE]],
         '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
+
+
 
     ];
     protected static $instructionClass = "Html2DWInstruction";
