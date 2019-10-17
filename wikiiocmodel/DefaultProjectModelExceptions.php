@@ -82,3 +82,9 @@ class PartialEditNotSupportedException extends WikiIocModelException {
         parent::__construct($message, $code, $previous, $param);
     }
 }
+
+class UnimplementedTranslatorException extends WikiIocModelException {
+    public function __construct($message='Traductor no implementat.', $code=7100, $previous=NULL) {
+        parent::__construct($message, $code, $previous);
+    }
+}

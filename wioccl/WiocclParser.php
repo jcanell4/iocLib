@@ -1,6 +1,9 @@
 <?php
 
-class WiocclParser
+if (!defined('DOKU_INC')) die();
+require_once DOKU_INC.'lib/lib_ioc/iocparser/IocParser.php';
+
+class WiocclParser extends IocParser
 {
 
     protected static $removeTokenPatterns = [
@@ -100,9 +103,6 @@ class WiocclParser
         ],
     ];
 
-    // TODO: automatitzar la creació a partir del token patterns? <-- no seria posible en el cas del open del if
-    // TODO: Determinar si es necessari coneixer el tipus o només cal l'state
-    // Automatitzar la generació de noms de les classes a partir del wioccl:**
     protected static  $tokenKey = [
         '<WIOCCL:FOR' => ['state' => 'open_for', 'type' => 'for', 'class' => 'WiocclFor', 'action' => 'open'],
         '</WIOCCL:FOR>' => ['state' => 'close_for', 'type' => 'for', 'action' => 'close'],
@@ -136,6 +136,8 @@ class WiocclParser
         '</WIOCCL:REPARSESET>' => ['state' => 'close_reparseset', 'type' => 'reparseset', 'action' => 'close'],
     ];
 
+    protected static $instructionClass = "WiocclInstruction";
+
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
     {
         $replacements = array_fill(0, count(self::$removeTokenPatterns), '');
@@ -153,63 +155,21 @@ class WiocclParser
     }
 
 
-    protected static function tokenize($rawText)
-    {
 
-        // Creem la regexp que permet dividir el $text
-        $pattern = '(';
-
-        foreach (self::$tokenPatterns as $statePattern => $data) {
-            $pattern .= $statePattern . '|';
-        }
-
-        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')';
-
-        preg_match_all($pattern, $rawText, $matches, PREG_OFFSET_CAPTURE);
-
-        // A $matches s'han de trobar totes les coincidencies de la expressió amb la posició de manera que podem extra polar el contingut "pla" que no forma part dels tokens
-
-        $tokens = [];
-
-        $pos = 0;
-
-        for ($i = 0; $i < count($matches[0]); $i++) {
-            $match = $matches[0][$i];
-
-            $len = strlen($match[0]);
-
-            // la posició inicial es igual a la posició final del token anterior? <-- s'ha trobat content
-            if ($pos !== $match[1]) {
-                $text = substr($rawText, $pos, $match[1] - $pos);
-                $tokens[] = ['state' => 'content', 'value' => $text];
-            }
-
-            $tokens[] = self::generateToken($match[0]);
-
-            $pos = $match[1] + $len;
-        }
-
-        if ($pos < strlen($rawText)) {
-            $tokens[] = ['state' => 'content', 'value' => substr($rawText, $pos, strlen($rawText) - $pos)];
-        }
-
-
-        return $tokens;
-
-    }
-
+    // @override aquesta versió es més simple que la del IocParser, es la original, no cal res més
     protected static function generateToken($tokenInfo)
     {
         $token = ['state' => 'none', 'class' => null, 'value' => $tokenInfo];
 
 
-        foreach (self::$tokenKey as $key => $value) {
+        foreach (static::$tokenKey as $key => $value) {
 
             if (strpos($tokenInfo, $key) === 0) {
                 // It starts with the token
                 $token['state'] = $value['state'];
                 $token['class'] = isset($value['class']) ? $value['class'] : null;
                 $token['action'] = $value['action'];
+                $token['extra'] = $value['extra'];
             }
         }
 
