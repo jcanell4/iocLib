@@ -128,7 +128,8 @@ class IocInstruction {
 //                var_dump($currentToken);
 //                die();
 
-                $result = $item->resolveOnClose((new static::$parserClass())->getValue($item->getContent($currentToken)));
+                $class = static::$parserClass;
+                $result = $item->resolveOnClose($class::getValue($item->getContent($currentToken)));
                 break;
 
             case 'close':
@@ -174,7 +175,9 @@ class IocInstruction {
         $ret = 0;
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
 //            $ret = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
-            $ret = IocParser::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
+            $class = static::$parserClass;
+            $ret = $class::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
+//            $ret = IocParser::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("$attr is missing");
         }
@@ -216,7 +219,11 @@ class IocInstruction {
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
 //            $jsonString = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
-            $jsonString = IocParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
+
+            $class = static::$parserClass;
+            $jsonString = $class::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
+
+            //$jsonString = (static::$parserClass)::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("Map is missing");
         }
