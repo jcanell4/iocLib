@@ -6,17 +6,11 @@ class DW2HtmlLink extends DW2HtmlMarkup {
 
     protected function getContent($token) {
 
-        // TODO: Implementar els links interns
-        return $this->getExternalLink($token);
-    }
+        $url = $this->extractUrl($token);
 
-    private function getExternalLink($token) {
-        $urlPattern = "/\[\[(.*?)[#|]/";
         $anchorPattern = "/#(.*?)[|\]]/";
         $textPattern = "/\|(.*?)[|\]]/";
 
-        preg_match($urlPattern, $token['raw'], $matchUrl);
-        $url = $matchUrl[1];
         $anchor = false;
 
         // Aquest és opcional
@@ -30,17 +24,37 @@ class DW2HtmlLink extends DW2HtmlMarkup {
             $text = $url;
         }
 
+        return $this->makeTag($url, $anchor, $text);
+    }
+
+    private function extractUrl($token) {
+        // els noms d'enllaç de la wiki no admeten punts, així que aquesta comprovació és suficient
+        $patternIsExternal = "/\[\[.*?\..*?\|/";
+
+        if (preg_match($patternIsExternal, $token['raw'])) {
+
+            $urlPattern = "/\[\[(.*?)[#|]/";
+            preg_match($urlPattern, $token['raw'], $matchUrl);
+            $url = $matchUrl[1];
+        } else {
+            $urlPattern = "/\[\[(.*?)\|/";
+            preg_match($urlPattern, $token['raw'], $matchUrl);
+            $url = '/dokuwiki_30/doku.php?id=' . $matchUrl[1]; // TODO: D'on extraiem la urlbase?
+        }
+
+        return $url;
+
+    }
+
+    private function makeTag($url, $anchor = NULL, $text) {
         $value = 'href="' . $url;
         if ($anchor) {
             $value .= '#' . $anchor;
         }
+
         $value .= '">';
-
         $value .= $text;
-
-        // És selfcontained, no hi ha tancament!
 
         return $this->getReplacement(self::OPEN) . $value . $this->getReplacement(self::CLOSE);
     }
-
 }

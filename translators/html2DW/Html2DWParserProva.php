@@ -30,7 +30,7 @@ $t = '<p><b>negreta</b> <i>cursiva</i></p>
 <p>Un altre paràgraf.</p>
 <hr>
 <ul>
-    <li>Item 1</li>
+    <li>Item 1 <b>negreta</b> més text</li>
     <li>Item 2</li>
     <ul>
         <li>Subitem 2.1</li>
@@ -44,12 +44,12 @@ $t = '<p><b>negreta</b> <i>cursiva</i></p>
             <li>Subitem 3.2.1</li>
             <li>Subitem 3.2.2</li>
             <ul><li>Subitem 3.2.2.1</li>
-                <li>Subitem 3.2.2.2</li></ul>
+                <li>Subitem 3.2.2.2 <a href="https://google.com#ancla">enllaç extern</a> <a href="/dokuwiki_30/doku.php?id=pt-loe:loe1:continguts" class="wikilink1" title="pt-loe:loe1:continguts">Presentació</a> <b>negreta</b></li></ul>
         </ol>
     </ul>
 </ul>
 <p>Últim paràgraf.</p>
-<p><a href="https://google.com#ancla">enllaç</a></p>
+
 ';
 //$t = '<b>negreta</b> normal';
 
