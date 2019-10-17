@@ -46,8 +46,6 @@ class IocInstruction {
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
 
-//            echo "--->  new chunk: " . $newChunk . "\n";
-
             if ($newChunk === NULL) { // tancament de la etiqueta
                 break;
             }
@@ -66,11 +64,6 @@ class IocInstruction {
 
         $currentToken = $tokens[$tokenIndex];
         $nextToken = $tokenIndex + 1 < count($tokens) ? $tokens[$tokenIndex + 1] : NULL;
-
-//        var_dump(count($tokens), $tokenIndex +1, $nextToken);
-//        die();
-
-
         $result = '';
 
         if ($currentToken['state'] == 'content') {
@@ -107,7 +100,6 @@ class IocInstruction {
 
                 if ($mark) {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
-//                    $result .= "<mark title='${$this->fullInstruction}'>".$item->getTokensValue($tokens, ++$tokenIndex)."</mark>";
                 } else {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 }
@@ -125,16 +117,12 @@ class IocInstruction {
             case 'container':
                 // Aquest tipus no s'afegeix a l'stack perque resol el seu propi contingut
                 $item = $this->getClassForToken($currentToken, $nextToken);
-//                var_dump($currentToken);
-//                die();
-
                 $class = static::$parserClass;
                 $result = $item->resolveOnClose($class::getValue($item->getContent($currentToken)));
                 break;
 
             case 'close':
                 $this->popState();
-//                array_pop(static::$stack);
                 return null;
                 break;
         }
@@ -147,7 +135,6 @@ class IocInstruction {
     }
 
     protected function getClassForToken($token, $next) {
-//        echo 'getting class for token >>' . $token['class'] . '<<';
         $instance = new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
         $instance->setTokens($token, $next);
         $instance->setExtra($token['extra']);
@@ -174,10 +161,8 @@ class IocInstruction {
     protected function extractNumber($value, $attr, $mandatory = true) {
         $ret = 0;
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
-//            $ret = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $class = static::$parserClass;
             $ret = $class::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
-//            $ret = IocParser::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("$attr is missing");
         }
@@ -200,11 +185,7 @@ class IocInstruction {
         $jsonString = '[]';
         // ALERTA: El $value pot ser un json directament o una variable, s'ha de fer un parse del $value
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
-//            $jsonString = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
-//            $jsonString = IocParser::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
-
-
             $class = static::$parserClass;
             $jsonString = $class::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
@@ -217,13 +198,10 @@ class IocInstruction {
         $jsonString = '{}';
         // ALERTA: El $value pot ser un json directament o una variable, s'ha de fer un parse del $value
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
-//            $jsonString = (new IocParser($matches[1], $this->getArrays(), $this->getDataSource()))->getValue();
             $string = preg_replace("/''/", '"', $matches[1]);
 
             $class = static::$parserClass;
             $jsonString = $class::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
-
-            //$jsonString = (static::$parserClass)::getValue($string, $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("Map is missing");
         }

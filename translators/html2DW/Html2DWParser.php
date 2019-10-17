@@ -7,7 +7,6 @@ class Html2DWParser extends IocParser {
 
     protected static $removeTokenPatterns = [
         "/\n/"
-//        '/:###/', '/###:/'
     ];
 
     protected static $tokenPatterns = [
@@ -166,12 +165,5 @@ class Html2DWParser extends IocParser {
 
     ];
     protected static $instructionClass = "Html2DWInstruction";
-
-//    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
-//
-//        $instruction = new Html2DWInstruction($text, $arrays, $dataSource, $resetables);
-//        $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
-//        return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
-//    }
 
 }

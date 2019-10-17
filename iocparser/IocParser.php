@@ -52,8 +52,6 @@ class IocParser {
 
         $pos = 0;
 
-//        $previousWasEmpty = false;
-
         for ($i = 0; $i < count($matches[0]); $i++) {
             $match = $matches[0][$i];
 
@@ -80,8 +78,6 @@ class IocParser {
 
             $token = static::generateToken($match[0]);
 
-//            $token['value'] = "TEST! línia IocParser.php:83";
-
             $tokens[] = $token;
             $pos = $match[1] + $len;
         }
@@ -106,8 +102,6 @@ class IocParser {
             $isRegex = isset($value['extra']) && $value['extra']['regex'] === TRUE;
 
             $pattern = '/' . $key. '/';
-
-//            var_dump($pattern);
 
             if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0) ||
                 $isRegex && preg_match($pattern, $tokenInfo)) {
