@@ -8,11 +8,9 @@ class Html2DWLink extends Html2DWMarkup {
         // El token que arriba conté el text de l'enllaç
         $text = $token['value'];
 
-        $pattern = '/href="(.*?)"/';
-        preg_match($pattern, $this->currentToken['raw'], $matches);
-        $url= $matches[1];
+        $url = $this->extractVarName($this->currentToken['raw'], 'href');
 
-        $pos = strpos($url, 'doku.php?id='); // TODO: cal extreure la baseUrl?
+        $pos = strpos($url, 'doku.php?id='); // TODO: d'on obtenim aques valor?
         if ($pos !== false) {
             $queryPos = strpos($url, '=') +1;
             $url = substr($url, $queryPos);

@@ -26,14 +26,18 @@ class DW2HtmlParser extends IocParser {
             'state' => 'list-item'
         ],
 
-        // S'inclouen les marques ^ i | a la captura per poder determinar si es TH o TD
+        // TODO ALERTA: No implementat encara! S'inclouen les marques ^ i | a la captura per poder determinar si es TH o TD
         "^([\^|\|].*?[\^|\|]$)" => [
             'state' => 'row'
         ],
 
-
         "\[{2}(.*?)\]{2}" => [
             'state' => 'link'
+        ],
+
+
+        "{{(.*?)}}" => [
+            'state' => 'image'
         ],
 
 
@@ -81,6 +85,8 @@ class DW2HtmlParser extends IocParser {
         '----' => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<hr>\n"]],
 
         "\[{2}(.*?)\]{2}" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
+
+        "{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
 
 
         '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'exact' => TRUE]],
