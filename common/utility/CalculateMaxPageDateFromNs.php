@@ -7,17 +7,17 @@ class CalculateMaxPageDateFromNs extends CalculateWithValue {
 
     public function calculate($data) {
         $dir = WikiPageSystemManager::getRealDirFromPages($this->ns);
-        $maxdate =$this->getMaxFileDateOf($dir);
+        $maxdate = $this->getMaxFileDateOf($dir);
         return date('d/m/Y', $maxdate);
     }
 
     private function getMaxFileDateOf($dir){
         $maxDate = 0;
-        $arrayRet = array();
-        $arrayDir = scandir($dir);
+        if ($dir)
+            $arrayDir = @scandir($dir);
+        if ($arrayDir)
+            $arrayDir = array_diff($arrayDir, [".", ".."]);
         if ( $arrayDir ) {
-            unset( $arrayDir[0] );
-            unset( $arrayDir[1] );
             foreach ($arrayDir as $item){
                 $fn = "$dir$item";
                 if (is_dir($fn)){
