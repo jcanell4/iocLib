@@ -57,8 +57,8 @@ global $conf;
 
 
 //$p = new WiocclParser($t,['testitem'=>['unitat'=>1]], $dataSource);
-//print_r('<pre>');
+print_r('<pre>');
 //echo 'Text original: ' . $t . "\n";
 echo "Text parsejat:\n" . Html2DWParser::getValue($t) . "\n";
 //print_r(Html2DWParser::getValue($t,['testitem'=>['unitat'=>1]], $dataSource));
-//print_r('</pre>');
+print_r('</pre>');

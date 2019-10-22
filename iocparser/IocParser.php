@@ -38,7 +38,7 @@ class IocParser {
             $pattern .= $statePattern . '|';
         }
 
-        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')';
+        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')'; 
         return $pattern;
     }
 
@@ -82,7 +82,7 @@ class IocParser {
 
 //            $token['value'] = "TEST! línia IocParser.php:83";
 
-            $tokens[] = $token;
+            $tokens[] = $token; 
             $pos = $match[1] + $len;
         }
 
