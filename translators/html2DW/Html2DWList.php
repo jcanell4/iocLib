@@ -25,11 +25,11 @@ class Html2DWList extends Html2DWMarkup {
             static::$stack[$index]['level'] = 1;
         }
 
-//        var_dump($tokens);
-//        echo "#######";
-//        die();
+        return $this->getReplacement(self::OPEN) . parent::getTokensValue($tokens, $tokenIndex);
 
-        return parent::getTokensValue($tokens, $tokenIndex);
     }
 
+    protected function getContent($token) {
+        return '';
+    }
 }

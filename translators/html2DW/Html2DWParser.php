@@ -10,12 +10,12 @@ class Html2DWParser extends IocParser {
     ];
 
     protected static $tokenPatterns = [
-        '<div>' => [
-            'state' => 'open_div',
-        ],
-        '</div>\n?' => [
-            'state' => 'close_div',
-        ],
+//        '<div>' => [
+//            'state' => 'open_div',
+//        ],
+//        '</div>\n?' => [
+//            'state' => 'close_div',
+//        ],
         '<p>' => [
             'state' => 'open_p',
         ],
@@ -124,9 +124,9 @@ class Html2DWParser extends IocParser {
         '<a ?(.*)?>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'open', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
         '</a>' => ['state' => 'link', 'type' => 'a', 'action' => 'close'],
 
-        '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
-        '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],
-        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
+//        '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
+//        '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],
+        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWBlock', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
         '</p>' => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close'],
         '<b>' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**']],
         '</b>' => ['state' => 'close_bold', 'type' => 'bold', 'action' => 'close'],

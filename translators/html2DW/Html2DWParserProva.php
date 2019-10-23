@@ -12,7 +12,7 @@ require_once DOKU_INC . 'inc/init.php';
 
 $dataSource = [];
 
-$t = '<p><b>negreta</b> <i>cursiva</i></p>
+$t = '<p>Normal <b>negreta</b> <i>cursiva</i> normal</p>
 <hr />
 <p><u>subratllat</u></p>
 <p><del>taxat</del></p>

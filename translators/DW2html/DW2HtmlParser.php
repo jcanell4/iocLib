@@ -35,7 +35,6 @@ class DW2HtmlParser extends IocParser {
             'state' => 'link'
         ],
 
-
         "{{(.*?)}}" => [
             'state' => 'image'
         ],

@@ -44,6 +44,7 @@ class Html2DWListItem extends Html2DWMarkup {
         }
 
         return $open . $token['value'];
+
     }
 
 }

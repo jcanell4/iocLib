@@ -2,6 +2,11 @@
 
 class IocInstruction {
 
+    const DEBUG_MODE = FALSE;
+    const OPEN = 0;
+    const CLOSE = 1;
+
+
     protected $extra;
     protected $rawValue;
     protected static $instancesCounter = 0;
@@ -239,4 +244,27 @@ class IocInstruction {
     public function popState() {
         array_pop(static::$stack);
     }
+
+    protected function getReplacement($position) {
+
+        if (static::DEBUG_MODE) {
+            return $this->getDebugReplacement($position);
+        } else {
+            return is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
+        }
+    }
+
+    protected function getDebugReplacement($position) {
+        $replacement = is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
+
+        if ($position == self::OPEN) {
+            $replacement = '<' . $this->currentToken['state'] . '>'.$replacement;
+        } else {
+            $replacement = $replacement . '</' . $this->currentToken['state'] . '>';
+        }
+
+        return $replacement;
+    }
+
+
 }

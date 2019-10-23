@@ -115,6 +115,7 @@ class IocParser {
         if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
 
             $value = static::$tokenKey['$$BLOCK$$'];
+//            $token = '<BLOCK>' . $value . '</BLOCK>';
             $token = $value;
 
             // No te marques d'apertura ni tancament, per tant el valor será tot el capturat.

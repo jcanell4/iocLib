@@ -11,7 +11,7 @@ class DW2HtmlList extends DW2HtmlMarkup {
         $value = $match[1];
 
         preg_match("/^( *)/", $token['raw'], $spaces);
-        $level = strlen($spaces[1]) / 2; // TODO: el nivell és igual al nombre d'espais
+        $level = strlen($spaces[1]) / 2; // el nivell és igual al nombre d'espais
 
 //        if (isset($token['extra']) && $token['extra']['remove-new-line'] === TRUE) {
 //            $value = str_replace("\n", '', $value);
