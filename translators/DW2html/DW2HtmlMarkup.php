@@ -11,9 +11,9 @@ class DW2HtmlMarkup extends Html2DWInstruction {
 
 
 
-        if (isset($token['extra']) && $token['extra']['remove-new-line'] === TRUE) {
-            $value = str_replace("\n", '', $value);
-        }
+//        if (isset($token['extra']) && $token['extra']['remove-new-line'] === TRUE) {
+//            $value = str_replace("\n", '', $value);
+//        }
 
 //        if ($this->currentToken['state'] == 'paragraph') {
 //            var_dump($token);

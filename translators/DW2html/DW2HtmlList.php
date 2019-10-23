@@ -5,6 +5,9 @@ class DW2HtmlList extends DW2HtmlMarkup {
 
 
     protected function getContent($token) {
+
+        var_dump($token);
+
         $return = '';
 
         preg_match($token['pattern'], $token['raw'], $match);

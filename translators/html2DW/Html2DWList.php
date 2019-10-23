@@ -11,10 +11,17 @@ class Html2DWList extends Html2DWMarkup {
 
         static::$stack[$index]['list'] = $token['extra']['container'];
 
+
         // El top és aquest mateix UL, hem d'agafar l'anterior (-2)
         if (count(static::$stack) > 1) {
+
+            // Cas 1: aquésta llista no es filla d'un item
             $previous = static::$stack[$count - 2];
 
+            // Cas 2: aquésta llista està imbricada
+            if ($previous['state'] == 'list-item') {
+                $previous = static::$stack[$count - 3];
+            }
 
             if (isset($previous['list'])) {
                 static::$stack[$index]['level'] = ++$previous['level'];

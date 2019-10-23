@@ -39,6 +39,7 @@ class IocInstruction {
     }
 
     protected function getContent($token) {
+//        var_dump($token['value']);
         return $token['value'];
     }
 
@@ -50,6 +51,10 @@ class IocInstruction {
         while ($tokenIndex < count($tokens)) {
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
+
+//            var_dump($newChunk);
+
+
 
             if ($newChunk === NULL) { // tancament de la etiqueta
                 break;
@@ -93,7 +98,18 @@ class IocInstruction {
 
         switch ($action) {
             case 'content':
-                $result .= $this->getContent($currentToken);
+
+                // ALERTA: Els salts de línia s'afegeixen directament, sense processar
+                if ($currentToken['value'] == "\n") {
+                    $result .= $currentToken['value'];
+                } else {
+                    $result .= $this->getContent($currentToken);
+                }
+
+
+//                var_dump($this->getContent($currentToken));
+
+
                 break;
 
 

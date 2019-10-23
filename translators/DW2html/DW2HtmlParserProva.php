@@ -43,8 +43,7 @@ Un altre paràgraf.
         * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]] [[pt-loe:loe1:continguts|enllaç intern]] **negreta**
 Últim paràgraf.
 {{https://secure.php.net/images/php.gif?200x50|títol}}
-{{wiki:dokuwiki-128.png}}
-';
+{{wiki:dokuwiki-128.png}}';
 //$t = '<b>negreta</b> normal';
 
 global $conf;

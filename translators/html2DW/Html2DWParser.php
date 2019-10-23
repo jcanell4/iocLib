@@ -6,7 +6,7 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 class Html2DWParser extends IocParser {
 
     protected static $removeTokenPatterns = [
-        "/\n/"
+//        "/\n/"
     ];
 
     protected static $tokenPatterns = [
@@ -19,7 +19,7 @@ class Html2DWParser extends IocParser {
         '<p>' => [
             'state' => 'open_p',
         ],
-        "</p>\n?" => [
+        "</p>" => [
             'state' => 'close_p',
         ],
 
@@ -45,67 +45,67 @@ class Html2DWParser extends IocParser {
         '<pre>' => [
             'state' => 'open_code',
         ],
-        '</pre>\n?' => [
+        '</pre>' => [
             'state' => 'close_code',
         ],
         '<h1.*?>' => [
             'state' => 'open_h1',
         ],
-        '</h1>\n?' => [
+        '</h1>' => [
             'state' => 'close_h1',
         ],
         '<h2.*?>' => [
             'state' => 'open_h2',
         ],
-        '</h2>\n?' => [
+        '</h2>' => [
             'state' => 'close_h2',
         ],
         '<h3.*?>' => [
             'state' => 'open_h3',
         ],
-        '</h3>\n?' => [
+        '</h3>' => [
             'state' => 'close_h3',
         ],
         '<h4.*?>' => [
             'state' => 'open_h4',
         ],
-        '</h4>\n?' => [
+        '</h4>' => [
             'state' => 'close_h4',
         ],
         "<h5.*?>" => [
             'state' => 'open_h5',
         ],
-        '</h5>\n?' => [
+        '</h5>' => [
             'state' => 'close_h5',
         ],
         '</h6.*?>' => [
             'state' => 'close_h6',
         ],
-        "<hr( \/)?>\n?" => [
+        "<hr( \/)?>?" => [
             'state' => 'hr',
         ],
-        "<br( \/)?>\n?" => [
+        "<br( \/)?>?" => [
             'state' => 'br',
         ],
 
-        '\s*<ul>' => [
+        '\h*<ul>\n?' => [
             'state' => 'open_list',
         ],
-        "</ul>\n?" => [
+        "</ul>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
-        '\s*<ol>' => [
+        '\h*<ol>\n?' => [
             'state' => 'open_list',
         ],
-        "</ol>\n?" => [
+        "</ol>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
-        '\s*<li>' => [
+        '\h*<li>' => [
             'state' => 'open_li',
         ],
-        "</li>\n?" => [
+        "</li>" => [
             'state' => 'close_li',
         ],
 
@@ -126,7 +126,7 @@ class Html2DWParser extends IocParser {
 
 //        '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
 //        '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],
-        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWBlock', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
+        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWBlock', 'action' => 'open', 'extra' => ['replacement' => ["", ""]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
         '</p>' => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close'],
         '<b>' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**']],
         '</b>' => ['state' => 'close_bold', 'type' => 'bold', 'action' => 'close'],
@@ -136,20 +136,20 @@ class Html2DWParser extends IocParser {
         '</u>' => ['state' => 'close_underline', 'type' => 'underline', 'action' => 'close'],
         '<pre>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['<code>', '</code>']]],
         '</pre>' => ['state' => 'close_code', 'type' => 'code', 'action' => 'close'],
-        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======\n"]]],
+        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======"]]],
         '</h1>' => ['state' => 'close_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['=====', "=====\n"]]],
+        '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['=====', "====="]]],
         '</h2>' => ['state' => 'close_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h3' => ['state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['====', "====\n"]]],
+        '<h3' => ['state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['====', "===="]]],
         '</h3>' => ['state' => 'close_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h4' => ['state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['===', "===\n"]]],
+        '<h4' => ['state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['===', "==="]]],
         '</h4>' => ['state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
+        '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "=="]]],
         '</h5>' => ['state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h6' => ['state' => 'open_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
+        '<h6' => ['state' => 'open_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "=="]]],
         '</h6>' => ['state' => 'close_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<hr' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----\n"]],
-        '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\n"]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
+        '<hr' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----"]],
+        '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => ""]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
 
 
         '\s*<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
@@ -158,7 +158,7 @@ class Html2DWParser extends IocParser {
         '\s*<ol>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
         '</ol>' => ['state' => 'list', 'type' => 'ol', 'action' => 'close'],
 
-        '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "\n", 'regex' => TRUE]],
+        '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "", 'regex' => TRUE]],
         '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
 
 

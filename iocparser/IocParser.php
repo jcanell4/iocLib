@@ -59,6 +59,9 @@ class IocParser {
 
             $text = substr($rawText, $pos, $match[1] - $pos);
 
+//            var_dump($rawText, $text);
+
+
 
             // la posició inicial es igual a la posició final del token anterior? <-- s'ha trobat content
             if ($pos !== $match[1]) {
@@ -68,14 +71,18 @@ class IocParser {
                 if ($pos == 0 && $candidateToken['state'] == 'none') {
                     $token = $candidateToken;
                     $token['value'] = $text;
+//                    echo "cas 1\n";
                 } else {
                     $token = ['state' => 'content', 'value' => $text];
+//                    echo "cas 2\n";
+//                    var_dump($token);
                 }
 
                 $tokens[] = $token;
 
             }
 
+//            echo "cas sempre\n";
             $token = static::generateToken($match[0]);
 
             $tokens[] = $token;
@@ -84,6 +91,8 @@ class IocParser {
 
         if ($pos < strlen($rawText)) {
             $tokens[] = ['state' => 'content', 'value' => substr($rawText, $pos, strlen($rawText) - $pos)];
+//            echo "cas 3\n";
+//            var_dump($tokens[count($tokens)-1]);
         }
 
 

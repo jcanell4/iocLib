@@ -31,22 +31,28 @@ $t = '<p>Normal <b>negreta</b> <i>cursiva</i> normal</p>
 <hr>
 <ul>
     <li>Item 1 <b>negreta</b> més text</li>
-    <li>Item 2</li>
-    <ul>
-        <li>Subitem 2.1</li>
-        <li>Subitem 2.2</li>
-    </ul>
-        <li>Item 3</li>
-    <ul>
-        <li>Subitem 3.1</li>
-        <li>Subitem 3.2</li>
-        <ol>
-            <li>Subitem 3.2.1</li>
-            <li>Subitem 3.2.2</li>
-            <ul><li>Subitem 3.2.2.1</li>
-                <li>Subitem 3.2.2.2 <a href="https://google.com#ancla">enllaç extern</a> <a href="/dokuwiki_30/doku.php?id=pt-loe:loe1:continguts" class="wikilink1" title="pt-loe:loe1:continguts">Presentació</a> <b>negreta</b></li></ul>
-        </ol>
-    </ul>
+    <li>Item 2
+        <ul>
+            <li>Subitem 2.1</li>
+            <li>Subitem 2.2</li>
+        </ul>
+    </li>
+    <li>Item 3
+        <ul>
+            <li>Subitem 3.1</li>
+            <li>Subitem 3.2
+                <ol>
+                    <li>Subitem 3.2.1</li>
+                    <li>Subitem 3.2.2
+                        <ul>
+                            <li>Subitem 3.2.2.1</li>
+                            <li>Subitem 3.2.2.2 <a href="https://google.com#ancla">enllaç extern</a> <a href="/dokuwiki_30/doku.php?id=pt-loe:loe1:continguts" class="wikilink1" title="pt-loe:loe1:continguts">Presentació</a> <b>negreta</b></li>
+                        </ul>
+                    </li>
+                </ol>
+            </li>        
+        </ul>
+    </li>
 </ul>
 <p>Últim paràgraf.</p>
 
