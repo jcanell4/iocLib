@@ -3,7 +3,7 @@ require_once "WiocclParser.php";
 
 class WiocclField extends WiocclInstruction {
             
-    protected function getContent ($token) {
+    protected function getContent (&$token) {
         return $token['value'];
     }
     

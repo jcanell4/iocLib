@@ -62,6 +62,7 @@ class DW2HtmlLink extends DW2HtmlMarkup {
             $value.= ' data-dw-type="internal_link"';
             $value.= ' data-dw-ns="' . $ns . '"';
         }
+        $value.= ' title="' . $text . '"';
 
         // Tancament de la etiqueta img;
         $value .= '>' . $text;

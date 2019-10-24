@@ -38,7 +38,7 @@ class IocParser {
             $pattern .= $statePattern . '|';
         }
 
-        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')'; 
+        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')';
         return $pattern;
     }
 

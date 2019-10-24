@@ -45,16 +45,11 @@ class IocInstruction {
 
     public function parseTokens($tokens, &$tokenIndex = 0) {
 
-
         $result = '';
 
         while ($tokenIndex < count($tokens)) {
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
-
-//            var_dump($newChunk);
-
-
 
             if ($newChunk === NULL) { // tancament de la etiqueta
                 break;
@@ -82,7 +77,6 @@ class IocInstruction {
             $action = $currentToken['action'];
         }
 
-
         if ($action == 'open-close') {
             // Si l'ultim element del stack es del mateix tipus el tanca
             $top = end(static::$stack);
@@ -107,9 +101,6 @@ class IocInstruction {
                 }
 
 
-//                var_dump($this->getContent($currentToken));
-
-
                 break;
 
 
@@ -119,6 +110,7 @@ class IocInstruction {
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken, $nextToken);
 
+                // ALERTA[Xavi] Això és necessari? és el mateix en tots els casos i no es fa servir en cap altre lloc el $instancesCounter
                 if ($mark) {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 } else {
@@ -136,10 +128,13 @@ class IocInstruction {
                 break;
 
             case 'container':
+
                 // Aquest tipus no s'afegeix a l'stack perque resol el seu propi contingut
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $class = static::$parserClass;
-                $result = $item->resolveOnClose($class::getValue($item->getContent($currentToken)));
+                $content = $item->getContent($currentToken);
+                $value = $class::getValue($content); // <-- aquí està el problema dels /n a les llistes, al content arriba amb la llista ja afegida i es processa
+                $result = $item->resolveOnClose($value);
                 break;
 
             case 'close':
