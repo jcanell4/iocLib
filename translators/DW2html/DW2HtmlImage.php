@@ -9,9 +9,9 @@ class DW2HtmlImage extends DW2HtmlMarkup {
 //        var_dump($this->currentToken);
 //        die();
 
-        $url = $this->extractUrl($token, $width, $height);
+        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $isInternal);
 
-        $textPattern = "/\|(.*?)[|\]]/";
+        $textPattern = "/\|(.*?)}}/";
 
 
         if (preg_match($textPattern, $token['raw'], $matchText)) {
@@ -20,29 +20,37 @@ class DW2HtmlImage extends DW2HtmlMarkup {
             $text = $url;
         }
 
-        return $this->makeTag($url, $text, $width, $height);
+//        var_dump($token['raw']);
+//        die();
+
+
+        return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
     }
 
-    private function extractUrl($token, &$width = 0, &$height = 0) {
+    private function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
         // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
         // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
-        $testUrl = str_replace('https:','', $token['raw']);
-        $testUrl = str_replace('http:','', $testUrl);
-        $testUrl = str_replace('ftp:','', $testUrl);
+        $testUrl = str_replace('https:', '', $token['raw']);
+        $testUrl = str_replace('http:', '', $testUrl);
+        $testUrl = str_replace('ftp:', '', $testUrl);
 
 
-        if (strpos($testUrl, ':') === false) {
-            // és un enllaç extérn perquè no conté ':'
-            $urlPattern = "/{{(.*)\|?.*?}}/";
-            preg_match($urlPattern, $token['raw'], $matchUrl);
-//            var_dump($token['raw'], $urlPattern, $matchUrl);
-//            die('no funciona, perquè?');
-            $url = $matchUrl[1];
+        $urlPattern = "/{{(.*?)\|.*}}/";
+        preg_match($urlPattern, $token['raw'], $matchUrl);
+        $candidateUrl = $matchUrl[1];
 
-        } else {
-            // és un enllaç intern
-            // cal fer servir la mateixa conversió que al htmllink? es pot fer servir el mateix mètode a tots dos llocs? <-- llavors canviar l'herencia daquesta classe a htmllink
-            $url = "TODO: enllaç intern";
+
+        $centerPattern = "/^ .*? $/";
+        $leftPattern = "/^ .*?$/";
+        $rightPattern = "/^.*? $/";
+
+
+        if (preg_match($centerPattern, $candidateUrl)) {
+            $CSSclasses = 'mediacenter';
+        } else if (preg_match($leftPattern, $candidateUrl)) {
+            $CSSclasses = 'medialeft';
+        } else if ((preg_match($rightPattern, $candidateUrl))) {
+            $CSSclasses = 'mediaright';
         }
 
 
@@ -60,30 +68,56 @@ class DW2HtmlImage extends DW2HtmlMarkup {
         }
 
         // eliminem els posibles paràmetres
-        $queryPos = strpos($url, '?');
+        $queryPos = strpos($candidateUrl, '?');
 
         if ($queryPos !== FALSE) {
-            $url = substr($url, 0, $queryPos);
+            $candidateUrl = substr($candidateUrl, 0, $queryPos);
         }
 
+
+        if (strpos($testUrl, ':') === false) {
+            // és un enllaç extérn perquè no conté ':'
+            $urlPattern = "/{{(.*?) ?\|?.*?}}/";
+            preg_match($urlPattern, $token['raw'], $matchUrl);
+//            var_dump($token['raw'], $urlPattern, $matchUrl);
+//            die('no funciona, perquè?');
+            $url = trim($candidateUrl);
+
+
+        } else {
+            // és un enllaç intern
+            $url = "https://dokuwiki.ioc.cat/lib/exe/fetch.php?media=" . trim($candidateUrl);
+            $isInternal = true;
+        }
 
         return $url;
 
     }
 
-    private function makeTag($url, $text, $width, $height) {
+    private function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
         $value = 'src="' . $url . '"';
 
-        if (strlen($text)>0) {
+        if (strlen($text) > 0) {
             $value .= ' alt="' . $text . '"';
         }
 
-        if ($width>0) {
-            $value .= ' width="' . $width. '"';
+        if ($width > 0) {
+            $value .= ' width="' . $width . '"';
         }
 
-        if ($height>0) {
-            $value .= ' height="' . $height. '"';
+        if ($height > 0) {
+            $value .= ' height="' . $height . '"';
+        }
+
+        if (strlen($CSSClasses) > 0) {
+            $value .= ' class="' . $CSSClasses . '"';
+        }
+
+        $value .= ' data-dw-type="';
+        if ($isInternal) {
+            $value .= 'internal_image"';
+        } else {
+            $value .= 'external_image"';
         }
 
         return $this->getReplacement(self::OPEN) . $value . $this->getReplacement(self::CLOSE);

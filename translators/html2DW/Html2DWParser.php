@@ -115,6 +115,10 @@ class Html2DWParser extends IocParser {
         '</a>' => [
             'state' => 'close_anchor',
         ],
+
+        '<img.*?/>' => [
+            'state' => 'image',
+        ],
     ];
 
     protected static $tokenKey = [
@@ -161,7 +165,7 @@ class Html2DWParser extends IocParser {
         '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "", 'regex' => TRUE]],
         '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
 
-
+        '<img' => ['state' => 'image', 'type' => 'image', 'class' => 'Html2DWImage', 'action' => 'self-contained', 'extra' => ['replacement' => ['{{', '}}']]],
 
     ];
     protected static $instructionClass = "Html2DWInstruction";

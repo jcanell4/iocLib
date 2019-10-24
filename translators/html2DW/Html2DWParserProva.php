@@ -55,8 +55,7 @@ $t = '<p>Normal <b>negreta</b> <i>cursiva</i> normal</p>
     </li>
 </ul>
 <p>Últim paràgraf.</p>
-
-';
+<img src="https://secure.php.net/images/php.gif" alt="títol 1" width="200" height="50" data-dw-type="external_image" /><img src="https://dokuwiki.ioc.cat/lib/exe/fetch.php?media=wiki:dokuwiki-128.png" alt="títol 2" width="200" class="medialeft" data-dw-type="internal_image" /><img src="https://dokuwiki.ioc.cat/lib/exe/fetch.php?media=wiki:dokuwiki-128.png" alt="títol 3" width="200" height="50" class="mediacenter" data-dw-type="internal_image" /><img src="https://dokuwiki.ioc.cat/lib/exe/fetch.php?media=wiki:dokuwiki-128.png" alt="títol 4" width="200" height="50" class="mediaright" data-dw-type="internal_image" />';
 //$t = '<b>negreta</b> normal';
 
 global $conf;
