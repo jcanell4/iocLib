@@ -409,7 +409,14 @@ class WiocclFunction extends WiocclInstruction
         return (strpos($string, $subs)!==FALSE)?"true":"false";
     }
 
-    // Uppercase només pel primer caràcter
+    protected function EXPLODE($delimiter, $string, $limit=false){
+        if(!$limit){
+            $limit = PHP_INT_MAX;
+        }
+        $ret = explode($delimiter, $string, $limit);
+        return self::_normalizeValue($ret);
+    }
+    
     protected function STR_REPLACE($search, $replace, $subject, $count=FALSE) {
         if(is_int($count)){
             if($count>0){
