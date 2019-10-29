@@ -13,11 +13,13 @@ require_once 'DW2HtmlParser.php';
 
 $dataSource = [];
 
-$t = '**negreta** //cursiva//
+$t = "**negreta** __subratllat__ //cursiva//
+//cursiva// **negreta** __subratllat__
+__subratllat__ **negreta** //cursiva//
+test (paràgraf que no comença amb canvi d'estat) **negreta** //cursiva// __subratllat__
 ----
 __subratllat__
 <del>taxat</del>
-<code>codi</code>
 ======h1======
 =====h2=====
 ====h3====
@@ -26,7 +28,11 @@ __subratllat__
 
 
 ----
-Un paràgraf.
+Un paràgraf amb ''code inline'' escapat?.
+<code>
+block de codi
+en dos línies
+</code>
 ----
 Un altre paràgraf.
 ----
@@ -42,8 +48,8 @@ Un altre paràgraf.
         * Subitem 3.2.2.1
         * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]] [[pt-loe:loe1:continguts|enllaç intern]] **negreta**
 Últim paràgraf.
-{{https://secure.php.net/images/php.gif?200x50|títol 1}}{{ wiki:dokuwiki-128.png?200|títol 2}}{{ wiki:dokuwiki-128.png?200x50 |títol 3}}{{wiki:dokuwiki-128.png?200x50 |títol 4}}';
-//$t = '<b>negreta</b> normal';
+{{https://secure.php.net/images/php.gif?200x50|títol 1}}{{ wiki:dokuwiki-128.png?200|títol 2}}{{ wiki:dokuwiki-128.png?200x50 |títol 3}}{{wiki:dokuwiki-128.png?200x50 |títol 4}}'";
+//$t = '<b>negreta</b> normal";
 
 global $conf;
 

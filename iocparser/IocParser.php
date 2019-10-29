@@ -2,6 +2,8 @@
 
 class IocParser {
 
+//    protected static $isContainer = FALSE;
+
     protected static $removeTokenPatterns = [];
 
     protected static $tokenPatterns = [];
@@ -24,8 +26,12 @@ class IocParser {
         $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables);
         $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
 
+//        for ($i = 0; $i < count($tokens); $i++) {
+//            var_dump($tokens[$i]['raw']);
+//        }
 
 //        var_dump($tokens);
+//        var_dump($tokens[0], $tokens[1], $tokens[3]);
 //        die();
 
         return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
@@ -110,7 +116,7 @@ class IocParser {
             $mustBeExact = isset($value['extra']) && $value['extra']['exact'] === TRUE;
             $isRegex = isset($value['extra']) && $value['extra']['regex'] === TRUE;
 
-            $pattern = '/' . $key. '/';
+            $pattern = '/' . $key. '/ms';
 
             if (($mustBeExact && $tokenInfo == $key) || (!$mustBeExact && strpos($tokenInfo, $key) === 0) ||
                 $isRegex && preg_match($pattern, $tokenInfo)) {
@@ -120,6 +126,7 @@ class IocParser {
 
         }
 
+        // PROBLEMA: si axiò és el contingut un list-item per exemple, s'enten com a paràgraf perque no hi ha suficient informació
         // Si no s'ha trobat cap coincidencia i existeix un element generic (key = '$$BLOCK$$') s'aplica aquest
         if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
 
@@ -127,14 +134,32 @@ class IocParser {
 //            $token = '<BLOCK>' . $value . '</BLOCK>';
             $token = $value;
 
+//            var_dump($tokenInfo);
             // No te marques d'apertura ni tancament, per tant el valor será tot el capturat.
             $token['value'] = $tokenInfo;
         }
 
+        // TEST: paragraphs que comencen per etiqueta inline: **
+        // Afegit el $isContainer, si es tracta d'un container s'ignora
+//        if (isset($token['extra']) && $token['extra']['start'] && isset(static::$tokenKey['$$BLOCK$$']) && !static::$isContainer) {
+//            $value = static::$tokenKey['$$BLOCK$$'];
+//            $token = $value;
+//            $token['value'] = $tokenInfo;
+////            var_dump($token);
+////            die("works!");
+//        }
 
         $token['raw'] = $tokenInfo;
         $token['pattern'] = $pattern;
 
         return $token;
     }
+
+//    static function getIsContainer() {
+//        return static::$isContainer;
+//    }
+//
+//    static function setIsContainer($isContainer) {
+//        static::$isContainer = $isContainer;
+//    }
 }

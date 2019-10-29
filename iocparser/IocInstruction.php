@@ -133,8 +133,13 @@ class IocInstruction {
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $class = static::$parserClass;
                 $content = $item->getContent($currentToken);
-                $value = $class::getValue($content); // <-- aquí està el problema dels /n a les llistes, al content arriba amb la llista ja afegida i es processa
+//                $cachedIsContainer = $class::getIsContainer();
+
+//                $class::setIsContainer(TRUE);
+                $value = $class::getValue($content);
                 $result = $item->resolveOnClose($value);
+//                $class::setIsContainer($cachedIsContainer);
+
                 break;
 
             case 'close':
