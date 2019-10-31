@@ -3,29 +3,6 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlListItem extends DW2HtmlBlock {
 
-//    protected $openList = '';
-
-//    protected $closeList = '';
-
-
-//    protected function getReplacement($position) {
-//
-//        $ret = parent::getReplacement($position);
-//
-//
-//        switch ($position) {
-//            case IocInstruction::OPEN:
-//                $ret = $this->openList . $ret;
-//                break;
-//
-////            case IocInstruction::CLOSE:
-////                $ret .= $this->closeList;
-////                break;
-//        }
-//
-//        return $ret;
-//    }
-
 
     protected function getContent($token) {
 
@@ -39,11 +16,6 @@ class DW2HtmlListItem extends DW2HtmlBlock {
 
         $top = $this->getTopState();
         $prev = static::getPreviousState();
-
-        // En el cas dels elements dintre del contenidor arrel el previ ha de ser el root
-//        if (!$prev && $top) {
-//            $prev = $top;
-//        }
 
         // ALERTA el contenidor sempre ha de ser el top
         // quan un UL está dintre de un LI el top és aquest li
@@ -152,8 +124,7 @@ class DW2HtmlListItem extends DW2HtmlBlock {
 
         } else {
             // NO:
-            // TODO: S'han de tancar tots els elements del stack de tipus list i list-item
-
+            // Es tancan totes les etiquetes obertes en cascada
 
             do {
                 $top = $this->popState();
@@ -167,72 +138,4 @@ class DW2HtmlListItem extends DW2HtmlBlock {
     }
 
 
-
-
-
-
-//    protected function getContent($token) {
-//
-//        preg_match($token['pattern'], $token['raw'], $match);
-//        $value = $match[1];
-//
-//        preg_match("/^( *)/", $token['raw'], $spaces);
-//        $level = strlen($spaces[1]) / 2; // el nivell és igual al nombre d'espais
-//
-//        $top = end(static::$stack);
-//        $prev = static::getPreviousState();
-//
-//        // ALERTA: l'apertura i tancament de la llista no es pot fer aquí perque aquest valor es reparsejat i llavors es reinterpretarien les etiquetes
-//        if (!$prev || $prev['list'] != $token['extra']['container'] || $prev['level'] < $level) {
-//
-//
-//            // TODO: Problema els UL es coloquen a continuació d'aquest item, però s'han de ficar DINTRE del item anterior si l'anterior es un list-item. Si no hi ha $prev aques
-//
-//
-//            $this->openList = '<' . $token['extra']['container'] . ">\n";
-//
-//
-//            $newToken['list'] = $token['extra']['container'];
-//            $token['level'] = $level;
-//
-//            // Hem de canviar l'ordre dels states
-////            $aux = $this->popState();
-//            $this->pushState($token);
-//            $this->pushState($currentToke);
-//
-//
-//        } else if ($prev['level'] > $level) {
-////            $this->closeList = '</' . $token['extra']['container'] . ">\n";
-//            $this->openList = '</' . $token['extra']['container'] . ">\n";
-//
-//
-//            $aux = $this->popState();
-//            $this->popState(); // aquesta es la llista
-//            $this->pushState($aux); // tornem a inserir l'item, aquest es tancarà al parse
-//
-//        } else {
-////            echo "ni obre ni tanca \n";
-//        }
-//
-//        return $value;
-//
-//    }
-//
-//    protected function resolveOnClose($field) {
-//        $return = $this->getReplacement(self::OPEN) . $field . $this->getReplacement(self::CLOSE);
-//
-//        // Si el següent token no és una llista la tanquem
-//        if ($this->nextToken['state'] != 'list-item') {
-//            do {
-//
-//                $return .= '</' . end(static::$stack)['extra']['container'] . ">\n";
-//                // S'han de tancar en cascada fins que no quedi cap UL obert
-//                $this->popState();
-//
-//            } while (end(static::$stack)['state'] == 'list-item');
-//
-//        }
-//
-//        return $return;
-//    }
 }
