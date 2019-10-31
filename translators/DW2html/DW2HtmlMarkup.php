@@ -1,7 +1,7 @@
 <?php
 require_once "DW2HtmlParser.php";
 
-class DW2HtmlMarkup extends Html2DWInstruction {
+class DW2HtmlMarkup extends DW2HtmlInstruction {
 
 
     protected $value;

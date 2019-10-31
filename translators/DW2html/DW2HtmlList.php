@@ -27,6 +27,8 @@ class DW2HtmlList extends DW2HtmlMarkup {
 
     protected function getContent($token) {
 
+        die ("ok");
+
         preg_match($token['pattern'], $token['raw'], $match);
         $value = $match[1];
 

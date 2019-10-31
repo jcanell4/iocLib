@@ -105,10 +105,12 @@ class IocInstruction {
 
 
             case 'open':
-                $this->pushState($currentToken);
                 $mark = self::$instancesCounter == 0;
                 self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken, $nextToken);
+
+                $currentToken['instruction'] = $item;
+                $this->pushState($currentToken);
 
                 // ALERTA[Xavi] Això és necessari? és el mateix en tots els casos i no es fa servir en cap altre lloc el $instancesCounter
                 if ($mark) {
@@ -124,21 +126,27 @@ class IocInstruction {
             case 'self-contained':
                 // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
                 $item = $this->getClassForToken($currentToken, $nextToken);
+                $currentToken['instruction'] = $item;
+                $this->pushState($currentToken);
                 $result = $item->getContent($currentToken);
+                $this->popState();
                 break;
 
             case 'container':
 
-                // Aquest tipus no s'afegeix a l'stack perque resol el seu propi contingut
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $class = static::$parserClass;
-                $content = $item->getContent($currentToken);
-//                $cachedIsContainer = $class::getIsContainer();
 
-//                $class::setIsContainer(TRUE);
+                $currentToken['instruction'] = $item;
+                $this->pushState($currentToken);
+
+                $content = $item->getContent($currentToken);
+
+
+
                 $value = $class::getValue($content);
                 $result = $item->resolveOnClose($value);
-//                $class::setIsContainer($cachedIsContainer);
+                $this->popState();
 
                 break;
 
@@ -261,6 +269,14 @@ class IocInstruction {
         array_pop(static::$stack);
     }
 
+    public function getPreviousState() {
+        return static::$stack > 1 ? static::$stack[count(static::$stack)-2] : false;
+    }
+
+    public function getTopState() {
+        return end(static::$stack);
+    }
+
     protected function getReplacement($position) {
 
         if (static::DEBUG_MODE) {
@@ -274,7 +290,7 @@ class IocInstruction {
         $replacement = is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
 
         if ($position == self::OPEN) {
-            $replacement = '<' . $this->currentToken['state'] . '>'.$replacement;
+            $replacement = '<' . $this->currentToken['state'] . '>' . $replacement;
         } else {
             $replacement = $replacement . '</' . $this->currentToken['state'] . '>';
         }
@@ -282,5 +298,28 @@ class IocInstruction {
         return $replacement;
     }
 
+    public static function AddAttributeToTag($tag, $attribute, $value) {
+
+        $addEndNewLine = false;
+
+        if (substr($tag, -1) == "\n") {
+            $tag = substr($tag, 0, strlen($tag) - 1);
+            $addEndNewLine = true;
+        }
+
+        $newTag = substr($tag, 0, strlen($tag) - 1);
+
+        if (substr($newTag, -1) !== " ") {
+            $newTag .= " ";
+        }
+
+        $newTag .= $attribute . '="' . $value . '">';
+
+        if ($addEndNewLine) {
+            $newTag .= "\n";
+        }
+
+        return $newTag;
+    }
 
 }
