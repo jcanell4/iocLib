@@ -7,6 +7,8 @@ class DW2HtmlParagraph extends DW2HtmlBlock {
 
     protected $closed = FALSE;
 
+    protected $addNewLines = 0;
+
     protected function resolveOnClose($field) {
 
 //        if ($this->closed) {
@@ -14,11 +16,14 @@ class DW2HtmlParagraph extends DW2HtmlBlock {
 //        }
 
 
-        $value = $field . $this->getReplacement(self::CLOSE);
+
+
+        $value =  $field . str_repeat("\n", $this->addNewLines) . $this->getReplacement(self::CLOSE);
 
         $this->closed = TRUE;
 //        var_dump(static::$stack, $this->currentToken);
 //        die();
+
 
 
 
@@ -73,7 +78,43 @@ class DW2HtmlParagraph extends DW2HtmlBlock {
 //            $token['value'] = substr($token['value'], 0, strlen($token['value']) - 1);
 //        }
 
-        $value = trim($token['raw']);
+//        $value = trim($token['raw']); // ALERTA TODO: si no fem un trim es provoca un bucle infinit
+        $value = $token['raw'];
+
+
+        // Recorrem la cadena desdel final fins al principi
+        $counter = 0;
+
+        for ($i = strlen($value)-1; $i>=0; $i--) {
+            if (substr($value, $i, 1) === "\n") {
+                $counter++;
+            } else {
+                break;
+            }
+        }
+
+
+//        var_dump($value, $counter);
+
+//        die ();
+//        $pattern = "/(\n*)$/ms";
+//        preg_match_all($pattern, $value, $matches, PREG_OFFSET_CAPTURE);
+//
+//        $len = 0;
+//
+//        if (count($matches[1])>0) {
+//
+//            var_dump($value, $matches);
+//            die();
+//            $len = count($matches[0]);
+//        }
+//
+//
+        $value = substr($value, 0, strlen($value)-$counter);
+
+        $this->addNewLines = $counter;
+
+
 
         return $this->getReplacement(self::OPEN) . $value;
 //        var_dump($token);

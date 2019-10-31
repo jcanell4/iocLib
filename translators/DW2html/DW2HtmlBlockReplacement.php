@@ -22,6 +22,7 @@ class DW2HtmlBlockReplacement extends DW2HtmlBlock{
         $this->getPreAndPost($pre, $post);
 
 
+
         return $pre . $this->extra['replacement'] . $post;
 
     }

@@ -73,6 +73,8 @@ class IocInstruction {
 
         if ($currentToken['state'] == 'content') {
             $action = 'content';
+            $currentToken['class'] = 'DW2HtmlContent';
+
         } else {
             $action = $currentToken['action'];
         }
@@ -93,12 +95,21 @@ class IocInstruction {
         switch ($action) {
             case 'content':
 
+                $item = $this->getClassForToken($currentToken, $nextToken);
+
+//                var_dump($item);
+//                die("stop");
+
+                $currentToken['instruction'] = $item;
+                $this->pushState($currentToken);
+
                 // ALERTA: Els salts de línia s'afegeixen directament, sense processar
                 if ($currentToken['value'] == "\n") {
                     $result .= $currentToken['value'];
                 } else {
-                    $result .= $this->getContent($currentToken);
+                    $result .= $item->getContent($currentToken);
                 }
+                $this->popState();
 
 
                 break;
@@ -147,6 +158,28 @@ class IocInstruction {
                 $value = $class::getValue($content);
                 $result = $item->resolveOnClose($value);
                 $this->popState();
+
+                break;
+
+            case 'list':
+
+                $item = $this->getClassForToken($currentToken, $nextToken);
+//                $class = static::$parserClass;
+
+                $currentToken['instruction'] = $item;
+//                $this->pushState($currentToken);
+
+//                $content = $item->getContent($currentToken);
+                $result= $item->getContent($currentToken);
+
+
+
+//                $value = $class::getValue($content);
+//                $result = $class::getValue($content);
+//                var_dump($result);
+//                die();
+//                $result = $item->resolveOnClose($value);
+//                $this->popState();
 
                 break;
 
@@ -266,11 +299,11 @@ class IocInstruction {
     }
 
     public function popState() {
-        array_pop(static::$stack);
+        return array_pop(static::$stack);
     }
 
     public function getPreviousState() {
-        return static::$stack > 1 ? static::$stack[count(static::$stack)-2] : false;
+        return static::$stack > 1 ? static::$stack[count(static::$stack)-2] : FALSE;
     }
 
     public function getTopState() {

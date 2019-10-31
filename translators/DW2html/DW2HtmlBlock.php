@@ -22,6 +22,7 @@ class DW2HtmlBlock extends DW2HtmlInstruction {
 //        die();
 
 
+
         return $value;
 //        return $field . $this->getReplacement(self::CLOSE);
     }
@@ -37,8 +38,9 @@ class DW2HtmlBlock extends DW2HtmlInstruction {
             $pre = $prev['instruction']->resolveOnClose('');
 
             // Si es tanca abans s'ha d'obrir desprès
-            $post = 'FAKE::'. $prev['instruction']->getReplacement(self::OPEN);
+            $post = $prev['instruction']->getReplacement(self::OPEN);
 
         }
+
     }
 }

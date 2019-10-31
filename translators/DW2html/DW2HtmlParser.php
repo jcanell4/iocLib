@@ -24,13 +24,21 @@ class DW2HtmlParser extends IocParser {
 //        ],
 
 
-        "<code.*?>\n(.*?)<\/code>\n*$" => [
+        "<code.*?>\n(.*?)<\/code>\n$" => [
             'state' => 'code',
         ],
 
-        "<file>\n(.*?)<\/file>\n*$" => [
+        "<file>\n(.*?)<\/file>\n$" => [
             'state' => 'code',
         ],
+
+
+        "^(?: {2})+[\*-](.*?)\n" => [
+            'state' => 'list-item'
+        ],
+
+
+
 
         "^.*?\n\n+" => [
             'state' => 'paragraph'
@@ -52,9 +60,7 @@ class DW2HtmlParser extends IocParser {
 
 //
 //
-//        "^( (?: {2})* \*.*\n)$" => [
-//            'state' => 'list-item'
-//        ],
+
 //
 //        // TODO ALERTA: No implementat encara! S'inclouen les marques ^ i | a la captura per poder determinar si es TH o TD
 ////        "^([\^|\|].*?[\^|\|]$)" => [
@@ -126,17 +132,22 @@ class DW2HtmlParser extends IocParser {
         // P + HR <-- això no pot funcionar perquè el ---- no s'ha capturat, només es desa el contingut que no tindrà coincidencia i s'haurà de posar com a content.
 //        "^(.*?)(?:----\n)"  => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlBlock', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "<code.*?>\n(.*?)<\/code>\n*$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE]],
-        "<file>\n(.*?)<\/file>\n*$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>"], 'regex' => TRUE]],
+        "<code.*?>\n(.*?)<\/code>\n$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE]],
+        "<file>\n(.*?)<\/file>\n$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>"], 'regex' => TRUE]],
+
+        " {2}\* (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlListItem', 'action' => 'list', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul']],
+
+        " {2}- (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlListItem', 'action' => 'list', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol']],
+
+
+
+
 
         // ALERTA, això ha d'anar al final de la llista de blocs
         "^(.*?\n\n+)" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
 
 
-//        " {2}\* (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'container', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul']],
-//
-//        " {2}- (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'container', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol']],
 
 
 
