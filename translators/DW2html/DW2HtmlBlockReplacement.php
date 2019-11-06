@@ -1,38 +1,16 @@
 <?php
 require_once "DW2HtmlParser.php";
 
-class DW2HtmlBlockReplacement extends DW2HtmlBlock{
+class DW2HtmlBlockReplacement extends DW2HtmlInstruction {
 
-//    public $closed = FALSE;
-//
-//    protected function getReplacement($position) {
-//
-//        if ($this->closed) {
-//            die ("ja estava closed");
-//            return '';
-//        } else {
-//            return parent::getReplacement($position);
-//        }
-//
-//    }
-
-    protected function getContent($token) {
+    protected $value;
 
 
-        $this->getPreAndPost($pre, $post);
-
-
-
-        return $pre . $this->extra['replacement'] . $post;
-
+    public function isClosing($token) {
+        // Aquests blocs sempre es tanquen quan es troba quelcom, per exemple un salt de línia
+        return true;
     }
 
 
-
-//    protected function resolveOnClose($result) {
-
-//        $this->closed = TRUE;
-//        return parent::resolveOnclose($result);
-//    }
 
 }

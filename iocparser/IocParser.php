@@ -26,11 +26,11 @@ class IocParser {
         $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables);
         $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
 
-//        for ($i = 0; $i < count($tokens); $i++) {
-////            var_dump($tokens[$i]['raw']);
-//            var_dump($tokens[$i]);
+        for ($i = 0; $i < count($tokens); $i++) {
+//            var_dump($tokens[$i]['raw']);
+            var_dump($tokens[$i]);
 //            die();
-//        }
+        }
 
 //        var_dump($tokens);
 //        var_dump($tokens[0], $tokens[1], $tokens[3]);

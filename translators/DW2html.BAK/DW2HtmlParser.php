@@ -5,7 +5,6 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 
 class DW2HtmlParser extends IocParser {
 
-    public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]];
 
     protected static $removeTokenPatterns = [
 //        '/\n/' // No es poden eliminar els salts perquè son imprescindibles per determinar el final dels contenidors/paràgraphs
@@ -15,12 +14,8 @@ class DW2HtmlParser extends IocParser {
         // Elements de block
 
 
-        "^----$" => [
+        "^----\n?" => [
             'state' => 'hr',
-        ],
-
-        "={1,6}\n?" => [
-            'state' => 'header'
         ],
 
 //        // Qualsevol contingut + hr
@@ -29,30 +24,27 @@ class DW2HtmlParser extends IocParser {
 //        ],
 
 
-/*        "<code.*?>\n(.*?)<\/code>\n$" => [*/
-//            'state' => 'code',
-//        ],
-//
-//        "<file>\n(.*?)<\/file>\n$" => [
-//            'state' => 'code',
-//        ],
+        "<code.*?>\n(.*?)<\/code>\n$" => [
+            'state' => 'code',
+        ],
+
+        "<file>\n(.*?)<\/file>\n$" => [
+            'state' => 'code',
+        ],
 
 
-//        "^(?: {2})+[\*-](.*?)\n" => [
-//            'state' => 'list-item'
-//        ],
+        "^(?: {2})+[\*-](.*?)\n" => [
+            'state' => 'list-item'
+        ],
 
 
 
 
-        "\n*?\n\n" => [
+        "^.*?\n\n+" => [
             'state' => 'paragraph'
         ],
 
 
-        "\n" => [
-            'state' => 'close'
-        ],
 
 //        "''(.*?)''" => [
 //            'state' => 'code', // inline
@@ -135,46 +127,26 @@ class DW2HtmlParser extends IocParser {
     protected static $tokenKey = [
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
-        "----" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>", 'block' => TRUE]],
+        "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<hr>\n"]],
 
-        // El close ha d'anar abans perquè si no es detecta com a open <-- TODO: posar-ho com regex
-        "======\n" => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'block' => TRUE]],
+        // P + HR <-- això no pot funcionar perquè el ---- no s'ha capturat, només es desa el contingut que no tindrà coincidencia i s'haurà de posar com a content.
+//        "^(.*?)(?:----\n)"  => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlBlock', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "=====\n" => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'block' => TRUE]],
+        "<code.*?>\n(.*?)<\/code>\n$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE]],
+        "<file>\n(.*?)<\/file>\n$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>"], 'regex' => TRUE]],
 
-        "====\n" => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '====' => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'block' => TRUE]],
+        " {2}\* (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlListItem', 'action' => 'list', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul']],
 
-        "==\n" => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '==' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'block' => TRUE]],
-
-        "=\n" => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '=' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'block' => TRUE]],
+        " {2}- (.*)$" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlListItem', 'action' => 'list', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol']],
 
 
-
-//        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'exact' => TRUE]],
-//        '====' => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'exact' => TRUE]],
-//        '===' => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'exact' => TRUE]],
-//        '==' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'exact' => TRUE]],
-//        '=' => ['state' => 'header', 'type' => 'h6', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h6>", "</h6>\n"], 'exact' => TRUE]],
-
-        // Duplicats dels anteriors afegint salt de línia. Si no són exactes s'aplica el h6 a tots els casos, i si es exacte s'ignora el \n del final i es reemplaça per un br
-
-//        "=====\n" => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'exact' => TRUE]],
-//        "====\n" => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'exact' => TRUE]],
-//        "===\n" => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'exact' => TRUE]],
-//        "==\n" => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'exact' => TRUE]],
-//        "=\n" => ['state' => 'header', 'type' => 'h6', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h6>", "</h6>\n"], 'exact' => TRUE]],
 
 
 
         // ALERTA, això ha d'anar al final de la llista de blocs
-        "^(\n*?\n\n+)" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'close', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
+        "^(.*?\n\n+)" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "\n" => ['state' => 'close', 'type' => '', 'action' => 'close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+
 
 
 
@@ -201,7 +173,20 @@ class DW2HtmlParser extends IocParser {
 //        "{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
 //
 //
-
+//        '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'exact' => TRUE]],
+//        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'exact' => TRUE]],
+//        '====' => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'exact' => TRUE]],
+//        '===' => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'exact' => TRUE]],
+//        '==' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'exact' => TRUE]],
+//        '=' => ['state' => 'header', 'type' => 'h6', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h6>", "</h6>\n"], 'exact' => TRUE]],
+//
+//        // Duplicats dels anteriors afegint salt de línia. Si no són exactes s'aplica el h6 a tots els casos, i si es exacte s'ignora el \n del final i es reemplaça per un br
+//        "======\n" => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'exact' => TRUE]],
+//        "=====\n" => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'exact' => TRUE]],
+//        "====\n" => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'exact' => TRUE]],
+//        "===\n" => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'exact' => TRUE]],
+//        "==\n" => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'exact' => TRUE]],
+//        "=\n" => ['state' => 'header', 'type' => 'h6', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h6>", "</h6>\n"], 'exact' => TRUE]],
 //
 ////        "\n" => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<br>\n"]],
 //
@@ -225,12 +210,25 @@ class DW2HtmlParser extends IocParser {
         }
 
         $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')/ms';
-
-//
-//        var_dump($pattern);
-//        die();
         return $pattern;
     }
 
-
+//    protected static function generateToken($tokenInfo) {
+//       $token = parent::generateToken($tokenInfo);
+//
+//
+//        // Si no s'ha trobat cap coincidencia i existeix un element generic (key = '$$BLOCK$$') s'aplica aquest
+//        if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
+//
+//            $value = static::$tokenKey['$$BLOCK$$'];
+//            $token = $value;
+//            // No te marques d'apertura ni tancament, per tant el valor será tot el capturat.
+//            $token['value'] = $tokenInfo;
+//            var_dump($tokenInfo);
+//            die();
+//
+//        }
+////
+//        return $token;
+//    }
 }
