@@ -45,29 +45,69 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
             if (count(static::$stack) > 0 && $top['state'] == $currentToken['state'] && $top['type'] == $currentToken['type']) {
-                $action = 'close';
+//                var_dump($top);
+                $currentToken['action'] = $action = 'close';
+
+//                die('open-close: close');
             } else {
-                $action = 'open';
+//                var_dump($top);
+
+                $currentToken['action'] = $action = 'open';
             }
 
         }
 
-        while ($top && $top['instruction']->isClosing($currentToken)) {
 
-            var_dump($top);
-            echo "TANCANT\n";
+        if (!$top && $currentToken['action'] == 'close' && $currentToken['state'] == 'paragraph') {
+            // Aques és el cas de trobarse múltiples salts de línia que és un tancament sense abertura
+            // ALERTA! També entra amb els salts de línia simple
 
-            $result .= $top['instruction']->Close();
-
-            $this->popState();
-
+            $newContainerToken = DW2HtmlParser::$defaultContainer;
+            $container = $this->getClassForToken($newContainerToken, $nextToken);
+            $newContainerToken['instruction'] = $container;
+            $this->pushState($newContainerToken);
+            $result .= $container->open();
+//                    die ("no hi ha top");
             $top = end(static::$stack);
-            //var_dump($result);
+        }
+
+//
+
+        // Si és un salt de línia s'ha de tornar a afegir, i s'ha de fer abans de tancar el token anterior
+        if ($currentToken['raw'] == "\n") {
+            $result .= $currentToken['raw'];
         }
 
 
 
-        var_dump($currentToken);
+        while ($top && $top['instruction']->isClosing($currentToken)) {
+
+//            var_dump($top);
+//            echo "TANCANT\n";
+
+            $result .= $top['instruction']->Close();
+            $this->popState();
+            $top = end(static::$stack);
+            var_dump($result);
+        }
+
+
+        // Aquest cas es dona quan una línia comença per una etiqueta de tipus inline (no és block)
+        if (!$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE && $currentToken['action'] !== 'close') {
+
+            $newContainerToken = DW2HtmlParser::$defaultContainer;
+            $container = $this->getClassForToken($newContainerToken, $nextToken);
+            $newContainerToken['instruction'] = $container;
+            $this->pushState($newContainerToken);
+            $result .= $container->open();
+//                    die ("no hi ha top");
+            $top = end(static::$stack);
+        }
+
+
+
+
+//        var_dump($currentToken);
 
         switch ($action) {
             case 'content':
@@ -131,11 +171,14 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
             case 'self-contained':
+//                die("self");
                 // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $currentToken['instruction'] = $item;
                 $this->pushState($currentToken);
-                $result = $item->getContent($currentToken);
+                $result .= $item->open();
+                $result .= $item->close();
+//                $result = $item->getContent($currentToken);
                 $this->popState();
                 break;
 
@@ -171,9 +214,6 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
         // ALERTA: Això es necesari perque \n és un token de tancament però cal conservar-lo
-        if ($currentToken['raw'] == "\n") {
-            $result .=$currentToken['raw'];
-        }
 
         return $result;
     }
@@ -190,7 +230,7 @@ class DW2HtmlInstruction extends IocInstruction {
 //                break;
 //            }
 
-            echo $tokenIndex . "/" . count($tokens) . "\n" ;
+//            echo $tokenIndex . "/" . count($tokens) . "\n" ;
 
             ++$tokenIndex;
             $result .= $newChunk;

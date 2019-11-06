@@ -32,6 +32,7 @@ __subratllat__
 
 <del>taxat</del>
 ======h1======
+foo bar
 =====h2=====
 ====h3====
 ===h4===

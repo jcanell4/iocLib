@@ -22,12 +22,12 @@ class DW2HtmlMarkup extends DW2HtmlInstruction {
                 && $token['type'] == $this->currentToken['type'])) {
 
 
-            if (isset($token['extra']) && $token['extra']['block'] && ($token['action'] == 'open')) {
-                echo "el nou token és un block\n";
-            } else if ($token['action'] === 'close' && $token['state'] == $this->currentToken['state']
-                && $token['type'] == $this->currentToken['type']) {
-                echo "el nou token és el token de tancament del top\n";
-            }
+//            if (isset($token['extra']) && $token['extra']['block'] && ($token['action'] == 'open')) {
+//                echo "el nou token és un block\n";
+//            } else if ($token['action'] === 'close' && $token['state'] == $this->currentToken['state']
+//                && $token['type'] == $this->currentToken['type']) {
+//                echo "el nou token és el token de tancament del top\n";
+//            }
 
 
             return true;

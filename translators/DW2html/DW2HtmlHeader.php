@@ -33,15 +33,17 @@ class DW2HtmlHeader extends DW2HtmlInstruction {
                 && $this->level = $tokenLevel)) {
 
 
-            if (isset($token['extra']) && $token['extra']['block'] && ($token['action'] == 'open')) {
-                echo "el nou token és un block\n";
-            } else if ($token['action'] === 'close' && $token['state'] == $this->currentToken['state']
-                && $this->level = $tokenLevel) {
-                echo "el nou token és el token de tancament del top\n";
-            }
+//            if (isset($token['extra']) && $token['extra']['block'] && ($token['action'] == 'open')) {
+//                echo "el nou token és un block\n";
+//            } else if ($token['action'] === 'close' && $token['state'] == $this->currentToken['state']
+//                && $this->level = $tokenLevel) {
+//                echo "el nou token és el token de tancament del top\n";
+//            }
 
 
             return true;
+        } else {
+            return false;
         }
         // Aquests blocs sempre es tanquen quan es troba quelcom, per exemple un salt de línia
 
