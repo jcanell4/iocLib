@@ -29,7 +29,7 @@ class DW2HtmlParser extends IocParser {
 //        ],
 
 
-/*        "<code.*?>\n(.*?)<\/code>\n$" => [*/
+        /*        "<code.*?>\n(.*?)<\/code>\n$" => [*/
 //            'state' => 'code',
 //        ],
 //
@@ -41,8 +41,6 @@ class DW2HtmlParser extends IocParser {
 //        "^(?: {2})+[\*-](.*?)\n" => [
 //            'state' => 'list-item'
 //        ],
-
-
 
 
         "\n*?\n\n" => [
@@ -138,21 +136,23 @@ class DW2HtmlParser extends IocParser {
         "----" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>", 'block' => TRUE]],
 
         // El close ha d'anar abans perquè si no es detecta com a open <-- TODO: posar-ho com regex
-        "======\n" => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'block' => TRUE]],
+        "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        '={1,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
 
-        "=====\n" => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'block' => TRUE]],
+//        "======\n" => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
+//        '======' => ['state' => 'header', 'type' => 'h1', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h1>", "</h1>\n"], 'block' => TRUE]],
 
-        "====\n" => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '====' => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'block' => TRUE]],
-
-        "==\n" => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '==' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'block' => TRUE]],
-
-        "=\n" => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
-        '=' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'block' => TRUE]],
-
+//        "=====\n" => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
+//        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'block' => TRUE]],
+//
+//        "====\n" => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
+//        '====' => ['state' => 'header', 'type' => 'h3', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h3>", "</h3>\n"], 'block' => TRUE]],
+//
+//        "==\n" => ['state' => 'header', 'type' => 'h4', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
+//        '==' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h4>", "</h4>\n"], 'block' => TRUE]],
+//
+//        "=\n" => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'close'],
+//        '=' => ['state' => 'header', 'type' => 'h5', 'class' => 'DW2HtmlMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<h5>", "</h5>\n"], 'block' => TRUE]],
 
 
 //        '=====' => ['state' => 'header', 'type' => 'h2', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h2>", "</h2>\n"], 'exact' => TRUE]],
@@ -170,9 +170,8 @@ class DW2HtmlParser extends IocParser {
 //        "=\n" => ['state' => 'header', 'type' => 'h6', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<h6>", "</h6>\n"], 'exact' => TRUE]],
 
 
-
         // ALERTA, això ha d'anar al final de la llista de blocs
-        "^(\n*?\n\n+)" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'close', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
+            "^(\n*?\n\n+)" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'close', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
         "\n" => ['state' => 'close', 'type' => '', 'action' => 'close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
