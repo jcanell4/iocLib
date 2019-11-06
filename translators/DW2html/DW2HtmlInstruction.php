@@ -74,7 +74,7 @@ class DW2HtmlInstruction extends IocInstruction {
 //
 
         // Si és un salt de línia s'ha de tornar a afegir, i s'ha de fer abans de tancar el token anterior
-        if ($currentToken['raw'] == "\n") {
+        if ($currentToken['raw'] == "\n" ) {
             $result .= $currentToken['raw'];
         }
 
