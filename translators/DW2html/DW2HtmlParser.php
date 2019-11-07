@@ -23,11 +23,13 @@ class DW2HtmlParser extends IocParser {
             'state' => 'header'
         ],
 
-//        // Qualsevol contingut + hr
-//        "^(.*?)(^----\n)" => [
-//            'state' => 'paragraph'
-//        ],
+        "\[{2}(.*?)\]{2}" => [
+            'state' => 'link'
+        ],
 
+        "{{(.*?)}}" => [
+            'state' => 'image'
+        ],
 
         "<code.*?>(.*?)<\/code>\n" => [
             'state' => 'code',
@@ -36,11 +38,6 @@ class DW2HtmlParser extends IocParser {
         "<file>(.*?)<\/file>\n" => [
             'state' => 'code',
         ],
-
-
-//        "^(?: {2})+[\*-](.*?)\n" => [
-//            'state' => 'list-item'
-//        ],
 
         "\*\*" => [
             'state' => 'bold'
@@ -63,7 +60,6 @@ class DW2HtmlParser extends IocParser {
         "^(?: {2})+[\*-](.*?)\n" => [
             'state' => 'list-item'
         ],
-
 
 
         // ALERTA: Aquestes han d'anar sempre el final
@@ -89,39 +85,7 @@ class DW2HtmlParser extends IocParser {
 //        // TODO ALERTA: No implementat encara! S'inclouen les marques ^ i | a la captura per poder determinar si es TH o TD
 ////        "^([\^|\|].*?[\^|\|]$)" => [
 ////            'state' => 'row'
-////        ],
-//
-//        "\[{2}(.*?)\]{2}" => [
-//            'state' => 'link'
-//        ],
-//
-//        "{{(.*?)}}" => [
-//            'state' => 'image'
-//        ],
-//
-//        // Elements Inline, s'han de comprovar després dels elements de block
-//        "^\*\*(.*?)$" => [ // Especial, apertura d'element inline al principi de la línia
-//            'state' => 'bold'
-//        ],
-//
 
-//
-//        "^\/\/(.*?)$" => [ // Especial, apertura d'element inline al principi de la línia
-//            'state' => 'italic'
-//        ],
-//
-//        "\/\/" => [
-//            'state' => 'italic'
-//        ],
-//
-//        "^__(.*?)$" => [ // Especial, apertura d'element inline al principi de la línia
-//            'state' => 'underline'
-//        ],
-//
-//        "__" => [
-//            'state' => 'underline'
-//        ],
-//
 //        // Elements restatns
 ////        "^\n" => [
 ////            'state' => 'br',
@@ -155,6 +119,10 @@ class DW2HtmlParser extends IocParser {
         "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         '={1,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
 
+        "\[{2}(.*?)\]{2}" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
+
+        "{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
+
 
         "<code.*?>(.*?)<\/code>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
@@ -169,11 +137,9 @@ class DW2HtmlParser extends IocParser {
         "^''(.*?)''$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<code>", "</code>"], 'regex' => TRUE/*, 'replace' => TRUE*/]],
 
 
-
         " {2}\* (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
 
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
-
 
 
         // ALERTA, aquestes han d'anar al final de la llista de blocs
@@ -185,23 +151,6 @@ class DW2HtmlParser extends IocParser {
         "\n" => ['state' => 'close', 'type' => '', 'action' => 'close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-////        '$$BLOCK$$' => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlBlock', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>"]]],
-//
-//        "\[{2}(.*?)\]{2}" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
-//
-//        "{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
-//
-//
-
-//
-////        "\n" => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<br>\n"]],
-//
-//        "// " => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<br>\n"]],
-//        "//\n" => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "<br>\n"]],
-//
-//        "\n" => ['state' => 'ignore', 'type' => 'none', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => ""], 'exact' => TRUE],
-//
-//        "^(.*?)\n" => ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlBlock', 'action' => 'container', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE]],
 
     ];
 

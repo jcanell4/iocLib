@@ -88,7 +88,7 @@ class DW2HtmlInstruction extends IocInstruction {
             $result .= $top['instruction']->Close();
             $this->popState();
             $top = end(static::$stack);
-            var_dump($result);
+//            var_dump($result);
         }
 
 
@@ -176,7 +176,7 @@ class DW2HtmlInstruction extends IocInstruction {
                 // La diferencia amb l'anterior es que no s'afegeix el pushState aquí, es gestionat per les classes
                 $result .= $item->open();
 
-                $currentToken['instruction'] = $item;
+//                $currentToken['instruction'] = $item;
 
 
                 break;

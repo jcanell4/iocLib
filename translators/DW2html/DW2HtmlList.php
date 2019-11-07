@@ -80,26 +80,29 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
         // Replantejament, així evitem haver de fer canvis de posició al stack, el token el que afegeix és una llista
         // Cas 1: El pattern inclou el salt de línia, així que el següent token ha de ser un list-item si continua la llista
-        if ($token['state'] !== 'list-item'
-            && isset($token['extra']) && $token['extra']['block'] === TRUE
-        ){
-            var_dump($this->currentToken);
-            var_dump($token);
-
-            // TODO: ALERTA! ara el li es tanca correctament però es tanca el UL cada vegada
-
-            die("següent no és list-item");
-
-            return true;
-        }
+//
+//
+//          AIXÒ NO ES CRIDA MAI!
+//        if ($token['state'] !== 'list-item'
+//            && isset($token['extra']) && $token['extra']['block'] === TRUE
+//        ){
+//            var_dump($this->currentToken);
+//            var_dump($token);
+//
+//            // TODO: ALERTA! ara el li es tanca correctament però es tanca el UL cada vegada
+//
+//            die("següent no és list-item");
+//
+//            return true;
+//        }
 
         // Cas 2: el nextToken és llista però d'un nivell inferior a l'actual
         //      ..
         //      .
         $nextTokenLevel = $this->getLevel($token['raw']);
         if ($nextTokenLevel < $this->level) {
-            var_dump($token);
-            var_dump($nextTokenLevel, $this->level);
+//            var_dump($token);
+//            var_dump($nextTokenLevel, $this->level);
 //            die('el $nextTokenlevel no és < que $this-> level');
             return true;
         }
