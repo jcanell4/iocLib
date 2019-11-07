@@ -72,13 +72,8 @@ class IocParser {
 
         for ($i = 0; $i < count($matches[0]); $i++) {
             $match = $matches[0][$i];
-
             $len = strlen($match[0]);
-
             $text = substr($rawText, $pos, $match[1] - $pos);
-
-//            var_dump($rawText, $text);
-
 
 
             // la posició inicial es igual a la posició final del token anterior? <-- s'ha trobat content
@@ -89,18 +84,14 @@ class IocParser {
                 if ($pos == 0 && $candidateToken['state'] == 'none') {
                     $token = $candidateToken;
                     $token['value'] = $text;
-//                    echo "cas 1\n";
                 } else {
                     $token = ['state' => 'content', 'value' => $text];
-//                    echo "cas 2\n";
-//                    var_dump($token);
                 }
 
                 $tokens[] = $token;
 
             }
 
-//            echo "cas sempre\n";
             $token = static::generateToken($match[0]);
 
             $tokens[] = $token;
@@ -109,15 +100,12 @@ class IocParser {
 
         if ($pos < strlen($rawText)) {
             $tokens[] = ['state' => 'content', 'value' => substr($rawText, $pos, strlen($rawText) - $pos)];
-//            echo "cas 3\n";
-//            var_dump($tokens[count($tokens)-1]);
         }
 
 
         return $tokens;
 
     }
-
 
     protected static function generateToken($tokenInfo) {
         $token = ['state' => 'none', 'class' => null, 'value' => $tokenInfo];
@@ -138,40 +126,10 @@ class IocParser {
 
         }
 
-        // PROBLEMA: si axiò és el contingut un list-item per exemple, s'enten com a paràgraf perque no hi ha suficient informació
-        // Si no s'ha trobat cap coincidencia i existeix un element generic (key = '$$BLOCK$$') s'aplica aquest
-        if (($token['state'] == 'none') && isset(static::$tokenKey['$$BLOCK$$'])) {
-
-            $value = static::$tokenKey['$$BLOCK$$'];
-//            $token = '<BLOCK>' . $value . '</BLOCK>';
-            $token = $value;
-
-//            var_dump($tokenInfo);
-            // No te marques d'apertura ni tancament, per tant el valor será tot el capturat.
-            $token['value'] = $tokenInfo;
-        }
-
-        // TEST: paragraphs que comencen per etiqueta inline: **
-        // Afegit el $isContainer, si es tracta d'un container s'ignora
-//        if (isset($token['extra']) && $token['extra']['start'] && isset(static::$tokenKey['$$BLOCK$$']) && !static::$isContainer) {
-//            $value = static::$tokenKey['$$BLOCK$$'];
-//            $token = $value;
-//            $token['value'] = $tokenInfo;
-////            var_dump($token);
-////            die("works!");
-//        }
-
         $token['raw'] = $tokenInfo;
         $token['pattern'] = $pattern;
 
         return $token;
     }
 
-//    static function getIsContainer() {
-//        return static::$isContainer;
-//    }
-//
-//    static function setIsContainer($isContainer) {
-//        static::$isContainer = $isContainer;
-//    }
 }
