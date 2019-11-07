@@ -150,7 +150,6 @@ class DW2HtmlInstruction extends IocInstruction {
 //                self::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken, $nextToken);
 
-
                 $result .= $item->open();
 
 //                die ($result);
@@ -168,6 +167,21 @@ class DW2HtmlInstruction extends IocInstruction {
 //
 //                self::$instancesCounter--;
                 break;
+
+
+            case 'tree':
+
+                $item = $this->getClassForToken($currentToken, $nextToken);
+
+                // La diferencia amb l'anterior es que no s'afegeix el pushState aquí, es gestionat per les classes
+                $result .= $item->open();
+
+                $currentToken['instruction'] = $item;
+
+
+                break;
+
+
 
 
             case 'self-contained':
@@ -202,8 +216,8 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
 
-                // El tancament pot correspondre a una marca de tancament o a l'apertura d'altre etiequeta, per tant
-            // no es controla aquí
+            // El tancament pot correspondre a una marca de tancament o a l'apertura d'altre etiequeta, per tant
+            // no es controla aquí, es comprova abans de parsejar amb les crides a "isClose()"
 //            case 'close':
 //                $this->popState();
 ////                return null;
@@ -237,10 +251,17 @@ class DW2HtmlInstruction extends IocInstruction {
 
         }
 
-        // Fi del bloc parsejat, tanquem totes les etiquetes pendents
-        while ($top = end(static::$stack)) {
-            $result .= $top['instruction']->close();
-            $this->popState();
+        // Fi del bloc parsejat, tanquem totes les etiquetes pendents <-- ALERTA! Només si és el fi del document
+
+        $class = static::$parserClass;
+
+        if (!$class::isInner()) {
+
+            // Això tanca totes les etiquetes obertes però no és correcte, no podem cridar tampoc al isClosing perque no sabem quin és el següent token
+            while ($top = end(static::$stack)) {
+                $result .= $top['instruction']->close();
+                $this->popState();
+            }
         }
 
 

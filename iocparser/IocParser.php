@@ -13,6 +13,16 @@ class IocParser {
 
     protected static $instructionClass = "IocInstruction";
 
+    public static $isInner = false;
+
+    public static function isInner() {
+        return static::$isInner;
+    }
+
+    public static function setInner($value) {
+        static::$isInner = $value;
+    }
+
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
         $replacements = array_fill(0, count(static::$removeTokenPatterns), '');
 

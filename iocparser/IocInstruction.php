@@ -19,6 +19,7 @@ class IocInstruction {
     protected $currentToken;
     protected $nextToken;
 
+
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
         $this->arrays += $arrays;
