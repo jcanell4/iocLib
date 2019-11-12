@@ -65,6 +65,12 @@ class WiocclParser extends IocParser
         '</WIOCCL:SET>(\n)?' => [
             'state' => 'close_set',
         ],
+        '<WIOCCL:CONDSET .*?[^\\\\]>(\n)?' => [
+            'state' => 'open_conditionalset',
+        ],
+        '</WIOCCL:CONDSET>(\n)?' => [
+            'state' => 'close_conditionalsset',
+        ],
         '<WIOCCL:RESET .*?[^\\\\]>(\n)?' => [
             'state' => 'open_reset',
         ],
@@ -114,6 +120,8 @@ class WiocclParser extends IocParser
         '</WIOCCL:SUBSET>' => ['state' => 'close_subset', 'type' => 'subset', 'action' => 'close'],
         '<WIOCCL:SET' => ['state' => 'open_set', 'type' => 'set', 'class' => 'WiocclSet', 'action' => 'open'],
         '</WIOCCL:SET>' => ['state' => 'close_set', 'type' => 'set', 'action' => 'close'],
+        '<WIOCCL:CONDSET' => ['state' => 'open_conditionalset', 'type' => 'conditionalset', 'class' => 'WiocclConditionalSet', 'action' => 'open'],
+        '</WIOCCL:CONDSET>' => ['state' => 'close_conditionalset', 'type' => 'conditionalset', 'action' => 'close'],
         '{@@' => ['state' => 'open_extra', 'type' => 'extra', 'class' => 'WiocclExtra', 'action' => 'open'],
         '@@}' => ['state' => 'close_extra', 'type' => 'extra', 'action' => 'close'],
         '{##' => ['state' => 'open_field', 'type' => 'field', 'class' => 'WiocclField', 'action' => 'open'],
