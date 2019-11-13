@@ -8,6 +8,10 @@ class IocParser {
 
     protected static $tokenPatterns = [];
 
+    // Aquests tipus de bloc no es tanquen automàticament
+    protected static $excludedClosingTags = [];
+
+
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [];
 
@@ -132,4 +136,7 @@ class IocParser {
         return $token;
     }
 
+    static public function getExcludedClosingTags() {
+        return static::$excludedClosingTags;
+    }
 }

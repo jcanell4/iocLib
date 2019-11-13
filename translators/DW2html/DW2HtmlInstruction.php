@@ -7,6 +7,11 @@ class DW2HtmlInstruction extends IocInstruction {
 
     protected static $parserClass = "DW2HtmlParser";
 
+    protected function resolveOnClose($result) {
+
+        die("Aquest tipus d'instrucció no fa servir resolveOnClose");
+    }
+
     public function open() {
 
         return $this->getReplacement(self::OPEN);

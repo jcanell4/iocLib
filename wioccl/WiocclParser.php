@@ -103,6 +103,10 @@ class WiocclParser extends IocParser
         ],
     ];
 
+    protected static $excludedClosingTags = [
+        'for', 'foreach'
+    ];
+
     protected static  $tokenKey = [
         '<WIOCCL:FOR' => ['state' => 'open_for', 'type' => 'for', 'class' => 'WiocclFor', 'action' => 'open'],
         '</WIOCCL:FOR>' => ['state' => 'close_for', 'type' => 'for', 'action' => 'close'],
@@ -167,6 +171,7 @@ class WiocclParser extends IocParser
             if (strpos($tokenInfo, $key) === 0) {
                 // It starts with the token
                 $token['state'] = $value['state'];
+                $token['type'] = $value['type'];
                 $token['class'] = isset($value['class']) ? $value['class'] : null;
                 $token['action'] = $value['action'];
                 $token['extra'] = $value['extra'];

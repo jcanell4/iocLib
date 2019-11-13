@@ -88,3 +88,15 @@ class UnimplementedTranslatorException extends WikiIocModelException {
         parent::__construct($message, $code, $previous);
     }
 }
+
+class WrongClosingTranslatorException extends WikiIocModelException {
+    public function __construct($message='Tancament d\'etiquetes incorrecte, revisa l\'apertura i tancament.', $code=7100, $previous=NULL) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+class MissingClosingTranslatorException extends WikiIocModelException {
+    public function __construct($message='Tancament d\'etiquetes incorrecte, falta una o més etiquetes de tancament.', $code=7100, $previous=NULL) {
+        parent::__construct($message, $code, $previous);
+    }
+}

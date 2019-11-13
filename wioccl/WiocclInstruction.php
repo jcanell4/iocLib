@@ -53,4 +53,9 @@ class WiocclInstruction extends IocInstruction
         }
     }
 
+    protected function isClosingTagExcluded($type) {
+        $class = static::$parserClass;
+        return in_array($type, $class::getExcludedClosingTags());
+    }
+
 }

@@ -14,7 +14,7 @@ class IocInstruction {
 
     protected static $parserClass = "IocParser";
 
-    protected static $stack = [];
+    public static $stack = [];
 
     protected $currentToken;
     protected $nextToken;
@@ -60,6 +60,8 @@ class IocInstruction {
             $result .= $newChunk;
 
         }
+
+
 
 
         return $this->resolveOnClose($result);
@@ -155,42 +157,55 @@ class IocInstruction {
                 $content = $item->getContent($currentToken);
 
 
-
                 $value = $class::getValue($content);
                 $result = $item->resolveOnClose($value);
                 $this->popState();
 
                 break;
 
-            case 'list':
-
-                $item = $this->getClassForToken($currentToken, $nextToken);
-//                $class = static::$parserClass;
-
-                $currentToken['instruction'] = $item;
-//                $this->pushState($currentToken);
-
-//                $content = $item->getContent($currentToken);
-                $result= $item->getContent($currentToken);
-
-
-
-//                $value = $class::getValue($content);
-//                $result = $class::getValue($content);
-//                var_dump($result);
-//                die();
-//                $result = $item->resolveOnClose($value);
-//                $this->popState();
-
-                break;
-
             case 'close':
-                $this->popState();
+
+                $top = $this->getTopState();
+
+//                var_dump($currentToken, $top);
+
+            // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
+
+//                if (!$top || $top['type'] !== $currentToken['type'])) {
+
+            $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
+
+                if ( !$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
+//                    var_dump($top['type'], $currentToken['type']);
+                    throw new WrongClosingTranslatorException($result);
+                }
+
+                if (!$isExcluded) {
+                    $this->popState();
+                }
+
                 return null;
                 break;
         }
 
+
+
+        // Això no és correcte perqué no sempre hi ha $nextToken, per exemple quan es fa un parse intern (no hi ha mecanisme implementat per controlar-lo)
+        if ($this->instancesCounter === 0) {
+            $top = $this->getTopState();
+            if ($top) {
+//                var_dump($top, $result);
+                throw new MissingClosingTranslatorException($result);
+            }
+        }
+
+
+
         return $result;
+    }
+
+    protected function isClosingTagExcluded($type) {
+        return false;
     }
 
     protected function setExtra($extraData) {
@@ -304,7 +319,7 @@ class IocInstruction {
     }
 
     public function getPreviousState() {
-        return static::$stack > 1 ? static::$stack[count(static::$stack)-2] : FALSE;
+        return static::$stack > 1 ? static::$stack[count(static::$stack) - 2] : FALSE;
     }
 
     public function getTopState() {

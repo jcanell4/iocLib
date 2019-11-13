@@ -11,7 +11,7 @@ class _WiocclLoop
 
     public function loop($tokens, &$tokenIndex)
     {
-        
+
         $result = '';
         if($this->looperInstruction->getFrom() > $this->looperInstruction->getTo()){
             $this->index = -1;
@@ -47,6 +47,10 @@ class _WiocclLoop
 
             $tokenIndex = $lastTokenIndex;
         }
+
+        // ALERTA[Xavi] : pel cas del foreach s'ha de fer aqui el pop perquè el token de tancament es processa a cada
+        // iteració
+        $this->looperInstruction->popState();
         return $result;
     }
     
