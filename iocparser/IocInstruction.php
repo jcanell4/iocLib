@@ -167,16 +167,10 @@ class IocInstruction {
 
                 $top = $this->getTopState();
 
-//                var_dump($currentToken, $top);
-
-            // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
-
-//                if (!$top || $top['type'] !== $currentToken['type'])) {
-
-            $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
+                // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
+                $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
                 if ( !$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
-//                    var_dump($top['type'], $currentToken['type']);
                     throw new WrongClosingTranslatorException($result);
                 }
 
@@ -191,7 +185,7 @@ class IocInstruction {
 
 
         // Això no és correcte perqué no sempre hi ha $nextToken, per exemple quan es fa un parse intern (no hi ha mecanisme implementat per controlar-lo)
-        if ($this->instancesCounter === 0) {
+        if (self::$instancesCounter === 0) {
             $top = $this->getTopState();
             if ($top) {
 //                var_dump($top, $result);

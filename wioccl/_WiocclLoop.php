@@ -3,6 +3,8 @@ class _WiocclLoop
 {
 
     protected $looperInstruction;
+
+    protected $index;
     
     public function __construct($looper)
     {
