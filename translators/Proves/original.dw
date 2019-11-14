@@ -1,19 +1,3 @@
-<?php
-if (!defined('DOKU_INC')) define('DOKU_INC', realpath('../../../../') . '/');
-if (!defined('DOKU_CONF')) define('DOKU_CONF', DOKU_INC . 'conf/');
-
-//require_once DOKU_INC.'inc/preload.php';
-
-require_once DOKU_INC . 'inc/inc_ioc/ioc_load.php';
-require_once DOKU_INC . 'inc/inc_ioc/ioc_project_load.php';
-
-require_once DOKU_INC . 'inc/init.php';
-
-require_once 'DW2HtmlParser.php';
-
-$dataSource = [];
-
-$t = "
 p1
 p2
 p3
@@ -74,14 +58,7 @@ Un altre paràgraf.
       - Subitem 3.2.1
       - Subitem 3.2.2
         * Subitem 3.2.2.1
-        * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]] [[pt-loe:loe1:continguts|enllaç intern]] **negreta** 
+        * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]] [[pt-loe:loe1:continguts|enllaç intern]] **negreta**
 
 Últim paràgraf.
-{{https://secure.php.net/images/php.gif?200x50|títol 1}}{{ wiki:dokuwiki-128.png?200|títol 2}}{{ wiki:dokuwiki-128.png?200x50 |títol 3}}{{wiki:dokuwiki-128.png?200x50 |títol 4}}";
-//$t = '<b>negreta</b> normal";
-
-global $conf;
-
-
-//echo 'Text original: ' . $t . "\n";
-echo "Text parsejat:\n" . DW2HtmlParser::getValue($t) . "\n";
+{{https://secure.php.net/images/php.gif?200x50|títol 1}}{{ wiki:dokuwiki-128.png?200|títol 2}}{{ wiki:dokuwiki-128.png?200x50 |títol 3}}{{wiki:dokuwiki-128.png?200x50 |títol 4}}

@@ -15,7 +15,7 @@ class DW2HtmlParser extends IocParser {
         // Elements de block
 
 
-        "^----" => [
+        "^----\n" => [
             'state' => 'hr',
         ],
 
@@ -75,37 +75,6 @@ class DW2HtmlParser extends IocParser {
         ],
 
 
-//
-
-
-//
-//
-
-//
-//        // TODO ALERTA: No implementat encara! S'inclouen les marques ^ i | a la captura per poder determinar si es TH o TD
-////        "^([\^|\|].*?[\^|\|]$)" => [
-////            'state' => 'row'
-
-//        // Elements restatns
-////        "^\n" => [
-////            'state' => 'br',
-////        ],
-//
-//        "\/\/ " => [
-//            'state' => 'br',
-//        ],
-//
-//        "\/\/\n" => [
-//            'state' => 'br',
-//        ],
-//
-//        "^.*?\n" => [
-//            'state' => 'paragraph'
-//        ],
-//
-//        "^\n" => [
-//            'state' => 'ignore',
-//        ],
 
     ];
 
@@ -113,7 +82,7 @@ class DW2HtmlParser extends IocParser {
     protected static $tokenKey = [
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
-        "----" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>", 'block' => TRUE]],
+        "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
 
         // El close ha d'anar abans perquè si no es detecta com a open <-- TODO: posar-ho com regex
         "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
@@ -126,7 +95,7 @@ class DW2HtmlParser extends IocParser {
 
         "<code.*?>(.*?)<\/code>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "<file>(.*?)<\/file>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
+        "<file>(.*?)<\/file>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
 
