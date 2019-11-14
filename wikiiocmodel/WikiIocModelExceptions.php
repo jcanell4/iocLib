@@ -18,7 +18,11 @@ abstract class WikiIocModelException extends Exception {
         if ($message === NULL) $message = $codeMessage;
 
         if ($target) {
-            $message = sprintf($message, $target);
+            if(is_array($target)){
+                $message = vsprintf($message, $target);
+            }else{
+                $message = sprintf($message, $target);
+            }
         }
         Logger::debug("Params, codemessage: $codeMessage message: $message code: $code, previous: $previous, target: $target", 0, 0, "", 1, FALSE);
         parent::__construct($message, $code, $previous);
