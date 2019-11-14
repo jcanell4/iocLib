@@ -14,6 +14,9 @@ class WiocclFunction extends WiocclInstruction
 
         $this->functionName = $matches[1];
         $this->arguments = $this->extractArgs($matches[2]);
+        if($this->arguments==null){
+            $this->arguments=[];
+        }
     }
 
 
@@ -28,12 +31,17 @@ class WiocclFunction extends WiocclInstruction
         //return $jsonArgs;
 
         //ALERTA: cal verificar quan es produeix una situació en la que $jsonArgs té un valor incorrecte
-        return ($jsonArgs!==NULL || !is_array($jsonArgs)) ? $jsonArgs : [];
+        return ($jsonArgs==NULL || !is_array($jsonArgs)) ? [] : $jsonArgs;
     }
     
     protected function resolveOnClose($result) {
         $this->init($result);
-        $result = call_user_func_array(array($this, $this->functionName), $this->arguments);
+        $method = array($this, $this->functionName);
+        if(is_callable($method)){
+            $result = call_user_func_array($method, $this->arguments);
+        }else{
+            $result = "[ERROR! No existeix la funció ${$method[1]}]";
+        }
         return $result;
     }
 
@@ -154,13 +162,19 @@ class WiocclFunction extends WiocclInstruction
         return $ret;
     }
 
-    protected function DATE($date, $sep="-")
+    protected function DATE($date=NULL, $sep="-")
     {
+        if(!is_string($date)){
+            return "[ERROR! paràmetres incorrectes DATE($date, $sep)]"; //TODO: internacionalitzar
+        }        
         return date("d".$sep."m".$sep."Y", strtotime(str_replace('/', '-', $date)));
     }
 
-    protected function LONG_DATE($date, $includeDay)
+    protected function LONG_DATE($date=NULL, $includeDay=FALSE)
     {
+        if(!is_string($date)){
+            return "[ERROR! paràmetres incorrectes LONG_DATE($date, $includeDay)]"; //TODO: internacionalitzar
+        }        
         $format = '';
 
         if ($includeDay) {
@@ -176,8 +190,8 @@ class WiocclFunction extends WiocclInstruction
     }
 
     protected function SUM_DATE($date, $days, $months=0, $years=0, $sep="-") {
-        if(!is_numeric($days) || !is_numeric($months) || !is_numeric($years)){
-            return "[ERROR! paràmetres incorrectes ($days, $months, $years)]"; //TODO: internacionalitzar
+        if(!is_string($date) || !is_numeric($days) || !is_numeric($months) || !is_numeric($years)){
+            return "[ERROR! paràmetres incorrectes SUM_DATE($days, $months, $years)]"; //TODO: internacionalitzar
         }
 
         $newDate = $date;
@@ -226,17 +240,29 @@ class WiocclFunction extends WiocclInstruction
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_GET_VALUE($key, $array)
     {
+        if($key==null || !is_array($array)){
+            return "[ERROR! paràmetres incorrectes ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+        }elseif($key < 0 || $key >= count($array)){
+            return "[ERROR! key fora de rang ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+        }
         return  $array[$key];
     }
     
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_LENGTH($array)
     {
+        if(!is_array($array)){
+            return "[ERROR! paràmetres incorrectes ARRAY_LENGTH($array)]"; //TODO: internacionalitzar
+        }
         return count($array);
     }
 
     protected function COUNTDISTINCT($array, $fields)
     {
+        if(!is_array($array) || !is_array($fields)){
+            return "[ERROR! paràmetres incorrectes COUNTDISTINCT($array, $fields)]"; //TODO: internacionalitzar
+        }
+
         $unique = [];
 
 
@@ -256,11 +282,17 @@ class WiocclFunction extends WiocclInstruction
 
     protected function FIRST($array, $template)
     {
+        if(!is_array($array) || !is_string($template)){
+            return "[ERROR! paràmetres incorrectes FIRST($array, $template)]"; //TODO: internacionalitzar
+        }
         return $this->formatItem($array[0], 'FIRST', $template);
     }
 
     protected function LAST($array, $template)
     {
+        if(!is_array($array) || !is_string($template)){
+            return "[ERROR! paràmetres incorrectes LAST($array, $template)]"; //TODO: internacionalitzar
+        }
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
     }
     
@@ -370,7 +402,7 @@ class WiocclFunction extends WiocclInstruction
     protected function SUBS($value1, $value2)
     {
         if(!is_numeric($value1) || !is_numeric($value2)){
-            return "[ERROR! paràmetres incorrectes ($value1, $value2)]"; //TODO: internacionalitzar
+            return "[ERROR! paràmetres incorrectes SUBS($value1, $value2)]"; //TODO: internacionalitzar
         }
         return $value1 - $value2;
     }
@@ -378,7 +410,7 @@ class WiocclFunction extends WiocclInstruction
     protected function SUMA($value1, $value2)
     {
         if(!is_numeric($value1) || !is_numeric($value2)){
-            return "[ERROR! paràmetres incorrectes ($value1, $value2)]"; //TODO: internacionalitzar
+            return "[ERROR! paràmetres incorrectes SUMA($value1, $value2)]"; //TODO: internacionalitzar
         }
         return $value1 + $value2;
     }
@@ -387,7 +419,7 @@ class WiocclFunction extends WiocclInstruction
     {
         $ret;
         if(!is_numeric($value2) || !is_numeric($value3)){
-            return "[ERROR! paràmetres incorrectes ($value1, $value2, $value3)]"; //TODO: internacionalitzar
+            return "[ERROR! paràmetres incorrectes UPPERCASE($value1, $value2, $value3)]"; //TODO: internacionalitzar
         }
         if($value3==0){
             $value3 = $value2;
@@ -401,15 +433,25 @@ class WiocclFunction extends WiocclInstruction
     }
 
     // Uppercase només pel primer caràcter
-    protected function UCFIRST($value) {
+    protected function UCFIRST($value=NULL) {
+        if(!is_string($value)){
+            return "[ERROR! paràmetres incorrectes UCFIRST($value)]"; //TODO: internacionalitzar
+        }
         return ucfirst($value);
     }
     
-    protected function STR_CONTAINS($subs, $string){
+    protected function STR_CONTAINS($subs=NULL, $string=NULL){
+        if(!is_string($subs) || !is_string($string)){
+            return "[ERROR! paràmetres incorrectes STR_CONTAINS($subs, $string)]"; //TODO: internacionalitzar
+        }
         return (strpos($string, $subs)!==FALSE)?"true":"false";
     }
 
-    protected function EXPLODE($delimiter, $string, $limit=false){
+    protected function EXPLODE($delimiter=NULL, $string=NULL, $limit=false){
+        if(!is_string($delimiter)||!is_string($string)){
+            return "[ERROR! paràmetres incorrectes EXPLODE($delimiter, $string, $limit)]"; //TODO: internacionalitzar
+        }
+        
         if(!$limit){
             $limit = PHP_INT_MAX;
         }
@@ -417,7 +459,11 @@ class WiocclFunction extends WiocclInstruction
         return self::_normalizeValue($ret);
     }
     
-    protected function STR_REPLACE($search, $replace, $subject, $count=FALSE) {
+    protected function STR_REPLACE($search=NULL, $replace=NULL, $subject=NULL, $count=FALSE) {
+        if(!(is_string($search)||is_array($search)) || !(is_string($replace)|| is_array($replace)) || !is_string($subject)){
+            return "[ERROR! paràmetres incorrectes STR_REPLACE($search, $replace, $subject, $count)]"; //TODO: internacionalitzar
+        }
+
         if(is_int($count)){
             if($count>0){
                 $ret = implode($replace, $this->_explode($search, $subject, $count+1));
@@ -473,6 +519,4 @@ class WiocclFunction extends WiocclInstruction
             return $row[$matches[1]];
         }
     }
-
-
 }
