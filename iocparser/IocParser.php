@@ -61,6 +61,8 @@ class IocParser {
         }
 
         $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')';
+
+//        var_dump($pattern);
         return $pattern;
     }
 
@@ -106,6 +108,7 @@ class IocParser {
             $tokens[] = ['state' => 'content', 'value' => substr($rawText, $pos, strlen($rawText) - $pos)];
         }
 
+//        var_dump($tokens);
 
         return $tokens;
 

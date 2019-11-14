@@ -10,16 +10,14 @@ class Html2DWParser extends IocParser {
     ];
 
     protected static $tokenPatterns = [
-//        '<div>' => [
-//            'state' => 'open_div',
-//        ],
-//        '</div>\n?' => [
-//            'state' => 'close_div',
-//        ],
         '<p>' => [
             'state' => 'open_p',
         ],
-        "</p>" => [
+
+        "\n<\/p>" => [
+            'state' => 'close_p',
+        ],
+        '<\/p>' => [
             'state' => 'close_p',
         ],
 
@@ -27,96 +25,108 @@ class Html2DWParser extends IocParser {
         '<b>' => [
             'state' => 'open_bold',
         ],
-        '</b>' => [
+        '<\/b>' => [
             'state' => 'close_bold',
         ],
         '<i>' => [
             'state' => 'open_italic',
         ],
-        '</i>' => [
+        '<\/i>' => [
             'state' => 'close_italic',
         ],
         '<u>' => [
             'state' => 'open_underline',
         ],
-        '</u>' => [
+        '<\/u>' => [
             'state' => 'close_underline',
         ],
-        '<pre>' => [
-            'state' => 'open_code',
+/*        "<pre>\n?<code.*?>" => [
+//            'state' => 'open_code',
+//        ],
+/*        "<pre>\n?<code.*?>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+//            'state' => 'open_code',
+//        ],
+//        "</code>\n?</pre>" => [
+//            'state' => 'close_code',
+//        ],
+
+//        "<pre></pre>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+/*/        '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => [
+//        '<pre>(.*?)<\/pre>' => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+            'state' => 'code',
         ],
-        '</pre>' => [
-            'state' => 'close_code',
+
+        '<code>(.*?)<\/code>' => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+            'state' => 'code',
         ],
+
         '<h1.*?>' => [
             'state' => 'open_h1',
         ],
-        '</h1>' => [
+        '<\/h1>' => [
             'state' => 'close_h1',
         ],
         '<h2.*?>' => [
             'state' => 'open_h2',
         ],
-        '</h2>' => [
+        '<\/h2>' => [
             'state' => 'close_h2',
         ],
         '<h3.*?>' => [
             'state' => 'open_h3',
         ],
-        '</h3>' => [
+        '<\/h3>' => [
             'state' => 'close_h3',
         ],
         '<h4.*?>' => [
             'state' => 'open_h4',
         ],
-        '</h4>' => [
+        '<\/h4>' => [
             'state' => 'close_h4',
         ],
         "<h5.*?>" => [
             'state' => 'open_h5',
         ],
-        '</h5>' => [
+        '<\/h5>' => [
             'state' => 'close_h5',
         ],
-        '</h6.*?>' => [
-            'state' => 'close_h6',
-        ],
-        "<hr( \/)?>?" => [
+
+        "<hr( \/)?>" => [
             'state' => 'hr',
         ],
-        "<br( \/)?>?" => [
+        "<br( \/)?>" => [
             'state' => 'br',
         ],
 
         '\h*<ul>\n?' => [
             'state' => 'open_list',
         ],
-        "</ul>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
+        "<\/ul>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
         '\h*<ol>\n?' => [
             'state' => 'open_list',
         ],
-        "</ol>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
+        "<\/ol>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
         '\h*<li>' => [
             'state' => 'open_li',
         ],
-        "</li>" => [
+        "<\/li>" => [
             'state' => 'close_li',
         ],
 
         '<a ?.*?>' => [
             'state' => 'open_anchor',
         ],
-        '</a>' => [
+        '<\/a>' => [
             'state' => 'close_anchor',
         ],
 
-        '<img.*?/>' => [
+        '<img.*?\/>' => [
             'state' => 'image',
         ],
     ];
@@ -130,17 +140,30 @@ class Html2DWParser extends IocParser {
 
 //        '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
 //        '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],
-        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWBlock', 'action' => 'open', 'extra' => ['replacement' => ["", ""]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
-        '</p>' => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close'],
+        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
+        "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         '<b>' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**']],
         '</b>' => ['state' => 'close_bold', 'type' => 'bold', 'action' => 'close'],
         '<i>' => ['state' => 'open_italic', 'type' => 'italic', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '//']],
         '</i>' => ['state' => 'close_italic', 'type' => 'italic', 'action' => 'close'],
         '<u>' => ['state' => 'open_underline', 'type' => 'underline', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '__']],
         '</u>' => ['state' => 'close_underline', 'type' => 'underline', 'action' => 'close'],
-        '<pre>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['<code>', '</code>']]],
-        '</pre>' => ['state' => 'close_code', 'type' => 'code', 'action' => 'close'],
-        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======"]]],
+
+
+/*        '<pre>\n?<code .*?>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['<code>', '</code>'], 'regex' => TRUE]],*/
+//        '<\code>\n</pre>' => ['state' => 'close_code', 'type' => 'code', 'action' => 'close'],
+
+
+
+        '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<code>(.*?)<\/code>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWMonospace', 'action' => 'self-contained', 'extra' => ['replacement'=> "''", 'regex' => TRUE]],
+
+
+
+
+
+        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======"], 'regex' => TRUE]],
         '</h1>' => ['state' => 'close_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'close'],
         '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['=====', "====="]]],
         '</h2>' => ['state' => 'close_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'close'],
@@ -168,6 +191,42 @@ class Html2DWParser extends IocParser {
         '<img' => ['state' => 'image', 'type' => 'image', 'class' => 'Html2DWImage', 'action' => 'self-contained', 'extra' => ['replacement' => ['{{', '}}']]],
 
     ];
+
     protected static $instructionClass = "Html2DWInstruction";
+
+//    protected static function getPattern() {
+//        $pattern = '/';
+//
+//        foreach (static::$tokenPatterns as $statePattern => $data) {
+//            $pattern .= $statePattern . '|';
+//        }
+//
+//        $pattern = substr($pattern, 0, strlen($pattern) - 1) . '/ms';
+//
+//        var_dump($pattern);
+//
+////
+////        var_dump($pattern);
+////        die();
+//        return $pattern;
+//    }
+
+
+    protected static function getPattern() {
+        $pattern = '/(';
+//        $pattern = '(';
+
+        foreach (static::$tokenPatterns as $statePattern => $data) {
+            $pattern .= $statePattern . '|';
+        }
+
+        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')/ms';
+//        $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')';
+
+//
+//        var_dump($pattern);
+
+        return $pattern;
+    }
 
 }

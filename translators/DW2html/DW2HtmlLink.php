@@ -68,6 +68,6 @@ class DW2HtmlLink extends DW2HtmlInstruction {
         // Tancament de la etiqueta img;
         $value .= '>' . $text;
 
-        return $this->getReplacement(self::OPEN) . $value . $this->getReplacement(self::CLOSE);
+        return $this->getReplacement(self::OPEN) . $value;
     }
 }
