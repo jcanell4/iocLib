@@ -64,46 +64,9 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
     public function isClosing($token) {
 
-//        die("no es crida el isClosing");
 
-        // ALERTA! El isClosing se llama cuando se hace el GetValue dentro del list item
-
-
-        // ALERTA! Ahora no se está llamando ¿?¿?¿
-//        var_dump(static::$stack);
-//        die('isClosing?');
-
-
-
-
-
-
-        // Replantejament, així evitem haver de fer canvis de posició al stack, el token el que afegeix és una llista
-        // Cas 1: El pattern inclou el salt de línia, així que el següent token ha de ser un list-item si continua la llista
-//
-//
-//          AIXÒ NO ES CRIDA MAI!
-//        if ($token['state'] !== 'list-item'
-//            && isset($token['extra']) && $token['extra']['block'] === TRUE
-//        ){
-//            var_dump($this->currentToken);
-//            var_dump($token);
-//
-//            // TODO: ALERTA! ara el li es tanca correctament però es tanca el UL cada vegada
-//
-//            die("següent no és list-item");
-//
-//            return true;
-//        }
-
-        // Cas 2: el nextToken és llista però d'un nivell inferior a l'actual
-        //      ..
-        //      .
         $nextTokenLevel = $this->getLevel($token['raw']);
         if ($nextTokenLevel < $this->level) {
-//            var_dump($token);
-//            var_dump($nextTokenLevel, $this->level);
-//            die('el $nextTokenlevel no és < que $this-> level');
             return true;
         }
 
@@ -126,10 +89,11 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
         switch ($position) {
             case IocInstruction::OPEN:
-                return '<' . $this->extra['container'] . ">\n";
+
+                return '<' . $this->extra['container'] . ">";
 
             case IocInstruction::CLOSE:
-                return '</' . $this->extra['container'] . ">\n";
+                return '</' . $this->extra['container'] . ">";
         }
 
         return 'ERROR: unknown position: ' . $position;

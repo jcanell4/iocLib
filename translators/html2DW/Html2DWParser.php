@@ -40,18 +40,19 @@ class Html2DWParser extends IocParser {
         '<\/u>' => [
             'state' => 'close_underline',
         ],
-/*        "<pre>\n?<code.*?>" => [
-//            'state' => 'open_code',
-//        ],
-/*        "<pre>\n?<code.*?>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
-//            'state' => 'open_code',
-//        ],
-//        "</code>\n?</pre>" => [
-//            'state' => 'close_code',
-//        ],
+        /*        "<pre>\n?<code.*?>" => [
+        //            'state' => 'open_code',
+        //        ],
+        /*        "<pre>\n?<code.*?>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+        //            'state' => 'open_code',
+        //        ],
+        //        "</code>\n?</pre>" => [
+        //            'state' => 'close_code',
+        //        ],
 
-//        "<pre></pre>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
-/*/        '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => [
+        //        "<pre></pre>" => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+        /*/
+        '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => [
 //        '<pre>(.*?)<\/pre>' => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
             'state' => 'code',
         ],
@@ -98,24 +99,24 @@ class Html2DWParser extends IocParser {
             'state' => 'br',
         ],
 
-        '\h*<ul>\n?' => [
+        '<ul>' => [
             'state' => 'open_list',
         ],
-        "<\/ul>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
+        "<\/ul>" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
-        '\h*<ol>\n?' => [
+        '<ol>' => [
             'state' => 'open_list',
         ],
-        "<\/ol>\n?" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
+        "<\/ol>" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
-        '\h*<li>' => [
+        '<li>' => [
             'state' => 'open_li',
         ],
-        "<\/li>" => [
+        "<\/li>\n?" => [
             'state' => 'close_li',
         ],
 
@@ -150,17 +151,13 @@ class Html2DWParser extends IocParser {
         '</u>' => ['state' => 'close_underline', 'type' => 'underline', 'action' => 'close'],
 
 
-/*        '<pre>\n?<code .*?>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['<code>', '</code>'], 'regex' => TRUE]],*/
+        /*        '<pre>\n?<code .*?>' => ['state' => 'open_code', 'type' => 'code', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['<code>', '</code>'], 'regex' => TRUE]],*/
 //        '<\code>\n</pre>' => ['state' => 'close_code', 'type' => 'code', 'action' => 'close'],
-
 
 
         '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<code>(.*?)<\/code>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWMonospace', 'action' => 'self-contained', 'extra' => ['replacement'=> "''", 'regex' => TRUE]],
-
-
-
+        '<code>(.*?)<\/code>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWMonospace', 'action' => 'self-contained', 'extra' => ['replacement' => "''", 'regex' => TRUE]],
 
 
         '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======"], 'regex' => TRUE]],
@@ -179,14 +176,16 @@ class Html2DWParser extends IocParser {
         '<br' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => ""]], // ALERTA: a continuació de les marques de salt de línia que fica l'editor hi ha un \n, no cal afegir-lo
 
 
-        '\s*<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
+        '<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "", 'regex' => TRUE]],
+        "</li>" => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
+
+
+        '<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
         '</ul>' => ['state' => 'list', 'type' => 'ul', 'action' => 'close'],
 
-        '\s*<ol>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
+        '<ol>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
         '</ol>' => ['state' => 'list', 'type' => 'ol', 'action' => 'close'],
 
-        '\s*<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "", 'regex' => TRUE]],
-        '</li>' => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
 
         '<img' => ['state' => 'image', 'type' => 'image', 'class' => 'Html2DWImage', 'action' => 'self-contained', 'extra' => ['replacement' => ['{{', '}}']]],
 
@@ -228,5 +227,11 @@ class Html2DWParser extends IocParser {
 
         return $pattern;
     }
+
+//    protected static function tokenize($rawText) {
+//        $tokens = parent::tokenize($rawText);
+//        var_dump($tokens);
+//        return $tokens;
+//    }
 
 }

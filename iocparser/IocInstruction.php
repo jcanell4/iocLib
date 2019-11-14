@@ -126,7 +126,6 @@ class IocInstruction {
                 $currentToken['instruction'] = $item;
                 $this->pushState($currentToken);
 
-                // ALERTA[Xavi] Això és necessari? és el mateix en tots els casos i no es fa servir en cap altre lloc el $instancesCounter
                 if ($mark) {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 } else {

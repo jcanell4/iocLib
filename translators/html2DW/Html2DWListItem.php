@@ -3,17 +3,40 @@ require_once "Html2DWParser.php";
 
 class Html2DWListItem extends Html2DWMarkup {
 
-    protected function getContent($token) {
+    public function getTokensValue($tokens, &$tokenIndex) {
 
-        $count = count(static::$stack);
 
-        // Un LI només pot trobar-se dins d'un ul o ol, per tant forçosament el nombre d'elemens ha de ser 2 o superior (el contenidor i aquest item)
+        $content = parent::getTokensValue($tokens, $tokenIndex);
 
-        $previous = static::$stack[$count - 2];
+        //var_dump($token, $this->getTopState(), $content);
+        //die('passa pel getTokensValue');
 
-        $character = "";
+        //el que hi ha al getcontent ha de fer-se aqí
+        $level = $this->getLevel();
 
-        switch ($previous['list']) {
+        $pre = str_repeat(' ', $level * 2) . $this->getCharacter() . ' ';
+
+        // L'últim caràcter serà un salt de línia quan es tracti de lliste imbricades
+        if (substr($content, -1, 1) != "\n") {
+            $post = "\n";
+        } else {
+            $post = "";
+        }
+
+        return $pre . $content . $post;
+    }
+
+    protected function getLevel() {
+
+        return $this->getTopListNode()['level'];
+    }
+
+    protected function getCharacter() {
+
+
+        $listNode = $this->getTopListNode();
+
+        switch ($listNode['list']) {
             case 'ul':
                 $character = '*';
                 break;
@@ -25,26 +48,36 @@ class Html2DWListItem extends Html2DWMarkup {
             default:
 //                var_dump(static::$stack);
 //                die();
-                $character = 'Tipus de llista desconeguda >>' . $previous['list'] . '<<';
+                $character = 'Tipus de llista desconeguda >>' . $listNode['list'] . '<<';
 
         }
 
-//        if (strpos($token['value'],"Subitem") !== false) {
-//            var_dump($this->currentToken);
-//            die();
-//        }
+        return $character;
+    }
 
-        // El $open només ha d'incloure això si aquest content és el primer del list item. Es pot afegir un comptador d'elements al currentToken??
+    protected function getTopListNode() {
 
-        if (!$this->currentToken['is-first-chunk']) {
-            $this->currentToken['is-first-chunk'] = true;
-            $open = str_repeat(' ', $previous['level'] * 2) . $character . ' ';
-        } else {
-            $open ='';
+        for ($i = count(static::$stack) - 1; $i>=0; $i--) {
+            if (static::$stack[$i]['state'] == 'list') {
+                return static::$stack[$i];
+            }
         }
-
-        return $open . $token['value'];
 
     }
 
+    protected function getReplacement($position) {
+
+//        $prev = $this->getPreviousState();
+//
+//        if ($prev['skip-close'] && $position = self::CLOSE) {
+//            return '';
+//        }
+
+
+        if (static::DEBUG_MODE) {
+            return $this->getDebugReplacement($position);
+        } else {
+            return is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
+        }
+    }
 }

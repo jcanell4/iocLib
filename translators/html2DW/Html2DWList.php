@@ -6,6 +6,7 @@ class Html2DWList extends Html2DWMarkup {
 
     public function getTokensValue($tokens, &$tokenIndex) {
         $token = $tokens[$tokenIndex-1];
+
         $count = count(static::$stack);
         $index = $count - 1;
 
@@ -29,10 +30,21 @@ class Html2DWList extends Html2DWMarkup {
                 static::$stack[$index]['level'] = 1;
             }
         } else {
+            // Si és el primer element de l'stack llavors es nivell 1
             static::$stack[$index]['level'] = 1;
         }
 
-        return $this->getReplacement(self::OPEN) . parent::getTokensValue($tokens, $tokenIndex);
+        $pre = $this->getReplacement(self::OPEN);
+
+//         Si el previ es un list-item a la apertura s'ha d'afegir un salt de línia i no s'ha d'afegir en tancar el list-item
+        if ($this->getPreviousState()['state'] == 'list-item') {
+            $pre = "\n" . $pre;
+
+            static::$stack[$count - 2]['skip-close'] = true;
+        }
+
+//        return parent::getTokensValue($tokens, $tokenIndex);
+        return $pre . parent::getTokensValue($tokens, $tokenIndex);
 
     }
 
