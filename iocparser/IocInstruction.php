@@ -170,7 +170,7 @@ class IocInstruction {
                 $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
                 if ( !$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
-                    throw new WrongClosingTranslatorException($result);
+                    throw new WrongClosingTranslatorException([htmlspecialchars($top['value']), htmlspecialchars($currentToken['value'])]);
                 }
 
                 if (!$isExcluded) {
@@ -188,7 +188,7 @@ class IocInstruction {
             $top = $this->getTopState();
             if ($top) {
 //                var_dump($top, $result);
-                throw new MissingClosingTranslatorException($result);
+                throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
             }
         }
 

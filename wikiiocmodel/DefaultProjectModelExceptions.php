@@ -8,7 +8,7 @@ if (!defined('DOKU_INC')) die();
 require_once(DOKU_INC . 'inc/common.php');
 
 class ImageNotFoundException extends WikiIocModelException {
-    public function __construct($image, $codeMessage = "imageNotFound", $code=7101, $previous=NULL) {
+    public function __construct($image, $codeMessage = "imageNotFound", $code=7107, $previous=NULL) {
         parent::__construct($codeMessage, $code, $previous, $image);
     }
 }
@@ -72,31 +72,31 @@ class InvalidUserException extends WikiIocModelException {
 }
 
 class IncorrectParamsException extends WikiIocModelException {
-    public function __construct($message='Paràmetres incorrectes.', $code=7110, $previous=NULL) {
+    public function __construct($message='Paràmetres incorrectes.', $code=7111, $previous=NULL) {
         parent::__construct($message, $code, $previous);
     }
 }
 
 class PartialEditNotSupportedException extends WikiIocModelException {
-    public function __construct($param='', $message="No es pot utilizar el codi ~~USE:WIOCCL~~ en una edició parcial, s'ha de fer servir en una edició completa.", $code=7105, $previous=NULL) {
+    public function __construct($param='', $message="No es pot utilizar el codi ~~USE:WIOCCL~~ en una edició parcial, s'ha de fer servir en una edició completa.", $code=7112, $previous=NULL) {
         parent::__construct($message, $code, $previous, $param);
     }
 }
 
 class UnimplementedTranslatorException extends WikiIocModelException {
-    public function __construct($message='Traductor no implementat.', $code=7100, $previous=NULL) {
+    public function __construct($message='Traductor no implementat.', $code=7113, $previous=NULL) {
         parent::__construct($message, $code, $previous);
     }
 }
 
 class WrongClosingTranslatorException extends WikiIocModelException {
-    public function __construct($message='Tancament d\'etiquetes incorrecte, revisa l\'apertura i tancament.', $code=7100, $previous=NULL) {
-        parent::__construct($message, $code, $previous);
+    public function __construct($param='', $message='Tancament d\'etiquetes incorrecte, revisa l\'apertura i tancament de %s. S\'ha trobat l\'etiqueta %s', $code=7114, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $param);
     }
 }
 
 class MissingClosingTranslatorException extends WikiIocModelException {
-    public function __construct($message='Tancament d\'etiquetes incorrecte, falta una o més etiquetes de tancament.', $code=7100, $previous=NULL) {
-        parent::__construct($message, $code, $previous);
+    public function __construct($param='', $message='Tancament d\'etiquetes descompensat des de l\'etiqueta %s.', $code=7115, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $param);
     }
 }
