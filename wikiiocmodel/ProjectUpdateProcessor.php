@@ -6,6 +6,38 @@
  */
 if (!defined('DOKU_INC')) die();
 
+class ManagerProjectUpdateProcessor{
+    
+    public static function updateAll($arraytaula, &$projectMetaData){
+        $toUpdate=array();
+        
+        foreach ($projectMetaData as $key => $value){
+            $toUpdate[$key] = $value;
+        }
+        $processArray = array();
+        try{
+
+            foreach ($arraytaula as $elem) {
+                if($elem["type"] !== "noprocess"){
+                    $processor = ucwords($elem['type'])."ProjectUpdateProcessor";
+                    if ( !isset($processArray[$processor]) ) {
+                        $processArray[$processor] = new $processor;
+                    }
+                    $processArray[$processor]->init($elem['value'], $elem['parameters']);
+                    $processArray[$processor]->runProcess($toUpdate);
+                }
+            }
+        } catch (Exception $e){
+            $toUpdate = array();
+        }
+        
+        foreach ($toUpdate as $k => $v){
+            $projectMetaData[$k] = $v;
+        }
+        return count($toUpdate)>0;
+    }    
+}
+
 abstract class AbstractProjectUpdateProcessor{
     protected abstract function getFieldValue($fieldValue);
     protected $value;
