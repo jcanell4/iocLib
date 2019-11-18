@@ -458,6 +458,18 @@ class WiocclFunction extends WiocclInstruction
         $ret = explode($delimiter, $string, $limit);
         return self::_normalizeValue($ret);
     }
+
+    protected function STR_SUBTR($text=NULL, $start=0, $len=NAN) {
+        if(!(is_string($text)|| !is_numeric($start))){
+            return "[ERROR! paràmetres incorrectes STR_REPLACE($search, $replace, $subject, $count)]"; //TODO: internacionalitzar
+        }
+        if(is_numeric ($len)){
+            $ret = substr($text, $start, $len);            
+        }else{
+            $ret = substr($text, $start);            
+        }
+        return $ret;
+    }    
     
     protected function STR_REPLACE($search=NULL, $replace=NULL, $subject=NULL, $count=FALSE) {
         if(!(is_string($search)||is_array($search)) || !(is_string($replace)|| is_array($replace)) || !is_string($subject)){
