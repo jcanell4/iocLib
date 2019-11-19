@@ -2,6 +2,10 @@
 if (!defined('DOKU_INC')) define('DOKU_INC', realpath('../../../../') . '/');
 if (!defined('DOKU_CONF')) define('DOKU_CONF', DOKU_INC . 'conf/');
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 //require_once DOKU_INC.'inc/preload.php';
 
 require_once DOKU_INC . 'inc/inc_ioc/ioc_load.php';

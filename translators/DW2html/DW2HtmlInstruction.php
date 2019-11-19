@@ -23,6 +23,9 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
     public function isClosing($token) {
+
+//        var_dump($token);
+
         die("Unimplemented");
     }
 
@@ -93,6 +96,8 @@ class DW2HtmlInstruction extends IocInstruction {
             $result .= $top['instruction']->Close();
             $this->popState();
             $top = end(static::$stack);
+
+            $test = $top;
 //            var_dump($result);
         }
 

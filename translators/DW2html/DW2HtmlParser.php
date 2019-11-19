@@ -19,6 +19,11 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
+        "^([\^\|].*?[\^\|]\n)"=> [
+            "state" => "table"
+        ],
+
+
         "={1,6}\n?" => [
             'state' => 'header'
         ],
@@ -30,6 +35,11 @@ class DW2HtmlParser extends IocParser {
         "{{(.*?)}}" => [
             'state' => 'image'
         ],
+
+        "^::table:.*?:::" => [
+            'state' => 'box'
+        ],
+
 
         "<code.*?>(.*?)<\/code>\n" => [
             'state' => 'code',
@@ -84,7 +94,12 @@ class DW2HtmlParser extends IocParser {
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
 
-        // El close ha d'anar abans perquè si no es detecta com a open <-- TODO: posar-ho com regex
+        "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+
+        "^([\^\|].*?[\^\|]\n)"=> ['state' => 'table', 'type' => 'table', 'class' => 'DW2HtmlTable', 'action' => 'tree', 'extra' => ['regex' => TRUE, 'block' => TRUE]
+        ],
+
+        // El close ha d'anar abans perquè si no es detecta com a open
         "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         '={1,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
 
@@ -136,7 +151,10 @@ class DW2HtmlParser extends IocParser {
         $pattern = substr($pattern, 0, strlen($pattern) - 1) . ')/ms';
 
 //
-//        var_dump($pattern);
+//        if (static::$isInner) {
+//            var_dump($pattern);
+//        }
+
 //        die();
         return $pattern;
     }

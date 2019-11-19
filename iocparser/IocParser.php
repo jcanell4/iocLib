@@ -46,7 +46,10 @@ class IocParser {
 ////            die();
 //        }
 
-//        var_dump($tokens);
+//        if (static::$isInner) {
+//            var_dump($tokens);
+//        }
+
 //        var_dump($tokens[0], $tokens[1], $tokens[3]);
 //        die();
 

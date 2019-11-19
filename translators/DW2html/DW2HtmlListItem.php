@@ -20,11 +20,6 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
 
         $class::setInner($isInnerPrevious);
 
-//        var_dump($this->getReplacement(self::OPEN));
-//        die();
-
-//        $this->pushState($this->currentToken); // Això es fa al Switch del Instruction
-
         $return .= $this->getReplacement(self::OPEN) . $value;
 
 
