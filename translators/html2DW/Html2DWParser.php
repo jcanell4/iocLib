@@ -120,12 +120,10 @@ class Html2DWParser extends IocParser {
             'state' => 'close_li',
         ],
 
-        '<a ?.*?>' => [
-            'state' => 'open_anchor',
+        '<a ?.*?>.*?<\/a>' => [
+            'state' => 'link',
         ],
-        '<\/a>' => [
-            'state' => 'close_anchor',
-        ],
+
 
         '<img.*?\/>' => [
             'state' => 'image',
@@ -136,8 +134,9 @@ class Html2DWParser extends IocParser {
         // aquests són els elements buits, sense cap atribut per processar.
         // ALERTA! El replacement s'ha d'especificar al 'open', si es diferent al open i close es fa servir un array amb els dos elements (0 per open i 1 per close)
 
-        '<a ?(.*)?>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'open', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
-        '</a>' => ['state' => 'link', 'type' => 'a', 'action' => 'close'],
+        '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
+
+//        '</a>' => ['state' => 'link', 'type' => 'a', 'action' => 'close'],
 
 //        '<div>' => ['state' => 'open_div', 'type' => 'div', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]],
 //        '</div>' => ['state' => 'close_div', 'type' => 'div', 'action' => 'close'],

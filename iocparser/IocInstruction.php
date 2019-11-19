@@ -182,13 +182,11 @@ class IocInstruction {
         }
 
 
-
-        // Això no és correcte perqué no sempre hi ha $nextToken, per exemple quan es fa un parse intern (no hi ha mecanisme implementat per controlar-lo)
         if (self::$instancesCounter === 0) {
             $top = $this->getTopState();
             if ($top) {
-//                var_dump($top, $result);
-                throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
+                var_dump($top, $result);
+                //throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
             }
         }
 

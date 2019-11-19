@@ -3,27 +3,28 @@ require_once "Html2DWParser.php";
 
 class Html2DWLink extends Html2DWMarkup {
 
-
     protected function getContent($token) {
-        // El token que arriba conté el text de l'enllaç
-        $text = $token['value'];
+
+
+        $text = $this->extractVarName($token['raw'], 'title');
+
         $url = '';
 
         try {
-            $linkType = $this->extractVarName($this->currentToken['raw'], 'data-dw-type');
+            $linkType = $this->extractVarName($token['raw'], 'data-dw-type');
 
             switch ($linkType) {
                 case 'internal_link':
-                    $url = $this->extractVarName($this->currentToken['raw'], 'data-dw-ns');
+                    $url = $this->extractVarName($token['raw'], 'data-dw-ns');
                     break;
 
                 case 'external_link':
-                    $url = $this->extractVarName($this->currentToken['raw'], 'href');
+                    $url = $this->extractVarName($token['raw'], 'href');
                     break;
             }
         } catch (Exception $e) {
             // Si no tenim la informació ho intentem deduir
-            $url = $this->extractVarName($this->currentToken['raw'], 'href');
+            $url = $this->extractVarName($token['raw'], 'href');
 
             $pos = strpos($url, 'doku.php?id=');
             if ($pos !== false) {
@@ -38,8 +39,10 @@ class Html2DWLink extends Html2DWMarkup {
             $text = $url . '|' . $url;
         }
 
-        return $this->getReplacement(self::OPEN) . $text;
+        $return = $this->getReplacement(self::OPEN) . $text . $this->getReplacement(self::CLOSE);
 
+        return $return;
     }
+
 
 }

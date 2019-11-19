@@ -262,7 +262,6 @@ class DW2HtmlInstruction extends IocInstruction {
 
         if (!$class::isInner()) {
 
-            // Això tanca totes les etiquetes obertes però no és correcte, no podem cridar tampoc al isClosing perque no sabem quin és el següent token
             while ($top = end(static::$stack)) {
                 $result .= $top['instruction']->close();
                 $this->popState();
