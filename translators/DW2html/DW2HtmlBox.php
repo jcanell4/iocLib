@@ -26,11 +26,14 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //            $text = $url;
 //        }
 
+        // TODO: fer servir aquest informació per crear la capça
+
         // Extrerure els camps
         // ^::tipus:ID$
         $typePattern = "/^::(.*?):(.*)$/m";
         if (preg_match($typePattern, $token['raw'], $matches)) {
-            var_dump($matches);
+//            var_dump($matches);
+
             $type = $matches[1];
             $id = $matches[2];
         }
@@ -42,19 +45,19 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             $fields = [];
 
             for ($i = 1; $i<count($matches); $i++) {
-                echo $i . " " . $matches[$i][0] . " : " . $matches[$i][1];
+//                echo $i . " " . $matches[$i][0] . " : " . $matches[$i][1];
                 $fields[$matches[$i][0]] = $matches[$i][1];
 
             }
 
-            var_dump($fields);
+//            var_dump($fields);
         }
 
         $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
         if (preg_match($typeContent, $token['raw'], $matches)) {
 
             $content= $matches[1];
-            var_dump($content);
+//            var_dump($content);
         } else {
             $content = "Error: contingut no reconegut";
         }

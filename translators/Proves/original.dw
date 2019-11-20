@@ -69,5 +69,8 @@ Un altre paràgraf.
 ^  tipus  ^  eina  ^  opcionalitat  ^  puntuable  ^
 | aaa | bbb | ccc | ddd |
 | 111 | 222 | 333 | 444 |
+|| 222 | 333 | 444 |
+|111 i 222 || 333 i 444 ||
+|||||
 | --- | @@@ | **aaa** bb ### | ... |
 :::
