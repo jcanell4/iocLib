@@ -68,6 +68,7 @@ Un altre paràgraf.
   :type:pt_taula
 ^  tipus  ^  eina  ^  opcionalitat  ^  puntuable  ^
 | aaa | bbb | ccc | ddd |
+| abc | ::: | cbd | hij |
 | 111 | 222 | 333 | 444 |
 || 222 | 333 | 444 |
 |111 i 222 || 333 i 444 ||

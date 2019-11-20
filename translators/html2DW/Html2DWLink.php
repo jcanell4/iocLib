@@ -6,7 +6,11 @@ class Html2DWLink extends Html2DWMarkup {
     protected function getContent($token) {
 
 
-        $text = $this->extractVarName($token['raw'], 'title');
+        try {
+            $text = $this->extractVarName($token['raw'], 'title');
+        } catch (Exception $e) {
+            $text = "";
+        }
 
         $url = '';
 

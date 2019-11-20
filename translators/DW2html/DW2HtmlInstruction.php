@@ -90,15 +90,11 @@ class DW2HtmlInstruction extends IocInstruction {
 
         while ($top && $top['instruction']->isClosing($currentToken)) {
 
-//            var_dump($top);
-//            echo "TANCANT\n";
 
             $result .= $top['instruction']->Close();
             $this->popState();
             $top = end(static::$stack);
 
-            $test = $top;
-//            var_dump($result);
         }
 
 

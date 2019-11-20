@@ -19,10 +19,6 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
-        "^([\^\|].*?[\^\|]\n)"=> [
-            "state" => "table"
-        ],
-
 
         "={1,6}\n?" => [
             'state' => 'header'
@@ -36,7 +32,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "^::table:.*?:::" => [
+        "^::table:.*?^:::$" => [
             'state' => 'box'
         ],
 
@@ -95,9 +91,6 @@ class DW2HtmlParser extends IocParser {
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
 
         "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
-
-        "^([\^\|].*?[\^\|]\n)"=> ['state' => 'table', 'type' => 'table', 'class' => 'DW2HtmlTable', 'action' => 'tree', 'extra' => ['regex' => TRUE, 'block' => TRUE]
-        ],
 
         // El close ha d'anar abans perquè si no es detecta com a open
         "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
