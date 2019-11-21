@@ -177,47 +177,51 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             for ($colIndex = 0; $colIndex < count($tableData); $colIndex++) {
 
 
+                $isMergedCol = trim($tableData[$colIndex][$rowIndex]['content']) == ":::";
+                $colSpan = isset($tableData[$colIndex][$rowIndex]['colspan']) ? $tableData[$colIndex][$rowIndex]['colspan'] : false;
+                $rowSpan = isset($tableData[$colIndex][$rowIndex]['colspan']) ? $tableData[$colIndex][$rowIndex]['rowspan'] : false;
+                $isEmpty = strlen($tableData[$colIndex][$rowIndex]['content']) == 0;
+
                 // la primera columna es fila, es una fusió cap a la esquerra
                 if ($colIndex==0 && count($tableData) > 1
-                    && strlen($tableData[$colIndex][$rowIndex]['content'] == 0)
-                    && isset($tableData[$colIndex][$rowIndex]['colspan'])) {
+                    && $isEmpty
+                    && $colSpan) {
                     // desplacem el colspan cap a la dreta
 
                     if (isset($tableData[$colIndex+1][$rowIndex]['colspan'])) {
-                        $tableData[$colIndex+1][$rowIndex]['colspan'] += $tableData[$colIndex][$rowIndex]['colspan'];
+//                        $tableData[$colIndex+1][$rowIndex]['colspan'] += $tableData[$colIndex][$rowIndex]['colspan'];
+                        $tableData[$colIndex+1][$rowIndex]['colspan'] += $colSpan;
+                        continue;
                     } else {
-                        $tableData[$colIndex+1][$rowIndex]['colspan'] = 2;
+                        // No fem res, s'ha d'afegir el TD amb el colspan que correspongui
+//                        $tableData[$colIndex+1][$rowIndex]['colspan'] = 2;
                     }
 
-                    continue;
+//                    continue;
                 }
 
                 // es una cel.la fusionada per fila
-                if ($colIndex>0 && strlen($tableData[$colIndex][$rowIndex]['content']) == 0) {
-                    continue;
+                if ($colIndex>0 && $isEmpty) {
+                        continue;
                 }
 
-                else if (trim($tableData[$colIndex][$rowIndex]['content']) == ":::"
-                    && !$tableData[$colIndex][$rowIndex]['colspan']
-                    && !$tableData[$colIndex][$rowIndex]['rowspan']) {
+                else if ($isMergedCol && !$colSpan && !$rowSpan) {
                     // es una cel·la fusionada per columna
                     continue;
-                } else if (trim($tableData[$colIndex][$rowIndex]['content']) == ":::"
-                    && ($tableData[$colIndex][$rowIndex]['colspan']
-                        || !$tableData[$colIndex][$rowIndex]['rowspan'])) {
-                    // Aquest cas es pot donar si la primera cel·la de la columna fos fusionada
-                    $tableData[$colIndex][$rowIndex]['content'] = '';
+//                } else if ($isMergedCol && ($colSpan || !$rowSpan) {
+//                    // Aquest cas es pot donar si la primera cel·la de la columna fos fusionada
+//                    $tableData[$colIndex][$rowIndex]['content'] = '';
 
                 }
 
                 $table .= '<' . $tableData[$colIndex][$rowIndex]['tag'];
 
-                if (isset($tableData[$colIndex][$rowIndex]['colspan'])) {
-                    $table .= ' colspan="' . $tableData[$colIndex][$rowIndex]['colspan'] . '"';
+                if ($colSpan) {
+                    $table .= ' colspan="' . $colSpan . '"';
                 }
 
-                if (isset($tableData[$colIndex][$rowIndex]['rowspan'])) {
-                    $table .= ' rowspan="' . $tableData[$colIndex][$rowIndex]['rowspan'] . '"';
+                if ($rowSpan) {
+                    $table .= ' rowspan="' . $rowSpan . '"';
                 }
 
                 $table .= '>';

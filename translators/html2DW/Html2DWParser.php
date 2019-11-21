@@ -10,9 +10,18 @@ class Html2DWParser extends IocParser {
     ];
 
     protected static $tokenPatterns = [
+
+        // Els boxes s'ha de ficar abans
+
+        '<table>.*?<\/table>' => [
+
+        ],
+
         '<p>' => [
             'state' => 'open_p',
         ],
+
+
 
         "\n<\/p>" => [
             'state' => 'close_p',
@@ -131,8 +140,8 @@ class Html2DWParser extends IocParser {
     ];
 
     protected static $tokenKey = [
-        // aquests són els elements buits, sense cap atribut per processar.
-        // ALERTA! El replacement s'ha d'especificar al 'open', si es diferent al open i close es fa servir un array amb els dos elements (0 per open i 1 per close)
+
+        '<table>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
 
