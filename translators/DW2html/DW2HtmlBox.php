@@ -165,16 +165,17 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function makeTable($tableData) {
+
         $table = '<table data-dw-cols="' . count($tableData[0]) .'">';
 
 
+        $len = $this->findRowCount($tableData);
 
-
-        for ($rowIndex = 0; $rowIndex < count($tableData[0]); $rowIndex++) {
+        for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
             $table .= '<tr>';
 
 
-            for ($colIndex = 0; $colIndex < count($tableData); $colIndex++) {
+            for ($colIndex = 0; $colIndex < $len; $colIndex++) {
 
 
 //                $isMergedCol = trim($tableData[$colIndex][$rowIndex]['content']) == ":::";
@@ -224,4 +225,20 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $table;
     }
 
+    protected function findRowCount($tableData) {
+        // El nombre d'elements a cada fila no sempre correspon al nombre de files ja que pot haver cel·les amb rowspan
+
+        $rows = 0;
+
+        foreach ($tableData as $col) {
+            // Posem el cursor de l'array a la última posició
+            end($col);
+
+            if (key($col)>$rows) {
+                $rows = key($col);
+            }
+        }
+
+        return $rows;
+    }
 }

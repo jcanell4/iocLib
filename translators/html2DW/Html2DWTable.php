@@ -10,7 +10,7 @@ class Html2DWTable extends Html2DWMarkup {
         ++static::$instancesCounter;
 
 
-        $maxCols = $this->extractVarName($token['raw'],'data-dw-cols', false);
+//        $maxCols = $this->extractVarName($token['raw'],'data-dw-cols', false);
 
         // extraiem el contingut
         preg_match($token['pattern'], $token['raw'], $matches);
@@ -36,17 +36,6 @@ class Html2DWTable extends Html2DWMarkup {
             $colIndex = 0;
             $cellNumber = count($colMatches[1]);
 
-            echo $cellNumber . "\n";
-
-//            var_dump($colMatches);
-            // Cas: es una fila completa fusionada
-//            if ($cellNumber === 1) {
-//                die();
-//                for ($i = 0; $i < $maxCols; $i++) {
-//
-//                }
-//
-//            }
 
             for ($i = 0; $i < $cellNumber; $i++) {
 
@@ -54,7 +43,7 @@ class Html2DWTable extends Html2DWMarkup {
                 //      Si tromem un rowspan marquem les posicions necessaries
                 //      Si es troba ja ocupada la cel·la en desplacem cap a la dreta
 
-                var_dump($colMatches);
+//                var_dump($colMatches);
                 // extreure tipus TD o TH
                 if (substr($colMatches[0][$i], -5, 5) == '</td>') {
                     $cell['tag'] = 'td';
@@ -119,56 +108,28 @@ class Html2DWTable extends Html2DWMarkup {
 
         var_dump($table);
 
-        return 'TODO: ficar la taula parsejada';
+        return $this->makeTable($table);
+
+//        return 'TODO: ficar la taula parsejada';
 
 
 //        die("Html2DWTable#getContent");
     }
 
+    protected function makeTable($tableData) {
+
+        // TODO: fer la
+
+        var_dump($tableData);
+        die('TODO: fer la conversio de les dades a una taula de DW');
+
+
+    }
+
     public function getTokensValue($tokens, &$tokenIndex) {
 
+        // això no es crida
         die("Html2DWTable#getTokensValue");
-
-//        $token = $tokens[$tokenIndex-1];
-//
-//        $count = count(static::$stack);
-//        $index = $count - 1;
-//
-//        static::$stack[$index]['list'] = $token['extra']['container'];
-//
-//
-//        // El top és aquest mateix UL, hem d'agafar l'anterior (-2)
-//        if (count(static::$stack) > 1) {
-//
-//            // Cas 1: aquésta llista no es filla d'un item
-//            $previous = static::$stack[$count - 2];
-//
-//            // Cas 2: aquésta llista està imbricada
-//            if ($previous['state'] == 'list-item') {
-//                $previous = static::$stack[$count - 3];
-//            }
-//
-//            if (isset($previous['list'])) {
-//                static::$stack[$index]['level'] = ++$previous['level'];
-//            } else {
-//                static::$stack[$index]['level'] = 1;
-//            }
-//        } else {
-//            // Si és el primer element de l'stack llavors es nivell 1
-//            static::$stack[$index]['level'] = 1;
-//        }
-//
-//        $pre = $this->getReplacement(self::OPEN);
-//
-////         Si el previ es un list-item a la apertura s'ha d'afegir un salt de línia i no s'ha d'afegir en tancar el list-item
-//        if ($this->getPreviousState()['state'] == 'list-item') {
-//            $pre = "\n" . $pre;
-//
-//            static::$stack[$count - 2]['skip-close'] = true;
-//        }
-//
-////        return parent::getTokensValue($tokens, $tokenIndex);
-//        return $pre . parent::getTokensValue($tokens, $tokenIndex);
 
     }
 
