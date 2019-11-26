@@ -63,10 +63,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $post = '</div>';
 
-
-
-
-        echo $pre. $value . $post . "\n";
+//        echo $pre. $value . $post . "\n";
 
         return $pre. $value . $post;
     }
@@ -168,51 +165,38 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function makeTable($tableData) {
-        $table = '<table>';
+        $table = '<table data-dw-cols="' . count($tableData[0]) .'">';
+
+
 
 
         for ($rowIndex = 0; $rowIndex < count($tableData[0]); $rowIndex++) {
             $table .= '<tr>';
 
+
             for ($colIndex = 0; $colIndex < count($tableData); $colIndex++) {
 
 
-                $isMergedCol = trim($tableData[$colIndex][$rowIndex]['content']) == ":::";
+//                $isMergedCol = trim($tableData[$colIndex][$rowIndex]['content']) == ":::";
                 $colSpan = isset($tableData[$colIndex][$rowIndex]['colspan']) ? $tableData[$colIndex][$rowIndex]['colspan'] : false;
-                $rowSpan = isset($tableData[$colIndex][$rowIndex]['colspan']) ? $tableData[$colIndex][$rowIndex]['rowspan'] : false;
+                $rowSpan = isset($tableData[$colIndex][$rowIndex]['rowspan']) ? $tableData[$colIndex][$rowIndex]['rowspan'] : false;
                 $isEmpty = strlen($tableData[$colIndex][$rowIndex]['content']) == 0;
 
-                // la primera columna es fila, es una fusió cap a la esquerra
-                if ($colIndex==0 && count($tableData) > 1
-                    && $isEmpty
-                    && $colSpan) {
-                    // desplacem el colspan cap a la dreta
-
-                    if (isset($tableData[$colIndex+1][$rowIndex]['colspan'])) {
-//                        $tableData[$colIndex+1][$rowIndex]['colspan'] += $tableData[$colIndex][$rowIndex]['colspan'];
-                        $tableData[$colIndex+1][$rowIndex]['colspan'] += $colSpan;
-                        continue;
-                    } else {
-                        // No fem res, s'ha d'afegir el TD amb el colspan que correspongui
-//                        $tableData[$colIndex+1][$rowIndex]['colspan'] = 2;
-                    }
-
-//                    continue;
+                if ($colIndex==0 && count($tableData) > 1 && $isEmpty && $colSpan) {
+                    $tableData[$colIndex][$rowIndex]['colspan'] = $colSpan;
                 }
+
 
                 // es una cel.la fusionada per fila
                 if ($colIndex>0 && $isEmpty) {
                         continue;
                 }
 
-                else if ($isMergedCol && !$colSpan && !$rowSpan) {
+                else if ($tableData[$colIndex][$rowIndex] === null) {
                     // es una cel·la fusionada per columna
                     continue;
-//                } else if ($isMergedCol && ($colSpan || !$rowSpan) {
-//                    // Aquest cas es pot donar si la primera cel·la de la columna fos fusionada
-//                    $tableData[$colIndex][$rowIndex]['content'] = '';
-
                 }
+
 
                 $table .= '<' . $tableData[$colIndex][$rowIndex]['tag'];
 
@@ -232,12 +216,11 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
             }
 
-
             $table .= '</tr>';
+
         }
 
         $table .= '</table>';
-
         return $table;
     }
 

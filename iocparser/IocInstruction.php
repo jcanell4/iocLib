@@ -119,8 +119,8 @@ class IocInstruction {
 
 
             case 'open':
-                $mark = self::$instancesCounter == 0;
-                self::$instancesCounter++;
+                $mark = static::$instancesCounter == 0;
+                static::$instancesCounter++;
                 $item = $this->getClassForToken($currentToken, $nextToken);
 
                 $currentToken['instruction'] = $item;
@@ -132,7 +132,7 @@ class IocInstruction {
                     $result .= $item->getTokensValue($tokens, ++$tokenIndex);
                 }
 
-                self::$instancesCounter--;
+                static::$instancesCounter--;
                 break;
 
 
@@ -182,7 +182,7 @@ class IocInstruction {
         }
 
 
-        if (self::$instancesCounter === 0) {
+        if (static::$instancesCounter === 0 && $action !== 'content') {
             $top = $this->getTopState();
             if ($top) {
                 var_dump($top, $result);
