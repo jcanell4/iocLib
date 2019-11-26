@@ -5,13 +5,12 @@ class Html2DWTable extends Html2DWMarkup {
 
 
     protected function getContent($token) {
-        die("Html2DWTable#getContent");
+//        die("Html2DWTable#getContent");
 
-        var_dump($token);
         ++static::$instancesCounter;
 
 
-        $maxCols = $this->extractVarName('data-dw-cols', false);
+        $maxCols = $this->extractVarName($token['raw'],'data-dw-cols', false);
 
         // extraiem el contingut
         preg_match($token['pattern'], $token['raw'], $matches);
@@ -21,8 +20,9 @@ class Html2DWTable extends Html2DWMarkup {
         // extraiem les files
         $rowPattern = '/<tr>(.*?)<\/tr>/ms';
         preg_match_all($rowPattern, $token['raw'], $rowMatches);
-        var_dump($rowMatches);
+//        var_dump($rowMatches);
         $rows = $rowMatches[0];
+
 
 
         $table = [];
@@ -34,18 +34,21 @@ class Html2DWTable extends Html2DWMarkup {
 
 
             $colIndex = 0;
-            $cellNumber = count($colMatches[0]);
+            $cellNumber = count($colMatches[1]);
 
-            if ($cellNumber == 0) {
-                for ($i = 0; $i < $maxCols; $i++) {
+            echo $cellNumber . "\n";
 
-                }
-
-            }
+//            var_dump($colMatches);
+            // Cas: es una fila completa fusionada
+//            if ($cellNumber === 1) {
+//                die();
+//                for ($i = 0; $i < $maxCols; $i++) {
+//
+//                }
+//
+//            }
 
             for ($i = 0; $i < $cellNumber; $i++) {
-
-                die('stop, això no está implementat');
 
                 // ALERTA! La posició no correspón a la posició a la taula, s'ha de desplaçar pels row spans
                 //      Si tromem un rowspan marquem les posicions necessaries
@@ -70,6 +73,7 @@ class Html2DWTable extends Html2DWMarkup {
                 $class::setInner($isInnerPrevious);
 
 
+                // Això ho fem per avançar el cursor sobre les cel·les que ja s'han establer per un rowspan a una fila anterior
                 while (isset($table[$colIndex][$rowIndex])) {
                     $colIndex++;
                 }
@@ -83,8 +87,8 @@ class Html2DWTable extends Html2DWMarkup {
                     // afegim files amb ::: cap a sota fins a rowspan-1
                     $rowspan = $match[1];
 
-                    for ($j = 0; $j < $rowspan; $j++) {
-                        $table[$colIndex][$rowIndex + $j + 1] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+                    for ($j = 1; $j < $rowspan; $j++) {
+                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
                     }
                 }
 
@@ -95,7 +99,7 @@ class Html2DWTable extends Html2DWMarkup {
 
                     $colspan = $match[1];
 
-                    for ($j = 0; $j < $colspan; $j++) {
+                    for ($j = 1; $j < $colspan; $j++) {
                         ++$colIndex;
                         $table[$colIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
 //                        $table[$colIndex+$j+1][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
@@ -112,6 +116,9 @@ class Html2DWTable extends Html2DWMarkup {
 
 
         --static::$instancesCounter;
+
+        var_dump($table);
+
         return 'TODO: ficar la taula parsejada';
 
 

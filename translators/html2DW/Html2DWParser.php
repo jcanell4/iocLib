@@ -13,7 +13,7 @@ class Html2DWParser extends IocParser {
 
         // Els boxes s'ha de ficar abans
 
-        '<table>.*?<\/table>' => [
+        '<table.*=?>.*?<\/table>' => [
 
         ],
 
@@ -141,7 +141,7 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenKey = [
 
-        '<table>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
 
