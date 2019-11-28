@@ -12,9 +12,9 @@
  * @author josep
  */
 class WsMoodleClient {
+    const MOODLEWSRESTFORMAT= "json";
     protected $token = NULL;
     protected $wsFunction;
-    protected $moodlewsrestformat='json';
     protected $urlBase = "https://ioc.xtec.cat/campus";
     protected $furlToken = "/login/token.php";
     protected $furl ="/webservice/rest/server.php";
@@ -42,12 +42,12 @@ class WsMoodleClient {
         }
     }
 
-    public function sendRequest(array $wsParams, $wsFunction=FALSE, $moodlewsrestformat='json'){
+    public function sendRequest(array $wsParams, $wsFunction=FALSE){
         $url = $this->urlBase.$this->furl;
         if(!$wsFunction){
             $wsFunction = $this->wsFunction;
         }
-        $query = http_build_query(["wstoken" => $this->token, "wsfunction" => $wsFunction, "moodlewsrestformat" => $moodlewsrestformat], "", "&");
+        $query = http_build_query(["wstoken" => $this->token, "wsfunction" => $wsFunction, "moodlewsrestformat" => self::MOODLEWSRESTFORMAT], "", "&");
 
         $postData = $this->getStrData($wsParams);
 
@@ -58,7 +58,7 @@ class WsMoodleClient {
     public function updateToken($user, $pass){
         $url = $this->urlBase. $this->furlToken;
         $query = http_build_query(["username" => $user, "password" => $pass, "service" => "moodle_mobile_app"], "", "&");
-        $result = json_decode($this->_sendRequest($url, "", $query));
+        $result = $this->_sendRequest($url, "", $query);
         $this->requestError = ($result->error) ? $result : NULL;
         $this->setToken($result->token);
     }
@@ -68,7 +68,7 @@ class WsMoodleClient {
     }
 
     protected function _sendRequest($url, $query="", $postData=FALSE){
-        $this->token = NULL;
+        $this->requestError = NULL;
         if ($query){
             $url = $url."?".$query;
         }
@@ -77,7 +77,11 @@ class WsMoodleClient {
         }else{
             $context = $this->getContext("GET");
         }
-        return file_get_contents($url, false, $context);
+        $resp = json_decode(file_get_contents($url, false, $context));      
+        if($resp->exception){
+            $this->requestError = $resp;
+        }
+        return $resp;
     }
 
     protected function getStrData($data){
