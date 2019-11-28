@@ -51,13 +51,14 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $value = $this->parseTable($content);
 
-        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\">\n";
+        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
+            . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
 //        $pre .= '<a name="' . $id . '"><strong>ID:</strong> ' . $id . "<br></a>\n";
-        $pre .= '<strong>ID:</strong> ' . $id . "<br>\n";
+        $pre .= '<strong data-dw-field="id">ID:</strong> ' . $id . "<br>\n";
 
         if (isset($fields['title'])) {
-            $pre .= '<strong>Títol:</strong> ' . $fields['title'] . "<br>\n";
+            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
         }
         $pre .= '</div>';
 
@@ -65,7 +66,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 //        echo $pre. $value . $post . "\n";
 
-        return $pre. $value . $post;
+        return $pre . $value . $post;
     }
 
     public function isClosing($token) {
@@ -92,7 +93,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Eliminem el primer i l'últim elements perque sempre son buits
             array_pop($cols);
             array_shift($cols);
-
 
 
             for ($colIndex = 0; $colIndex < count($cols); $colIndex++) {
@@ -150,7 +150,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                         for ($j = $rowIndex - 1; $j >= 0; $j--) {
 
 
-
                             if (trim($table[$colIndex][$j]['content']) != ":::" || $j == 0) {
                                 $table[$colIndex][$j]['rowspan'] = $table[$colIndex][$j]['rowspan'] ? $table[$colIndex][$j]['rowspan'] + 1 : 2;
                                 break;
@@ -183,7 +182,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
     protected function makeTable($tableData) {
 
-        $table = '<table data-dw-cols="' . count($tableData[0]) .'">';
+        $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
 
 
         $len = $this->findRowCount($tableData);
@@ -200,17 +199,15 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 $rowSpan = isset($tableData[$colIndex][$rowIndex]['rowspan']) ? $tableData[$colIndex][$rowIndex]['rowspan'] : false;
                 $isEmpty = strlen($tableData[$colIndex][$rowIndex]['content']) == 0;
 
-                if ($colIndex==0 && count($tableData) > 1 && $isEmpty && $colSpan) {
+                if ($colIndex == 0 && count($tableData) > 1 && $isEmpty && $colSpan) {
                     $tableData[$colIndex][$rowIndex]['colspan'] = $colSpan;
                 }
 
 
                 // es una cel.la fusionada per fila
-                if ($colIndex>0 && $isEmpty) {
-                        continue;
-                }
-
-                else if ($tableData[$colIndex][$rowIndex] === null) {
+                if ($colIndex > 0 && $isEmpty) {
+                    continue;
+                } else if ($tableData[$colIndex][$rowIndex] === null) {
                     // es una cel·la fusionada per columna
                     continue;
                 }
@@ -229,8 +226,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 $class = '';
 
 
-
-                $align = isset($tableData[$colIndex][$rowIndex]['align']) ? $tableData[$colIndex][$rowIndex]['align']: false;
+                $align = isset($tableData[$colIndex][$rowIndex]['align']) ? $tableData[$colIndex][$rowIndex]['align'] : false;
 
                 if ($align === 'left') {
                     $class = 'leftalign';
@@ -241,8 +237,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 }
 
 
-                if (strlen($class)>0) {
-                    $table .= ' class="' . $class. '"';
+                if (strlen($class) > 0) {
+                    $table .= ' class="' . $class . '"';
                 }
 
 
@@ -271,7 +267,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Posem el cursor de l'array a la última posició
             end($col);
 
-            if (key($col)>$rows) {
+            if (key($col) > $rows) {
                 $rows = key($col);
             }
         }

@@ -13,8 +13,12 @@ class Html2DWParser extends IocParser {
 
         // Els boxes s'ha de ficar abans
 
-        '<table.*=?>.*?<\/table>' => [
+        '<div.*? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
+            'state' => 'box',
+        ],
 
+        '<table.*=?>.*?<\/table>' => [
+            'state' => 'table',
         ],
 
         '<p>' => [
@@ -140,6 +144,8 @@ class Html2DWParser extends IocParser {
     ];
 
     protected static $tokenKey = [
+
+        '<div.*? data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
