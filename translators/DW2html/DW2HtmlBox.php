@@ -125,8 +125,22 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                     $cell['colspan'] = 1;
                 }
 
+                // Gestionem l'alineació
+                $start = substr($cols[$colIndex], 0, 2);
+                $end = substr($cols[$colIndex], -2, 2);
+
+
+                if ($start === "  " && $end === "  ") {
+                    $cell['align'] = "center";
+                } else if ($start === "  ") {
+                    $cell['align'] = "left";
+                } else if ($end === "  ") {
+                    $cell['align'] = "right";
+                }
+
+
                 // Gestionem el rowspan
-                if (trim($cols[$colIndex]) == ":::") {
+                if (trim($cols[$colIndex]) === ":::") {
 
 
                     if ($rowIndex == 0) {
@@ -134,6 +148,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                     } else {
                         // Recorrem tots els elements cap amunt
                         for ($j = $rowIndex - 1; $j >= 0; $j--) {
+
+
+
                             if (trim($table[$colIndex][$j]['content']) != ":::" || $j == 0) {
                                 $table[$colIndex][$j]['rowspan'] = $table[$colIndex][$j]['rowspan'] ? $table[$colIndex][$j]['rowspan'] + 1 : 2;
                                 break;
@@ -208,6 +225,26 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 if ($rowSpan) {
                     $table .= ' rowspan="' . $rowSpan . '"';
                 }
+
+                $class = '';
+
+
+
+                $align = isset($tableData[$colIndex][$rowIndex]['align']) ? $tableData[$colIndex][$rowIndex]['align']: false;
+
+                if ($align === 'left') {
+                    $class = 'leftalign';
+                } else if ($align === 'right') {
+                    $class = 'rightalign';
+                } else if ($align === 'center') {
+                    $class = 'centeralign';
+                }
+
+
+                if (strlen($class)>0) {
+                    $table .= ' class="' . $class. '"';
+                }
+
 
                 $table .= '>';
 

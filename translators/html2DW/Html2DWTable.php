@@ -37,6 +37,8 @@ class Html2DWTable extends Html2DWMarkup {
 
 
             for ($i = 0; $i < $cellNumber; $i++) {
+                $cell = [];
+
 
                 // ALERTA! La posició no correspón a la posició a la taula, s'ha de desplaçar pels row spans
                 //      Si tromem un rowspan marquem les posicions necessaries
@@ -48,6 +50,13 @@ class Html2DWTable extends Html2DWMarkup {
                     $cell['tag'] = 'td';
                 } else {
                     $cell['tag'] = 'th';
+                }
+
+                // extreure l'alineació
+                $alignPattern = '/class="(.*?)align.*?"/';
+                if (preg_match($alignPattern, $colMatches[0][$i], $match)) {
+                    // afegim files buides a la dreta fins colspan-1
+                    $cell['align'] = $match[1];
                 }
 
 
@@ -66,19 +75,9 @@ class Html2DWTable extends Html2DWMarkup {
                     $colIndex++;
                 }
 
+
                 $table[$colIndex][$rowIndex] = $cell;
 
-
-                // extreure rowspan
-                $colspanPattern = '/rowspan="(.*?)"/';
-                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
-                    // afegim files amb ::: cap a sota fins a rowspan-1
-                    $rowspan = $match[1];
-
-                    for ($j = 1; $j < $rowspan; $j++) {
-                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
-                    }
-                }
 
                 // extreure colspan
                 $colspanPattern = '/colspan="(.*?)"/';
@@ -90,7 +89,17 @@ class Html2DWTable extends Html2DWMarkup {
                     for ($j = 1; $j < $colspan; $j++) {
                         ++$colIndex;
                         $table[$colIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
-//                        $table[$colIndex+$j+1][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
+                    }
+                }
+
+                // extreure rowspan
+                $colspanPattern = '/rowspan="(.*?)"/';
+                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
+                    // afegim files amb ::: cap a sota fins a rowspan-1
+                    $rowspan = $match[1];
+
+                    for ($j = 1; $j < $rowspan; $j++) {
+                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
                     }
                 }
 
@@ -105,7 +114,7 @@ class Html2DWTable extends Html2DWMarkup {
 
         --static::$instancesCounter;
 
-        var_dump($table);
+//        var_dump($table);
 
         return $this->makeTable($table);
 
@@ -131,8 +140,22 @@ class Html2DWTable extends Html2DWMarkup {
                     }
                 }
 
-                // TODO: afegir els espais corresponents al alineament (falta afegir-lo al html)
-                $content .= $tableData[$col][$row]['content'];
+
+                $value = $tableData[$col][$row]['content'];
+
+
+                $align = $tableData[$col][$row]['align'];
+                if (($align === 'center' || $align === 'left') && substr($value, 0, 2) !== '  ') {
+                    // s'han d'afegir els caràcters d'alineació
+                    $value = '  ' . $value;
+                }
+
+                if (($align === 'center' || $align === 'right') && substr($value, -2, 2) !== '  ') {
+                    // s'han d'afegir els caràcters d'alineació
+                    $value .= '  ';
+                }
+
+                $content .= $value;
 
                 if ($tableData[$col][$row]['tag'] === 'th') {
                     $content .= '^';
@@ -141,7 +164,7 @@ class Html2DWTable extends Html2DWMarkup {
                 }
             }
 
-            $content.= "\n";
+            $content .= "\n";
 
         }
 

@@ -67,9 +67,9 @@ Un altre paràgraf.
   :title:Eines d'aprenentatge
   :type:pt_taula
 ^  tipus  ^  eina  ^  opcionalitat  ^  puntuable  ^
-| aaa | bbb | ccc | ddd |
+|  left | right  |  center  | ddd |
 | ::: | ::: | cbd | hij |
-| 111 | 222 | 333 | 444 |
+| 111 | 222 |  center  | 444 |
 | la primera no pot estar buida|| 333 | 444 |
 |111 i 222 || 333 i 444 ||
 |||||
