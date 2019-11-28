@@ -24,7 +24,6 @@ class Html2DWTable extends Html2DWMarkup {
         $rows = $rowMatches[0];
 
 
-
         $table = [];
 
         // recorrem les files extraiem les cel·les
@@ -118,11 +117,39 @@ class Html2DWTable extends Html2DWMarkup {
 
     protected function makeTable($tableData) {
 
-        // TODO: fer la
+        $content = '';
+        // TODO: Alerta! falta la caixa, això només afegeix la taula
+        for ($row = 0; $row < count($tableData[0]); $row++) {
 
-        var_dump($tableData);
-        die('TODO: fer la conversio de les dades a una taula de DW');
+            for ($col = 0; $col < count($tableData); $col++) {
+                // només s'afegeix la marca de la esquerra a la primera columna
+                if ($col === 0) {
+                    if ($tableData[$col][$row]['tag'] === 'th') {
+                        $content .= '^';
+                    } else {
+                        $content .= '|';
+                    }
+                }
 
+                // TODO: afegir els espais corresponents al alineament (falta afegir-lo al html)
+                $content .= $tableData[$col][$row]['content'];
+
+                if ($tableData[$col][$row]['tag'] === 'th') {
+                    $content .= '^';
+                } else {
+                    $content .= '|';
+                }
+            }
+
+            $content.= "\n";
+
+        }
+
+
+//        var_dump($tableData);
+//        die('TODO: fer la conversio de les dades a una taula de DW');
+
+        return $content;
 
     }
 
