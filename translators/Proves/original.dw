@@ -1,3 +1,9 @@
+::table:Identificador
+  :title:Introdueix un títol
+  :type:pt_taula
+| a| f|
+| d| g|
+:::
 p1
 p2
 p3
@@ -62,12 +68,13 @@ Un altre paràgraf.
 
 Últim paràgraf.
 {{https://secure.php.net/images/php.gif?200x50|títol 1}}{{ wiki:dokuwiki-128.png?200|títol 2}}{{ wiki:dokuwiki-128.png?200x50 |títol 3}}{{wiki:dokuwiki-128.png?200x50 |títol 4}}
+----
 
 ::table:T01
   :title:Eines d'aprenentatge
   :type:pt_taula
 ^  tipus  ^  eina  ^  opcionalitat  ^  puntuable  ^
-|  left | right  |  center  | ddd |
+|  right | left  |  center  | ddd |
 | ::: | ::: | cbd | hij |
 | 111 | 222 |  center  | 444 |
 | la primera no pot estar buida|| 333 | 444 |

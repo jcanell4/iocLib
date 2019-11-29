@@ -35,7 +35,6 @@ class Html2DWBox extends Html2DWMarkup {
 
         ++static::$instancesCounter;
 
-        // TODO: incloure el parse de la taula
         $class = static::$parserClass;
         $isInnerPrevious = $class::isInner();
         $class::setInner(true);
@@ -52,14 +51,19 @@ class Html2DWBox extends Html2DWMarkup {
 
     protected function getBoxInfo($text) {
 
-        $pattern = "/<strong.*?data-dw-field=\"(.*?)\".*?<\/strong> (.*?)<\/?br>/ms";
-
-        preg_match_all($pattern, $text, $matches);
+        $tags = ['strong', 'b'];
 
         $data = [];
 
-        for ($i = 0; $i<count($matches[0]); $i++) {
-            $data[$matches[1][$i]] = $matches[2][$i];
+        foreach ($tags as $tag) {
+
+            $pattern = "/<" . $tag . ".*?data-dw-field=\"(.*?)\".*?<\/" . $tag . "> (.*?)<\/?br(?: \/)?>/ms";
+
+            preg_match_all($pattern, $text, $matches);
+
+            for ($i = 0; $i < count($matches[0]); $i++) {
+                $data[$matches[1][$i]] = $matches[2][$i];
+            }
         }
 
         return $data;

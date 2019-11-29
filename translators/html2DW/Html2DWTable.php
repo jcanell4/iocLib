@@ -10,16 +10,25 @@ class Html2DWTable extends Html2DWMarkup {
         ++static::$instancesCounter;
 
 
+
 //        $maxCols = $this->extractVarName($token['raw'],'data-dw-cols', false);
 
+        $tableHtml = $token['raw'];
+
+        // Eliminem el tag tbody
+        $tableHtml = str_replace('<tbody>', '', $tableHtml);
+        $tableHtml = str_replace('</tbody>', '', $tableHtml);
+
+
+
         // extraiem el contingut
-        preg_match($token['pattern'], $token['raw'], $matches);
+        preg_match($token['pattern'], $tableHtml, $matches);
 //        $content = $matches[1];
 
 
         // extraiem les files
         $rowPattern = '/<tr>(.*?)<\/tr>/ms';
-        preg_match_all($rowPattern, $token['raw'], $rowMatches);
+        preg_match_all($rowPattern, $tableHtml, $rowMatches);
 //        var_dump($rowMatches);
         $rows = $rowMatches[0];
 
@@ -117,11 +126,6 @@ class Html2DWTable extends Html2DWMarkup {
 //        var_dump($table);
 
         return $this->makeTable($table);
-
-//        return 'TODO: ficar la taula parsejada';
-
-
-//        die("Html2DWTable#getContent");
     }
 
     protected function makeTable($tableData) {

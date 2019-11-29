@@ -54,15 +54,16 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
-//        $pre .= '<a name="' . $id . '"><strong>ID:</strong> ' . $id . "<br></a>\n";
-        $pre .= '<strong data-dw-field="id">ID:</strong> ' . $id . "<br>\n";
+//        $pre .= '<strong data-dw-field="id">ID:</strong> ' . $id . "<br>\n";
+        $pre .= '<b data-dw-field="id">ID:</b> ' . $id . "<br>\n";
 
         if (isset($fields['title'])) {
-            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
+//            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
+            $pre .= '<b data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
         }
         $pre .= '</div>';
 
-        $post = '</div>';
+        $post = "</div>";
 
 //        echo $pre. $value . $post . "\n";
 
@@ -133,9 +134,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 if ($start === "  " && $end === "  ") {
                     $cell['align'] = "center";
                 } else if ($start === "  ") {
-                    $cell['align'] = "left";
-                } else if ($end === "  ") {
                     $cell['align'] = "right";
+                } else if ($end === "  ") {
+                    $cell['align'] = "left";
                 }
 
 
@@ -191,7 +192,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             $table .= '<tr>';
 
 
-            for ($colIndex = 0; $colIndex < $len; $colIndex++) {
+            for ($colIndex = 0; $colIndex < count($tableData); $colIndex++) {
 
 
 //                $isMergedCol = trim($tableData[$colIndex][$rowIndex]['content']) == ":::";
