@@ -59,7 +59,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         if (isset($fields['title'])) {
 //            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
-            $pre .= '<b  contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
+            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
         }
         $pre .= '</div>';
 
