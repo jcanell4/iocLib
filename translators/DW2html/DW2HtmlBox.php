@@ -96,14 +96,17 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             array_shift($cols);
 
 
+            $tagPattern = '/(\^|\|)/ms';
+            preg_match_all($tagPattern, $rows[$rowIndex], $tagMatches);
+
+
             for ($colIndex = 0; $colIndex < count($cols); $colIndex++) {
                 $cell = [];
 
-                // cerquem el fragment incloent els separadors de columnes per determinar si és capçalera
-                $pattern = '/[\^\|](?:' . preg_quote($cols[$colIndex]) . ')[\^\|]/';
-                preg_match($pattern, $this->currentToken['raw'], $matches);
 
-                if (substr($matches[0], -1, 1) == '^') {
+                $firstChar = $tagMatches[0][$colIndex];
+
+                if ($firstChar === '^') {
                     $cell['tag'] = 'th';
                 } else {
                     $cell['tag'] = 'td';
@@ -171,7 +174,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
                 $table[$colIndex][$rowIndex] = $cell;
             }
-
 
         }
 

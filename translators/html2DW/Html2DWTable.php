@@ -10,7 +10,6 @@ class Html2DWTable extends Html2DWMarkup {
         ++static::$instancesCounter;
 
 
-
 //        $maxCols = $this->extractVarName($token['raw'],'data-dw-cols', false);
 
         $tableHtml = $token['raw'];
@@ -18,7 +17,6 @@ class Html2DWTable extends Html2DWMarkup {
         // Eliminem el tag tbody
         $tableHtml = str_replace('<tbody>', '', $tableHtml);
         $tableHtml = str_replace('</tbody>', '', $tableHtml);
-
 
 
         // extraiem el contingut
@@ -131,17 +129,15 @@ class Html2DWTable extends Html2DWMarkup {
     protected function makeTable($tableData) {
 
         $content = '';
-        // TODO: Alerta! falta la caixa, això només afegeix la taula
+        $lastCellTag = '';
+
         for ($row = 0; $row < count($tableData[0]); $row++) {
 
             for ($col = 0; $col < count($tableData); $col++) {
-                // només s'afegeix la marca de la esquerra a la primera columna
-                if ($col === 0) {
-                    if ($tableData[$col][$row]['tag'] === 'th') {
-                        $content .= '^';
-                    } else {
-                        $content .= '|';
-                    }
+                if ($tableData[$col][$row]['tag'] === 'th') {
+                    $content .= '^';
+                } else {
+                    $content .= '|';
                 }
 
 
@@ -161,14 +157,15 @@ class Html2DWTable extends Html2DWMarkup {
 
                 $content .= $value;
 
+                // Aquést últim es irellevant, només es te en compte el primer simbol de cad cel·la
                 if ($tableData[$col][$row]['tag'] === 'th') {
-                    $content .= '^';
+                    $lastCellTag = '^';
                 } else {
-                    $content .= '|';
+                    $lastCellTag = '|';
                 }
             }
 
-            $content .= "\n";
+            $content .= $lastCellTag . "\n";
 
         }
 

@@ -1,8 +1,13 @@
 ::table:Identificador
   :title:Introdueix un títol
   :type:pt_taula
-| a| f|
-| d| g|
+| -- | -- |
+^ Primer | -- |
+| -- ^ segon |
+| -- | tercer ^
+^ dos ^ -- |
+| -- ^ dos ^
+^ tots ^ tots ^
 :::
 p1
 p2
