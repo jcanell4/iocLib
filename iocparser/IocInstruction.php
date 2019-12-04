@@ -243,8 +243,6 @@ class IocInstruction {
 
     protected function extractVarName($value, $attr = "var", $mandatory = true) {
 
-        $CHECK = is_array($value);
-
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
             return $matches[1];
         } else if ($mandatory) {
