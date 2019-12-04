@@ -3,7 +3,36 @@ require_once "Html2DWParser.php";
 
 class Html2DWLink extends Html2DWMarkup {
 
+    protected function getSpecialContent($type, $token) {
+        // No es tracta d'una URL si no d'una referencia
+        $url = $this->extractVarName($token['raw'], 'title');
+
+        switch ($type) {
+
+            case 'table':
+
+                return ':table:' . $url . ':';
+
+            case 'figure':
+                // TODO
+                return 'TODO: enllaç de tipus figure';
+
+            default:
+
+                return 'ERROR: tipus d\'enllaç no reconegut ' . $type;
+
+        }
+    }
+
+
     protected function getContent($token) {
+
+        $specialLink = $this->extractVarName($token['raw'], 'data-ioc-link', false);
+
+        // Si es tracta d'un tipus especial
+        if ($specialLink) {
+            return $this->getSpecialContent($specialLink, $token);
+        }
 
 
         try {

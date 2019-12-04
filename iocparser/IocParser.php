@@ -28,6 +28,7 @@ class IocParser {
     }
 
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+
         $replacements = array_fill(0, count(static::$removeTokenPatterns), '');
 
         $text = preg_replace(static::$removeTokenPatterns, $replacements, $text);

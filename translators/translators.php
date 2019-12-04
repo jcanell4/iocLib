@@ -296,13 +296,15 @@ abstract class AbstractTranslator{
 class Hmtl2DWTranslator extends AbstractTranslator {
 
     public static function translate($text) {
-        return Html2DWParser::parse($text);
+//        return Html2DWParser::parse($text);
+        return Html2DWParser::getValue($text);
     }
 }
 
 class DW2HtmlTranslator extends AbstractTranslator {
 
     public static function translate($text) {
-        return DW2HtmlParser::parse($text);
+        return DW2HtmlParser::getValue($text);
+//        return DW2HtmlParser::parse($text);
     }
 }

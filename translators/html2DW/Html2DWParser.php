@@ -7,6 +7,7 @@ class Html2DWParser extends IocParser {
 
     protected static $removeTokenPatterns = [
 //        "/\n/"
+        "/<div class=\"no-render.*?<\/div>/ms"
     ];
 
     protected static $tokenPatterns = [

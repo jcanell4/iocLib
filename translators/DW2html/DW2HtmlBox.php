@@ -54,8 +54,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
-//        $pre .= '<strong data-dw-field="id">ID:</strong> ' . $id . "<br>\n";
-        $pre .= '<b  contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
+        $pre .= '<a data-dw-link="table" name="' . $id . '">';
+        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
+        $pre .= '</a>';
 
         if (isset($fields['title'])) {
 //            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";

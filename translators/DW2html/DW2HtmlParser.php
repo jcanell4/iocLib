@@ -68,6 +68,10 @@ class DW2HtmlParser extends IocParser {
         ],
 
 
+        ":table:.*?:" => [
+            'state' => 'link-special'
+        ],
+
         // ALERTA: Aquestes han d'anar sempre el final
 
 
@@ -100,6 +104,8 @@ class DW2HtmlParser extends IocParser {
 
         "^{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
 
+
+        ":table:(.*?):" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
 
         "<code.*?>(.*?)<\/code>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
