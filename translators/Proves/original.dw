@@ -1,6 +1,7 @@
 ::table:Identificador
   :title:Introdueix un títol
   :type:pt_taula
+  :footer: un peu
 | -- | -- |
 ^ Primer | -- |
 | -- ^ segon |

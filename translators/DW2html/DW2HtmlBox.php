@@ -12,9 +12,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         // Extrerure els camps
         // ^::tipus:ID$
-        $typePattern = "/^::(.*?):(.*)$/m";
-        $type = "unknown";
-        $id = "none";
+        $typePattern = '/^::(.*?):(.*)$/m';
+        $type = 'unknown';
+        $id = 'none';
 
         if (preg_match($typePattern, $token['raw'], $matches)) {
 //            var_dump($matches);
@@ -62,6 +62,12 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
             $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
         }
+
+        if (isset($fields['title'])) {
+//            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
+            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
+        }
+
         $pre .= '</div>';
 
         $post = "</div>";
