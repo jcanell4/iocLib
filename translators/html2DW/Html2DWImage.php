@@ -83,9 +83,11 @@ class Html2DWImage extends Html2DWMarkup {
         }
 
         // Afegim el caption
+        $value .= '|';
+
         try {
-            $alt= $this->extractVarName($this->currentToken['raw'], 'alt');
-            $value .= '|' .$alt;
+            $alt = $this->extractVarName($this->currentToken['raw'], 'alt');
+            $value .= $alt;
 
         } catch (Exception $e) {
             // totes les imatges han de contenir alt, però si no es trobes no es greu

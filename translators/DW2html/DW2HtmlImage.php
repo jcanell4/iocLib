@@ -86,8 +86,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
 
 
         } else {
-            // és un enllaç intern
-            $url = "https://dokuwiki.ioc.cat/lib/exe/fetch.php?media=" . trim($candidateUrl);
+            $url = "lib/exe/fetch.php?media=" . trim($candidateUrl);
             $isInternal = true;
         }
 

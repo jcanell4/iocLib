@@ -97,9 +97,10 @@ class DW2HtmlInstruction extends IocInstruction {
 
         }
 
+        $class = static::$parserClass;
 
         // Aquest cas es dona quan una línia comença per una etiqueta de tipus inline (no és block)
-        if (!$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE && $currentToken['action'] !== 'close') {
+        if (!$class::isInner() && !$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE && $currentToken['action'] !== 'close') {
 
             $newContainerToken = DW2HtmlParser::$defaultContainer;
             $container = $this->getClassForToken($newContainerToken, $nextToken);

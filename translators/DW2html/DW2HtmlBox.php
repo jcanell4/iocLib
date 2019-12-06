@@ -24,55 +24,97 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         }
 
 
-        // ^  :field:value$
-        $fieldPattern = "/^  :(.*?):(.*)$/m";
-        $fields = [];
-        if (preg_match_all($fieldPattern, $token['raw'], $matches)) {
+        switch ($type) {
+            case 'table':
+                return $this->getValueTable($token, $id);
 
-
-            for ($i = 0; $i < count($matches[0]); $i++) {
-//                echo $i . " " . $matches[$i][0] . " : " . $matches[$i][1];
-                $fields[$matches[1][$i]] = $matches[2][$i];
-
-            }
-
-//            var_dump($fields);
+            case 'figure':
+                return $this->getValueFigure($token, $id);
         }
 
-        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
-        if (preg_match($typeContent, $token['raw'], $matches)) {
 
-            $content = $matches[1];
-//            var_dump($content);
-        } else {
-            $content = "Error: contingut no reconegut";
-        }
+//
+//
+//
+//
+//
+//
+//
+//        $fieldPattern = "/^  :(.*?):(.*)$/m";
+//        $fields = [];
+//        if (preg_match_all($fieldPattern, $token['raw'], $matches)) {
+//
+//
+//            for ($i = 0; $i < count($matches[0]); $i++) {
+//                $fields[$matches[1][$i]] = $matches[2][$i];
+//
+//            }
+//        }
+//
+//        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
+//        if (preg_match($typeContent, $token['raw'], $matches)) {
+//
+//            $content = $matches[1];
+//        } else {
+//            $content = "Error: contingut no reconegut";
+//        }
+//
+//
+//        $value = $this->parseTable($content);
+//
+//        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
+//            . $fields['type'] . "\">\n";
+//        $pre .= '<div class="iocinfo">';
+//        $pre .= '<a data-dw-link="table" name="' . $id . '">';
+//        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
+//        $pre .= '</a>';
+//
+//        if (isset($fields['title'])) {
+//            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
+//        }
+//
+//        if (isset($fields['title'])) {
+//            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
+//        }
+//
+//        $pre .= '</div>';
+//
+//        $post = "</div>";
+//
+//
+//        return $pre . $value . $post;
+    }
 
+
+    public function getValueTable($token, $id) {
+
+        $type = 'table';
+
+        $fields = $this->getFields($token);
+
+
+        $pre = $this->getPreContent($fields, $id, $type);
+        $content = $this->getContent($token);
 
         $value = $this->parseTable($content);
 
-        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
-            . $fields['type'] . "\">\n";
-        $pre .= '<div class="iocinfo">';
-        $pre .= '<a data-dw-link="table" name="' . $id . '">';
-        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
-        $pre .= '</a>';
-
-        if (isset($fields['title'])) {
-//            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
-            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
-        }
-
-        if (isset($fields['title'])) {
-//            $pre .= '<strong data-dw-field="title">Títol:</strong> ' . $fields['title'] . "<br>\n";
-            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
-        }
-
-        $pre .= '</div>';
-
         $post = "</div>";
 
-//        echo $pre. $value . $post . "\n";
+        return $pre . $value . $post;
+    }
+
+    public function getValueFigure($token, $id) {
+
+        $type = 'figure';
+
+        $fields = $this->getFields($token);
+
+        $pre = $this->getPreContent($fields, $id, $type);
+        $content = $this->getContent($token);
+
+        $value = $this->parseContent($content);
+
+        $post = "</div>";
 
         return $pre . $value . $post;
     }
@@ -81,6 +123,54 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         return !$this->parsingContent;
 
+    }
+
+    protected function getFields($token) {
+        $fieldPattern = "/^  :(.*?):(.*)$/m";
+        $fields = [];
+        if (preg_match_all($fieldPattern, $token['raw'], $matches)) {
+
+
+            for ($i = 0; $i < count($matches[0]); $i++) {
+                $fields[$matches[1][$i]] = $matches[2][$i];
+
+            }
+        }
+
+        return $fields;
+    }
+
+    protected function getContent($token) {
+        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
+        if (preg_match($typeContent, $token['raw'], $matches)) {
+
+            $content = $matches[1];
+        } else {
+            $content = "Error: contingut no reconegut";
+        }
+
+        return $content;
+    }
+
+    protected function getPreContent($fields, $id, $type) {
+        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"" . $type. "\" data-dw-type=\""
+            . $fields['type'] . "\">\n";
+        $pre .= '<div class="iocinfo">';
+        $pre .= '<a data-dw-link="' . $type.'" name="' . $id . '">';
+        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
+        $pre .= '</a>';
+
+        if (isset($fields['title'])) {
+            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
+        }
+
+        if (isset($fields['title'])) {
+            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
+        }
+
+        $pre .= '</div>';
+
+        return $pre;
     }
 
     protected function parseTable($content) {
@@ -171,13 +261,14 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                     continue;
                 }
 
-                $class = static::$parserClass;
-                $isInnerPrevious = $class::isInner();
-                $class::setInner(true);
+//                $class = static::$parserClass;
+//                $isInnerPrevious = $class::isInner();
+//                $class::setInner(true);
 
-                $cell['content'] = $class::getValue($cols[$colIndex]);
+//                $cell['content'] = $class::getValue($cols[$colIndex]);
+                $cell['content'] = $this->parseContent($cols[$colIndex]);
 
-                $class::setInner($isInnerPrevious);
+//                $class::setInner($isInnerPrevious);
 
                 $table[$colIndex][$rowIndex] = $cell;
             }
@@ -188,6 +279,21 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
         return $this->makeTable($table);
+    }
+
+    protected function parseContent($raw) {
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+        $class::setInner(true);
+
+        $content = $class::getValue($raw);
+
+        $class::setInner($isInnerPrevious);
+
+//        echo '<pre>' . $content . '</pre>';
+//        die();
+
+        return $content;
     }
 
     protected function makeTable($tableData) {
@@ -285,3 +391,5 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $rows;
     }
 }
+
+?>

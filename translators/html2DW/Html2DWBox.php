@@ -30,7 +30,7 @@ class Html2DWBox extends Html2DWMarkup {
             $pre .= '  :' . $key . ':' . $value . "\n";
         }
 
-        $post = ':::';
+
 
 
         ++static::$instancesCounter;
@@ -44,6 +44,12 @@ class Html2DWBox extends Html2DWMarkup {
         $class::setInner($isInnerPrevious);
 
         --static::$instancesCounter;
+
+        $post = ":::";
+
+        if (substr($content, -1,1) !== "\n") {
+            $post = "\n" . $post;
+        }
 
         return $pre . $content . $post;
     }
@@ -65,6 +71,8 @@ class Html2DWBox extends Html2DWMarkup {
                 $data[$matches[1][$i]] = $matches[2][$i];
             }
         }
+
+
 
         return $data;
     }

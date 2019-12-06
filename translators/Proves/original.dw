@@ -1,3 +1,10 @@
+::figure:aaa
+  :title:bbb
+  :footer:ccc
+{{:0xb6mp.jpg|}}
+:::
+
+
 ::table:Identificador
   :title:Introdueix un títol
   :type:pt_taula
