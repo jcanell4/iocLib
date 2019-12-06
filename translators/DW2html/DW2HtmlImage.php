@@ -76,12 +76,11 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         }
 
 
-        if (strpos($testUrl, ':') === false) {
-            // és un enllaç extérn perquè no conté ':'
+        // Si és un enllaç ha de contenir com a mínim una barra \
+        if (strpos($testUrl, '\|') !== false) {
+
             $urlPattern = "/{{(.*?) ?\|?.*?}}/";
             preg_match($urlPattern, $token['raw'], $matchUrl);
-//            var_dump($token['raw'], $urlPattern, $matchUrl);
-//            die('no funciona, perquè?');
             $url = trim($candidateUrl);
 
 

@@ -19,6 +19,9 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
+        "\\\\" => [
+            'state' => 'br',
+        ],
 
         "={1,6}\n?" => [
             'state' => 'header'
@@ -97,6 +100,8 @@ class DW2HtmlParser extends IocParser {
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
+
+        "\\\\\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE]],
 
         "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 

@@ -45,7 +45,7 @@ class Html2DWBox extends Html2DWMarkup {
 
         --static::$instancesCounter;
 
-        $post = ":::";
+        $post = ":::\n";
 
         if (substr($content, -1,1) !== "\n") {
             $post = "\n" . $post;
