@@ -273,4 +273,19 @@ class DW2HtmlInstruction extends IocInstruction {
 
         return $result;
     }
+
+    protected function parseContent($raw) {
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+        $class::setInner(true);
+
+        $content = $class::getValue($raw);
+
+        $class::setInner($isInnerPrevious);
+
+//        echo '<pre>' . $content . '</pre>';
+//        die();
+
+        return $content;
+    }
 }

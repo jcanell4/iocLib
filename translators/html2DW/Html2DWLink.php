@@ -15,7 +15,7 @@ class Html2DWLink extends Html2DWMarkup {
 
             case 'figure':
                 // TODO
-                return 'TODO: enllaç de tipus figure';
+                return ':figure:' . $url . ':';
 
             default:
 
@@ -57,7 +57,7 @@ class Html2DWLink extends Html2DWMarkup {
             }
         } catch (Exception $e) {
             // Si no tenim la informació ho intentem deduir
-            $url = $this->extractVarName($token['raw'], 'href');
+            $url = $this->extractVarName($token['raw'], 'href', false);
 
             $pos = strpos($url, 'doku.php?id=');
             if ($pos !== false) {

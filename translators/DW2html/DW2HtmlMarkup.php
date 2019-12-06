@@ -31,6 +31,8 @@ class DW2HtmlMarkup extends DW2HtmlInstruction {
 
 
             return true;
+        } else {
+            return false;
         }
         // Aquests blocs sempre es tanquen quan es troba quelcom, per exemple un salt de línia
 

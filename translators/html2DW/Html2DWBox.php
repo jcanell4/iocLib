@@ -31,19 +31,8 @@ class Html2DWBox extends Html2DWMarkup {
         }
 
 
+        $content = $this->parseContent($matches[3][0]);
 
-
-        ++static::$instancesCounter;
-
-        $class = static::$parserClass;
-        $isInnerPrevious = $class::isInner();
-        $class::setInner(true);
-
-        $content = $class::getValue($matches[3][0]);
-
-        $class::setInner($isInnerPrevious);
-
-        --static::$instancesCounter;
 
         $post = ":::\n";
 

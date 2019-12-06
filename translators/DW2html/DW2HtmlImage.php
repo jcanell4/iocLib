@@ -24,9 +24,18 @@ class DW2HtmlImage extends DW2HtmlInstruction {
 //        var_dump($token['raw']);
 //        die();
 
+        // Si la imatge es interna es que es troba dins d'una caixa i és una figura
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
 
-        return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
+        if ($isInnerPrevious) {
+            return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
+        } else {
+            return $this->makeLateralBox($url, $text, $CSSClasses, $isInternal);
+        }
+
     }
+
 
     private function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
         // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
@@ -92,6 +101,40 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         return $url;
 
     }
+    protected function getReplacement($position) {
+
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+
+        // Si es inner es tracta d'un img d'una figura, si no ho és es tracta d'una imatge lateral ja que no s'accepta cap altre tipus
+        if ( $position !== self::CLOSE || !$isInnerPrevious) {
+            return parent::getReplacement($position);
+        } else {
+            return '';
+        }
+    }
+
+    private function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
+        $width = '200';
+
+        $value = ' data-dw-type="';
+        if ($isInternal) {
+            $value .= 'internal_image"';
+        } else {
+            $value .= 'external_image"';
+        }
+
+        $text = $this->parseContent($text);
+
+
+        $html = '<div data-dw-lateral="image" class="imgb">'
+            . '<img src="' . $url . '" class="media ' . $CSSClasses . '" title="' . $text . '" alt="' . $text . '" width="'
+            . $width .'" ' . $value . '/>'
+            . '<div class="title">' . $text . '</div>'
+            . '</div>';
+
+        return $html;
+    }
 
     private function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
         $value = 'src="' . $url . '"';
@@ -112,13 +155,18 @@ class DW2HtmlImage extends DW2HtmlInstruction {
             $value .= ' class="' . $CSSClasses . '"';
         }
 
-        $value .= ' data-dw-type="';
+        $value .= ' data-dw-type= "';
         if ($isInternal) {
             $value .= 'internal_image"';
         } else {
             $value .= 'external_image"';
         }
 
-        return $this->getReplacement(self::OPEN) . $value;
+        return $this->getReplacement(self::OPEN) . $value .  ' />';
+    }
+
+    // Aquest element s'autotanca
+    public function isClosing($token) {
+        return false;
     }
 }

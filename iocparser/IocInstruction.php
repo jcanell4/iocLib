@@ -363,4 +363,20 @@ class IocInstruction {
         return $newTag;
     }
 
+    protected function parseContent($raw) {
+        ++static::$instancesCounter;
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+        $class::setInner(true);
+
+        $content = $class::getValue($raw);
+
+        $class::setInner($isInnerPrevious);
+
+//        echo '<pre>' . $content . '</pre>';
+//        die();
+
+        --static::$instancesCounter;
+        return $content;
+    }
 }

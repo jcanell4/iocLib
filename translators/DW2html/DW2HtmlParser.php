@@ -19,7 +19,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
-        "\\\\" => [
+        "\\\\\n" => [
             'state' => 'br',
         ],
 
@@ -79,6 +79,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'link-special'
         ],
 
+        ":figure:.*?:" => [
+            'state' => 'link-special'
+        ],
+
         // ALERTA: Aquestes han d'anar sempre el final
 
 
@@ -113,12 +117,13 @@ class DW2HtmlParser extends IocParser {
 
         "^\[{2}(.*?)\]{2}" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
-        "^{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", " />"], 'regex' => TRUE]],
+        "^{{(.*?)}}" => ['image' => 'link', 'type' => 'img', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
 
         ":table:(.*?):" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
+        ":figure:(.*?):" => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
-        "<code.*?>(.*?)<\/code>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
+        "<code.*?>(.*?)<\/code>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE,'block' => TRUE]],
 
         "<file>(.*?)<\/file>\n" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 

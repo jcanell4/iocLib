@@ -33,56 +33,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         }
 
 
-//
-//
-//
-//
-//
-//
-//
-//        $fieldPattern = "/^  :(.*?):(.*)$/m";
-//        $fields = [];
-//        if (preg_match_all($fieldPattern, $token['raw'], $matches)) {
-//
-//
-//            for ($i = 0; $i < count($matches[0]); $i++) {
-//                $fields[$matches[1][$i]] = $matches[2][$i];
-//
-//            }
-//        }
-//
-//        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
-//        if (preg_match($typeContent, $token['raw'], $matches)) {
-//
-//            $content = $matches[1];
-//        } else {
-//            $content = "Error: contingut no reconegut";
-//        }
-//
-//
-//        $value = $this->parseTable($content);
-//
-//        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"table\" data-dw-type=\""
-//            . $fields['type'] . "\">\n";
-//        $pre .= '<div class="iocinfo">';
-//        $pre .= '<a data-dw-link="table" name="' . $id . '">';
-//        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
-//        $pre .= '</a>';
-//
-//        if (isset($fields['title'])) {
-//            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
-//        }
-//
-//        if (isset($fields['title'])) {
-//            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
-//        }
-//
-//        $pre .= '</div>';
-//
-//        $post = "</div>";
-//
-//
-//        return $pre . $value . $post;
     }
 
 
@@ -153,7 +103,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function getPreContent($fields, $id, $type) {
-        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . "\" data-dw-box=\"" . $type. "\" data-dw-type=\""
+        $pre = '<div data-dw-box="' . $type . '" class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-type="'
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
         $pre .= '<a data-dw-link="' . $type.'" name="' . $id . '">';
@@ -281,20 +231,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $this->makeTable($table);
     }
 
-    protected function parseContent($raw) {
-        $class = static::$parserClass;
-        $isInnerPrevious = $class::isInner();
-        $class::setInner(true);
 
-        $content = $class::getValue($raw);
-
-        $class::setInner($isInnerPrevious);
-
-//        echo '<pre>' . $content . '</pre>';
-//        die();
-
-        return $content;
-    }
 
     protected function makeTable($tableData) {
 
