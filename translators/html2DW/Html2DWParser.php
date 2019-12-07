@@ -16,13 +16,16 @@ class Html2DWParser extends IocParser {
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div(?: class=".*?")? data-dw-lateral.*?<\/div><\/div>' => [
-            /*        '<div.*? data-dw-lateral="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
             'state' => 'image-lateral'
         ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
         '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
             'state' => 'box',
+        ],
+
+        '<div(?: contenteditable="false") data-dw-block="(.*?)".*?>.*?<\/div>' => [
+            'state' => 'block',
         ],
 
         '<table.*=?>.*?<\/table>' => [
@@ -147,6 +150,7 @@ class Html2DWParser extends IocParser {
 
         '<div(?: class=".*?")? data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
+        '<div(?: contenteditable="false") data-dw-block="(.*?)".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
