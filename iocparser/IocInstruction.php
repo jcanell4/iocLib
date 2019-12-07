@@ -186,7 +186,7 @@ class IocInstruction {
             $top = $this->getTopState();
             if ($top) {
                 var_dump($top, $result);
-                throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
+                //throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
             }
         }
 

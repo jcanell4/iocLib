@@ -30,13 +30,62 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
             case 'figure':
                 return $this->getValueFigure($token, $id);
+
+            case 'text':
+            case 'example':
+            case 'note':
+            case 'reference':
+            case 'important':
+            case 'quote':
+                return $this->getValueText($token, $type);
+
+
         }
 
 
     }
 
+    protected function getValueText($token, $type) {
+        $fields = $this->getFields($token);
 
-    public function getValueTable($token, $id) {
+        $large = FALSE;
+
+        if (isset($fields['large'])) {
+            $type = 'textl';
+        }
+
+        $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '').'>'
+            . '<div class="ioccontent">';
+
+        if (isset($fields['title'])) {
+            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+        }
+
+
+        $content = $this->getContent($token);
+
+        if (substr($content, -2, 2) !== "\n\n") {
+            if (substr($content, -1, 1) == "\n") {
+                $content .= "\n";
+            } else {
+                $content .= "\n\n";
+            }
+        }
+
+        $content = $this->parseContent($content);
+
+        $content = str_replace('<p>', '<p class="editable-text">', $content);
+
+
+//        $html .= '<p class="editable-text">' . $content . '</p>'
+        $html .= $content . '</div></div>';
+
+
+        return $html;
+    }
+
+
+    protected function getValueTable($token, $id) {
 
         $type = 'table';
 
@@ -53,7 +102,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $pre . $value . $post;
     }
 
-    public function getValueFigure($token, $id) {
+    protected function getValueFigure($token, $id) {
 
         $type = 'figure';
 
@@ -82,7 +131,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
             for ($i = 0; $i < count($matches[0]); $i++) {
-                $fields[$matches[1][$i]] = $matches[2][$i];
+                $fields[$matches[1][$i]] = trim($matches[2][$i]);
 
             }
         }
@@ -103,10 +152,10 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function getPreContent($fields, $id, $type) {
-        $pre = '<div data-dw-box="' . $type . '" class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-type="'
+        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $type . '" data-dw-type="'
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
-        $pre .= '<a data-dw-link="' . $type.'" name="' . $id . '">';
+        $pre .= '<a data-dw-link="' . $type . '" name="' . $id . '">';
         $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
         $pre .= '</a>';
 
@@ -114,7 +163,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
         }
 
-        if (isset($fields['title'])) {
+        if (isset($fields['footer'])) {
             $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
         }
 
@@ -230,7 +279,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         return $this->makeTable($table);
     }
-
 
 
     protected function makeTable($tableData) {

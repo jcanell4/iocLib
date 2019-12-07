@@ -3,9 +3,12 @@ require_once "Html2DWParser.php";
 
 class Html2DWParagraph extends Html2DWMarkup{
 
+
+
 //    public function getTokensValue($tokens, &$tokenIndex) {
 //
-////        die('getTokensValue');
+//        var_dump($this->currentToken);
+//        die('getTokensValue');
 //
 //        $content =parent::getTokensValue($tokens, $tokenIndex);
 //        var_dump($content, $this->nextToken);
@@ -18,6 +21,7 @@ class Html2DWParagraph extends Html2DWMarkup{
 //        return $this->getReplacement(self::OPEN) . $content;
 //    }
 
+//    Això no es crida
     protected function getContent($token) {
         var_dump($token);
         die('getContent');

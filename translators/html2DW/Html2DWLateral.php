@@ -10,6 +10,7 @@ class Html2DWLateral extends Html2DWMarkup {
         // 0 raw
         // 1 és el tipus
         // 2 és el contingut
+        // 3 és el text (no ho fem servir)
 
         $type = $matches[1][0];
         $content = $matches[2][0];

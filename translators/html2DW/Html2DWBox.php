@@ -16,7 +16,7 @@ class Html2DWBox extends Html2DWMarkup {
 
         $type = $this->extractVarName($token['raw'], 'data-dw-type', false);
 
-        if ($type !== null) {
+        if (strlen($type) > 0) {
             $data['type'] = $type;
         }
 

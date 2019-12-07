@@ -6,6 +6,84 @@
 
 {{soundcloud>89584381:clau}}
 
+::text:
+  :title: títol text
+Incloure la sintaxis de text
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+::text:
+  :title: títol text llarg
+  :large:
+Incloure la sintaxis de text large
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+::example:
+  :title: títol example
+Incloure la sintaxis d'example
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+::note:
+Incloure la sintaxis de note
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+::reference:
+Incloure la sintaxis de reference
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+
+::important:
+Incloure la sintaxis de'important
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+::quote:
+Incloure la sintaxis de quote
+
+Paràgraf 2
+
+Paràgraf 3
+
+Paràgraf 4
+:::
+
+
+
+
 :figure:aaa:
 
 ::table:Identificador

@@ -15,16 +15,23 @@ class Html2DWParser extends IocParser {
         // Els boxes s'ha de ficar abans
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
-        '<div(?: class=".*?")? data-dw-lateral.*?<\/div><\/div>' => [
+        '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
             'state' => 'image-lateral'
         ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
-        '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
+        '<div class="ioc(?:table|figure).*?" data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
+/*        '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [*/
             'state' => 'box',
         ],
 
-        '<div(?: contenteditable="false") data-dw-block="(.*?)".*?>.*?<\/div>' => [
+
+        '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [
+/*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
+            'state' => 'box-text',
+        ],
+
+        '<div(?: contenteditable="false")? data-dw-block="(.*?)".*?>.*?<\/div>' => [
             'state' => 'block',
         ],
 
@@ -32,20 +39,27 @@ class Html2DWParser extends IocParser {
             'state' => 'table',
         ],
 
-        '<p>' => [
+        '<p( .*?)?>' => [
             'state' => 'open_p',
         ],
+
+        // L'editor afegeix els <div> com a paràgrafs normals, però llavors peta quan es detecten altres divs sense atributs utilitzats amb els plugins
+//        '<div>' => [
+//            'state' => 'open_p',
+//        ],
 
         '&nbsp;' => [
             'state' => 'space',
         ],
 
-        "\n<\/p>" => [
+        "\n?<\/p>" => [
             'state' => 'close_p',
         ],
-        '<\/p>' => [
-            'state' => 'close_p',
-        ],
+
+        // L'editor afegeix els <div> com a paràgrafs normals, però llavors peta quan es detecten altres divs sense atributs utilitzats amb els plugins
+//        '\n?<\/div>' => [
+//            'state' => 'close_p',
+//        ],
 
 
         '<b ?.*?>' => [
@@ -84,32 +98,32 @@ class Html2DWParser extends IocParser {
         '<h2.*?>' => [
             'state' => 'open_h2',
         ],
-        '<\/h2>' => [
+        "\n?<\/h2>" => [
             'state' => 'close_h2',
         ],
         '<h3.*?>' => [
             'state' => 'open_h3',
         ],
-        '<\/h3>' => [
+        "\n?<\/h3>" => [
             'state' => 'close_h3',
         ],
         '<h4.*?>' => [
             'state' => 'open_h4',
         ],
-        '<\/h4>' => [
+        "\n?<\/h4>" => [
             'state' => 'close_h4',
         ],
         "<h5.*?>" => [
             'state' => 'open_h5',
         ],
-        '<\/h5>' => [
+        "\n?<\/h5>" => [
             'state' => 'close_h5',
         ],
 
         "<hr( \/)?>" => [
             'state' => 'hr',
         ],
-        "<br( \/)?>" => [
+        "\n?<br( \/)?>" => [
             'state' => 'br',
         ],
 
@@ -141,31 +155,42 @@ class Html2DWParser extends IocParser {
         '<img.*?\/>' => [
             'state' => 'image',
         ],
+
+
     ];
 
     protected static $tokenKey = [
 
 
-        '<div(?: class=".*?")? data-dw-lateral="(.*?)".*?>(<img.*?\/>).*?<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<div(?: class=".*?")? data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<div(?: contenteditable="false") data-dw-block="(.*?)".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<div(?: contenteditable="false")? data-dw-block="(.*?)".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => ['state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
 
-        '<p>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n"]]], // si posem un salt de línia a l'apertura s'afegeix un salt de línia quan es fa un tancament --> es tanca després de **negreta** i després de //cursiva//
+        '^<p( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],
 
         "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
+        // L'editor afegeix els <div> com a paràgrafs normals, però llavors peta quan es detecten altres divs sense atributs utilitzats amb els plugins
+/*        '^<div( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],*/
+
+//        "\n?<\/div>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+
+
+
         // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
-        '<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\n\n", 'regex' => TRUE]],
+        '\n?<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\n\n", 'regex' => TRUE]],
 
 
-        '<b ?.*?' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**', 'regex' => TRUE]],
+        '^<b ?.*?' => ['state' => 'open_bold', 'type' => 'bold', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '**', 'regex' => TRUE]],
         '</b>' => ['state' => 'close_bold', 'type' => 'bold', 'action' => 'close'],
         '<i>' => ['state' => 'open_italic', 'type' => 'italic', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '//']],
         '</i>' => ['state' => 'close_italic', 'type' => 'italic', 'action' => 'close'],
@@ -176,19 +201,16 @@ class Html2DWParser extends IocParser {
 
         '<code>(.*?)<\/code>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWMonospace', 'action' => 'self-contained', 'extra' => ['replacement' => "''", 'regex' => TRUE]],
 
-        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======"], 'regex' => TRUE]],
+        '<h1' => ['state' => 'open_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['======', "======\n"], 'regex' => TRUE]],
         '</h1>' => ['state' => 'close_h1', 'type' => 'h1', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['=====', "====="]]],
+        '<h2' => ['state' => 'open_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['=====', "=====\n"]]],
         '</h2>' => ['state' => 'close_h2', 'type' => 'h2', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h3' => ['state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['====', "===="]]],
+        '<h3' => ['state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['====', "====\n"]]],
         '</h3>' => ['state' => 'close_h3', 'type' => 'h3', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h4' => ['state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['===', "==="]]],
+        '<h4' => ['state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['===', "===\n"]]],
         '</h4>' => ['state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "=="]]],
+        '<h5' => ['state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
         '</h5>' => ['state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<h6' => ['state' => 'open_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ['==', "=="]]],
-        '</h6>' => ['state' => 'close_h6', 'type' => 'h6', 'class' => 'Html2DWMarkup', 'action' => 'close'],
-        '<hr' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "----"]],
 
         '&nbsp;' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => " "]],
 

@@ -5,7 +5,7 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 
 class DW2HtmlParser extends IocParser {
 
-    public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>\n"], 'regex' => TRUE, 'block' => TRUE]];
+    public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>"], 'regex' => TRUE, 'block' => TRUE]];
 
     protected static $removeTokenPatterns = [
 //        '/\n/' // No es poden eliminar els salts perquè son imprescindibles per determinar el final dels contenidors/paràgraphs
@@ -39,14 +39,9 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "^::table:.*?^:::$" => [
+        "^::.*?:.*?^:::$" => [
             'state' => 'box'
         ],
-
-        "^::figure:.*?^:::$" => [
-            'state' => 'box'
-        ],
-
 
         "<code.*?>(.*?)<\/code>\n" => [
             'state' => 'code',
@@ -111,9 +106,11 @@ class DW2HtmlParser extends IocParser {
 
         "\\\\\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE]],
 
-        "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+        "^::(.*?):(.*?):::" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
-        "^::figure:(.*?):::" => ['state' => 'box', 'type' => 'box-figure', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+//        "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+//
+//        "^::figure:(.*?):::" => ['state' => 'box', 'type' => 'box-figure', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // El close ha d'anar abans perquè si no es detecta com a open
         "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
