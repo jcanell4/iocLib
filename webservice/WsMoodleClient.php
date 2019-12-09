@@ -11,6 +11,144 @@
  *
  * @author josep
  */
+class EventMoodle{
+    protected $id=NULL;
+    protected $repeat=0;
+    protected $repeats=0;
+    protected $name;
+    protected $description=NULL;
+    protected $timestart=1572339186;
+    protected $courseId=0;
+    protected $eventType="user";
+    
+    public function setId($id){
+        $this->id = $id;
+        return $this;
+    }
+    
+    public function setName($name){
+        $this->name = $name;
+        return $this;
+    }
+    
+    public function setDescription($description){
+        $this->description = $description;
+        return $this;
+    }
+    
+    public function setTimestart($timestart){
+        $this->timestart = $timestart;
+        return $this;
+    }
+    
+    public function setRepeat($repeat){
+        $this->repeat= $repeat;
+        return $this;
+    }
+    
+    public function setRepeats($repeats){
+        $this->repeats= $repeats;
+        return $this;
+    }
+    
+    public function setCourseId($courseId){
+        $this->courseId= $courseId;
+        return $this;
+    }
+    
+    public function setEventType($eventType){
+        $this->eventType= $eventType;
+        return $this;
+    }
+    
+    public function getId(){
+        return $this->id;
+    }
+    
+    public function getCourseId(){
+        return $this->courseId;
+    }
+    
+    public function getDescription(){
+        return $this->description;
+    }
+    
+    public function getEventType(){
+        return $this->eventType;
+    }
+    
+    public function getName(){
+        return $this->name;
+    }
+    
+    public function getRepeat(){
+        return $this->repeat;
+    }
+    
+    public function getRepeats(){
+        return $this->repeats;
+    }
+    
+    public function getTimestart(){
+        return $this->timestart;
+    }
+}
+
+class WsMoodleCalendar extends WsMoodleClient{
+    
+    public function getEvents($courseIds=array(), $groupIds=array(), $eventIds=array()){
+        $params = [
+            "events" =>[
+                "eventids" =>$eventIds,
+                "groupids" =>$groupIds,
+                "courseids" =>$courseIds
+            ]
+        ];   
+        $res = $ws->sendRequest($params, "core_calendar_get_calendar_events");
+        return $res;
+    }
+    
+    public function createEvents($events=array()){
+        $params = [
+             "events" =>array()
+        ];
+        foreach ($events as $item){
+            $params["events"][] = [
+                "name" => $item->getName(), 
+                "description" => $item->getDescription(), 
+                "timestart" => $item->getTimestart(),
+                "courseid" => $item->getCourseId(),
+                "eventType" => $item->getEventType()
+            ];
+        }
+        $res = $ws->sendRequest($params, "core_calendar_create_calendar_events");
+        return $res;
+    }
+    
+    public function deleteEventsFromEvents($events=array()){
+        $params = [
+             "events" =>array()
+        ];
+        foreach ($events as $item){
+            $params["events"][] = ["eventid" => "{$item->id}", "repeat" => $item->repeat];
+        }
+        $res = $ws->sendRequest($params, "core_calendar_delete_calendar_events");        
+        return $res;
+    }
+    
+    public function deleteEventsFromIds($eventIds=array()){
+        $params = [
+             "events" =>array()
+        ];
+        foreach ($eventIds as $item){
+            $params["events"][] = ["eventid" => "{$item}", "repeat" => "1"];
+        }
+        $res = $ws->sendRequest($params, "core_calendar_delete_calendar_events");        
+        return $res;
+    }
+    
+}
+
 class WsMoodleClient {
     const MOODLEWSRESTFORMAT= "json";
     protected $token = NULL;
