@@ -1,9 +1,11 @@
 <?php
 if (!defined('DOKU_INC')) die();
 if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC."lib/plugins/ajaxcommand/");
+require_once (DOKU_INC . 'inc/pageutils.php');
 require_once(DOKU_COMMAND.'defkeys/ResponseHandlerKeys.php');
 require_once(DOKU_COMMAND.'defkeys/ProjectKeys.php');
 require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
+
 /**
  * Class ioc_common: Contiene funciones comunes
  * @culpable Rafael
@@ -184,5 +186,17 @@ class IocCommon {
             }
             return $ret;
         }
+    }
+    
+    public static function countRevisions($id, $media=false){
+        if ($media) {
+            $fileName = mediaMetaFN($id, '.changes');
+        } else {
+            $fileName = metaFN($id, '.changes');
+        }    
+        $file = new \SplFileObject($fileName, 'r');
+        $file->seek(PHP_INT_MAX);
+
+        return $file->key() - 1;         
     }
 }
