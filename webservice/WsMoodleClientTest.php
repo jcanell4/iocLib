@@ -39,7 +39,7 @@ $params = [
         ]
     ]
 ];
-$res = json_decode($ws->sendRequest($params, "core_calendar_get_calendar_events"));
+$res = $ws->sendRequest($params, "core_calendar_get_calendar_events");
 
 print(json_encode($res));
 $ids = array();
@@ -54,7 +54,7 @@ foreach ($res->events as $item){
 }
 
 if(count($params["events"])>0){
-    $res = json_decode($ws->sendRequest($params, "core_calendar_delete_calendar_events"));
+    $res = $ws->sendRequest($params, "core_calendar_delete_calendar_events");
     print(json_encode($res));
 }
 
@@ -72,7 +72,7 @@ $params = [
         ]
     ]
 ];
-$res = json_decode($ws->sendRequest($params, "core_calendar_create_calendar_events"));
-//print(json_encode($res));
+$res = $ws->sendRequest($params, "core_calendar_create_calendar_events");
+print(json_encode($res));
 
 
