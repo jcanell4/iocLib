@@ -189,14 +189,18 @@ class IocCommon {
     }
     
     public static function countRevisions($id, $media=false){
+        $ret = 0;
         if ($media) {
             $fileName = mediaMetaFN($id, '.changes');
         } else {
             $fileName = metaFN($id, '.changes');
         }    
-        $file = new \SplFileObject($fileName, 'r');
-        $file->seek(PHP_INT_MAX);
+        if(@file_exists($filename)){
+            $file = new \SplFileObject($fileName, 'r');
+            $file->seek(PHP_INT_MAX);
+            $ret = $file->key() - 1;
+        }
 
-        return $file->key() - 1;         
+        return $ret;         
     }
 }
