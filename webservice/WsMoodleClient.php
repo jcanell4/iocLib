@@ -21,6 +21,27 @@ class EventMoodle{
     protected $courseId=0;
     protected $eventType="user";
     
+    public static function getListFromJson($json){
+        $evenst = array();
+        foreach ($json as $item){
+            $evenst[] = self::newInstance($item);
+        }        
+        return $evenst;
+    }
+    
+    public static function newInstance($json=false){
+        $ret = new EventMoodle();
+        if($json){
+            $ret->setId($json->id)
+                ->setName($json->name)
+                ->setDescription($json->description)
+                ->setTimestart($json->timestart)
+                ->setCourseId($json->courseid)
+                ->setEventType($json->eventtype);
+        }
+        return $ret;
+    }
+    
     public function setId($id){
         $this->id = $id;
         return $this;
