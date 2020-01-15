@@ -27,4 +27,10 @@ class Html2DWParagraph extends Html2DWMarkup{
         die('getContent');
         return $token['value'];
     }
+
+
+//    protected function resolveOnClose($field) {
+//
+//        return parent::resolveOnClose($field);
+//    }
 }

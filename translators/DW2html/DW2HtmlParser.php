@@ -23,7 +23,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'br',
         ],
 
-        "={1,6}\n?" => [
+        "={2,6}\n?" => [
             'state' => 'header'
         ],
 
@@ -54,6 +54,10 @@ class DW2HtmlParser extends IocParser {
         "\*\*" => [
             'state' => 'bold'
         ],
+
+        ":\/\/" => [
+            'state' => 'ignored'
+        ], // protocols
 
 
         "\/\/" => [
@@ -101,6 +105,8 @@ class DW2HtmlParser extends IocParser {
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [
 
+        ":\/\/" => ['state' => 'ignored', 'type' => 'protocol', 'class' => 'DW2HtmlIgnored', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
 
@@ -113,8 +119,8 @@ class DW2HtmlParser extends IocParser {
 //        "^::figure:(.*?):::" => ['state' => 'box', 'type' => 'box-figure', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // El close ha d'anar abans perquè si no es detecta com a open
-        "={1,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
-        '={1,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
+        "={2,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        '={2,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
 
         '^\[{2}(.*?)\]{2}' => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
