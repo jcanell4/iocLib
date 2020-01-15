@@ -275,4 +275,10 @@ class Html2DWParser extends IocParser {
 //        return $tokens;
 //    }
 
+    public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+
+        $value = parent::getValue($text, $arrays, $dataSource, $resetables);
+
+        return html_entity_decode($value);
+    }
 }

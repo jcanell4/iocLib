@@ -183,5 +183,4 @@ class DW2HtmlParser extends IocParser {
         return $pattern;
     }
 
-
 }
