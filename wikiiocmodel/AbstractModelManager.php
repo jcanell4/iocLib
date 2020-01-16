@@ -74,7 +74,7 @@ abstract class AbstractModelManager {
 
     public abstract function getProjectTypeDir();
 
-    public function getActionInstance($className, $params=NULL){
+    public function getActionInstance($className, $params=NULL, $noInit=FALSE){
         $classPath = $this->getProjectTypeDir()."actions/$className.php";
         if (@file_exists($classPath)) {
             require_once $classPath;
@@ -89,7 +89,9 @@ abstract class AbstractModelManager {
         }else{
             $instance = new $className($params);
         }
-        $instance->init($this);
+        if(!$noInit){
+            $instance->init($this);
+        }
         return $instance;
     }
 }

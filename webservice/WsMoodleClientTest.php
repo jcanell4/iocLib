@@ -17,13 +17,12 @@ require_once DOKU_INC.'inc/init.php';
 
 $ws = new WsMoodleClient();
 
-$ws->updateToken("", "");
-$res = $ws->getToken();
+$ws->updateToken("jcanell4", "p4r4d1sE");
+$token = $ws->getToken();
 
-$token = $res->token;
-print(json_encode($res));
+print(json_encode($token));
 
-$token = "0823ea4d0003f182506cb033ef322804";
+//$token = "d2fc4e6ecd18e957ce749d6f39c7721b";
 $ws->setToken($token);
 
 $params = [
@@ -61,7 +60,7 @@ if(count($params["events"])>0){
 $date = new DateTime();
 $date->add(new DateInterval("P2D"));
 $d = date(DATE_RSS, $date->getTimestamp());
-$params = [
+$aparams = [
     "events" =>[
         [
             "name" => "Esdeveniment de prova ($d)",
@@ -72,7 +71,34 @@ $params = [
         ]
     ]
 ];
-$res = $ws->sendRequest($params, "core_calendar_create_calendar_events");
+$res = $ws->sendRequest($aparams, "core_calendar_create_calendar_events");
 print(json_encode($res));
+
+$ws = new WsMoodleCalendar();
+
+$ws->setToken($token);
+//$res = $ws->getEventsForCourseId("959");
+//print(json_encode($res));
+
+$ws->deleteAllCourseEvents("959");
+$events = [];
+$date = new DateTime();
+$date->add(new DateInterval("P2D"));
+$d = date(DATE_RSS, $date->getTimestamp());
+$events[] = EventMoodle::newInstanceFromAssociative(array(
+            "name" => "Esdeveniment de prova ($d)",
+            "timestart" => $date->getTimestamp(),
+            "eventtype" => "course",
+            "description" => "Això és una prova per actualitzar el calendari des de la WIKI"
+        ));
+$date->add(new DateInterval("P1D"));
+$d = date(DATE_RSS, $date->getTimestamp());
+$events[] = EventMoodle::newInstanceFromAssociative(array(
+            "name" => "Esdeveniment de prova ($d)",
+            "timestart" => $date->getTimestamp(),
+            "eventtype" => "course"
+        ));
+$ws->createEventsForCourseId("959", $events);
+
 
 
