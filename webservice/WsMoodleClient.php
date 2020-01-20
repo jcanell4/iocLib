@@ -13,7 +13,7 @@
  */
 class EventMoodle{
     protected $id=NULL;
-    protected $repeat=0;
+    protected $repeat=1;
     protected $repeats=0;
     protected $name;
     protected $description=NULL;
@@ -24,12 +24,25 @@ class EventMoodle{
     public static function getListFromJson($json){
         $evenst = array();
         foreach ($json as $item){
-            $evenst[] = self::newInstance($item);
+            $evenst[] = self::newInstanceFromAssociative($item);
         }        
         return $evenst;
     }
     
-    public static function newInstance($json=false){
+    public static function newInstanceFromAssociative($json=false){
+        $ret = new EventMoodle();
+        if($json){
+            $ret->setId($json["id"])
+                ->setName($json["name"])
+                ->setDescription($json["description"])
+                ->setTimestart($json["timestart"])
+                ->setCourseId($json["courseid"])
+                ->setEventType($json["eventtype"]);
+        }
+        return $ret;
+    }
+    
+    public static function newInstanceFromObject($json=false){
         $ret = new EventMoodle();
         if($json){
             $ret->setId($json->id)
@@ -117,7 +130,26 @@ class EventMoodle{
 
 class WsMoodleCalendar extends WsMoodleClient{
     
+    public function getEventsForCourseId($courseId){
+        $params = [
+            "events" =>[
+                "courseids" =>array($courseId)
+            ]
+        ];   
+        $json = $this->sendRequest($params, "core_calendar_get_calendar_events");     
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMoodleCalendarException($json);
+        }else{
+            $ret = $json->events;
+        }
+        return $ret;
+    }
+    
     public function getEvents($courseIds=array(), $groupIds=array(), $eventIds=array()){
+        if((!is_array($courseIds) || count($courseIds)==0) && (!is_array($groupIds) || count($groupIds)==0) && (!is_array($eventIds) || count($eventIds)==0)){
+            return "";
+        }
         $params = [
             "events" =>[
                 "eventids" =>$eventIds,
@@ -125,11 +157,47 @@ class WsMoodleCalendar extends WsMoodleClient{
                 "courseids" =>$courseIds
             ]
         ];   
-        $res = $ws->sendRequest($params, "core_calendar_get_calendar_events");
+        $json = $this->sendRequest($params, "core_calendar_get_calendar_events");     
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMoodleCalendarException($json);
+        }else{
+            $ret = EventMoodle::getListFromJson($json);
+        }
         return $res;
     }
     
+    public function createEventsForCourseId($courseId, $events=array()){
+        if(!is_array($events) || count($events)==0){
+            return "";
+        }
+        
+        $params = [
+             "events" =>array()
+        ];
+        foreach ($events as $item){
+            $params["events"][] = [
+                "name" => $item->getName(), 
+                "description" => $item->getDescription(), 
+                "timestart" => $item->getTimestart(),
+                "courseid" => $courseId,
+                "eventtype" => $item->getEventType()
+            ];
+        }
+        $json = $this->sendRequest($params, "core_calendar_create_calendar_events");
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMoodleCalendarException($this->requestError);
+        }else{
+            $ret = $json->events;
+        }
+        return $res;        
+    }
+    
     public function createEvents($events=array()){
+        if(!is_array($events) || count($events)==0){
+            return "";
+        }
         $params = [
              "events" =>array()
         ];
@@ -142,30 +210,57 @@ class WsMoodleCalendar extends WsMoodleClient{
                 "eventType" => $item->getEventType()
             ];
         }
-        $res = $ws->sendRequest($params, "core_calendar_create_calendar_events");
+        $json = $this->sendRequest($params, "core_calendar_create_calendar_events");
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMoodleCalendarException($json);
+        }else{
+            $ret = EventMoodle::getListFromJson($json->events);
+        }
         return $res;
     }
     
-    public function deleteEventsFromEvents($events=array()){
+    public function deleteCourseEventsFromEvents($courseId, $events=array()){
+        if(!is_array($events) || count($events)==0){
+            return "";
+        }
         $params = [
              "events" =>array()
         ];
+        
         foreach ($events as $item){
-            $params["events"][] = ["eventid" => "{$item->id}", "repeat" => $item->repeat];
+            if($item->eventtype=="course" && $item->courseid==$courseId){
+                $params["events"][] = ["eventid" => "{$item->id}", "repeat" => ($item->repeat==null?"1":$item->repeat)];
+            }
         }
-        $res = $ws->sendRequest($params, "core_calendar_delete_calendar_events");        
-        return $res;
+        if(count($params["events"])>0){
+            $this->sendRequest($params, "core_calendar_delete_calendar_events");        
+            if($this->requestError!=NULL){
+                throw new WsMoodleCalendarException($this->requestError);
+            }
+        }
     }
     
     public function deleteEventsFromIds($eventIds=array()){
+        if(!is_array($eventIds) || count($eventIds)==0){
+            return "";
+        }
         $params = [
              "events" =>array()
         ];
         foreach ($eventIds as $item){
             $params["events"][] = ["eventid" => "{$item}", "repeat" => "1"];
         }
-        $res = $ws->sendRequest($params, "core_calendar_delete_calendar_events");        
-        return $res;
+        $this->sendRequest($params, "core_calendar_delete_calendar_events");        
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMoodleCalendarException($this->requestError);
+        }
+    }
+
+    public function deleteAllCourseEvents($courseId=0){
+        $resp = $this->getEventsForCourseId($courseId);
+        $this->deleteCourseEventsFromEvents($courseId, $resp);        
     }
     
 }
@@ -181,7 +276,9 @@ class WsMoodleClient {
     protected $requestError = NULL;
 
     public function init($urlBase, $furlToken, $furl, $urlParams=false){
-        $this->url = $url;
+        $this->urlBase = $urlBase;
+        $this->furlToken= $furlToken;
+        $this->furl= $furl;
         if(is_array($urlParams)){
             $this->urlParams = array_merge([], $urlParams);
         }
