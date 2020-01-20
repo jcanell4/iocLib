@@ -27,16 +27,17 @@ class FtpSender{
         //tractar les respostes a la variable $response per tal de poder informar del que
         //ha passat duarnt la connexió
         Logger::debug("FtpSender::process", 0, 27, "FtpSender.php", 1, FALSE);
+        $response=TRUE;
         foreach ($this->ftpObjectToSendList as $oFtp) {
             $action = $oFtp->getAction();
             foreach ($action as $act) {
                 switch ($act) {
                     case FtpObjectToSend::COPY_ACTION:
-                        $response = $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteFile(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
+                        $response = $response && $this->remoteSSH2Copy($oFtp->getFile(), $oFtp->getLocal(), $oFtp->getRemoteFile(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
                         break;
 
                     case FtpObjectToSend::UNZIP_AND_COPY_ACTION:
-                        $response = $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
+                        $response = $response && $this->iocUnzipAndFtpSend($oFtp->getFile(), $oFtp->getLocal(), $this->connectionData['remoteBase'].$this->connectionData['remoteDir']);
                         break;
                 }
             }

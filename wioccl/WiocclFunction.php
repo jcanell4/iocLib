@@ -238,14 +238,22 @@ class WiocclFunction extends WiocclInstruction
         return $key;
     }
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
-    protected function ARRAY_GET_VALUE($key, $array)
+    protected function ARRAY_GET_VALUE($key, $array, $defaultValue=FALSE)
     {
         if($key==null || !is_array($array)){
-            return "[ERROR! paràmetres incorrectes ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+            if($defaultValue===false){
+                return "[ERROR! paràmetres incorrectes ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+            } else {
+                return $defaultValue;
+            }
         }elseif($key < 0 || $key >= count($array)){
-            return "[ERROR! key fora de rang ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+            if($defaultValue===false){
+                return "[ERROR! key fora de rang ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
+            } else {
+                return $defaultValue;
+            }
         }
-        return  $array[$key];
+        return  isset($array[$key])?$array[$key]:$defaultValue;
     }
     
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid

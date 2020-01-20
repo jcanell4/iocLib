@@ -171,3 +171,16 @@ class NotAllowedPojectCommandException extends WikiIocProjectException {
         parent::__construct($codeMessage, $code, $page);
     }
 }
+
+class WsMoodleCalendarException extends WikiIocModelException {
+    public function __construct($exception=NULL, $message="S'ha produït una excepció de tipus '%s' fent una crida al servei de gestió d'esdeveniments de moodle amb el missatge: %s", $code=7009, $previous=NULL) {
+        $targ = array($exception->errorcode, $exception->message); 
+        parent::__construct($message, $code, $previous, $targ);
+    }
+}
+
+class WsMoodleInvalidCourseIdException extends WikiIocModelException {
+    public function __construct($message="No es pot envir dades a moodle. El codi del curs és obligatori: %s", $code=7010, $previous=NULL) {
+        parent::__construct($message, $code, $previous);
+    }
+}
