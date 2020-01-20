@@ -6,6 +6,7 @@ require_once DOKU_INC.'lib/lib_ioc/iocparser/IocInstruction.php';
 class DW2HtmlInstruction extends IocInstruction {
 
     protected static $parserClass = "DW2HtmlParser";
+    //protected static $defaultContentclass = "DW2HtmlContent";
 
     protected function resolveOnClose($result) {
 
@@ -39,7 +40,7 @@ class DW2HtmlInstruction extends IocInstruction {
 
         if ($currentToken['state'] == 'content') {
             $action = 'content';
-            $currentToken['class'] = 'DW2HtmlContent';
+            $currentToken['class'] = static::$defaultContentclass;
 
         } else {
             $action = $currentToken['action'];

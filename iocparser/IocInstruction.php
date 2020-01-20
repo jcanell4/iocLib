@@ -13,11 +13,14 @@ class IocInstruction {
     protected $arrays = [];
 
     protected static $parserClass = "IocParser";
+    protected static $defaultContentclass = "IocInstruction";
 
     public static $stack = [];
 
     protected $currentToken;
     protected $nextToken;
+
+
 
 
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
@@ -76,7 +79,7 @@ class IocInstruction {
 
         if ($currentToken['state'] == 'content') {
             $action = 'content';
-            $currentToken['class'] = 'DW2HtmlContent';
+            $currentToken['class'] = static::$defaultContentclass;
 
         } else {
             $action = $currentToken['action'];
@@ -98,22 +101,18 @@ class IocInstruction {
         switch ($action) {
             case 'content':
 
-                $item = $this->getClassForToken($currentToken, $nextToken);
+                    $item = $this->getClassForToken($currentToken, $nextToken);
 
-//                var_dump($item);
-//                die("stop");
+                    $currentToken['instruction'] = $item;
+                    $this->pushState($currentToken);
 
-                $currentToken['instruction'] = $item;
-                $this->pushState($currentToken);
-
-                // ALERTA: Els salts de línia s'afegeixen directament, sense processar
-                if ($currentToken['value'] == "\n") {
-                    $result .= $currentToken['value'];
-                } else {
-                    $result .= $item->getContent($currentToken);
-                }
-                $this->popState();
-
+                    // ALERTA: Els salts de línia s'afegeixen directament, sense processar
+                    if ($currentToken['value'] == "\n") {
+                        $result .= $currentToken['value'];
+                    } else {
+                        $result .= $item->getContent($currentToken);
+                    }
+                    $this->popState();
 
                 break;
 
@@ -170,6 +169,10 @@ class IocInstruction {
                 $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
                 if ( !$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
+                    $noHiHaTop = !$top;
+                    $noEsDelTipus = $top['type'] !== $currentToken['type'];
+                    $noEsDelTipusYNoEsExcluded = $top['type'] !== $currentToken['type'] && !$isExcluded;
+
                     throw new WrongClosingTranslatorException([htmlspecialchars($top['value']), htmlspecialchars($currentToken['value'])]);
                 }
 
