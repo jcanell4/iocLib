@@ -31,11 +31,11 @@ class DW2HtmlLink extends DW2HtmlInstruction {
 
     private function extractUrl($token, &$ns) {
         // els noms d'enllaç de la wiki no admeten punts, així que aquesta comprovació és suficient
-        $patternIsExternal = "/\[\[.*?\..*?\|/";
+        $patternIsExternal = "/\[\[.*?\..*?\|?/";
 
         if (preg_match($patternIsExternal, $token['raw'])) {
 
-            $urlPattern = "/\[\[(.*?)[#|]/";
+            $urlPattern = "/\[\[(.*?)[#\|\]]/";
             preg_match($urlPattern, $token['raw'], $matchUrl);
             $url = $matchUrl[1];
         } else {

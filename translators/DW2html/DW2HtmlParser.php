@@ -105,8 +105,6 @@ class DW2HtmlParser extends IocParser {
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [
 
-        ":\/\/" => ['state' => 'ignored', 'type' => 'protocol', 'class' => 'DW2HtmlIgnored', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
-
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
 
@@ -123,6 +121,9 @@ class DW2HtmlParser extends IocParser {
         '={2,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
 
         '^\[{2}(.*?)\]{2}' => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
+
+        ":\/\/" => ['state' => 'ignored', 'type' => 'protocol', 'class' => 'DW2HtmlIgnored', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
 
         '{{soundcloud>(.*?):(.*?)}}' => ['state' => 'sound', 'type' => 'sound', 'class' => 'DW2HtmlSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
