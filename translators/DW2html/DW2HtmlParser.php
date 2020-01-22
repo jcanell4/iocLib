@@ -6,8 +6,11 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 class DW2HtmlParser extends IocParser {
 
 
-    // Reemplaç special que es porta a terme abans de generar i processar els tokens, amb l'escapament de doble barres
-    // hi ha problemes si no es fa així perquè cada vegada que es processa una cadena es s'escapen les unes a les altres
+    // Reemplaç special que es porta a terme abans de generar i processar els tokens, per exemple l'escapament de barres
+    // es porta a terme cada vegada que es processa un text, així doncs les barres dintre d'una taula es processan dues
+    // vegades, la primera quan es processa la taula i la segona quan es processa el contingut e la cel·la.
+    // Fent servir el $forceReplacement ens assegurem que sempre es farà el reemplaç sense importar el nombre de
+    // processaments portats a terme.
 
     public static $forceReplacements = [
         '/\\\\\\\\ /ms' => '<br />'
