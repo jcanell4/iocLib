@@ -5,6 +5,14 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocParser.php';
 
 class DW2HtmlParser extends IocParser {
 
+
+    // Reemplaç special que es porta a terme abans de generar i processar els tokens, amb l'escapament de doble barres
+    // hi ha problemes si no es fa així perquè cada vegada que es processa una cadena es s'escapen les unes a les altres
+
+    public static $forceReplacements = [
+        '/\\\\\\\\ /ms' => '<br />'
+    ];
+
     public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>"], 'regex' => TRUE, 'block' => TRUE]];
 
     protected static $removeTokenPatterns = [
@@ -19,9 +27,12 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
-        "\\\\\n" => [
-            'state' => 'br',
-        ],
+//        "\\\\\n" => [
+//            'state' => 'br',
+//        ],
+//        '\\\\\\\\ ' => [
+//            'state' => 'br',
+//        ],
 
         "={2,6}\n?" => [
             'state' => 'header'
@@ -106,9 +117,11 @@ class DW2HtmlParser extends IocParser {
     protected static $tokenKey = [
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
-        "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE]],
+        "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
-        "\\\\\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE]],
+//        "\\\\n" => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE, ]],
+//
+//        '\\\\ ' => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE]],
 
         "^::(.*?):(.*?):::" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
@@ -184,4 +197,16 @@ class DW2HtmlParser extends IocParser {
         return $pattern;
     }
 
+//     @override
+    public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+
+
+        foreach (static::$forceReplacements as $pattern => $replacementValue) {
+            $text = preg_replace($pattern, $replacementValue, $text);
+        }
+
+        return parent::getValue($text, $arrays, $dataSource, $resetables);
+
+
+    }
 }
