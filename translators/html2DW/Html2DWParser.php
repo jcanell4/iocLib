@@ -85,7 +85,7 @@ class Html2DWParser extends IocParser {
             'state' => 'code',
         ],
 
-        '<code>(.*?)<\/code>' => [ // TODO: Això fa que peti però no enten perqué, per altra banda ha de ser self-contained
+        '<code>(.*?)<\/code>' => [
             'state' => 'code',
         ],
 
