@@ -169,6 +169,7 @@ class IocInstruction {
                 $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
                 if ( !$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
+                    // Variables per testeig, per comprovar quina es la causa de l'error
                     $noHiHaTop = !$top;
                     $noEsDelTipus = $top['type'] !== $currentToken['type'];
                     $noEsDelTipusYNoEsExcluded = $top['type'] !== $currentToken['type'] && !$isExcluded;
@@ -189,7 +190,7 @@ class IocInstruction {
             $top = $this->getTopState();
             if ($top) {
                 var_dump($top, $result);
-                //throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
+                throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
             }
         }
 

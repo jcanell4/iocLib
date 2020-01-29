@@ -13,7 +13,8 @@ class DW2HtmlHeader extends DW2HtmlInstruction {
 
     public function close() {
         $this->level = strlen(trim($this->currentToken['raw']));
-        return '</h'.(7-$this->level) . ">\n";
+        return '</h'.(7-$this->level) . ">";
+//        return '</h'.(7-$this->level) . ">\n";
     }
 
 

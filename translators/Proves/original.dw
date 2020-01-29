@@ -158,7 +158,9 @@ Un altre paràgraf.
       - Subitem 3.2.1
       - Subitem 3.2.2
         * Subitem 3.2.2.1
-        * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]]  [[pt-loe:loe1:continguts|enllaç intern]] **negreta**
+        * Subitem 3.2.2.A
+        * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]]  [[pt-loe:loe1:continguts|enllaç intern]] **negreta**.
+        * Subitem 3.2.2.3
 
 Últim paràgraf.
 

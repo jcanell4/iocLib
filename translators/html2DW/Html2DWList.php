@@ -51,4 +51,16 @@ class Html2DWList extends Html2DWMarkup {
     protected function getContent($token) {
         return '';
     }
+
+    protected function resolveOnClose($result) {
+
+        // quan es crida? a que tenim accéss?
+
+        $ret = parent::resolveOnClose($result);
+
+        if (count(static::$stack)==0) {
+            $ret .= "\n"; // és l'últim element d'una llista, afegim un salt de línia per separar-lo del següent bloc
+        }
+        return $ret;
+    }
 }

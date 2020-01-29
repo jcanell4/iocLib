@@ -17,6 +17,15 @@ class Html2DWListItem extends Html2DWMarkup {
         $pre = str_repeat(' ', $level * 2) . $this->getCharacter() . ' ';
 
         // L'últim caràcter serà un salt de línia quan es tracti de lliste imbricades
+        $test = substr($content, -2, 2);
+
+//        if (substr($content, -2, 2) != "\n\n") {
+//            $post = "\n";
+//        } else
+////            {
+////            $post = "";
+////        }
+
         if (substr($content, -1, 1) != "\n") {
             $post = "\n";
         } else {
@@ -79,5 +88,14 @@ class Html2DWListItem extends Html2DWMarkup {
         } else {
             return is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
         }
+    }
+
+    protected function resolveOnClose($result) {
+
+        // quan es crida? a que tenim accéss?
+
+        $ret = parent::resolveOnClose($result);
+
+        return $ret;
     }
 }
