@@ -6,22 +6,17 @@ class IocInstruction {
     const OPEN = 0;
     const CLOSE = 1;
 
-
     protected $extra;
     protected $rawValue;
-    protected static $instancesCounter = 0;
     protected $arrays = [];
+    protected $currentToken;
+    protected $nextToken;
 
+    protected static $instancesCounter = 0;
     protected static $parserClass = "IocParser";
     protected static $defaultContentclass = "IocInstruction";
 
     public static $stack = [];
-
-    protected $currentToken;
-    protected $nextToken;
-
-
-
 
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
@@ -37,35 +32,26 @@ class IocInstruction {
         $this->nextToken = $nextToken;
     }
 
-
     public function getTokensValue($tokens, &$tokenIndex) {
         return $this->parseTokens($tokens, $tokenIndex);
     }
 
     protected function getContent($token) {
-//        var_dump($token['value']);
         return $token['value'];
     }
 
     public function parseTokens($tokens, &$tokenIndex = 0) {
-
         $result = '';
 
         while ($tokenIndex < count($tokens)) {
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
-
             if ($newChunk === NULL) { // tancament de la etiqueta
                 break;
             }
-
             ++$tokenIndex;
             $result .= $newChunk;
-
         }
-
-
-
 
         return $this->resolveOnClose($result);
     }
@@ -91,12 +77,10 @@ class IocInstruction {
 
             if (count(static::$stack) > 0 && $top['state'] == $currentToken['state'] && $top['type'] == $currentToken['type']) {
                 $action = 'close';
-            } else {
+            }else {
                 $action = 'open';
             }
-
         }
-
 
         switch ($action) {
             case 'content':
@@ -116,7 +100,6 @@ class IocInstruction {
 
                 break;
 
-
             case 'open':
                 $mark = static::$instancesCounter == 0;
                 static::$instancesCounter++;
@@ -126,14 +109,14 @@ class IocInstruction {
                 $this->pushState($currentToken);
 
                 if ($mark) {
-                    $result .= $item->getTokensValue($tokens, ++$tokenIndex);
+                    ++$tokenIndex;
+                    $result .= $item->getTokensValue($tokens, $tokenIndex);
                 } else {
-                    $result .= $item->getTokensValue($tokens, ++$tokenIndex);
+                    ++$tokenIndex;
+                    $result .= $item->getTokensValue($tokens, $tokenIndex);
                 }
-
                 static::$instancesCounter--;
                 break;
-
 
             case 'self-contained':
                 // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
@@ -145,7 +128,6 @@ class IocInstruction {
                 break;
 
             case 'container':
-
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $class = static::$parserClass;
 
@@ -153,18 +135,13 @@ class IocInstruction {
                 $this->pushState($currentToken);
 
                 $content = $item->getContent($currentToken);
-
-
                 $value = $class::getValue($content);
                 $result = $item->resolveOnClose($value);
                 $this->popState();
-
                 break;
 
             case 'close':
-
                 $top = $this->getTopState();
-
                 // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
                 $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
@@ -176,15 +153,12 @@ class IocInstruction {
 
                     throw new WrongClosingTranslatorException([htmlspecialchars($top['value']), htmlspecialchars($currentToken['value'])]);
                 }
-
                 if (!$isExcluded) {
                     $this->popState();
                 }
-
                 return null;
-                break;
+                //break;
         }
-
 
         if (static::$instancesCounter === 0 && $action !== 'content') {
             $top = $this->getTopState();
@@ -193,8 +167,6 @@ class IocInstruction {
                 throw new MissingClosingTranslatorException(htmlspecialchars($top['value']));
             }
         }
-
-
 
         return $result;
     }
