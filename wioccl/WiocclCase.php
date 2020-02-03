@@ -19,7 +19,7 @@ class WiocclCase extends WiocclInstruction {
 
         $value = str_replace("\\", "", $value);
 
-        $this->index = count($this->arrays[$this->chooseId]);
+        $this->index = empty($this->arrays[$this->chooseId]) ? 0 : count($this->arrays[$this->chooseId]);
 
         if ($mandatoryCondition) {
             $this->arrays[$this->chooseId][] = [
@@ -32,7 +32,7 @@ class WiocclCase extends WiocclInstruction {
         }
 
     }
-    
+
     protected function resolveOnClose($result) {
         $this->arrays[$this->chooseId][$this->index]['value'] = $result;
         $this->arrays[$this->chooseId][$this->index]['resetables'] = &$this->resetables;

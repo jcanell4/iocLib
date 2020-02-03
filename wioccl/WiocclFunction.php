@@ -33,7 +33,7 @@ class WiocclFunction extends WiocclInstruction
         //ALERTA: cal verificar quan es produeix una situació en la que $jsonArgs té un valor incorrecte
         return ($jsonArgs==NULL || !is_array($jsonArgs)) ? [] : $jsonArgs;
     }
-    
+
     protected function resolveOnClose($result) {
         $this->init($result);
         $method = array($this, $this->functionName);
@@ -152,7 +152,7 @@ class WiocclFunction extends WiocclInstruction
     protected function IS_STR_EMPTY($text=""){
         return empty($text)?"true":"false";
     }
-    
+
     protected function YEAR($date=NULL){
         if($date==NULL){
             $ret = date("Y");
@@ -166,7 +166,7 @@ class WiocclFunction extends WiocclInstruction
     {
         if(!is_string($date)){
             return "[ERROR! paràmetres incorrectes DATE($date, $sep)]"; //TODO: internacionalitzar
-        }        
+        }
         return date("d".$sep."m".$sep."Y", strtotime(str_replace('/', '-', $date)));
     }
 
@@ -174,7 +174,7 @@ class WiocclFunction extends WiocclInstruction
     {
         if(!is_string($date)){
             return "[ERROR! paràmetres incorrectes LONG_DATE($date, $includeDay)]"; //TODO: internacionalitzar
-        }        
+        }
         $format = '';
 
         if ($includeDay) {
@@ -255,7 +255,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return  isset($array[$key])?$array[$key]:$defaultValue;
     }
-    
+
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_LENGTH($array)
     {
@@ -303,7 +303,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return $this->formatItem($array[count($array)-1], 'LAST', $template);
     }
-    
+
     private static function _normalizeValue($ret){
         if(is_array($ret) || is_object($ret)){
             $ret= json_encode($ret);
@@ -415,7 +415,7 @@ class WiocclFunction extends WiocclInstruction
         return $value1 - $value2;
     }
 
-    protected function SUMA($value1, $value2)
+    protected function SUMA($value1="NULL", $value2="NULL")
     {
         if(!is_numeric($value1) || !is_numeric($value2)){
             return "[ERROR! paràmetres incorrectes SUMA($value1, $value2)]"; //TODO: internacionalitzar
@@ -447,7 +447,7 @@ class WiocclFunction extends WiocclInstruction
         }
         return ucfirst($value);
     }
-    
+
     protected function STR_CONTAINS($subs=NULL, $string=NULL){
         if(!is_string($subs) || !is_string($string)){
             return "[ERROR! paràmetres incorrectes STR_CONTAINS($subs, $string)]"; //TODO: internacionalitzar
@@ -459,7 +459,7 @@ class WiocclFunction extends WiocclInstruction
         if(!is_string($delimiter)||!is_string($string)){
             return "[ERROR! paràmetres incorrectes EXPLODE($delimiter, $string, $limit)]"; //TODO: internacionalitzar
         }
-        
+
         if(!$limit){
             $limit = PHP_INT_MAX;
         }
@@ -472,13 +472,13 @@ class WiocclFunction extends WiocclInstruction
             return "[ERROR! paràmetres incorrectes STR_REPLACE($search, $replace, $subject, $count)]"; //TODO: internacionalitzar
         }
         if(is_numeric ($len)){
-            $ret = substr($text, $start, $len);            
+            $ret = substr($text, $start, $len);
         }else{
-            $ret = substr($text, $start);            
+            $ret = substr($text, $start);
         }
         return $ret;
-    }    
-    
+    }
+
     protected function STR_REPLACE($search=NULL, $replace=NULL, $subject=NULL, $count=FALSE) {
         if(!(is_string($search)||is_array($search)) || !(is_string($replace)|| is_array($replace)) || !is_string($subject)){
             return "[ERROR! paràmetres incorrectes STR_REPLACE($search, $replace, $subject, $count)]"; //TODO: internacionalitzar
@@ -505,9 +505,9 @@ class WiocclFunction extends WiocclInstruction
         }else{
             $ret = str_replace($search, $replace, $subject);
         }
-        return $ret;        
+        return $ret;
     }
-    
+
     protected function _explode($delim, $string){
         if(is_array($delim)){
             $nstring = str_replace($delim, $delim[0], $string);

@@ -1,6 +1,6 @@
 <?php
 class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
-    
+
     private $step = 1;
     private $from;
     private $to;
@@ -14,11 +14,11 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
         $this->counterName = $this->extractVarName($value, "counter");
         $this->from = $this->extractNumber($value, "from");
         $this->to = $this->extractNumber($value, "to");
-        
+
         $this->wiocclLoop = new _WiocclLoop($this);
     }
 
-    public function parseTokens($tokens, &$tokenIndex)
+    public function parseTokens($tokens, &$tokenIndex=0)
     {
         return $this->wiocclLoop->loop($tokens, $tokenIndex);
     }
@@ -36,7 +36,7 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
     }
 
     public function updateLoop() {
-        $this->arrays[$this->counterName] = $this->wiocclLoop->getCounter();        
+        $this->arrays[$this->counterName] = $this->wiocclLoop->getCounter();
     }
 
     public function validateLoop() {
