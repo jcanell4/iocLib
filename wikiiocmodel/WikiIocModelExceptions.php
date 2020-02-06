@@ -47,12 +47,6 @@ class UnknownMimeTypeException extends WikiIocModelException {
     }
 }
 
-class IncorrectUserOrPasswException extends WikiIocModelException {
-    public function __construct($message='badlogin', $code=9003, $previous=NULL) {
-        parent::__construct($message, $code, $previous);
-    }
-}
-
 class AuthorizationNotTokenVerified extends WikiIocModelException {
     public function __construct($codeMessage='auth_TokenNotVerified', $code=9020, $previous=NULL) {
         parent::__construct($codeMessage, $code, $previous);
