@@ -127,10 +127,10 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         $text = $this->parseContent($text);
 
 
-        $html = '<div data-dw-lateral="image" class="imgb">'
+        $html = '<div data-dw-lateral="image" class="imgb" contenteditable="false">'
             . '<img src="' . $url . '" class="media ' . $CSSClasses . '" title="' . $text . '" alt="' . $text . '" width="'
-            . $width .'" ' . $value . '/>'
-            . '<div class="title">' . $text . '</div>'
+            . $width .'" ' . $value . ' contenteditable="false"/>'
+            . '<div class="title" contenteditable="true">' . $text . '</div>'
             . '</div>';
 
         return $html;
@@ -161,6 +161,8 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         } else {
             $value .= 'external_image"';
         }
+
+        $value .= ' contenteditable="false"';
 
         return $this->getReplacement(self::OPEN) . $value .  ' />';
     }
