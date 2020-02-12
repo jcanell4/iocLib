@@ -26,7 +26,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         switch ($type) {
             case 'table':
-                return $this->getValueTable($token, $id);
+            case 'accounting':
+                return $this->getValueTable($token, $id, $type);
 
             case 'figure':
                 return $this->getValueFigure($token, $id);
@@ -85,9 +86,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
 
-    protected function getValueTable($token, $id) {
+    protected function getValueTable($token, $id, $type) {
 
-        $type = 'table';
 
         $fields = $this->getFields($token);
 

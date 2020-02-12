@@ -97,6 +97,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'link-special'
         ],
 
+        ":accounting:.*?:" => [
+            'state' => 'link-special'
+        ],
+
         ":figure:.*?:" => [
             'state' => 'link-special'
         ],
