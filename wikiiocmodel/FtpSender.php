@@ -26,7 +26,7 @@ class FtpSender{
         //Codificar l'enviament de cada fitxer de la llista d'acord amb els seus paràmetres
         //tractar les respostes a la variable $response per tal de poder informar del que
         //ha passat duarnt la connexió
-        Logger::debug("FtpSender::process", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::process", 0, __LINE__, "FtpSender.php", 1);
         $response=TRUE;
         foreach ($this->ftpObjectToSendList as $oFtp) {
             $action = $oFtp->getAction();
@@ -58,10 +58,11 @@ class FtpSender{
 
     private function remoteSSH2Copy($local_file, $source, $remote_file, $remote_dir) {
         if (($ret = $this->connectSSH2())) {
-            Logger::debug("FtpSender::remoteSSH2Copy-uploading file", 0, __LINE__, "FtpSender.php", 1);
+            //Logger::debug("FtpSender::remoteSSH2Copy-uploading file", 0, __LINE__, "FtpSender.php", 1);
             $ret = $this->uploadFile($local_file, $source, $remote_file, $remote_dir);
             $this->ssh2_disconnect($this->connection);
-            Logger::debug("FtpSender::remoteSSH2Copy-uploaded", 0, __LINE__, "FtpSender.php", 1);
+            //Logger::debug("FtpSender::remoteSSH2Copy-uploaded", 0, __LINE__, "FtpSender.php", 1);
+            return $ret;
         }
     }
 
@@ -101,7 +102,7 @@ class FtpSender{
     }
 
     private function _iocUnzipAndFtpSend($source, $destination) {
-        Logger::debug("FtpSender::_iocUnzipAndFtpSend-strating", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::_iocUnzipAndFtpSend-strating", 0, __LINE__, "FtpSender.php", 1);
         if (($dir = @opendir($source))) {
             $ret = TRUE;
             while ($file = readdir($dir)) {
@@ -118,7 +119,7 @@ class FtpSender{
     }
 
     private function uploadFile($local_file, $source, $remote_file, $remote_dir) {
-        Logger::debug("FtpSender::uploadFile-start", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::uploadFile-start", 0, __LINE__, "FtpSender.php", 1);
         $remote_dir = "/".trim($remote_dir,"/")."/";
         ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
 
@@ -134,7 +135,7 @@ class FtpSender{
             throw new Exception("Could not send data from file: $source$local_file.");
 
         @fclose($stream);
-        Logger::debug("FtpSender::uploadFile-end", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::uploadFile-end", 0, __LINE__, "FtpSender.php", 1);
         return TRUE;
     }
 
