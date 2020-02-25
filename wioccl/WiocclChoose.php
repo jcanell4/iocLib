@@ -27,14 +27,14 @@ class WiocclChoose extends WiocclInstruction {
             $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource, $resetables));
         }
     }
-    
+
     public function updateParentArray($fromType, $key=NULL){
         if($fromType !== self::FROM_CASE || $key !== self::PREFIX .$this->chooseId){
             parent::updateParentArray($fromType, $key);
         }
     }
 
-    
+
     protected function resolveOnClose($result) {
         // Comprovem si s'ha obtingut les condicions i valors dels case
         $cases = $this->arrays[self::PREFIX . $this->chooseId];
@@ -47,7 +47,7 @@ class WiocclChoose extends WiocclInstruction {
             $condition = $lv . $op . $rv;
 
             $evaluation= $this->evaluateCondition($condition);
-            
+
             $aux = $cases[$i]["resetables"];
             $ctx = $aux->RemoveLastContext(FALSE);
 
@@ -60,7 +60,7 @@ class WiocclChoose extends WiocclInstruction {
         return $result;
     }
 
-    public function parseTokens($tokens, &$tokenIndex) {
+    public function parseTokens($tokens, &$tokenIndex=0) {
         while ($tokenIndex < count($tokens)) {
 
             // Aquest valor no es fa servir, però serveix per determinar el tancament
@@ -78,7 +78,7 @@ class WiocclChoose extends WiocclInstruction {
     private function evaluateCondition($strCondition) {
         $_condition = new _WiocclCondition($strCondition);
         $_condition->parseData($this->getArrays(), $this->getDataSource(), $this->resetables);
-        
+
         return $_condition->validate();
     }
 }
