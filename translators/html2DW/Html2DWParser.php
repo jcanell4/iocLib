@@ -127,14 +127,14 @@ class Html2DWParser extends IocParser {
             'state' => 'br',
         ],
 
-        '<ul>' => [
+        '<ul.*?>' => [
             'state' => 'open_list',
         ],
         "<\/ul>" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
             'state' => 'close_list',
         ],
 
-        '<ol>' => [
+        '<ol.*?>' => [
             'state' => 'open_list',
         ],
         "<\/ol>" => [ // el salt de línia s'ha d'eliminar perquè aquesta etiqueta al DW és eliminada
@@ -220,10 +220,10 @@ class Html2DWParser extends IocParser {
         "</li>" => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
 
 
-        '<ul>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
+        '<ul.*?>' => ['state' => 'list', 'type' => 'ul', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ul', 'regex' => TRUE]],
         '</ul>' => ['state' => 'list', 'type' => 'ul', 'action' => 'close'],
 
-        '<ol>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
+        '<ol.*?>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
         '</ol>' => ['state' => 'list', 'type' => 'ol', 'action' => 'close'],
 
 
