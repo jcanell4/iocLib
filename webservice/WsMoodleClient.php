@@ -355,10 +355,10 @@ class WsMoodleClient {
             'http' => [
                 'method' => $method,
                 'header' => "Content-type: application/x-www-form-urlencoded\r\n"
-//            ],
-//            'ssl' => [
-//                'verify_peer' => false,
-//                'verify_peer_name' => false
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
             ]
         ];
         if($data){

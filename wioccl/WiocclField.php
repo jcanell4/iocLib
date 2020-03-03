@@ -49,7 +49,8 @@ class WiocclField extends WiocclInstruction {
             if(strlen($field)> strlen($matches[0])){
                 $this->arrays["_TMP_"]=$ret;
                 $newkey = substr($field, strlen($matches[0]));
-                $ret = $this->getContent(["state"=>"content","value"=>"_TMP_$newkey"]);
+                $newToken = ["state"=>"content","value"=>"_TMP_$newkey"];
+                $ret = $this->getContent($newToken);
                 unset($this->arrays["_TMP_"]);
             }
         } else {
