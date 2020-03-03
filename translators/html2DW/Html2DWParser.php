@@ -81,7 +81,7 @@ class Html2DWParser extends IocParser {
             'state' => 'close_underline',
         ],
 
-        '<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => [
+        '<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>' => [
             'state' => 'code',
         ],
 //
@@ -185,6 +185,7 @@ class Html2DWParser extends IocParser {
 //        "\n?<\/div>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
 
+        "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
         '\n?<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
@@ -197,7 +198,6 @@ class Html2DWParser extends IocParser {
         '<u>' => ['state' => 'open_underline', 'type' => 'underline', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => '__']],
         '</u>' => ['state' => 'close_underline', 'type' => 'underline', 'action' => 'close'],
 
-        "<pre>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<code>(.*?)<\/code>' => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWMonospace', 'action' => 'self-contained', 'extra' => ['replacement' => "''", 'regex' => TRUE]],
 

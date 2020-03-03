@@ -49,6 +49,9 @@ class Html2DWCode extends Html2DWInstruction {
 
         $content = $match[1];
 
+
+        $content = preg_replace("/<br *?\/>/ms", "\n", $content);
+
 //        var_dump($pre . $content . $post);
 //        die();
         // TODO: afegir el open de file o code segons correspongui
