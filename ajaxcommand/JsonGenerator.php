@@ -158,7 +158,12 @@ class ArrayJSonGenerator implements JsonGenerator {
      * @return string dades codificades en format JSON
      */
     public function getJsonEncoded() {
-        return json_encode($this->getJson());
+        $ret = json_encode($this->getJson());
+        $error = json_last_error();
+        if ($error !== JSON_ERROR_NONE) {
+            $ret = "ERROR en JsonGenerator->getJsonEncoded(): $error:" . json_last_error_msg();
+        }
+        return $ret;
     }
 
     /**
