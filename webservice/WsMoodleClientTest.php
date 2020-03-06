@@ -17,7 +17,7 @@ require_once DOKU_INC.'inc/init.php';
 
 $ws = new WsMoodleClient();
 
-$ws->updateToken("jcanell4", "p4r4d1sE");
+$ws->updateToken("", "");
 $token = $ws->getToken();
 
 print(json_encode($token));
