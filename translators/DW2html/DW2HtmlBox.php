@@ -92,7 +92,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $fields = $this->getFields($token);
 
 
-        $pre = $this->getPreContent($fields, $id, $type);
+        //$pre = $this->getPreContent($fields, $id, $type);
+        $pre = $this->getPreContent($fields, $id, 'table', $type);
         $content = $this->getContent($token);
 
         $value = $this->parseTable($content);
@@ -151,11 +152,15 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $content;
     }
 
-    protected function getPreContent($fields, $id, $type) {
-        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $type . '" data-dw-type="'
+    protected function getPreContent($fields, $id, $type, $realType) {
+        if (!$realType) {
+            $realType = $type;
+        }
+
+        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $realType . '" data-dw-type="'
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
-        $pre .= '<a data-dw-link="' . $type . '" name="' . $id . '">';
+        $pre .= '<a data-dw-link="' . $realType . '" name="' . $id . '">';
         $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
         $pre .= '</a>';
 
