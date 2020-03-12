@@ -26,11 +26,12 @@ abstract class abstract_project_command_class extends abstract_command_class {
         }else{
             $id = $this->params[ProjectKeys::KEY_ID];
         }
-        $projectMetaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery(
-                                                                    $id,
-                                                                    $this->params[ProjectKeys::KEY_METADATA_SUBSET],
-                                                                    $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
-        $this->dataProject = $projectMetaDataQuery->getDataProject();
+        $this->dataProject = $this->getModelManager()->getProjectRoleData(
+                                                                    $id, 
+                                                                    $this->params[ProjectKeys::KEY_PROJECT_TYPE], 
+                                                                    NULL, 
+                                                                    "", 
+                                                                    $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
     }
 
     public function getKeyDataProject($key=NULL) {
