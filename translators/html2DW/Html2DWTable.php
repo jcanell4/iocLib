@@ -86,6 +86,8 @@ class Html2DWTable extends Html2DWMarkup {
                 $table[$colIndex][$rowIndex] = $cell;
 
 
+                $colspan = 0;
+
                 // extreure colspan
                 $colspanPattern = '/colspan="(.*?)"/';
                 if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
@@ -93,20 +95,25 @@ class Html2DWTable extends Html2DWMarkup {
 
                     $colspan = $match[1];
 
+                    $auxColIndex = $colIndex;
                     for ($j = 1; $j < $colspan; $j++) {
-                        ++$colIndex;
-                        $table[$colIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
+                        ++$auxColIndex;
+                        $table[$auxColIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
                     }
                 }
 
                 // extreure rowspan
                 $colspanPattern = '/rowspan="(.*?)"/';
-                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
-                    // afegim files amb ::: cap a sota fins a rowspan-1
-                    $rowspan = $match[1];
 
-                    for ($j = 1; $j < $rowspan; $j++) {
-                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+                for ($k=0; $k<$colspan; $k++) {
+
+                    if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
+                        // afegim files amb ::: cap a sota fins a rowspan-1
+                        $rowspan = $match[1];
+
+                        for ($j = 1; $j < $rowspan; $j++) {
+                            $table[$colIndex + $k][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+                        }
                     }
                 }
 

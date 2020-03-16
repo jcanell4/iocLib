@@ -255,7 +255,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                         for ($j = $rowIndex - 1; $j >= 0; $j--) {
 
 
-                            if (trim($table[$colIndex][$j]['content']) != ":::" || $j == 0) {
+                            if ((strlen($table[$colIndex][$j]['content']) > 0 && trim($table[$colIndex][$j]['content']) != ":::")
+                                || $j == 0) {
                                 $table[$colIndex][$j]['rowspan'] = $table[$colIndex][$j]['rowspan'] ? $table[$colIndex][$j]['rowspan'] + 1 : 2;
                                 break;
                             }
