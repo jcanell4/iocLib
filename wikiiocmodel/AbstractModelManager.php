@@ -37,21 +37,21 @@ abstract class AbstractModelManager {
         $file = realpath("{$dir}DokuModelManager.php");
         require_once $file;
         return new DokuModelManager($projectType);
-//        $plugin_list = $plugin_controller->getList('action');
-//
-//        //busca el tipo de proyecto solicitado en todos los directorios de plugins del tipo action
-//        foreach ($plugin_list as $plugin) {
-//            $file = realpath(DOKU_INC."lib/plugins/$plugin/projects/$projectType/DokuModelManager.php");
-//            if (file_exists($file)) {
-//                require_once($file);
-//                return new DokuModelManager($projectType);
-//            }
-//        }
-//        throw new UnknownPojectTypeException();
     }
 
     public function getPersistenceEngine() {
         return $this->persistenceEngine;
+    }
+    
+    public function getProjectRoleData($id, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
+        $ret = array();
+        $class = $this->getProjectType()."ProjectModel";
+        $obj = new $class($this->persistenceEngine);
+        $obj->init($id, $projectType, $rev, $viewConfigName, $metadataSubset);
+        if(is_callable([$obj, "getRoleData"])){
+            $ret = $obj->getRoleData();
+        }        
+        return $ret;
     }
 
     public function getProjectType() {
