@@ -77,7 +77,7 @@ class Html2DWTable extends Html2DWMarkup {
                 $class::setInner($isInnerPrevious);
 
 
-                // Això ho fem per avançar el cursor sobre les cel·les que ja s'han establer per un rowspan a una fila anterior
+                // Això ho fem per avançar el cursor sobre les cel·les que ja s'han establert per un rowspan a una fila anterior
                 while (isset($table[$colIndex][$rowIndex])) {
                     $colIndex++;
                 }
@@ -105,7 +105,19 @@ class Html2DWTable extends Html2DWMarkup {
                 // extreure rowspan
                 $colspanPattern = '/rowspan="(.*?)"/';
 
-                for ($k=0; $k<$colspan; $k++) {
+//                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
+//                    // afegim files amb ::: cap a sota fins a rowspan
+//                    $rowspan = $match[1];
+//
+//                    for ($j = 1; $j < $rowspan; $j++) {
+//                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+//                    }
+//                }
+
+
+                    //  Cal recorrer el colspan pels casos en que hi ha més d'una columna
+
+                    for ($k=0; $k< ($colspan? $colspan : 1); $k++) {
 
                     if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
                         // afegim files amb ::: cap a sota fins a rowspan-1
