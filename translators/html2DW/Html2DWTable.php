@@ -150,7 +150,7 @@ class Html2DWTable extends Html2DWMarkup {
         $content = '';
         $lastCellTag = '';
 
-        $isMultiline = false;
+//        $isMultiline = false;
 
         // Fem el reemplaç dels \n* per //
         // Si s'ha fet cap canvi llavors la taula es multilínia
@@ -168,7 +168,7 @@ class Html2DWTable extends Html2DWMarkup {
                 $value = $tableData[$col][$row]['content'];
 
                 if (strpos($value, "\n") !== FALSE) {
-                    $isMultiline = true;
+//                    $isMultiline = true;
                     $value = preg_replace("/\n+/", "\\\\\\ ", $value);
                 }
 
@@ -202,9 +202,10 @@ class Html2DWTable extends Html2DWMarkup {
 //        var_dump($tableData);
 //        die('TODO: fer la conversio de les dades a una taula de DW');
 
-        if ($isMultiline) {
-            $content = "[" . $content . "]\n";
-        }
+        // Desactivada la comprovació de multilínia, totes les taules supoerten multilínia perque es fa servir \\ en lloc de \n
+//        if ($isMultiline) {
+//            $content = "[" . $content . "]\n";
+//        }
 
         return $content;
 
