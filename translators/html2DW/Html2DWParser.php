@@ -89,6 +89,11 @@ class Html2DWParser extends IocParser {
             'state' => 'monospace',
         ],
 
+        '<div class="ioc-comment-block" data-ioc-comment="">(.*?)<\/div data-ioc-comment="">' => [
+            'state' => 'note',
+        ],
+
+
         '<h1.*?>' => [
             'state' => 'open_h1',
         ],
@@ -186,6 +191,8 @@ class Html2DWParser extends IocParser {
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div class="ioc-comment-block" data-ioc-comment="">(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
         '\n?<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],

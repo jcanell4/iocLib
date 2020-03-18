@@ -66,6 +66,11 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
+        "<note>(.*?)<\/note>" => [
+            'state' => 'note'
+        ],
+
+
         "\*\*" => [
             'state' => 'bold'
         ],
@@ -157,6 +162,9 @@ class DW2HtmlParser extends IocParser {
         "<code.*?>(.*?)<\/code>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE,'block' => TRUE]],
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
+
+        "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE,'block' => TRUE]],
+
 
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
 
