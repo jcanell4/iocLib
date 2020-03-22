@@ -152,7 +152,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $content;
     }
 
-    protected function getPreContent($fields, $id, $type, $realType) {
+    protected function getPreContent($fields, $id, $type, $realType=NULL) {
         if (!$realType) {
             $realType = $type;
         }
