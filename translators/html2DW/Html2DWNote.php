@@ -5,60 +5,49 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocInstruction.php';
 
 class Html2DWNote extends Html2DWInstruction {
 
+    const NOTE = 1;
+    const SIGNATURE = 2;
+
     protected function resolveOnClose($field) {
         die('Code#resolveOnClose');
     }
 
     protected function getContent($token) {
 
-//        var_dump($token);
-//        die('Code#getContent');
-//
-//        $type = '';
-//        $lang = '';
-//
-//        try {
-//            // No es fa sevir, només es comprova si existeix
-//            $aux = $this->extractVarName($this->currentToken['raw'], 'data-dw-file');
-//
-//            // Es file
-//            $type = 'file';
-//            $pre = '<file>';
-//            $post = "\n</file>";
-//
-//
-//        } catch (Exception $e) {
-//            // Es code
-//            $type = 'code';
-//
-//            $pre = '<code';
-//            try {
-//                $lang = $this->extractVarName($this->currentToken['raw'], 'data-dw-lang');
-//                $pre .= ' ' . $lang;
-//            } catch (Exception $e) {
-//                // No fem res
-//
-//            }
-//
-//            $pre .= '>';
-//            $post = "\n</code>";
-//
-//        }
-//
-//        preg_match($token['pattern'], $token['raw'], $match);
-//
-//        $content = $match[1];
-//
-//
-//        $content = preg_replace("/<br *?\/>/ms", "\n", $content);
-//
-////        var_dump($pre . $content . $post);
-////        die();
-//        // TODO: afegir el open de file o code segons correspongui
 
-//        return $pre . $content . $post;
+        // Format final de la nota
+        //<note>
+        // Aquest és un exemple de nota contextual com les que fem servir per a la comunicació i resposta d'incidències.  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2013/07/30 15:04// Resposta A  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2005/07/30 15:04// Resposta B  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2000/07/30 15:04//
+        //</note>
 
-        return "TODO: note";
+
+        $pre = $this->getReplacement(self::OPEN);
+        $post = $this->getReplacement(self::CLOSE);
+
+        // TODO: s'ha de dividir el contingut en: text - signatura
+
+        $pattern = '/<span class="replyContent">(.*?)<\/span>\s*?<span class="ioc-signature">(.*?)<\/span>/m';
+
+        $content = '';
+
+
+        if (preg_match_all($pattern, $token['raw'], $matches)) {
+            // var_dump($matches);
+
+            for ($i = 0; $i < count($matches[0]); $i++) {
+                $note = $matches[self::NOTE][$i];
+                $signature = $matches[self::SIGNATURE][$i];
+
+                if ($i>0) {
+                    $content .= ' ';
+                }
+
+                $content .= $note . ' ' . $signature;
+            }
+
+        }
+
+        return $pre . $content . $post;
     }
 
 }

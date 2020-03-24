@@ -89,9 +89,13 @@ class Html2DWParser extends IocParser {
             'state' => 'monospace',
         ],
 
-        '<div class="ioc-comment-block" data-ioc-comment="">(.*?)<\/div data-ioc-comment="">' => [
+/*        '<div class="ioc-comment-block" data-ioc-comment=".*?".*?>(.*?)<\/div data-ioc-comment="">' => [*/
+//            'state' => 'note',
+//        ],
+        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
             'state' => 'note',
         ],
+
 
 
         '<h1.*?>' => [
@@ -167,6 +171,9 @@ class Html2DWParser extends IocParser {
     protected static $tokenKey = [
 
 
+/*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
+        '<ioc-note .*?>(.*?)<\/ioc-note>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],
+
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
@@ -184,15 +191,11 @@ class Html2DWParser extends IocParser {
 
         "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
-        // L'editor afegeix els <div> com a paràgrafs normals, però llavors peta quan es detecten altres divs sense atributs utilitzats amb els plugins
-/*        '^<div( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],*/
-
-//        "\n?<\/div>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<div class="ioc-comment-block" data-ioc-comment="">(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
 
         // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
         '\n?<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
