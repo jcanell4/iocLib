@@ -3,10 +3,10 @@
  * CalculateDateFromFile: retorna la fecha del fichero_continguts del proyecto
  * @culpable rafa
  */
-class CalculateMaxPageDateFromNs extends CalculateWithValue {
+class CalculateMaxPageDateFromNs extends CalculateWithProjectId {
 
     public function calculate($data) {
-        $dir = WikiPageSystemManager::getRealDirFromPages($this->ns);
+        $dir = WikiPageSystemManager::getRealDirFromPages($this->getProjectId());
         $maxdate = $this->getMaxFileDateOf($dir);
         return date('d/m/Y', $maxdate);
     }
