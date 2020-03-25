@@ -13,6 +13,9 @@ class Html2DWParser extends IocParser {
     protected static $tokenPatterns = [
 
         // Els boxes s'ha de ficar abans
+        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
+            'state' => 'note',
+        ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
@@ -92,9 +95,6 @@ class Html2DWParser extends IocParser {
 /*        '<div class="ioc-comment-block" data-ioc-comment=".*?".*?>(.*?)<\/div data-ioc-comment="">' => [*/
 //            'state' => 'note',
 //        ],
-        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
-            'state' => 'note',
-        ],
 
 
 
@@ -172,7 +172,6 @@ class Html2DWParser extends IocParser {
 
 
 /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
-        '<ioc-note .*?>(.*?)<\/ioc-note>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -189,8 +188,10 @@ class Html2DWParser extends IocParser {
 
         '^<p( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],
 
+
         "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
+        '<ioc-note .*?>(.*?)<\/ioc-note>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],

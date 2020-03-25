@@ -180,7 +180,6 @@ Un altre paràgraf.
 | --- | @@@ | **aaa** bb ### | ... |
 :::
 
-<note>
-Aquest és un exemple de nota contextual com les que fem servir per a la comunicació i resposta d'incidències.  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2013/07/30 15:04// Resposta A  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2005/07/30 15:04// Resposta B  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2000/07/30 15:04//
-</note>
+  * ara dins d'una llista <note>Aquest és un exemple de nota contextual com les que fem servir per a la comunicació i resposta d'incidències.  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2013/07/30 15:04// Resposta A  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2005/07/30 15:04// Resposta B  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2000/07/30 15:04//</note> amb continuació
+  * i un segon element de la llista
 

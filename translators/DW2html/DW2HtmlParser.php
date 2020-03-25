@@ -31,12 +31,6 @@ class DW2HtmlParser extends IocParser {
             'state' => 'hr',
         ],
 
-//        "\\\\\n" => [
-//            'state' => 'br',
-//        ],
-//        '\\\\\\\\ ' => [
-//            'state' => 'br',
-//        ],
 
         "={2,6}\n?" => [
             'state' => 'header'
@@ -66,9 +60,6 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
-        "<note>(.*?)<\/note>" => [
-            'state' => 'note'
-        ],
 
 
         "\*\*" => [
@@ -95,6 +86,10 @@ class DW2HtmlParser extends IocParser {
 
         "^(?: {2})+[\*-](.*?)\n" => [
             'state' => 'list-item'
+        ],
+
+        "<note>(.*?)<\/note>" => [
+            'state' => 'note'
         ],
 
 
@@ -132,15 +127,9 @@ class DW2HtmlParser extends IocParser {
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
-//        "\\\\n" => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE, ]],
-//
-//        '\\\\ ' => ['state' => 'br', 'type' => 'br', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<br>\n", 'block' => TRUE]],
 
         "^::(.*?):(.*?):::" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
-//        "^::table:(.*?):::" => ['state' => 'box', 'type' => 'box-table', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
-//
-//        "^::figure:(.*?):::" => ['state' => 'box', 'type' => 'box-figure', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // El close ha d'anar abans perquè si no es detecta com a open
         "={2,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
@@ -163,7 +152,6 @@ class DW2HtmlParser extends IocParser {
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE,'block' => TRUE]],
 
 
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
@@ -178,6 +166,8 @@ class DW2HtmlParser extends IocParser {
         " {2}\* (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
 
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
+
+        "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
 
         // ALERTA, aquestes han d'anar al final de la llista de blocs

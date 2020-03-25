@@ -8,6 +8,8 @@ class DW2HtmlNote extends DW2HtmlInstruction {
     const NOTE = 1;
     const SIGNATURE = 2;
 
+    static $counter = 0;
+
 //    protected $newLinefound = '';
 
 //    protected function getReplacement($position) {
@@ -73,10 +75,10 @@ class DW2HtmlNote extends DW2HtmlInstruction {
 
 
         $value =
-            '<ioc-note class="ioc-comment-block" data-ioc-comment="">
+            '<ioc-note class="ioc-comment-block" data-ioc-comment="" data-note-counter="' . self::$counter . '" contenteditable="false">
                 <span class="ioc-comment ioc-comment-reference" data-reference="">* ()</span>
             
-                <div data-type="ioc-comment" class="ioc-comment ioc-comment-body">
+                <div data-type="ioc-comment" class="ioc-comment ioc-comment-body" data-note-counter="' . self::$counter . '">
                     <div class="triangle-outer"> </div>
                     <div class="triangle-inner"> </div>
                     <button data-action="resolve" title="Elimina el comentari">
@@ -88,6 +90,8 @@ class DW2HtmlNote extends DW2HtmlInstruction {
             
                     <div>
                         <div class="ioc-reply-list">';
+
+        self::$counter++;
 
         for ($i = 0; $i < $notes; $i++) {
             $value .= '<div class="ioc-comment-reply" data-ioc-reply="" data-user="' . $users[$i] . '">
