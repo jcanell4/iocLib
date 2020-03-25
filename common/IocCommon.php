@@ -12,22 +12,47 @@ require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
  */
 class IocCommon {
     
-    public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values) {
+    public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values, $persistence=NULL) {
         if (isset($calcDefProp)) {
             $className = $calcDefProp['class'];
             $calculator = new $className;
             if ($calculator) {
-                switch ($calculator->getCalculatorTypeData()){
-                    case "from_values":
-                        $calculator->init($projectId);
-                        $value = $calculator->calculate($values[$calcDefProp['data']]);
-                        break;
-                    default :
-                        $value = $calculator->calculate($calcDefProp['data']);
+                //init
+                if($calculator->isCalculatorOfTypeData(ICalculateWithProjectId::WITH_PROJECT_ID_TYPE)){
+                    $calculator->init($projectId);
                 }
+                if($calculator->isCalculatorOfTypeData(ICalculateFromValues::FROM_VALUES_TYPE)){
+                    $calculator->init($values);
+                }
+                if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
+                    if($persistence==NULL){
+                        $persistence = $this->getPersistenceEngineFromPlugincontroller();                        
+                    }
+                    $calculator->init($persistence);
+                }
+                $value = $calculator->calculate($calcDefProp['data']);
+                
+//                switch ($calculator->getCalculatorTypeData()){
+//                    case "from_values":
+//                        $calculator->init($projectId);
+//                        $value = $calculator->calculate($values[$calcDefProp['data']]);
+//                        break;
+//                    default :
+//                        $value = $calculator->calculate($calcDefProp['data']);
+//                }
             }
         }
         return $value;
+    }
+    
+    private static function getPersistenceEngineFromPlugincontroller(){
+        global $plugin_controller;
+        $persistence=NULL;
+        if(is_callable([$plugin_controller, "getPersistenceEngine"])){
+            return $plugin_controller->getPersistenceEngine();
+        }else{
+            throw new Exception("Es necessita la persistència per poder continuar");
+        }
     }
 
     /**
