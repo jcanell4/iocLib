@@ -12,11 +12,6 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenPatterns = [
 
-        // Els boxes s'ha de ficar abans
-        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
-            'state' => 'note',
-        ],
-
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
             'state' => 'image-lateral'
@@ -46,11 +41,6 @@ class Html2DWParser extends IocParser {
             'state' => 'open_p',
         ],
 
-        // L'editor afegeix els <div> com a paràgrafs normals, però llavors peta quan es detecten altres divs sense atributs utilitzats amb els plugins
-//        '<div>' => [
-//            'state' => 'open_p',
-//        ],
-
         '&nbsp;' => [
             'state' => 'space',
         ],
@@ -63,6 +53,13 @@ class Html2DWParser extends IocParser {
 //        '\n?<\/div>' => [
 //            'state' => 'close_p',
 //        ],
+
+        // Els boxes s'ha de ficar abans
+        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
+            'state' => 'note',
+        ],
+
+
 
 
         '<b ?.*?>' => [

@@ -38,6 +38,10 @@ class Html2DWNote extends Html2DWInstruction {
                 $note = $matches[self::NOTE][$i];
                 $signature = $matches[self::SIGNATURE][$i];
 
+
+                // Els <br /> no es processan correctament i els salts de línia amb \\ o doble \n son ignorats a les notes
+                $note = str_replace('<br />', '', $note);
+
                 if ($i>0) {
                     $content .= ' ';
                 }
@@ -45,6 +49,9 @@ class Html2DWNote extends Html2DWInstruction {
                 $content .= $note . ' ' . $signature;
             }
 
+        } else {
+            // No hi han comentaris, ho descartem
+            return '';
         }
 
         return $pre . $content . $post;
