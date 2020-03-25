@@ -47,7 +47,6 @@ class IocCommon {
     
     private static function getPersistenceEngineFromPlugincontroller(){
         global $plugin_controller;
-        $persistence=NULL;
         if(is_callable([$plugin_controller, "getPersistenceEngine"])){
             return $plugin_controller->getPersistenceEngine();
         }else{
@@ -138,7 +137,7 @@ class IocCommon {
     }
 
     public function addResponseTab($dades, &$ajaxCmdResponseGenerator) {
-        $containerClass = "ioc/gui/ContentTabNsTreeListFromPage";;
+        $containerClass = "ioc/gui/ContentTabNsTreeListFromPage";
         $urlBase = "lib/exe/ioc_ajax.php?call=page";
         $urlTree = "lib/exe/ioc_ajaxrest.php/ns_tree_rest/";
 
