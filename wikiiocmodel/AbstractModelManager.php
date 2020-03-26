@@ -9,7 +9,6 @@ if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
 if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
 require_once WIKI_IOC_MODEL . "datamodel/TimerNotifyModel.php";
 require_once WIKI_IOC_MODEL . "datamodel/WebsocketNotifyModel.php";
-require_once(WIKI_IOC_MODEL . 'persistence/BasicPersistenceEngine.php');
 
 abstract class AbstractModelManager {
 
@@ -42,7 +41,7 @@ abstract class AbstractModelManager {
     public function getPersistenceEngine() {
         return $this->persistenceEngine;
     }
-    
+
     public function getProjectRoleData($id, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
         $ret = array();
         $class = $this->getProjectType()."ProjectModel";
@@ -50,7 +49,7 @@ abstract class AbstractModelManager {
         $obj->init($id, $projectType, $rev, $viewConfigName, $metadataSubset);
         if(is_callable([$obj, "getRoleData"])){
             $ret = $obj->getRoleData();
-        }        
+        }
         return $ret;
     }
 

@@ -5,8 +5,6 @@
  */
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
-require_once (WIKI_IOC_MODEL . 'persistence/BasicPersistenceEngine.php');
 
 class WikiIocPluginAction extends DokuWiki_Action_Plugin {
 
@@ -39,7 +37,7 @@ class WikiIocPluginAction extends DokuWiki_Action_Plugin {
             }
         }
     }
-    
+
     function getProjectType(){
         return $this->projectType;
     }

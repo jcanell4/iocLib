@@ -6,7 +6,6 @@
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
 if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
-require_once (WIKI_IOC_MODEL . 'persistence/BasicPersistenceEngine.php');
 
 class WikiIocProjectPluginAction extends WikiIocPluginAction {
     private $dirProjectType;
@@ -18,7 +17,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
         $this->dirProjectType = $dirProjectType;
         $this->viewArray = $this->projectMetaDataQuery->getMetaViewConfig("controls", $projectType);
     }
-    
+
     function addControlScripts(Doku_Event &$event, $param) {
         $changeWidgetPropertyFalse = "";
         $changeWidgetPropertyCondition = "";
