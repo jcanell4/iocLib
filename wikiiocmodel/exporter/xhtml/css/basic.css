@@ -1,0 +1,19 @@
+.ioctable .inlinelatex img:before {
+ content: "";
+ height: 100%;
+ display: inline-block;
+ vertical-align: middle;
+}
+.ioctable .inlinelatex img {
+ height: 100%;
+ display: inline-block;
+ vertical-align: middle;
+}
+.inlinelatex {
+ display: inline;
+}
+.blocklatex {
+ display: block;
+ margin: 2em;
+ text-align: center;
+}
