@@ -51,24 +51,19 @@ class PageDataQuery extends DataQuery {
     public function save($id, $text, $summary, $minor = false, $forceSave=false){
         $fdt = @filemtime(wikiFN($id));
         saveWikiText($id, $text, $summary, $minor);
-        if($forceSave && $fdt === filemtime(wikiFN($id))){
+        if ($forceSave && $fdt === filemtime(wikiFN($id))){
             saveWikiText($id, " ", "");
             saveWikiText($id, $text, $summary, $minor);
         }
-
-
         $partialDisabled = strpos($text, '~~USE:WIOCCL~~') !== false;
 
         $meta['partialDisabled'] = $partialDisabled;
         p_set_metadata($id, $meta);
-
     }
 
     public function getHtml($id, $rev = null){
         $html = $this->p_wiki_xhtml($id, $rev, true);
-
         return $html;
-
     }
 
     public function getTemplateRaw($id, $version){
@@ -92,7 +87,6 @@ class PageDataQuery extends DataQuery {
         $ACT = $act_aux;
         return $toc;
     }
-
 
    private function p_wiki_xhtml($id, $rev='', $excuse=true){
        $file = $this->getFileName($id,$rev);
@@ -169,4 +163,5 @@ class PageDataQuery extends DataQuery {
 
         return $ret;
     }
+
 }
