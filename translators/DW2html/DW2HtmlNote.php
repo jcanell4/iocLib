@@ -118,7 +118,7 @@ class DW2HtmlNote extends DW2HtmlInstruction {
                 </div>
                 <button data-action="reply" title="Afegir un comentari">Respon</button>
             </div>
-        </ioc-note>';
+        </ioc-note><span class="no-render" data-delete-block>&nbsp;</span>';
 
 
         // Estructua que s'ha de generar:
