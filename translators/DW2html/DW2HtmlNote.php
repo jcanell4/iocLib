@@ -75,7 +75,7 @@ class DW2HtmlNote extends DW2HtmlInstruction {
 
 
         $value =
-            '<ioc-note class="ioc-comment-block" data-ioc-comment="" data-note-counter="' . self::$counter . '" contenteditable="false">
+            '<div class="ioc-comment-block" data-ioc-comment="" data-note-counter="' . self::$counter . '" contenteditable="false">
                 <span class="ioc-comment ioc-comment-reference" data-reference="">* ()</span>
             
                 <div data-type="ioc-comment" class="ioc-comment ioc-comment-body" data-note-counter="' . self::$counter . '">
@@ -118,7 +118,7 @@ class DW2HtmlNote extends DW2HtmlInstruction {
                 </div>
                 <button data-action="reply" title="Afegir un comentari">Respon</button>
             </div>
-        </ioc-note><span class="no-render" data-delete-block>&nbsp;</span>';
+        </div><span data-delete-block="true">&nbsp;</span>';
 
 
         // Estructua que s'ha de generar:
