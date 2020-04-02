@@ -733,44 +733,6 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
-     * Canvia el nom dels arxius $filetype que contenen (en el nom) l'antiga ruta del projecte
-     * @param string $base_dir : directori wiki del projecte
-     * @param string $old_name : nom actual del projecte
-     * @param string $new_name : nou nom del projecte
-     * @param array|string $listfiles : llista d'arxius o extensió dels arxius (per defecte ".zip") generats pel render que cal renombrar
-     * @throws Exception
-     */
-    public function renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $listfiles=".zip") {
-        $ret = TRUE;
-        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_dir/$new_name";
-        if (is_array($listfiles)) {
-            foreach ($listfiles as $file) {
-                if (@file_exists($file)) {
-                    $newfile = preg_replace("/_$old_name/", "_{$new_name}", $file);
-                    if (!($ret = rename("$newPath/$file", "$newPath/$newfile"))) {
-                        break;
-                    }
-                }
-            }
-        }else {
-            $scan = @scandir($newPath);
-            if ($scan) {
-                foreach ($scan as $file) {
-                    if (!is_dir("$newPath/$file") && strpos($file, $listfiles)>0 && strpos($file, $old_name)!==FALSE) {
-                        $newfile = preg_replace("/_$old_name\./m", "_{$new_name}.", $file);
-                        if (!($ret = rename("$newPath/$file", "$newPath/$newfile"))) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if (!$ret) {
-            throw new Exception("renameProject: Error mentre canviava el nom de l'arxiu $file.");
-        }
-    }
-
-    /**
      * Elimina els directoris del projecte indicat i les seves referències i enllaços
      * @param string $ns : ns del projecte
      * @param string $persons : noms dels autors i els responsables separats per ","

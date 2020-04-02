@@ -164,15 +164,4 @@ class PageDataQuery extends DataQuery {
         return $ret;
     }
 
-    /**
-     * Busca si la ruta $ns contiene un directorio de proyecto
-     * @param string $ns
-     * @return boolean
-     */
-    public function haveAnyDirProject($ns) {
-        $mdProjectsPath = WikiGlobalConfig::getConf('mdprojects');
-        $nsDir = str_replace(":", "/", $ns);
-        return is_dir("$mdProjectsPath/$nsDir");
-    }
-
 }
