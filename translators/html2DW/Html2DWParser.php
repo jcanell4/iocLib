@@ -17,6 +17,10 @@ class Html2DWParser extends IocParser {
             'state' => 'image-lateral'
         ],
 
+        '<div class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => [
+            'state' => 'note',
+        ],
+
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
         '<div class="ioc(?:table|figure).*?" data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
 /*        '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [*/
@@ -54,10 +58,7 @@ class Html2DWParser extends IocParser {
 //            'state' => 'close_p',
 //        ],
 
-        // Els boxes s'ha de ficar abans
-        '<ioc-note .*?>(.*?)<\/ioc-note>' => [
-            'state' => 'note',
-        ],
+
 
 
 
@@ -170,6 +171,9 @@ class Html2DWParser extends IocParser {
 
 /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
 
+        '<div class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
+
+
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
@@ -187,8 +191,6 @@ class Html2DWParser extends IocParser {
 
 
         "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
-
-        '<ioc-note .*?>(.*?)<\/ioc-note>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
