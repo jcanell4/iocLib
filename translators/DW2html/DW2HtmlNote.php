@@ -75,27 +75,27 @@ class DW2HtmlNote extends DW2HtmlInstruction {
 
 
         $value =
-            '<div class="ioc-comment-block" data-ioc-comment="" data-note-counter="' . self::$counter . '" contenteditable="false">
+            '<span class="ioc-comment-block" data-ioc-comment="" data-note-counter="' . self::$counter . '" contenteditable="false">
                 <span class="ioc-comment ioc-comment-reference" data-reference="">* ()</span>
             
-                <div data-type="ioc-comment" class="ioc-comment ioc-comment-body" data-note-counter="' . self::$counter . '">
-                    <div class="triangle-outer"> </div>
-                    <div class="triangle-inner"> </div>
+                <span data-type="ioc-comment" class="ioc-comment ioc-comment-body" data-note-counter="' . self::$counter . '">
+                    <span class="triangle-outer"> </span>
+                    <span class="triangle-inner"> </span>
                     <button data-action="resolve" title="Elimina el comentari">
                         Resol
                     </button>
-                    <div class="ioc-comment-main">
+                    <span class="ioc-comment-main">
                         <b>Ref. </b>
-                    </div>
+                    </span>
             
-                    <div>
-                        <div class="ioc-reply-list">';
+                    <span>
+                        <span class="ioc-reply-list">';
 
         self::$counter++;
 
         for ($i = 0; $i < $notes; $i++) {
-            $value .= '<div class="ioc-comment-reply" data-ioc-reply="" data-user="' . $users[$i] . '">
-                            <div class="viewComment">
+            $value .= ' <span class="ioc-comment-reply" data-ioc-reply="" data-user="' . $users[$i] . '">
+                            <span class="viewComment">
                                 <span class="ioc-comment-toolbar">
                                     <span class="ioc-comment-toolbar-button" title="" data-button="edit">Editar</span>
                                     |
@@ -103,22 +103,22 @@ class DW2HtmlNote extends DW2HtmlInstruction {
                                 </span>
                                 <span class="replyContent">' . $contents[$i] . '</span>
                                 <span class="ioc-signature">' . $signatures[$i] . '</span>
-                            </div>
-                            <div class="editComment">
+                            </span>
+                            <span class="editComment">
                                 <textarea rows="2"></textarea>
                                 <button data-action-reply="save">Desar</button>
                                 <button data-action-reply="cancel">Cancel·lar</button>
-                            </div>
-                        </div>';
+                            </span>
+                         </span>';
         }
 
 
-        $value .= '</div>                
-                    <textarea class="reply" rows="2" placeholder="Escriu un comentari..."></textarea>
-                </div>
-                <button data-action="reply" title="Afegir un comentari">Respon</button>
-            </div>
-        </div><span data-delete-block="true">&nbsp;</span>';
+        $value .= '    </span>                
+                        <textarea class="reply" rows="2" placeholder="Escriu un comentari..."></textarea>
+                    </span>
+                    <button data-action="reply" title="Afegir un comentari">Respon</button>
+        </span>
+    </span><span data-delete-block="true">&nbsp;</span>';
 
 
         // Estructua que s'ha de generar:

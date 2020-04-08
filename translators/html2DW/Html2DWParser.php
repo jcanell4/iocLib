@@ -7,7 +7,9 @@ class Html2DWParser extends IocParser {
 
     protected static $removeTokenPatterns = [
 //        "/\n/"
-        "/<div class=\"no-render.*?<\/div>/ms"
+        "/<div class=\"no-render.*?<\/div>/ms",
+        "/<span class=\"no-render.*?<\/span>/ms",
+
     ];
 
     protected static $tokenPatterns = [
@@ -17,7 +19,7 @@ class Html2DWParser extends IocParser {
             'state' => 'image-lateral'
         ],
 
-        '<div class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => [
+        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => [
             'state' => 'note',
         ],
 
@@ -171,7 +173,7 @@ class Html2DWParser extends IocParser {
 
 /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
 
-        '<div class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
+        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
 
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
