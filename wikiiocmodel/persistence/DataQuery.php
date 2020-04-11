@@ -145,7 +145,7 @@ abstract class DataQuery {
     private function _renameRenderGeneratedFiles($path, $base_name, $old_name, $new_name, $suffix, $recursive=FALSE) {
         $ret = TRUE;
         $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
+        if ($scan) $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
@@ -228,7 +228,7 @@ abstract class DataQuery {
                 }elseif (preg_match("/$list_files/", $file)) {
                     if (($content = file_get_contents("$path/$file"))) {
                         $c = $c2 = 0;
-                        $content = preg_replace("/:*\b$old_name:/m", ":$new_name:", $content, -1, $c);
+                        $content = preg_replace("/(:)?\b$old_name((:|\t|\"))?/m", "$1{$new_name}$2", $content, -1, $c);
                         if ($suffix) {
                             if (preg_match("/{$base_name}_{$old_name}/", $content)) {
                                 $content = preg_replace("/({$base_name}_)($old_name)(_*?.*?)($suffix)/", "$1{$new_name}$3$4", $content, -1, $c2);
