@@ -19,7 +19,7 @@ class Html2DWParser extends IocParser {
             'state' => 'image-lateral'
         ],
 
-        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => [
+        '<span class="ioc-comment-block".*?<span data-delete-block.*?<\/span>' => [
             'state' => 'note',
         ],
 
