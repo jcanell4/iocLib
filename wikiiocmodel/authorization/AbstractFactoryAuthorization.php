@@ -127,6 +127,7 @@ abstract class AbstractFactoryAuthorization {
                  ,'diff'		 => 'read'
                  ,'draft'		 => 'editing'
                  ,'edit'		 => 'read'
+                 ,'ftpsender'            => 'ftp'
                  ,'get_image_detail'	 => 'read'
                  ,'login'                => 'command'
                  ,'lock'                 => 'read'
