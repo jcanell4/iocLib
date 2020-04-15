@@ -1,7 +1,8 @@
 <?php
+/**
+ * Class abstract_project_command_class: Classe abstracta de la qual hereten els altres commands.
+ */
 if (!defined('DOKU_INC')) die();
-if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC . "lib/plugins/ajaxcommand/");
-require_once(DOKU_COMMAND . "defkeys/ProjectKeys.php");
 
 abstract class abstract_project_command_class extends abstract_command_class {
 
@@ -27,10 +28,10 @@ abstract class abstract_project_command_class extends abstract_command_class {
             $id = $this->params[ProjectKeys::KEY_ID];
         }
         $this->dataProject = $this->getModelManager()->getProjectRoleData(
-                                                                    $id, 
-                                                                    $this->params[ProjectKeys::KEY_PROJECT_TYPE], 
-                                                                    NULL, 
-                                                                    "", 
+                                                                    $id,
+                                                                    $this->params[ProjectKeys::KEY_PROJECT_TYPE],
+                                                                    NULL,
+                                                                    "",
                                                                     $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
     }
 

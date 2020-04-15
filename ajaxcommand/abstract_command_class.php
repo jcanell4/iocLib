@@ -1,17 +1,13 @@
 <?php
-if(!defined('DOKU_INC')) die();
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-require_once(DOKU_INC."inc/plugin.php");
-require_once(DOKU_INC."inc/events.php");
-include_once(DOKU_INC."inc/inc_ioc/Logger.php"); //USO: Logger::debug($Texto, $NúmError, __LINE__, __FILE__, $level=-1, $append);
-require_once(DOKU_PLUGIN."ajaxcommand/defkeys/ProjectKeys.php");
-
 /**
- * Class abstract_command_class
- * Classe abstracta de la que hereten els altres commands.
- *
+ * Class abstract_command_class: Classe abstracta de la qual hereten els altres commands.
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
+if(!defined('DOKU_INC')) die();
+require_once(DOKU_INC."inc/plugin.php");
+require_once(DOKU_INC."inc/events.php");
+//include_once(DOKU_INC."inc/inc_ioc/Logger.php"); //USO: Logger::debug($Texto, $NúmError, __LINE__, __FILE__, $level=-1, $append);
+
 abstract class abstract_command_class extends DokuWiki_Plugin {
     const T_BOOLEAN  = "boolean";
     const T_INTEGER  = "integer";
@@ -481,7 +477,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         if ($responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]){
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::KEY_FTPSEND_BUTTON, $responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]);
         }
-        
+
         if ($responseData['user_state']) {
             $ajaxCmdResponseGenerator->addUserState($responseData['user_state']);
         }

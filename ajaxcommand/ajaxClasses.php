@@ -10,7 +10,6 @@ if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC . "lib/plugins/aja
 require_once(DOKU_INC . 'inc/init.php');
 require_once(DOKU_INC . 'inc/template.php');
 require_once(DOKU_INC . 'inc/pluginutils.php');
-require_once(DOKU_COMMAND . 'defkeys/RequestParameterKeys.php');
 
 class ajaxCall {
     protected $call;
