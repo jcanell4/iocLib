@@ -5,8 +5,8 @@
  * @author Rafael Claver
  */
 if (!defined('DOKU_INC')) die();
-if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC."lib/lib_ioc/");
+if (!defined('WIKI_LIB_IOC_MODEL')) define('WIKI_LIB_IOC_MODEL', DOKU_LIB_IOC."wikiiocmodel/");
 
 abstract class AbstractModelManager {
 
@@ -76,7 +76,7 @@ abstract class AbstractModelManager {
         if (@file_exists($classPath)) {
             require_once $classPath;
         }else{
-            $classPath = WIKI_IOC_MODEL."actions/$className.php";
+            $classPath = WIKI_LIB_IOC_MODEL."actions/$className.php";
             if (@file_exists($classPath)) {
                 require_once $classPath;
             }
