@@ -19,9 +19,7 @@ class Html2DWParser extends IocParser {
             'state' => 'image-lateral'
         ],
 
-        '<span class="ioc-comment-block".*?<span data-delete-block.*?<\/span>' => [
-            'state' => 'note',
-        ],
+
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
         '<div class="ioc(?:table|figure).*?" data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
@@ -41,6 +39,10 @@ class Html2DWParser extends IocParser {
 
         '<table.*=?>.*?<\/table>' => [
             'state' => 'table',
+        ],
+
+        '<span class="ioc-comment-block".*?<span data-delete-block.*?<\/span>' => [
+            'state' => 'note',
         ],
 
         '<p( .*?)?>' => [
@@ -173,7 +175,6 @@ class Html2DWParser extends IocParser {
 
 /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
 
-        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
 
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
@@ -186,6 +187,9 @@ class Html2DWParser extends IocParser {
 
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
+
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
 
