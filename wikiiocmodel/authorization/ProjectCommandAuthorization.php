@@ -7,6 +7,8 @@ if (!defined('DOKU_INC')) die();
 
 class ProjectCommandAuthorization extends BasicCommandAuthorization {
 
+    protected $allowedRoles = [];
+
     public function setPermission($command) {
         parent::setPermission($command);
         $this->permission->setAuthor($command->getKeyDataProject(Permission::ROL_AUTOR));
@@ -33,4 +35,9 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
         else
             return FALSE;
     }
+
+    public function getAllowedRoles() {
+        return $this->allowedRoles;
+    }
+
 }
