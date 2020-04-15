@@ -1,17 +1,14 @@
 <?php
-if (!defined('DOKU_INC')) die();
-if (!defined('DOKU_COMMAND')) define('DOKU_COMMAND', DOKU_INC."lib/plugins/ajaxcommand/");
-require_once (DOKU_INC . 'inc/pageutils.php');
-require_once(DOKU_COMMAND.'defkeys/ResponseHandlerKeys.php');
-require_once(DOKU_COMMAND.'defkeys/ProjectKeys.php');
-require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
-
 /**
  * Class ioc_common: Contiene funciones comunes
  * @culpable Rafael
  */
+if (!defined('DOKU_INC')) die();
+require_once (DOKU_INC . 'inc/pageutils.php');
+require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
+
 class IocCommon {
-    
+
     public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values, $persistence=NULL) {
         if (isset($calcDefProp)) {
             $className = $calcDefProp['class'];
@@ -26,25 +23,16 @@ class IocCommon {
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
-                        $persistence = $this->getPersistenceEngineFromPlugincontroller();                        
+                        $persistence = $this->getPersistenceEngineFromPlugincontroller();
                     }
                     $calculator->init($persistence);
                 }
                 $value = $calculator->calculate($calcDefProp['data']);
-                
-//                switch ($calculator->getCalculatorTypeData()){
-//                    case "from_values":
-//                        $calculator->init($projectId);
-//                        $value = $calculator->calculate($values[$calcDefProp['data']]);
-//                        break;
-//                    default :
-//                        $value = $calculator->calculate($calcDefProp['data']);
-//                }
             }
         }
         return $value;
     }
-    
+
     private static function getPersistenceEngineFromPlugincontroller(){
         global $plugin_controller;
         if(is_callable([$plugin_controller, "getPersistenceEngine"])){
@@ -179,7 +167,6 @@ class IocCommon {
         } else {
             return $def;
         }
-
     }
 
     public static function removeDir($directory) {
@@ -211,21 +198,19 @@ class IocCommon {
             return $ret;
         }
     }
-    
+
     public static function countRevisions($id, $media=false){
         $ret = 0;
         if ($media) {
             $fileName = mediaMetaFN($id, '.changes');
         } else {
             $fileName = metaFN($id, '.changes');
-        }    
-        if(@file_exists($filename)){
+        }
+        if (@file_exists($fileName)){
             $file = new \SplFileObject($fileName, 'r');
             $file->seek(PHP_INT_MAX);
             $ret = $file->key() - 1;
         }
-
-        return $ret;         
+        return $ret;
     }
 }
-    
