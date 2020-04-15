@@ -26,19 +26,20 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
      */
     public function setAuthorizationCfg() {
         $aCfg = ['_default'                     => "admin"  //default case
+                 ,'cancelProject'               => "editProject"
                  ,'create_projectProject'       => "createProject"
                  ,'create_subprojectProject'    => "createProject"
-                 ,'saveProject'                 => "editProject"
-                 ,'cancelProject'               => "editProject"
-                 ,'viewProject'                 => "viewProject"
-                 ,'partialProject'              => "editProject"
                  ,'diffProject'                 => "editProject"
-                 ,'save_project_draftProject'   => "editProject"
-                 ,'remove_project_draftProject' => "editProject"
-                 ,'rename_projectProject'       => "responsableProject"
-                 ,'remove_projectProject'       => "deleteProject"
+                 ,'ftpProject'                  => 'ftpProject'
                  ,'new_documentProject'         => "editProject"
                  ,'new_folderProject'           => "editProject"
+                 ,'partialProject'              => "editProject"
+                 ,'remove_project_draftProject' => "editProject"
+                 ,'remove_projectProject'       => "deleteProject"
+                 ,'rename_projectProject'       => "responsableProject"
+                 ,'save_project_draftProject'   => "editProject"
+                 ,'saveProject'                 => "editProject"
+                 ,'viewProject'                 => "viewProject"
                  ,'_none'                       => "basicCommand"
                 ];
         $this->authCfg = $aCfg;
