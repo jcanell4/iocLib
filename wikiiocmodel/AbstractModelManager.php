@@ -40,7 +40,7 @@ abstract class AbstractModelManager {
         return $this->persistenceEngine;
     }
 
-    public function getProjectRoleData($id, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
+    public function getProjectRoleData($id, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=ProjectKeys::VAL_DEFAULTSUBSET) {
         $ret = array();
         $class = $this->getProjectType()."ProjectModel";
         $obj = new $class($this->persistenceEngine);
