@@ -1,14 +1,13 @@
 <?php
 /**
- * CalculateWithValue
- * @culpable rafa
+ * interface ICalculateFromValues
  */
-require_once(__DIR__ . "/AbstractCalculate.php");
+interface ICalculateFromValues {
 
- interface ICalculateFromValues{
-    const FROM_VALUES_TYPE="from_values";
-    
+    const FROM_VALUES_TYPE = "from_values";
+
     function init($values);
-    
+
     function getValues();
+
 }

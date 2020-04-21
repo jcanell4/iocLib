@@ -1,14 +1,13 @@
 <?php
 /**
- * CalculateWithValue
- * @culpable rafa
+ * interface ICalculateWithPersistence
  */
-require_once(__DIR__ . "/AbstractCalculate.php");
+interface ICalculateWithPersistence {
 
- interface ICalculateWithPersistence{
-    const WITH_PERSISTENCE_TYPE="with_persistence";
-    
+    const WITH_PERSISTENCE_TYPE = "with_persistence";
+
     function init($value);
-    
+
     function getPersistence();
+
 }

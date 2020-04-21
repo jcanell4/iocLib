@@ -1,11 +1,11 @@
 <?php
+/**
+ * Description of ValidateWithResponse
+ */
+abstract class ValidateWithPermission extends AbstractValidate {
 
-require_once(__DIR__ . "/AbstractValidate.php");
-
-abstract class ValidateWithPermission extends AbstractValidate
-{
     protected $permission;
-    
+
     function getValidatorTypeData(){
         return "permission";
     }
@@ -13,4 +13,5 @@ abstract class ValidateWithPermission extends AbstractValidate
     function init($permission) {
         $this->permission = $permission;
     }
+    
 }
