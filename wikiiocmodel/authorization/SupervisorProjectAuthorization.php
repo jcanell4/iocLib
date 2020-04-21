@@ -8,6 +8,12 @@ if (!defined('DOKU_INC')) die();
 
 class SupervisorProjectAuthorization extends ProjectCommandAuthorization {
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups = ['admin', 'manager'];
+        $this->allowedRoles = ['responsable', 'autor', Permission::ROL_SUPERVISOR];
+    }
+
     public function setPermission($command) {
         $this->permission->setSupervisor($command->getKeyDataProject(Permission::ROL_SUPERVISOR));
 

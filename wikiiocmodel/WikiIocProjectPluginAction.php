@@ -43,11 +43,23 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
             $changeWidgetPropertyCondition .= "disp.changeWidgetProperty('${id}', 'visible', is${id}ButtonVisible);\n\t\t\t\t";
             $VarsIsButtonVisible .= "var is${id}ButtonVisible = true;\n\t\t\t\t\t";
 
+            //Obtener los permisos y roles por defecto del Authorization correspondiente
+            if ($arrayButton['scripts']['updateHandler']['command_authorization']) {
+                $command = $arrayButton['scripts']['updateHandler']['command_authorization']."Authorization";
+                $buttonAuthorization = new $command;
+                $aPermissions = $buttonAuthorization->getAllowedGroups();
+                $aRoles = $buttonAuthorization->getAllowedRoles();
+            }
+
             //bucle para que los permisos determinen si el botón correspondiente es visible u oculto
             $permButtonVisible = "";
             if ($arrayButton['scripts']['updateHandler']['permissions']) {
+                //los permisos de controls.json sustituyen a los permisos por defecto del Authorization
+                $aPermissions = $arrayButton['scripts']['updateHandler']['permissions'];
+            }
+            if ($aPermissions) {
                 $permButtonVisible = "is${id}ButtonVisible = (";
-                foreach ($arrayButton['scripts']['updateHandler']['permissions'] as $value) {
+                foreach ($aPermissions as $value) {
                     $permButtonVisible .= "disp.getGlobalState().permissions['$value'] || ";
                 }
                 $permButtonVisible = substr($permButtonVisible, 0, -4) . ");";
@@ -57,8 +69,12 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
             //bucle para que los roles determinen si el botón correspondiente es visible u oculto
             $rolButtonVisible = "";
             if ($arrayButton['scripts']['updateHandler']['rols']) {
+                //los roles de controls.json sustituyen a los roles por defecto del Authorization
+                $aRoles = $arrayButton['scripts']['updateHandler']['rols'];
+            }
+            if ($aRoles) {
                 $rolButtonVisible = "is${id}ButtonVisible = is${id}ButtonVisible || (";
-                foreach ($arrayButton['scripts']['updateHandler']['rols'] as $value) {
+                foreach ($aRoles as $value) {
                     $rolButtonVisible .= "page.rol=='".$value."' || ";
                 }
                 $rolButtonVisible = substr($rolButtonVisible, 0, -4) . ");";

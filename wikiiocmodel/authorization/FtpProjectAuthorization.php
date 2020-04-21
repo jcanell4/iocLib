@@ -9,9 +9,15 @@ if (!defined('DOKU_INC')) die();
 
 class FtpProjectAuthorization extends ProjectCommandAuthorization {
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups = ["admin", "manager"];
+        $this->allowedRoles = ["responsable", "autor"];
+    }
+
     public function canRun() {
         if (parent::canRun()) {
-            if (!$this->isUserGroup(array("admin")) && !$this->isResponsable() && !$this->isAuthor()) {
+            if (!$this->isUserGroup($this->allowedGroups) && !$this->isResponsable() && !$this->isAuthor()) {
                 $this->errorAuth['error'] = TRUE;
                 $this->errorAuth['exception'] = 'InsufficientPermissionToFtpProjectException';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();
@@ -19,4 +25,5 @@ class FtpProjectAuthorization extends ProjectCommandAuthorization {
         }
         return !$this->errorAuth['error'];
     }
+
 }
