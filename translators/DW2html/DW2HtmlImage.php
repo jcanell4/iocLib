@@ -3,6 +3,7 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlImage extends DW2HtmlInstruction {
 
+    protected $urlPattern = "/{{(.*?)\|.*}}/";
 
     public function open() {
 
@@ -37,7 +38,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
     }
 
 
-    private function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
+    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
         // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
         // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
         $testUrl = str_replace('https:', '', $token['raw']);
@@ -45,8 +46,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         $testUrl = str_replace('ftp:', '', $testUrl);
 
 
-        $urlPattern = "/{{(.*?)\|.*}}/";
-        preg_match($urlPattern, $token['raw'], $matchUrl);
+        preg_match($this->urlPattern, $token['raw'], $matchUrl);
         $candidateUrl = $matchUrl[1];
 
 
@@ -114,7 +114,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         }
     }
 
-    private function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
+    protected function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
         $width = '200';
 
         $value = ' data-dw-type="';
@@ -136,7 +136,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         return $html;
     }
 
-    private function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
+    protected function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
         $value = 'src="' . $url . '"';
 
         if (strlen($text) > 0) {

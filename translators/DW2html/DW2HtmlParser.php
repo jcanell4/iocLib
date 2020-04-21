@@ -44,6 +44,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'sound'
         ],
 
+        "{{iocgif>(.*?)}}" => [
+            'state' => 'gif'
+        ],
+
         "{{(.*?)}}" => [
             'state' => 'image'
         ],
@@ -141,6 +145,10 @@ class DW2HtmlParser extends IocParser {
 
 
         '{{soundcloud>(.*?):(.*?)}}' => ['state' => 'sound', 'type' => 'sound', 'class' => 'DW2HtmlSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+
+        "^{{iocgif>(.*?)}}" => ['state' => 'gif', 'type' => 'image', 'class' => 'DW2HtmlImageGIF', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
+
+        "^{{(?:vimeo|youtube|dailymotion|altamarVideos)>(.*?)}}" => ['state' => 'gif', 'type' => 'image', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
         "^{{(.*?)}}" => ['state' => 'image', 'type' => 'image', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
