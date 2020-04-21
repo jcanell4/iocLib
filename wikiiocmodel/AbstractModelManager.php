@@ -41,11 +41,13 @@ abstract class AbstractModelManager {
     }
 
     public function getProjectRoleData($id, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=ProjectKeys::VAL_DEFAULTSUBSET) {
+        //[TODO Rafa] Está pendiente la obtención de los roles por defecto definidos en la Authorization
+        //            Los roles por defecto se aplicarán en caso de que no haya roles establecidos en el controls.json
         $ret = array();
         $class = $this->getProjectType()."ProjectModel";
         $obj = new $class($this->persistenceEngine);
         $obj->init($id, $projectType, $rev, $viewConfigName, $metadataSubset);
-        if(is_callable([$obj, "getRoleData"])){
+        if (is_callable([$obj, "getRoleData"])){
             $ret = $obj->getRoleData();
         }
         return $ret;
