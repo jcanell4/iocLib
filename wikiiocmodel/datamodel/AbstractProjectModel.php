@@ -179,8 +179,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * defecto si no se pasa.
      */
     public function getCurrentDataProject($metaDataSubSet=FALSE) {
-//        $ret = $this->projectMetaDataQuery->getMeta($metaDataSubset, FALSE);
-//        return json_decode($ret, true);
         return $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
     }
 
