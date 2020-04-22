@@ -44,11 +44,14 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
             $VarsIsButtonVisible .= "var is${id}ButtonVisible = true;\n\t\t\t\t\t";
 
             //Obtener los permisos y roles por defecto del Authorization correspondiente
-            if ($arrayButton['scripts']['updateHandler']['command_authorization']) {
-                $command = $arrayButton['scripts']['updateHandler']['command_authorization']."Authorization";
-                $buttonAuthorization = new $command;
+            if ($arrayButton['scripts']['updateHandler']['command']) {
+                global $plugin_controller;
+                $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE => $this->projectType]);
+                $modelManager = AbstractModelManager::Instance($this->projectType);
+                $buttonAuthorization = $modelManager->getAuthorizationManager($arrayButton['scripts']['updateHandler']['command']);
                 $aPermissions = $buttonAuthorization->getAllowedGroups();
                 $aRoles = $buttonAuthorization->getAllowedRoles();
+                $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE => NULL]);
             }
 
             //bucle para que los permisos determinen si el botón correspondiente es visible u oculto
