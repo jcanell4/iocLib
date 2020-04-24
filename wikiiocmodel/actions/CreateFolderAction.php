@@ -9,7 +9,7 @@ class CreateFolderAction extends ProjectMetadataAction {
 
     protected function responseProcess() {
         $id = $this->params[ProjectKeys::KEY_ID];
-        $projectId = $this->params['projectId'];
+        $projectId = $this->params[ProjectKeys::KEY_PROJECT_ID];
         $projectModel = $this->getModel();
 
         $projectModel->init([ProjectKeys::KEY_ID              => $projectId,

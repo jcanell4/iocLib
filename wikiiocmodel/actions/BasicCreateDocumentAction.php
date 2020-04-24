@@ -9,7 +9,7 @@ class BasicCreateDocumentAction extends CreatePageAction {
 
     protected function runProcess() {
         $id = $this->params[PageKeys::KEY_ID];
-        $projectId = $this->params['projectId'];
+        $projectId = $this->params[ProjectKeys::KEY_PROJECT_ID];
 
         //sólo se ejecuta si existe el proyecto
         if (!$this->dokuPageModel->haveADirProject($projectId)) {

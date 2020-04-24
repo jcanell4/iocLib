@@ -20,11 +20,11 @@ abstract class abstract_project_command_class extends abstract_command_class {
 
     public function init( $modelManager = NULL ) {
         parent::init($modelManager);
-        if($this->params["projectId"]){
-            $id = ($this->params["projectId"]);
-        }else if($this->params[ProjectKeys::KEY_NS]){
-            $id=$this->params[ProjectKeys::KEY_NS];
-        }else{
+        if ($this->params[ProjectKeys::KEY_PROJECT_ID]) {
+            $id = ($this->params[ProjectKeys::KEY_PROJECT_ID]);
+        }else if($this->params[ProjectKeys::KEY_NS]) {
+            $id = $this->params[ProjectKeys::KEY_NS];
+        }else {
             $id = $this->params[ProjectKeys::KEY_ID];
         }
         $this->dataProject = $this->getModelManager()->getProjectRoleData(
