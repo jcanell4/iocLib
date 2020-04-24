@@ -30,7 +30,6 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
                  ,'create_projectProject'       => "createProject"
                  ,'create_subprojectProject'    => "createProject"
                  ,'diffProject'                 => "editProject"
-                 ,'ftp_project'                 => 'ftpProject'
                  ,'ftp_projectProject'          => 'ftpProject'
                  ,'new_documentProject'         => "editProject"
                  ,'new_folderProject'           => "editProject"
