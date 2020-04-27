@@ -67,7 +67,7 @@ class BasicViewUpdatableProjectMetaDataAction extends BasicViewProjectMetaDataAc
             }
         }
 
-        $response[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN] = $this->getModel()->haveFilesToExportList();
+        $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $this->getModel()->haveFilesToExportList();
 
         return $response;
     }
