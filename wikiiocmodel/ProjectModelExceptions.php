@@ -71,8 +71,8 @@ class InsufficientPermissionToFtpProjectException extends WikiIocProjectExceptio
     }
 }
 
-class InsufficientPermissionToProjectCommandException extends WikiIocProjectException {
-    public function __construct($page, $message='InsufficientPermissionToProjectCommandException', $code=7212) {
+class InsufficientPermissionToCommandProjectException extends WikiIocProjectException {
+    public function __construct($page, $message='InsufficientPermissionToCommandProjectException', $code=7212) {
         parent::__construct($message, $code, $page, NULL, 'projectException');
     }
 }
