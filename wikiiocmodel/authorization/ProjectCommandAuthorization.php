@@ -9,13 +9,37 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
 
     protected $allowedRoles = [];
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups = ["admin"];
+        $this->allowedRoles = [Permission::ROL_RESPONSABLE];
+    }
+
+    public function canRun($permis=AUTH_NONE, $error="Command") {
+        if (parent::canRun()) {
+            if ($permis > AUTH_NONE && $this->permission->getInfoPerm() < $permis) {
+                $this->errorAuth['error'] = TRUE;
+                $this->errorAuth['exception'] = '"InsufficientPermissionTo'.$error.'ProjectException"';
+                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
+            }else {
+                if (!$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
+                    $this->errorAuth['error'] = TRUE;
+                    $this->errorAuth['exception'] = 'UserNotAuthorizedException';
+                    $this->errorAuth['extra_param'] = $this->permission->getIdPage();
+                }
+            }
+        }
+        return !$this->errorAuth['error'];
+    }
+
     public function setPermission($command) {
         parent::setPermission($command);
         $this->permission->setAuthor($command->getKeyDataProject(Permission::ROL_AUTOR));
         $this->permission->setResponsable($command->getKeyDataProject(Permission::ROL_RESPONSABLE));
         if ($this->isResponsable()) {
             $this->permission->setRol(Permission::ROL_RESPONSABLE);
-        }else if ($this->isAuthor()) {
+        }
+        if ($this->isAuthor()) {
             $this->permission->setRol(Permission::ROL_AUTOR);
         }
     }

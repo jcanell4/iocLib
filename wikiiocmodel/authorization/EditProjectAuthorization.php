@@ -9,14 +9,19 @@ if (!defined('DOKU_INC')) die();
 
 class EditProjectAuthorization extends ProjectCommandAuthorization {
 
-    public function canRun() {
-        if (parent::canRun()) {
-            if (!$this->isUserGroup(array("admin")) && !$this->isResponsable() && !$this->isAuthor()) {
-                $this->errorAuth['error'] = TRUE;
-                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
-                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-            }
-        }
-        return !$this->errorAuth['error'];
+    public function __construct() {
+        parent::__construct();
+        $this->allowedRoles[] = Permission::ROL_AUTOR;
     }
+
+//    public function canRun() {
+//        if (parent::canRun()) {
+//            if (!$this->isUserGroup(array("admin")) && !$this->isResponsable() && !$this->isAuthor()) {
+//                $this->errorAuth['error'] = TRUE;
+//                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
+//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
+//            }
+//        }
+//        return !$this->errorAuth['error'];
+//    }
 }

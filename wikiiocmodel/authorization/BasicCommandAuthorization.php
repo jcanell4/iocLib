@@ -40,7 +40,6 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         } else {
             return $_SERVER['REMOTE_USER'] ? TRUE : FALSE;
         }
-
     }
 
     /**
@@ -51,12 +50,27 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         return checkSecurityToken();
     }
 
-    public function isUserGroup($grups=array()) {
+    public function isUserGroup($grups=[]) {
         $ret = FALSE;
-        $userGrups = $this->permission->getUserGroups();
-        if (!empty($userGrups) && !empty($grups)) {
-            foreach ($grups as $grup) {
-                $ret |= in_array($grup, $userGrups);
+        if (!empty($grups)) {
+            $userGrups = $this->permission->getUserGroups();
+            if (!empty($userGrups) && !empty($grups)) {
+                foreach ($grups as $grup) {
+                    $ret |= in_array($grup, $userGrups);
+                }
+            }
+        }
+        return $ret;
+    }
+
+    public function isUserRole($roles=[]) {
+        $ret = FALSE;
+        if (!empty($roles)) {
+            $userRoles = $this->permission->getRol();
+            if (!empty($userRoles) && !empty($roles)) {
+                foreach ($roles as $role) {
+                    $ret |= in_array($role, $userRoles);
+                }
             }
         }
         return $ret;

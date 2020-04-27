@@ -8,14 +8,22 @@ if (!defined('DOKU_INC')) die();
 
 class ManagerProjectAuthorization extends ProjectCommandAuthorization {
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups[] = "manager";
+        $this->allowedGroups[] = "projectmanager";
+        $this->allowedRoles = [];
+    }
+
     public function canRun() {
-        if (parent::canRun()) {
-            if ( $this->permission->getInfoPerm() < AUTH_DELETE || !$this->isUserGroup(["projectmanager","admin","manager"]) ) {
-                $this->errorAuth['error'] = TRUE;
-                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
-                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-            }
-        }
+//        if (parent::canRun()) {
+//            if ( $this->permission->getInfoPerm() < AUTH_DELETE || !$this->isUserGroup(["projectmanager","admin","manager"]) ) {
+//                $this->errorAuth['error'] = TRUE;
+//                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
+//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
+//            }
+//        }
+        parent::canRun(AUTH_DELETE, "Edit");
         return !$this->errorAuth['error'];
     }
 }

@@ -9,9 +9,14 @@ if (!defined('DOKU_INC')) die();
 
 class ManagerAuthorization extends BasicCommandAuthorization {
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups = ["admin", "manager"];
+    }
+
     public function canRun() {
         if (parent::canRun()) {
-            if (!$this->isUserGroup(array("admin", "manager")) ) {
+            if (!$this->isUserGroup($this->allowedGroups) ) {
                 $this->errorAuth['error'] = TRUE;
                 $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();

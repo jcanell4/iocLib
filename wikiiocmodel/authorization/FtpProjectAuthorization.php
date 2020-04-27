@@ -11,19 +11,19 @@ class FtpProjectAuthorization extends ProjectCommandAuthorization {
 
     public function __construct() {
         parent::__construct();
-        $this->allowedGroups = ["admin", "manager"];
-        $this->allowedRoles = ["responsable", "autor"];
+        $this->allowedGroups[] = "manager";
+        $this->allowedRoles[] = Permission::ROL_AUTOR;
     }
 
-    public function canRun() {
-        if (parent::canRun()) {
-            if (!$this->isUserGroup($this->allowedGroups) && !$this->isResponsable() && !$this->isAuthor()) {
-                $this->errorAuth['error'] = TRUE;
-                $this->errorAuth['exception'] = 'InsufficientPermissionToFtpProjectException';
-                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-            }
-        }
-        return !$this->errorAuth['error'];
-    }
+//    public function canRun() {
+//        if (parent::canRun()) {
+//            if (!$this->isUserGroup(array("admin")) && !$this->isResponsable() && !$this->isAuthor()) {
+//                $this->errorAuth['error'] = TRUE;
+//                $this->errorAuth['exception'] = 'InsufficientPermissionToFtpProjectException';
+//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
+//            }
+//        }
+//        return !$this->errorAuth['error'];
+//    }
 
 }

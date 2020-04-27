@@ -8,9 +8,14 @@ if (!defined('DOKU_INC')) die();
 
 class DeleteProjectAuthorization extends BasicCommandAuthorization {
 
+    public function __construct() {
+        parent::__construct();
+        $this->allowedGroups = ["admin"];
+    }
+
     public function canRun() {
         if (parent::canRun()) {
-            if (!$this->isUserGroup(array("admin"))) {
+            if (!$this->isUserGroup($this->allowedGroups)) {
                 $this->errorAuth['error'] = TRUE;
                 $this->errorAuth['exception'] = 'UserNotAuthorizedException';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();
