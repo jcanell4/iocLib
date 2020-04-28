@@ -11,11 +11,11 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
 
     public function __construct() {
         parent::__construct();
-        $this->allowedGroups = ["admin"];
+//        $this->allowedGroups = ["admin"];
         $this->allowedRoles = [Permission::ROL_RESPONSABLE];
     }
 
-    public function canRun($permis=AUTH_NONE, $error="Command") {
+    public function canRun($permis=AUTH_NONE, $error="Command") {   //$permis => permís mínim a més de pertanyer als grups i als roles establerts
         if (parent::canRun()) {
             if ($permis > AUTH_NONE && $this->permission->getInfoPerm() < $permis) {
                 $this->errorAuth['error'] = TRUE;

@@ -8,7 +8,7 @@ if (!defined('DOKU_INC') ) die();
 abstract class AbstractCommandAuthorization implements AuthorizationKeys{
 
     protected $permission;
-    protected $allowedGroups = [];
+    protected $allowedGroups = ["admin"];
     protected $errorAuth = array(
                               self::ERROR_KEY => TRUE
                              ,self::EXCEPTION_KEY => ''
