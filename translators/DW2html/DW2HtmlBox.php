@@ -188,7 +188,19 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $this->parsingContent = true;
 
+
+
+
+
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
+            // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
+            // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
+
+            $rows[$rowIndex] = preg_replace('/\[\[(.*?)\|(.*?)\]\]/ms', '[[$1&$2]]', $rows[$rowIndex]);
+
+
+
+
             // dividim les files en cel.les
             $cols = preg_split("/[\|\^]/", $rows[$rowIndex]);
 
@@ -271,12 +283,23 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //                $class::setInner(true);
 
 //                $cell['content'] = $class::getValue($cols[$colIndex]);
+
+                // Restaurem el separador de la signatura |
+                $cols[$colIndex] = preg_replace('/\[\[(.*?)&(.*?)\]\]/ms', '[[$1|$2]]', $cols[$colIndex]);
+
+
+
+
                 $cell['content'] = $this->parseContent($cols[$colIndex]);
 
 //                $class::setInner($isInnerPrevious);
 
+
                 $table[$colIndex][$rowIndex] = $cell;
+
             }
+
+
 
         }
 
