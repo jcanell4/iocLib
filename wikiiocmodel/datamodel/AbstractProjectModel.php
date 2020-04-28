@@ -902,7 +902,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     /**
-     * Obtiene la lista de ficheros, y sus propiedades, de la clave metaDataFtpSender del configMain.json
+     * Obtiene datos de la clave metaDataFtpSender del configMain.json
      * @return (si $key==NULL) array asociativo sobre ficheros [name [local, type, action]]
      * @return (si tiene $key) array
      */

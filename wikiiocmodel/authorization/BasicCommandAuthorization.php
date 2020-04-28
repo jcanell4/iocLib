@@ -55,6 +55,9 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         if (!empty($grups)) {
             $userGrups = $this->permission->getUserGroups();
             if (!empty($userGrups) && !empty($grups)) {
+                if (!is_array($userGrups)) {
+                    $userGrups = [$userGrups];
+                }
                 foreach ($grups as $grup) {
                     $ret |= in_array($grup, $userGrups);
                 }
@@ -68,6 +71,9 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         if (!empty($roles)) {
             $userRoles = $this->permission->getRol();
             if (!empty($userRoles) && !empty($roles)) {
+                if (!is_array($userRoles)) {
+                    $userRoles = [$userRoles];
+                }
                 foreach ($roles as $role) {
                     $ret |= in_array($role, $userRoles);
                 }
