@@ -515,7 +515,13 @@ class BasicStaticPdfRenderer {
     }
 
     private static function setImageSize($imageFile, $w=NULL, $h=NULL) {
-        list($w0, $h0) = getimagesize($imageFile);
+        if (@file($imageFile)) {
+            list($w0, $h0) = getimagesize($imageFile);
+        }
+        if ($w0 == NULL) {
+            $w0 = $h0 = 5;
+        }
+
         if ($w==NULL) {
             if ($w0 <= 800) {
                 $w = $w0;
