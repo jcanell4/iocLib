@@ -473,13 +473,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_OWNER, $this->params[ProjectKeys::PROJECT_OWNER]);
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::PROJECT_SOURCE_TYPE, $this->params[ProjectKeys::PROJECT_SOURCE_TYPE]);
         }
+        if ($responseData[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN]){
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::KEY_FTP_PROJECT_BUTTON, $responseData[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN]);
+        }
 
-        if ($responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]){
-            if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], ProjectKeys::KEY_FTP_PROJECT_BUTTON, $responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]);
-            }else {
-                $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::KEY_FTPSEND_BUTTON, $responseData[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN]);
-            }
+        if ($responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]){
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::KEY_FTPSEND_BUTTON, $responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]);
         }
 
         if ($responseData['user_state']) {

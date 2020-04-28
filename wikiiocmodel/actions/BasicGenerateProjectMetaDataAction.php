@@ -26,7 +26,7 @@ class BasicGenerateProjectMetaDataAction extends ProjectMetadataAction {
                     $ret[ProjectKeys::KEY_GENERATED] = $this->projectModel->isProjectGenerated();
                 }
                 if ($ret[ProjectKeys::KEY_GENERATED]) {
-                    $ret[ProjectKeys::KEY_ACTIVA_UPDATE_BTN] = 1;
+                    $ret[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = 1;
                     $msg = "project_generated";
                 }else {
                     $msg = "project_not_generated";

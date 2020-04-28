@@ -62,12 +62,12 @@ class BasicViewUpdatableProjectMetaDataAction extends BasicViewProjectMetaDataAc
                 if ($finestraOberta) {
                     $updetedDate = $projectModel->getProjectSubSetAttr("updatedDate");
                     $interval = (!$updetedDate  || $updetedDate < $inici_semestre->getTimestamp());
-                    $response[ProjectKeys::KEY_ACTIVA_UPDATE_BTN] = ($interval) ? "1" : "0";
+                    $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($interval) ? "1" : "0";
                 }
             }
         }
 
-        $response[ProjectKeys::KEY_ACTIVA_FTPSEND_BTN] = $this->getModel()->haveFilesToExportList();
+        $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $this->getModel()->haveFilesToExportList();
 
         return $response;
     }
