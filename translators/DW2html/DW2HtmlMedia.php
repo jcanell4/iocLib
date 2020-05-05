@@ -9,34 +9,32 @@ class DW2HtmlMedia extends DW2HtmlImage {
     public function open() {
 
         $token = $this->currentToken;
-//        var_dump($this->currentToken);
-//        die();
 
-        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $isInternal);
+        $token = $this->currentToken;
 
-        $textPattern = "/\|(.*?)}}/";
+        // Descartem el segón paràmetre, la clau no es fa servir
 
+        $id = '';
 
-        if (preg_match($textPattern, $token['raw'], $matchText)) {
-            $text = $matchText[1];
-        } else {
-            $text = $url;
+        if (preg_match($token['pattern'], $token['raw'], $match)) {
+            $id = $match[1];
         }
 
-//        var_dump($token['raw']);
-//        die();
 
-        // Si la imatge es interna es que es troba dins d'una caixa i és una figura
-        $class = static::$parserClass;
-        $isInnerPrevious = $class::isInner();
+        $html = '<div data-dw-block="video" data-video-id="' . $id . '" data-ioc-id="ioc_video_' . $id . '" contenteditable="false">' .
+            '<div class="video">' .
+            '<iframe src="https://player.vimeo.com/video/' . $id . '" width="425px" height="350px"></iframe>' .
+//            '<iframe src="https://player.vimeo.com/video/176576698" width="425px" height="350px"></iframe>' .
+            '</div></div>';
 
-        // TODO: Determinar com s'afegeixen els gifs, aquest és el codi generic per imatges: figura o lateral
+        return $html;
 
-        if ($isInnerPrevious) {
-            return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
-        } else {
-            return $this->makeLateralBox($url, $text, $CSSClasses, $isInternal);
-        }
+
+//        if ($isInnerPrevious) {
+//            return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
+//        } else {
+//            return $this->makeLateralBox($url, $text, $CSSClasses, $isInternal);
+//        }
 
     }
 
