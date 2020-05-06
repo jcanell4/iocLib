@@ -48,6 +48,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'gif'
         ],
 
+        "{{(?:vimeo|youtube|dailymotion|altamarVideos)>.*?}}" => [
+            'state' => 'video'
+        ],
+
         "{{(.*?)}}" => [
             'state' => 'image'
         ],
@@ -128,6 +132,8 @@ class DW2HtmlParser extends IocParser {
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [
 
+        "{{(?:vimeo|youtube|dailymotion|altamarVideos)>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
@@ -148,7 +154,7 @@ class DW2HtmlParser extends IocParser {
 
         "^{{iocgif>(.*?)}}" => ['state' => 'gif', 'type' => 'image', 'class' => 'DW2HtmlImageGIF', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
-        "^{{(?:vimeo|youtube|dailymotion|altamarVideos)>(.*?)}}" => ['state' => 'gif', 'type' => 'image', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
+
 
         "^{{(.*?)}}" => ['state' => 'image', 'type' => 'image', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
