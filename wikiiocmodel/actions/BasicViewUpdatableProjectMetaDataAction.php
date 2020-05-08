@@ -4,6 +4,10 @@ if (!defined('DOKU_INC')) die();
 class BasicViewUpdatableProjectMetaDataAction extends BasicViewProjectMetaDataAction{
 
     protected function runAction() {
+        return $this->UpdatableProjectMetaDataAction();
+    }
+
+    public function UpdatableProjectMetaDataAction() {
         $response = parent::runAction();
         $projectModel = $this->getModel();
 
