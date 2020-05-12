@@ -4,74 +4,75 @@ if (!defined('DOKU_INC')) die();
 class BasicViewUpdatableProjectMetaDataAction extends BasicViewProjectMetaDataAction{
 
     protected function runAction() {
-        return $this->UpdatableProjectMetaDataAction();
-    }
-
-    public function UpdatableProjectMetaDataAction() {
         $response = parent::runAction();
         $projectModel = $this->getModel();
 
         if ($projectModel->isProjectGenerated()) {
             $metaDataSubSet = $this->params[ProjectKeys::KEY_METADATA_SUBSET];
-            $confProjectType = $this->modelManager->getConfigProjectType();
 
-            //obtenir la ruta de la configuració per a aquest tipus de projecte
-            $projectTypeConfigFile = $projectModel->getProjectTypeConfigFile();
+            if ($projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet) !== NULL) {
 
-            $cfgProjectModel = $confProjectType."ProjectModel";
-            $configProjectModel = new $cfgProjectModel($this->persistenceEngine);
+                $confProjectType = $this->modelManager->getConfigProjectType();
 
-            $configProjectModel->init([ProjectKeys::KEY_ID              => $projectTypeConfigFile,
-                                       ProjectKeys::KEY_PROJECT_TYPE    => $confProjectType,
-                                       ProjectKeys::KEY_METADATA_SUBSET => $metaDataSubSet
-                                    ]);
-            //Obtenir les dades de la configuració per a aquest tipus de projecte
-            $metaDataConfigProject = $configProjectModel->getCurrentDataProject($metaDataSubSet);
+                //obtenir la ruta de la configuració per a aquest tipus de projecte
+                $projectTypeConfigFile = $projectModel->getProjectTypeConfigFile();
 
-            if ($metaDataConfigProject['arraytaula']) {
-                $arraytaula = json_decode($metaDataConfigProject['arraytaula'], TRUE);
-                $anyActual = date("Y");
-                $dataActual = new DateTime();
+                $cfgProjectModel = $confProjectType."ProjectModel";
+                $configProjectModel = new $cfgProjectModel($this->persistenceEngine);
 
-                foreach ($arraytaula as $elem) {
-                    if ($elem['key']==="inici_semestre_1") {
-                        $inici_semestre1 = $this->_obtenirData($elem['value'], $anyActual);
-                    }else if ($elem['key']==="fi_semestre_1") {
-                        $fi_semestre1 = $this->_obtenirData($elem['value'], $anyActual);
+                $configProjectModel->init([ProjectKeys::KEY_ID              => $projectTypeConfigFile,
+                                           ProjectKeys::KEY_PROJECT_TYPE    => $confProjectType,
+                                           ProjectKeys::KEY_METADATA_SUBSET => $metaDataSubSet
+                                        ]);
+                //Obtenir les dades de la configuració per a aquest tipus de projecte
+                $metaDataConfigProject = $configProjectModel->getCurrentDataProject($metaDataSubSet);
+
+                if ($metaDataConfigProject['arraytaula']) {
+                    $arraytaula = json_decode($metaDataConfigProject['arraytaula'], TRUE);
+                    $anyActual = date("Y");
+                    $dataActual = new DateTime();
+
+                    foreach ($arraytaula as $elem) {
+                        if ($elem['key']==="inici_semestre_1") {
+                            $inici_semestre1 = $this->_obtenirData($elem['value'], $anyActual);
+                        }else if ($elem['key']==="fi_semestre_1") {
+                            $fi_semestre1 = $this->_obtenirData($elem['value'], $anyActual);
+                        }
+                        if ($elem['key']==="inici_semestre_2") {
+                            $inici_semestre2 = $this->_obtenirData($elem['value'], $anyActual);
+                        }else if ($elem['key']==="fi_semestre_2") {
+                            $fi_semestre2 = $this->_obtenirData($elem['value'], $anyActual);
+                        }
                     }
-                    if ($elem['key']==="inici_semestre_2") {
-                        $inici_semestre2 = $this->_obtenirData($elem['value'], $anyActual);
-                    }else if ($elem['key']==="fi_semestre_2") {
-                        $fi_semestre2 = $this->_obtenirData($elem['value'], $anyActual);
+                    if ($inici_semestre1 > $fi_semestre1) {
+                        $inici_semestre1 = date_sub($inici_semestre1, new DateInterval('P1Y'));
                     }
-                }
-                if ($inici_semestre1 > $fi_semestre1) {
-                    $inici_semestre1 = date_sub($inici_semestre1, new DateInterval('P1Y'));
-                }
-                if ($inici_semestre2 > $fi_semestre2) {
-                    $inici_semestre2 = date_sub($inici_semestre2, new DateInterval('P1Y'));
-                }
-                $finestraOberta = $dataActual >= $inici_semestre1 && $dataActual <= $fi_semestre1;
-                if($finestraOberta){
-                    $inici_semestre = $inici_semestre1;
-                    $fi_semestre= $fi_semestre1;
-                }else{
-                    $finestraOberta = $dataActual >= $inici_semestre2 && $dataActual <= $fi_semestre2;
-                    if($finestraOberta){
-                        $inici_semestre = $inici_semestre2;
-                        $fi_semestre= $fi_semestre2;
+                    if ($inici_semestre2 > $fi_semestre2) {
+                        $inici_semestre2 = date_sub($inici_semestre2, new DateInterval('P1Y'));
                     }
-                }
+                    $finestraOberta = $dataActual >= $inici_semestre1 && $dataActual <= $fi_semestre1;
+                    if ($finestraOberta){
+                        $inici_semestre = $inici_semestre1;
+                        $fi_semestre= $fi_semestre1;
+                    }else{
+                        $finestraOberta = $dataActual >= $inici_semestre2 && $dataActual <= $fi_semestre2;
+                        if ($finestraOberta){
+                            $inici_semestre = $inici_semestre2;
+                            $fi_semestre= $fi_semestre2;
+                        }
+                    }
 
-                if ($finestraOberta) {
-                    $updetedDate = $projectModel->getProjectSubSetAttr("updatedDate");
-                    $interval = (!$updetedDate  || $updetedDate < $inici_semestre->getTimestamp());
-                    $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($interval) ? "1" : "0";
+                    if ($finestraOberta) {
+                        $updetedDate = $projectModel->getProjectSubSetAttr("updatedDate");
+                        $interval = (!$updetedDate  || $updetedDate < $inici_semestre->getTimestamp());
+                        $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($interval) ? "1" : "0";
+                    }
                 }
+            }else {
+                $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = "1";
             }
         }
-
-        $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $this->getModel()->haveFilesToExportList();
+        $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $projectModel->haveFilesToExportList();
 
         return $response;
     }
