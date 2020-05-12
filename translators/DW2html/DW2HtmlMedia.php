@@ -43,17 +43,20 @@ class DW2HtmlMedia extends DW2HtmlImage {
             // small
             $size = 'small';
             $width  = 255;
-            $height = 210;
+//            $height = 210; // format 4:3, obsolet
+            $height = 255 / 16 * 9; // format 16:9
         }elseif(strpos($param,'large') !== false){
             // large
             $size = 'large';
             $width  = 520;
-            $height = 406;
+//            $height = 406; // format 4:3, obsolet
+            $height = 520 / 16 * 9; // format 16:9;
         }else{
             $size = 'medium';
             // medium
             $width  = 425;
-            $height = 350;
+//            $height = 350; // format 4:3, obsolet
+            $height = 425 / 16 * 9; // format 16:9;
         }
 
 //        return array($site, $url, $title, $width, $height);
