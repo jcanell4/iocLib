@@ -4,7 +4,7 @@ require_once "DW2HtmlParser.php";
 class DW2HtmlImageGIF extends DW2HtmlImage {
 
 
-    protected $urlPattern = "/{{iocgif>(.*?)\|.*}}/";
+    protected $urlPattern = "/{{iocgif>(.*?)(?:\|.*?)?}}/";
 
     public function open() {
 
@@ -23,154 +23,79 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
             $text = $url;
         }
 
-//        var_dump($token['raw']);
-//        die();
-
-        // Si la imatge es interna es que es troba dins d'una caixa i és una figura
-        $class = static::$parserClass;
-        $isInnerPrevious = $class::isInner();
-
         // TODO: Determinar com s'afegeixen els gifs, aquest és el codi generic per imatges: figura o lateral
+        // TODO: Ni un ni altre, es posa com a imatge centrada al document
 
-        if ($isInnerPrevious) {
-            return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
-        } else {
-            return $this->makeLateralBox($url, $text, $CSSClasses, $isInternal);
-        }
+
+        $html = '<div class="iocgif"><img src="' . $url . '" alt="' . $text . '" title="' . $text . '" width="' . $width . '" height="' . $height . '"></div>';
+
+
+        return $html;
+
 
     }
 
-//    private function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
-//        // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
-//        // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
-//        $testUrl = str_replace('https:', '', $token['raw']);
-//        $testUrl = str_replace('http:', '', $testUrl);
-//        $testUrl = str_replace('ftp:', '', $testUrl);
-//
-//
-//        preg_match($this->urlPattern, $token['raw'], $matchUrl);
-//        $candidateUrl = $matchUrl[1];
-//
-//
-//        $centerPattern = "/^ .*? $/";
-//        $leftPattern = "/^ .*?$/";
-//        $rightPattern = "/^.*? $/";
-//
-//
-//        if (preg_match($centerPattern, $candidateUrl)) {
-//            $CSSclasses = 'mediacenter';
-//        } else if (preg_match($leftPattern, $candidateUrl)) {
-//            $CSSclasses = 'medialeft';
-//        } else if ((preg_match($rightPattern, $candidateUrl))) {
-//            $CSSclasses = 'mediaright';
-//        }
-//
-//
-//        // estraiem la mida si escau
-//        $sizePattern = "/\?(.*?)[\||}]/";
-//
-//        if (preg_match($sizePattern, $token['raw'], $matchSize)) {
-//            $size = explode('x', $matchSize[1]);
-//
-//            $width = intval($size[0]);
-//
-//            if (count($size) == 2) {
-//                $height = intval($size[1]);
-//            }
-//        }
-//
-//        // eliminem els posibles paràmetres
-//        $queryPos = strpos($candidateUrl, '?');
-//
-//        if ($queryPos !== FALSE) {
-//            $candidateUrl = substr($candidateUrl, 0, $queryPos);
-//        }
-//
-//
-//        // Si és un enllaç ha de contenir com a mínim una barra \
-//        if (strpos($testUrl, '\|') !== false) {
-//
-//            $urlPattern = "/{{(.*?) ?\|?.*?}}/";
-//            preg_match($urlPattern, $token['raw'], $matchUrl);
-//            $url = trim($candidateUrl);
-//
-//
-//        } else {
-//            $url = "lib/exe/fetch.php?media=" . trim($candidateUrl);
-//            $isInternal = true;
-//        }
-//
-//        return $url;
-//
-//    }
-//    protected function getReplacement($position) {
-//
-//        $class = static::$parserClass;
-//        $isInnerPrevious = $class::isInner();
-//
-//        // Si es inner es tracta d'un img d'una figura, si no ho és es tracta d'una imatge lateral ja que no s'accepta cap altre tipus
-//        if ( $position !== self::CLOSE || !$isInnerPrevious) {
-//            return parent::getReplacement($position);
-//        } else {
-//            return '';
-//        }
-//    }
+    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
+        // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
+        // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
+        $testUrl = str_replace('https:', '', $token['raw']);
+        $testUrl = str_replace('http:', '', $testUrl);
+        $testUrl = str_replace('ftp:', '', $testUrl);
 
-//    protected function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
-//        $width = '200';
-//
-//        $value = ' data-dw-type="';
-//        if ($isInternal) {
-//            $value .= 'internal_image"';
-//        } else {
-//            $value .= 'external_image"';
-//        }
-//
-//        $text = $this->parseContent($text);
-//
-//
-//        $html = '<div data-dw-lateral="image" class="imgb" contenteditable="false">'
-//            . '<img src="' . $url . '" class="media ' . $CSSClasses . '" title="' . $text . '" alt="' . $text . '" width="'
-//            . $width .'" ' . $value . ' contenteditable="false"/>'
-//            . '<div class="title" contenteditable="true">' . $text . '</div>'
-//            . '</div>';
-//
-//        return $html;
-//    }
-//
-//    protected function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
-//        $value = 'src="' . $url . '"';
-//
-//        if (strlen($text) > 0) {
-//            $value .= ' alt="' . $text . '"';
-//        }
-//
-//        if ($width > 0) {
-//            $value .= ' width="' . $width . '"';
-//        }
-//
-//        if ($height > 0) {
-//            $value .= ' height="' . $height . '"';
-//        }
-//
-//        if (strlen($CSSClasses) > 0) {
-//            $value .= ' class="' . $CSSClasses . '"';
-//        }
-//
-//        $value .= ' data-dw-type= "';
-//        if ($isInternal) {
-//            $value .= 'internal_image"';
-//        } else {
-//            $value .= 'external_image"';
-//        }
-//
-//        $value .= ' contenteditable="false"';
-//
-//        return $this->getReplacement(self::OPEN) . $value .  ' />';
-//    }
-//
-//    // Aquest element s'autotanca
-//    public function isClosing($token) {
-//        return false;
-//    }
+
+        preg_match($this->urlPattern, $token['raw'], $matchUrl);
+        $candidateUrl = $matchUrl[1];
+
+
+        // estraiem la mida si escau
+        $sizePattern = "/\?(.*?)[\||}]/";
+
+        if (preg_match($sizePattern, $token['raw'], $matchSize)) {
+            $size = explode('x', $matchSize[1]);
+
+            $width = intval($size[0]);
+
+            if (count($size) == 2) {
+                $height = intval($size[1]);
+            }
+        }
+
+        // eliminem els posibles paràmetres
+        $queryPos = strpos($candidateUrl, '?');
+
+        if ($queryPos !== FALSE) {
+            $candidateUrl = substr($candidateUrl, 0, $queryPos);
+        }
+
+
+        // Si és un enllaç ha de contenir com a mínim una barra \
+        if (strpos($testUrl, '\|') !== false) {
+
+            $urlPattern = "/{{(.*?) ?\|?.*?}}/";
+            preg_match($urlPattern, $token['raw'], $matchUrl);
+            $url = trim($candidateUrl);
+
+
+        } else {
+            $url = "lib/exe/fetch.php?media=" . trim($candidateUrl);
+            $isInternal = true;
+        }
+
+        return $url;
+
+    }
+
+    protected function getReplacement($position) {
+
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+
+        // Si es inner es tracta d'un img d'una figura, si no ho és es tracta d'una imatge lateral ja que no s'accepta cap altre tipus
+        if ($position !== self::CLOSE || !$isInnerPrevious) {
+            return parent::getReplacement($position);
+        } else {
+            return '';
+        }
+    }
+
 }
