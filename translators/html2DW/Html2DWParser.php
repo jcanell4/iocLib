@@ -181,7 +181,9 @@ class Html2DWParser extends IocParser {
 
         '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<div(?: contenteditable="false")? data-dw-block="(.*?)".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<div(?: contenteditable="false")? data-dw-block="sound".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div(?: contenteditable="false")? data-dw-block="video".*?>.*?<\/div>' => ['state' => 'video', 'type' => 'video', 'class' => 'Html2DWMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => ['state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 

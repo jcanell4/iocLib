@@ -36,6 +36,11 @@ class Html2DWNote extends Html2DWInstruction {
 
             for ($i = 0; $i < count($matches[0]); $i++) {
                 $note = $matches[self::NOTE][$i];
+
+                if ($i > 0) {
+                    $note = '\\\\ ' . $note; // es un \\ pel salt de línia
+                }
+
                 $signature = $matches[self::SIGNATURE][$i];
 
 

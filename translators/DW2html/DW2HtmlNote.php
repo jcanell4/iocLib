@@ -60,7 +60,14 @@ class DW2HtmlNote extends DW2HtmlInstruction {
             for ($i = 0; $i < $notes; $i++) {
                 $matches[self::SIGNATURE][$i]; //
 
-                $contents[] = $matches[self::NOTE][$i];
+
+                $content = $matches[self::NOTE][$i];
+
+                $content = trim(strpos($content, '<br />') === 0 ? substr($content,6) : $content);
+                $content = strpos($content, '\\') === 0 ? substr($content,2) : $content;
+
+
+                $contents[] = $content;
                 $signatures[] = $matches[self::SIGNATURE][$i];
 
                 // TODO: obtenir el nom d'usuari a partir del correu de les signatures

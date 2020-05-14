@@ -3,174 +3,109 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlMedia extends DW2HtmlImage {
 
+    private static $counter = 0;
 
-    protected $urlPattern = "/{{(?:vimeo|youtube|dailymotion|altamarVideos)>(.*?)\|.*}}/";
+    protected $urlPattern = "/{{(vimeo|youtube|dailymotion|altamarVideos)>(.*?)\|.*}}/";
+
+    static $vimeo = 'https://player.vimeo.com/video/@VIDEO@';
+    static $youtube = 'https://www.youtube.com/embed/@VIDEO@?controls=1';
+    static $dailymotion = 'https://www.dailymotion.com/embed/video/@VIDEO@';
 
     public function open() {
 
+
         $token = $this->currentToken;
-//        var_dump($this->currentToken);
-//        die();
 
-        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $isInternal);
-
-        $textPattern = "/\|(.*?)}}/";
+        // Descartem el segón paràmetre, la clau no es fa servir
 
 
-        if (preg_match($textPattern, $token['raw'], $matchText)) {
-            $text = $matchText[1];
-        } else {
-            $text = $url;
+        // remove {{ }}
+        $command = substr($token['raw'],2,-2);
+
+        // title
+        list($command, $title) = explode('|',$command);
+        $title = trim($title);
+        $command = trim($command);
+
+        // get site and video
+        list($type, $id) = explode('>',$command);
+
+        // what size?
+        list($id, $param) = explode('?',$id,2);
+        if(preg_match('/(\d+)x(\d+)/i',$param,$m)){
+            // TODO: No implementat al client
+            // custom
+//            $width  = $m[1];
+//            $height = $m[2];
+//            $size = "custom";
+
+        }elseif(strpos($param,'small') !== false){
+            // small
+            $size = 'small';
+            $width  = 255;
+            $height = 210;
+        }elseif(strpos($param,'large') !== false){
+            // large
+            $size = 'large';
+            $width  = 520;
+            $height = 406;
+        }else{
+            $size = 'medium';
+            // medium
+            $width  = 425;
+            $height = 350;
         }
 
-//        var_dump($token['raw']);
-//        die();
+//        return array($site, $url, $title, $width, $height);
 
-        // Si la imatge es interna es que es troba dins d'una caixa i és una figura
-        $class = static::$parserClass;
-        $isInnerPrevious = $class::isInner();
 
-        // TODO: Determinar com s'afegeixen els gifs, aquest és el codi generic per imatges: figura o lateral
+//        if (preg_match($token['pattern'], $token['raw'], $match)) {
+////            $type = $match[1];
+//            $id = $match[1];
+//        }
 
-        if ($isInnerPrevious) {
-            return $this->makeTag($url, $text, $width, $height, $CSSClasses, $isInternal);
-        } else {
-            return $this->makeLateralBox($url, $text, $CSSClasses, $isInternal);
+
+        // TODO[Xavi] Cal incloure les etiquetes de altamarVideos
+        switch ($type) {
+
+            case 'vimeo':
+                $url = self::$vimeo;
+                break;
+
+            case 'youtube':
+                $url = self::$youtube;
+                break;
+
+            case 'dailymotion':
+                $url = self::$dailymotion;
+                break;
+
+            default:
+                $url = 'undefined';
         }
+
+        $url = str_replace('@VIDEO@', $id, $url);
+
+
+
+        // afegim un nombre aleatori al data-ioc-id per assegurar que no hi ha conflictes encara que es trobin 2 vídeos amb el mateix id real (el que s'envia al iframe)
+
+        try {
+            $random = rand(0, PHP_INT_MAX);
+        } catch (Exception $e) {
+            $random = (new DateTime())->getTimestamp() + self::$counter;
+            self::$counter++; // Cal assegurar-nos que aquest nombre será diferent encara que es cridi múltiples vegades
+        }
+
+
+        $html = '<div data-dw-block="video" data-video-type="' . $type . '" data-video-id="' . $id . '" data-ioc-id="ioc_video_' . $id . $random . '" contenteditable="false" data-video-title="'. $title .'" data-video-size="'. $size .'">' .
+            '<iframe src="' . $url . '" width="' . $width .'" height="' . $height .' title="' . $title . '"></iframe>' .
+            '</div>';
+
+        return $html;
+
 
     }
 
-//    private function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
-//        // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
-//        // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
-//        $testUrl = str_replace('https:', '', $token['raw']);
-//        $testUrl = str_replace('http:', '', $testUrl);
-//        $testUrl = str_replace('ftp:', '', $testUrl);
-//
-//
-//        preg_match($this->urlPattern, $token['raw'], $matchUrl);
-//        $candidateUrl = $matchUrl[1];
-//
-//
-//        $centerPattern = "/^ .*? $/";
-//        $leftPattern = "/^ .*?$/";
-//        $rightPattern = "/^.*? $/";
-//
-//
-//        if (preg_match($centerPattern, $candidateUrl)) {
-//            $CSSclasses = 'mediacenter';
-//        } else if (preg_match($leftPattern, $candidateUrl)) {
-//            $CSSclasses = 'medialeft';
-//        } else if ((preg_match($rightPattern, $candidateUrl))) {
-//            $CSSclasses = 'mediaright';
-//        }
-//
-//
-//        // estraiem la mida si escau
-//        $sizePattern = "/\?(.*?)[\||}]/";
-//
-//        if (preg_match($sizePattern, $token['raw'], $matchSize)) {
-//            $size = explode('x', $matchSize[1]);
-//
-//            $width = intval($size[0]);
-//
-//            if (count($size) == 2) {
-//                $height = intval($size[1]);
-//            }
-//        }
-//
-//        // eliminem els posibles paràmetres
-//        $queryPos = strpos($candidateUrl, '?');
-//
-//        if ($queryPos !== FALSE) {
-//            $candidateUrl = substr($candidateUrl, 0, $queryPos);
-//        }
-//
-//
-//        // Si és un enllaç ha de contenir com a mínim una barra \
-//        if (strpos($testUrl, '\|') !== false) {
-//
-//            $urlPattern = "/{{(.*?) ?\|?.*?}}/";
-//            preg_match($urlPattern, $token['raw'], $matchUrl);
-//            $url = trim($candidateUrl);
-//
-//
-//        } else {
-//            $url = "lib/exe/fetch.php?media=" . trim($candidateUrl);
-//            $isInternal = true;
-//        }
-//
-//        return $url;
-//
-//    }
-//    protected function getReplacement($position) {
-//
-//        $class = static::$parserClass;
-//        $isInnerPrevious = $class::isInner();
-//
-//        // Si es inner es tracta d'un img d'una figura, si no ho és es tracta d'una imatge lateral ja que no s'accepta cap altre tipus
-//        if ( $position !== self::CLOSE || !$isInnerPrevious) {
-//            return parent::getReplacement($position);
-//        } else {
-//            return '';
-//        }
-//    }
 
-//    protected function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
-//        $width = '200';
-//
-//        $value = ' data-dw-type="';
-//        if ($isInternal) {
-//            $value .= 'internal_image"';
-//        } else {
-//            $value .= 'external_image"';
-//        }
-//
-//        $text = $this->parseContent($text);
-//
-//
-//        $html = '<div data-dw-lateral="image" class="imgb" contenteditable="false">'
-//            . '<img src="' . $url . '" class="media ' . $CSSClasses . '" title="' . $text . '" alt="' . $text . '" width="'
-//            . $width .'" ' . $value . ' contenteditable="false"/>'
-//            . '<div class="title" contenteditable="true">' . $text . '</div>'
-//            . '</div>';
-//
-//        return $html;
-//    }
-//
-//    protected function makeTag($url, $text, $width, $height, $CSSClasses, $isInternal) {
-//        $value = 'src="' . $url . '"';
-//
-//        if (strlen($text) > 0) {
-//            $value .= ' alt="' . $text . '"';
-//        }
-//
-//        if ($width > 0) {
-//            $value .= ' width="' . $width . '"';
-//        }
-//
-//        if ($height > 0) {
-//            $value .= ' height="' . $height . '"';
-//        }
-//
-//        if (strlen($CSSClasses) > 0) {
-//            $value .= ' class="' . $CSSClasses . '"';
-//        }
-//
-//        $value .= ' data-dw-type= "';
-//        if ($isInternal) {
-//            $value .= 'internal_image"';
-//        } else {
-//            $value .= 'external_image"';
-//        }
-//
-//        $value .= ' contenteditable="false"';
-//
-//        return $this->getReplacement(self::OPEN) . $value .  ' />';
-//    }
-//
-//    // Aquest element s'autotanca
-//    public function isClosing($token) {
-//        return false;
-//    }
 }
