@@ -7,7 +7,7 @@ if (!defined('DOKU_INC')) die();
 
 class NotAllowedCommandAuthorization extends ProjectCommandAuthorization {
 
-    public function canRun() {
+    public function canRun($permis=AUTH_NONE, $type_exception=NULL) {
         $this->errorAuth[self::ERROR_KEY] = TRUE;
         $this->errorAuth[self::EXCEPTION_KEY] =  'CommandAuthorizationNotFound';
         $this->errorAuth[self::EXTRA_PARAM_KEY] = NULL;

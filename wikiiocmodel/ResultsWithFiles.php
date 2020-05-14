@@ -1,11 +1,4 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of ResultsWithFiles
  *
@@ -15,7 +8,7 @@ class ResultsWithFiles {
 
     //MULTI
     public static function get_html_metadata($result){
-        $ext = $result["ext"]?$result["ext"]:".zip";
+        $ext = $result["ext"] ? $result["ext"] : ".zip";
         if ($result['error']) {
             throw new Exception ("Error");
         }elseif($result["fileNames"]){
@@ -26,15 +19,15 @@ class ResultsWithFiles {
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
         }else{
-            if($result["zipFile"]){
-                $ext=".zip";
+            if ($result["zipFile"]){
+                $ext = ".zip";
                 if (!self::copyFile($result, "zipFile", "zipName")) {
                     throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
                 }
             }elseif($result["pdfFile"]){
-                $ext=".pdf";
-                if (!self::copyPdf($result, "pdfFile", "pdfName")) {
-                    throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
+                $ext = ".pdf";
+                if (!self::copyFile($result, "pdfFile", "pdfName")) {
+                    throw new Exception("Error en la còpia de l'arxiu PDF des de la ubicació temporal");
                 }
             }
             $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) .'/'.preg_replace('/:/', '_', $result['ns']);
@@ -134,46 +127,37 @@ class ResultsWithFiles {
         return $ok;
     }
 
-//    private static function copyZip($result){
-//        $dest = preg_replace('/:/', '/', $result['ns']);
-//        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
-//        if (!file_exists($path_dest)){
-//            mkdir($path_dest, 0755, TRUE);
-//        }
-//        $ok = copy($result["zipFile"], $path_dest.'/'.$result["zipName"]);
-//        return $ok;
-//    }
-
     /**
      * Remove specified dir
      * @param string $directory
      */
     public static function removeDir($directory) {
         return IocCommon::removeDir($directory);
-//        if (!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) {
-//            return FALSE;
-//        }else {
-//            $dh = opendir($directory);
-//            while ($contents = readdir($dh)) {
-//                if ($contents != '.' && $contents != '..') {
-//                    $path = "$directory/$contents";
-//                    if (is_dir($path)) {
-//                        self::removeDir($path);
-//                    }else {
-//                        unlink($path);
-//                    }
-//                }
-//            }
-//            closedir($dh);
-//
-//            if (file_exists($directory)) {
-//                if (!rmdir($directory)) {
-//                    return FALSE;
-//                }
-//            }
-//            return TRUE;
-//        }
-    }
+        /*
+        if (!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) {
+            return FALSE;
+        }else {
+            $dh = opendir($directory);
+            while ($contents = readdir($dh)) {
+                if ($contents != '.' && $contents != '..') {
+                    $path = "$directory/$contents";
+                    if (is_dir($path)) {
+                        self::removeDir($path);
+                    }else {
+                        unlink($path);
+                    }
+                }
+            }
+            closedir($dh);
 
+            if (file_exists($directory)) {
+                if (!rmdir($directory)) {
+                    return FALSE;
+                }
+            }
+            return TRUE;
+        }
+         */
+    }
 
 }

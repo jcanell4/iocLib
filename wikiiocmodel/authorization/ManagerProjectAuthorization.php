@@ -15,7 +15,7 @@ class ManagerProjectAuthorization extends ProjectCommandAuthorization {
         $this->allowedRoles = [];
     }
 
-    public function canRun() {
+    public function canRun($permis=AUTH_DELETE, $type_exception="Edit") {
 //        if (parent::canRun()) {
 //            if ( $this->permission->getInfoPerm() < AUTH_DELETE || !$this->isUserGroup(["projectmanager","admin","manager"]) ) {
 //                $this->errorAuth['error'] = TRUE;
@@ -23,7 +23,7 @@ class ManagerProjectAuthorization extends ProjectCommandAuthorization {
 //                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
 //            }
 //        }
-        parent::canRun(AUTH_DELETE, "Edit");
+        parent::canRun($permis, $type_exception);
         return !$this->errorAuth['error'];
     }
 }

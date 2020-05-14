@@ -100,3 +100,9 @@ class MissingClosingTranslatorException extends WikiIocModelException {
         parent::__construct($message, $code, $previous, $param);
     }
 }
+
+class DefaultProjectAlreadyExistsException extends WikiIocModelException {
+    public function __construct($page, $message='defaultProjectAlreadyExists', $code=7116, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $page);
+    }
+}

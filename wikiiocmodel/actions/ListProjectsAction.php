@@ -28,10 +28,13 @@ class ListProjectsAction extends AbstractWikiAction {
                                 ProjectKeys::KEY_METADATA_SUBSET => $metaDataSubSet
                               ]);
             $listProjectTypes = $this->model->getListProjectTypes($this->params['list_type']!=="array");
+            $listProjectTypes[] = "wikipages";
+            sort($listProjectTypes);
             $aList=[];
             foreach ($listProjectTypes as $pTypes) {
-                if(WikiGlobalConfig::getConf("projectname_$pTypes")){
-                    $aList[] = ['id' => "$pTypes", 'name' => WikiGlobalConfig::getConf("projectname_$pTypes")];
+                $name = WikiGlobalConfig::getConf("projectname_$pTypes");
+                if ($name) {
+                    $aList[] = ['id' => "$pTypes", 'name' => $name];
                 }else{
                     $aList[] = ['id' => "$pTypes", 'name' => $pTypes];
                 }

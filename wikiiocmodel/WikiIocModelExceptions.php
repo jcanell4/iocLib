@@ -184,3 +184,9 @@ class WsMoodleInvalidCourseIdException extends WikiIocModelException {
         parent::__construct($message, $code, $previous);
     }
 }
+
+class ConfigurationProjectNotAvailableException extends WikiIocProjectException {
+    public function __construct($page, $message="L'actualització del projecte no disposa del corresponent projecte de configuració", $code=7011) {
+        parent::__construct($message, $code, $page);
+    }
+}

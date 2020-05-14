@@ -15,7 +15,7 @@ class GenerateProjectAuthorization extends ProjectCommandAuthorization {
         $this->allowedRoles = [];
     }
 
-    public function canRun() {
+    public function canRun($permis=AUTH_CREATE, $type_exception="Generate") {
 //        if (parent::canRun()) {
 //            if ($this->permission->getInfoPerm() < AUTH_CREATE) {
 //                $this->errorAuth['error'] = TRUE;
@@ -29,7 +29,7 @@ class GenerateProjectAuthorization extends ProjectCommandAuthorization {
 //                }
 //            }
 //        }
-        parent::canRun(AUTH_CREATE, "Generate");
+        parent::canRun($permis, $type_exception);
         return !$this->errorAuth['error'];
     }
 }

@@ -15,11 +15,11 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
         $this->allowedRoles = [Permission::ROL_RESPONSABLE];
     }
 
-    public function canRun($permis=AUTH_NONE, $error="Command") {   //$permis => permís mínim a més de pertanyer als grups i als roles establerts
+    public function canRun($permis=AUTH_NONE, $type_exception="Command") {   //$permis => permís mínim a més de pertanyer als grups i als roles establerts
         if (parent::canRun()) {
             if ($permis > AUTH_NONE && $this->permission->getInfoPerm() < $permis) {
                 $this->errorAuth['error'] = TRUE;
-                $this->errorAuth['exception'] = '"InsufficientPermissionTo'.$error.'ProjectException"';
+                $this->errorAuth['exception'] = '"InsufficientPermissionTo'.$type_exception.'ProjectException"';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();
             }else {
                 if (!$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
