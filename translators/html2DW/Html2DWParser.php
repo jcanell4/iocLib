@@ -19,7 +19,9 @@ class Html2DWParser extends IocParser {
             'state' => 'image-lateral'
         ],
 
-
+        '<div class="iocgif">.*?<\/div>' => [
+            'state' => 'gif'
+        ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
         '<div class="ioc(?:table|figure).*?" data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
@@ -178,6 +180,8 @@ class Html2DWParser extends IocParser {
 
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div class="iocgif"><img.*?><\/div>' => ['state' => 'gif', 'type' => 'gif', 'class' => 'Html2DWImageGIF', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
