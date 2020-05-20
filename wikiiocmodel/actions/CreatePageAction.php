@@ -28,7 +28,8 @@ class CreatePageAction extends SavePageAction {
     }
 
     protected function runProcess() {
-        if (WikiIocInfoManager::getInfo("exists")) {
+        $actual = WikiGlobalConfig::getConf('datadir')."/".str_replace(":","/",$this->params[PageKeys::KEY_ID]).".txt";
+        if (WikiIocInfoManager::getInfo("exists") || file_exists($actual)) {
             throw new PageAlreadyExistsException($this->params[PageKeys::KEY_ID], 'pageExists');
         }
         parent::runProcess();
