@@ -3,7 +3,9 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlImage extends DW2HtmlInstruction {
 
-//    protected $urlPattern = "/{{(.*?)\|.*}}/";
+    public function getUrlPattern() {
+        return "/{{(.*?)\|.*}}/";
+    }
 
     public function open() {
 
@@ -46,7 +48,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         $testUrl = str_replace('ftp:', '', $testUrl);
 
 
-        preg_match($this->urlPattern, $token['raw'], $matchUrl);
+        preg_match($this->getUrlPattern(), $token['raw'], $matchUrl);
         $candidateUrl = $matchUrl[1];
 
 

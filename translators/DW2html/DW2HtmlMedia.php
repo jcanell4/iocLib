@@ -11,29 +11,6 @@ class DW2HtmlMedia extends DW2HtmlImage {
     private static $counter = 0;
 
 
-//    static $vimeo = 'https://player.vimeo.com/video/@VIDEO@';
-//    static $youtube = 'https://www.youtube.com/embed/@VIDEO@?controls=1';
-//    static $dailymotion = 'https://www.dailymotion.com/embed/video/@VIDEO@';
-
-
-//    protected function getUrlPattern() {
-////        $urlPattern = "/{{(vimeo|youtube|dailymotion|altamarVideos)>(.*?)\|.*}}/";
-//
-//        $urlPattern = "/{{(";
-//
-//
-//        $origins = [];
-//        foreach (SharedConstants::ONLINE_VIDEO_CONFIG['origins'] as $key => $value) {
-//            $origins[] = $key;
-//        }
-//
-//        $urlPattern .= implode($origins, '|');
-//        $urlPattern .= ')>(.*?)\|.*}}/';
-//
-//
-//        return $urlPattern;
-//    }
-
     public function open() {
 
 
@@ -47,7 +24,6 @@ class DW2HtmlMedia extends DW2HtmlImage {
 
         // title (no es fa servir)
         list($command, $title) = explode('|', $command);
-        $title = trim($title);
         $command = trim($command);
 
         // get site and video
