@@ -3,7 +3,7 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlImage extends DW2HtmlInstruction {
 
-    protected $urlPattern = "/{{(.*?)\|.*}}/";
+//    protected $urlPattern = "/{{(.*?)\|.*}}/";
 
     public function open() {
 

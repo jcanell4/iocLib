@@ -15,11 +15,11 @@ class Html2DWMedia extends Html2DWMarkup {
 
         $type = $this->extractVarName($token['raw'], 'data-video-type');
         $size = $this->extractVarName($token['raw'], 'data-video-size', false);
-        $title = $this->extractVarName($token['raw'], 'data-video-title', false);
+//        $title = $this->extractVarName($token['raw'], 'data-video-title', false);
 
         $html = '{{' . $type . '>' . $id;
         $html .= ($size ? '?' . $size : '');
-        $html .= ($title ? '|' . $title : '');
+//        $html .= ($title ? '|' . $title : '');
         $html .= '}}';
 
         return $html;

@@ -187,4 +187,4 @@ Prova gifs: {{iocgif>ruta_ns:archivo.gif?150|título}}
 
 Prova gifs: {{iocgif>ruta_ns:archivo.gif?large|título}}
 
-Prova media: {{vimeo>https://vimeo.com/176576698?400|title}}
+Prova media: {{vimeo>https://vimeo.com/176576698?large|title}}

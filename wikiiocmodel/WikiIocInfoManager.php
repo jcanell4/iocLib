@@ -7,6 +7,9 @@ require_once (DOKU_INC . 'inc/common.php');
 require_once (DOKU_INC . 'inc/actions.php');
 require_once (DOKU_INC . 'inc/pageutils.php');
 
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC . "lib/lib_ioc/");
+require_once DOKU_LIB_IOC . "common/SharedConstants.php";
+
 class WikiIocInfoManager {
 
     const KEY_EXISTS = "exists";
@@ -86,6 +89,9 @@ class WikiIocInfoManager {
                 $JSINFO['permission']["is$value"] = TRUE;
             }
         }
+
+        $JSINFO['shared_constants'] = SharedConstants::getConstantsAsArray();
+
 //        if ($INFO['userinfo'] && $INFO['userinfo']['grps']) {
 //            if (in_array('projectmanager', $INFO['userinfo']['grps']))
 //                $JSINFO['isprojectmanager'] = TRUE;
