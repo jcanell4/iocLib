@@ -17,7 +17,8 @@ class HtmlPageAction extends RenderedPageAction{
     }
 
     protected function runProcess(){
-        if (!WikiIocInfoManager::getInfo("exists")) {
+        $actual = WikiGlobalConfig::getConf('datadir')."/".str_replace(":","/",$this->params[PageKeys::KEY_ID]).".txt";
+        if (!WikiIocInfoManager::getInfo(WikiIocInfoManager::KEY_EXISTS) && !file_exists($actual)) {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
         if (!WikiIocInfoManager::getInfo("perm")) {
