@@ -1,15 +1,15 @@
 <?php
 require_once "DW2HtmlParser.php";
 
+if (!defined('DOKU_INC')) define('DOKU_INC', realpath(dirname(__FILE__) . "/../../") . '/');
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC . "lib/lib_ioc/");
+require_once DOKU_LIB_IOC . "common/SharedConstants.php";
+
+
 class DW2HtmlMedia extends DW2HtmlImage {
 
     private static $counter = 0;
 
-    protected $urlPattern = "/{{(vimeo|youtube|dailymotion|altamarVideos)>(.*?)\|.*}}/";
-
-    static $vimeo = 'https://player.vimeo.com/video/@VIDEO@';
-    static $youtube = 'https://www.youtube.com/embed/@VIDEO@?controls=1';
-    static $dailymotion = 'https://www.dailymotion.com/embed/video/@VIDEO@';
 
     public function open() {
 
@@ -20,75 +20,35 @@ class DW2HtmlMedia extends DW2HtmlImage {
 
 
         // remove {{ }}
-        $command = substr($token['raw'],2,-2);
+        $command = substr($token['raw'], 2, -2);
 
-        // title
-        list($command, $title) = explode('|',$command);
-        $title = trim($title);
+        // title (no es fa servir)
+        list($command, $title) = explode('|', $command);
         $command = trim($command);
 
         // get site and video
-        list($type, $id) = explode('>',$command);
+        list($type, $id) = explode('>', $command);
 
         // what size?
-        list($id, $param) = explode('?',$id,2);
-        if(preg_match('/(\d+)x(\d+)/i',$param,$m)){
-            // TODO: No implementat al client
-            // custom
-//            $width  = $m[1];
-//            $height = $m[2];
-//            $size = "custom";
+        list($id, $param) = explode('?', $id, 2);
 
-        }elseif(strpos($param,'small') !== false){
-            // small
-            $size = 'small';
-            $width  = 255;
-//            $height = 210; // format 4:3, obsolet
-            $height = 255 / 16 * 9; // format 16:9
-        }elseif(strpos($param,'large') !== false){
-            // large
-            $size = 'large';
-            $width  = 520;
-//            $height = 406; // format 4:3, obsolet
-            $height = 520 / 16 * 9; // format 16:9;
-        }else{
-            $size = 'medium';
-            // medium
-            $width  = 425;
-//            $height = 350; // format 4:3, obsolet
-            $height = 425 / 16 * 9; // format 16:9;
+        $size = '';
+        $width = '';
+        $height = '';
+
+        foreach (SharedConstants::ONLINE_VIDEO_CONFIG['sizes'] as $key => $value) {
+
+            if (strpos($param, $key) !== false) {
+                $size = $key;
+                list($width, $height) = explode('x', $value, 2);
+                break;
+            }
+
         }
 
-//        return array($site, $url, $title, $width, $height);
 
-
-//        if (preg_match($token['pattern'], $token['raw'], $match)) {
-////            $type = $match[1];
-//            $id = $match[1];
-//        }
-
-
-        // TODO[Xavi] Cal incloure les etiquetes de altamarVideos
-        switch ($type) {
-
-            case 'vimeo':
-                $url = self::$vimeo;
-                break;
-
-            case 'youtube':
-                $url = self::$youtube;
-                break;
-
-            case 'dailymotion':
-                $url = self::$dailymotion;
-                break;
-
-            default:
-                $url = 'undefined';
-        }
-
-        $url = str_replace('@VIDEO@', $id, $url);
-
+        $template = SharedConstants::ONLINE_VIDEO_CONFIG['origins'][$type]['url_template'];
+        $url = str_replace('${id}', $id, $template);
 
 
         // afegim un nombre aleatori al data-ioc-id per assegurar que no hi ha conflictes encara que es trobin 2 vídeos amb el mateix id real (el que s'envia al iframe)
@@ -101,8 +61,8 @@ class DW2HtmlMedia extends DW2HtmlImage {
         }
 
 
-        $html = '<div data-dw-block="video" data-video-type="' . $type . '" data-video-id="' . $id . '" data-ioc-id="ioc_video_' . $id . $random . '" contenteditable="false" data-video-title="'. $title .'" data-video-size="'. $size .'">' .
-            '<iframe src="' . $url . '" width="' . $width .'" height="' . $height .' title="' . $title . '"></iframe>' .
+        $html = '<div data-dw-block="video" data-video-type="' . $type . '" data-video-id="' . $id . '" data-ioc-id="ioc_video_' . $id . $random . '" contenteditable="false" data-video-size="' . $size . '">' .
+            '<iframe src="' . $url . '" width="' . $width . '" height="' . $height . '"></iframe>' .
             '</div>';
 
         return $html;

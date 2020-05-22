@@ -185,4 +185,6 @@ Un altre paràgraf.
 
 Prova gifs: {{iocgif>ruta_ns:archivo.gif?150|título}}
 
-Prova media: {{vimeo>https://vimeo.com/176576698?400|title}}
+Prova gifs: {{iocgif>ruta_ns:archivo.gif?large|título}}
+
+Prova media: {{vimeo>https://vimeo.com/176576698?large|title}}

@@ -12,7 +12,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
 //        var_dump($this->currentToken);
 //        die();
 
-        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $isInternal);
+        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $ns, $isInternal);
 
         $textPattern = "/\|(.*?)}}/";
 
@@ -23,11 +23,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
             $text = $url;
         }
 
-        // TODO: Determinar com s'afegeixen els gifs, aquest és el codi generic per imatges: figura o lateral
-        // TODO: Ni un ni altre, es posa com a imatge centrada al document
-
-
-        $html = '<div class="iocgif"><img src="' . $url . '" alt="' . $text . '" title="' . $text . '" width="' . $width . '" height="' . $height . '"></div>';
+        $html = '<div class="iocgif"><img src="' . $url . '" alt="' . $text . '" title="' . $text . '" data-dw-ns="' . $ns . '"></div>';
 
 
         return $html;
@@ -35,7 +31,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
 
     }
 
-    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false) {
+    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$ns, &$isInternal = false) {
         // A diferencia dels enllaços la URL si conté un punt, el que separa la extensió.
         // un enllaç extern només pot contenir 2 punts per separar el protocol, eliminem aquesta posibilitiat
         $testUrl = str_replace('https:', '', $token['raw']);
@@ -46,19 +42,12 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
         preg_match($this->urlPattern, $token['raw'], $matchUrl);
         $candidateUrl = $matchUrl[1];
 
-
-        // estraiem la mida si escau
-        $sizePattern = "/\?(.*?)[\||}]/";
-
-        if (preg_match($sizePattern, $token['raw'], $matchSize)) {
-            $size = explode('x', $matchSize[1]);
-
-            $width = intval($size[0]);
-
-            if (count($size) == 2) {
-                $height = intval($size[1]);
-            }
+        if (strpos($candidateUrl, '?')) {
+            $ns = substr($candidateUrl, 0, strpos($candidateUrl, '?'));
+        } else {
+            $ns = $candidateUrl;
         }
+
 
         // eliminem els posibles paràmetres
         $queryPos = strpos($candidateUrl, '?');
