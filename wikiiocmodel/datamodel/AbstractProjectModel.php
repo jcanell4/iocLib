@@ -35,6 +35,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getId(){
         return $this->id;
     }
+    
+    public function getDokuPageModel(){
+        return $this->dokuPageModel;
+    }
 
     public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
         if(is_array($params)){
@@ -443,14 +447,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $base_dir = implode("/", $base_dir);
 
         $this->projectMetaDataQuery->renameDirNames($base_dir, $old_name, $new_name);
-        $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, ".zip");
         $this->projectMetaDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name);
-        $this->projectMetaDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathInACLFile($old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
+        $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->listGeneratedFilesByRender($base_dir, $old_name));
+        $this->projectMetaDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name);
 
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
-        $this->setProjectId($new_ns);
+        $this->setProjectId($new_ns);;
     }
 
     /**
@@ -816,7 +820,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $ret;
     }
 
-    public function createTemplateDocument($data){
+    public function createTemplateDocument($data=NULL){
         //NO HI HA TEMPLATES A CREAR
     }
 

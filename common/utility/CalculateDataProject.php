@@ -15,12 +15,9 @@ class CalculateDataProject extends CalculateWithPersistence{
 
         if (!$ret) {
             $components = explode("#", $data["field"]);
-            $field = array_shift($components);
-            $ret = $values[$field];
-            if ($ret) {
-                foreach ($components as $field) {
-                    $ret = $ret[$field];
-                }
+            $ret = $values;
+            foreach ($components as $field) {
+                $ret = $ret[$field];
             }
         }
 
