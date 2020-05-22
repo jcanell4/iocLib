@@ -59,6 +59,18 @@ class CommonUpgrader {
     }
 
     /**
+     * Añade un nuevo campo (y su valor)
+     * @param array $data : array de datos original
+     * @param string $newkey : clave a añadir
+     * @param mixed $newvalue : valor de la clave añadida
+     * @return array de datos con la nueva clave añadida
+     */
+    public function addNewField($data, $newkey, $newvalue) {
+        $data[$newkey] = $newvalue;
+        return $data;
+    }
+
+    /**
      * Añade un nuevo campo (y su valor) a todos los registros de un multirregistro
      * @param array $data : array de datos original
      * @param string $row : clave del multirregistro
@@ -283,7 +295,7 @@ class CommonUpgrader {
         foreach ($aTokens as $tok) {
             $m = ($tok['modif']) ? $tok['modif'] : "";
             $t = "/".$tok['regexp']."/$m";
-            if (preg_match($t, $doc, $stmp) === 1) {
+            if (preg_match($t, $ret, $stmp) === 1) {
                 $s = ($tok['pos']===0) ? $tok['text'].$stmp[0] : $stmp[0].$tok['text'];
                 $ret = preg_replace($t, $s, $ret);
             }
