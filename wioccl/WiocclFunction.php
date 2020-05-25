@@ -544,7 +544,7 @@ class WiocclFunction extends WiocclInstruction
      * Obté la suma dels camps $camp de: tota la $taula o només la fila indicada pel filtre
      * @param array $taula : taula a evaluar (array de arrays hash)
      * @param string $camp : camp de la taula que he de sumar
-     * @param type $filter_field : camp de la taula que indica el filtre
+     * @param string $filter_field : camp de la taula que indica el filtre
      * @param type $filter_value : valor del filtre que cal comparar
      * @return numeric : suma total de los valores del campo $camp
      */
@@ -553,7 +553,7 @@ class WiocclFunction extends WiocclInstruction
         if (!empty($taula)) {
             if ($filter_field !== NULL && $filter_value !== NULL) {
                 foreach ($taula as $fila) {
-                    if ($fila[$filter_field] === $filter_value) {
+                    if ($fila[$filter_field] == $filter_value) {
                         $suma += $fila[$camp];
                     }
                 }
