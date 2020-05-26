@@ -2,8 +2,6 @@
 require_once "DW2HtmlParser.php";
 
 if (!defined('DOKU_INC')) define('DOKU_INC', realpath(dirname(__FILE__) . "/../../") . '/');
-if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC . "lib/lib_ioc/");
-require_once DOKU_LIB_IOC . "common/SharedConstants.php";
 
 
 class DW2HtmlMedia extends DW2HtmlImage {
