@@ -23,6 +23,13 @@ class DW2HtmlParser extends IocParser {
 //        '/\n/' // No es poden eliminar els salts perquè son imprescindibles per determinar el final dels contenidors/paràgraphs
     ];
 
+    protected static function getVideoOrigin() {
+        echo implode('|', array_keys(SharedConstants::ONLINE_VIDEO_CONFIG['origins']));
+
+        return implode('|', array_keys(SharedConstants::ONLINE_VIDEO_CONFIG['origins']));
+    }
+
+
     protected static $tokenPatterns = [
         // Elements de block
 
@@ -48,7 +55,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'gif'
         ],
 
-        "{{(?:vimeo|youtube|dailymotion|altamarVideos)>.*?}}" => [
+        "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>.*?}}" => [
             'state' => 'video'
         ],
 
@@ -132,7 +139,7 @@ class DW2HtmlParser extends IocParser {
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [
 
-        "{{(?:vimeo|youtube|dailymotion|altamarVideos)>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+        "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],

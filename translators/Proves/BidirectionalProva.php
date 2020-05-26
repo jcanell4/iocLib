@@ -24,6 +24,15 @@ $input = file_get_contents('original.dw');
 global $conf;
 
 
+// Malauradament això no és pot fer servir, cal que la llista d'origens sigui una variable estàtica perquè s'ha de fer servir com a clau i PHP no ho admet.
+
+//echo implode("|", array_keys(SharedConstants::ONLINE_VIDEO_CONFIG['origins']));
+
+//
+//echo implode("|", array_keys($ONLINE_VIDEO_CONFIG['origins']));
+//
+//exit;
+
 
 
 $outputHtml = DW2HtmlParser::getValue($input);

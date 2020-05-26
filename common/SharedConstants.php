@@ -7,6 +7,9 @@
 
 class SharedConstants {
 
+    // Malauradament no es pot generar dinàmicament perquè necessitem fer servir aquest valor com a claur d'un array static
+    const ONLINE_VIDEO_PARTIAL_PATTERN = 'vimeo|youtube|dailymotion';
+
     const ONLINE_VIDEO_CONFIG = [
         'origins' => [
             'vimeo' => [
