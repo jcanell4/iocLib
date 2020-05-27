@@ -19,7 +19,8 @@ class DokuPageModel extends WikiRenderizableDataModel {
 
     public function __construct($persistenceEngine) {
         parent::__construct($persistenceEngine);
-        $this->pageDataQuery = $persistenceEngine->createPageDataQuery();
+        //[NOTA: Rafa] Ya Está en AbstractWikiDataModel
+        //$this->pageDataQuery = $persistenceEngine->createPageDataQuery();
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->resourceLocker = new ResourceLocker($persistenceEngine);

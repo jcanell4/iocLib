@@ -29,7 +29,7 @@ class SavePageAction extends RawPageAction {
     protected function runProcess(){
         global $ACT;
 
-        if ($this->params[PageKeys::KEY_DO]===PageKeys::DW_ACT_SAVE && !WikiIocInfoManager::getInfo("exists")) {
+        if ($this->params[PageKeys::KEY_DO]===PageKeys::DW_ACT_SAVE && !WikiIocInfoManager::getInfo(WikiIocInfoManager::KEY_EXISTS)) {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
 

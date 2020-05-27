@@ -72,7 +72,7 @@ class CancelEditPageAction extends RenderedPageAction {
             $this->leaveResource(TRUE);
         }
 
-        if (!WikiIocInfoManager::getInfo("exists")) {
+        if (!WikiIocInfoManager::getInfo(WikiIocInfoManager::KEY_EXISTS)) {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
     }

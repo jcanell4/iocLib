@@ -22,7 +22,7 @@ class PrintPageAction extends PageAction{
     }
 
     protected function runProcess() {
-        if (!WikiIocInfoManager::getInfo("exists")) {
+        if (!WikiIocInfoManager::getInfo(WikiIocInfoManager::KEY_EXISTS)) {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID], 'pageNotFound');
         }
         if (!WikiIocInfoManager::getInfo("perm")) {

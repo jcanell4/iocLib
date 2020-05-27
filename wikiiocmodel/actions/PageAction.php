@@ -22,7 +22,8 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
     }
 
     protected function instantiateModel() {
-        switch ($this->params['format']){
+        $type = isset($this->params['format']) ? $this->params['format'] : "";
+        switch ($type) {
             case 'html':
                 return new HtmlPageModel($this->persistenceEngine);
             default:
