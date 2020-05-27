@@ -77,6 +77,27 @@ class InsufficientPermissionToCommandProjectException extends WikiIocProjectExce
     }
 }
 
+class InvalidDataProjectException extends WikiIocProjectException{
+    private $details;
+    public function __construct($nsProject, $details, $message='InvalidDataProjectException', $code=7213) {
+        parent::__construct($message, $code, $nsProject, NULL, 'projectException');
+        $this->details = $details;
+    }
+    
+    public function getDetails(){
+        $ret="";
+        if(isset($this->details)){
+            $tdet = strtoupper(WikiIocLangManager::getLang("details"))+":\n";
+            $ret = $tdet + $this->details;
+        }
+        return $ret;
+    }
+    
+    public function getMessage(){
+        return parent::getMessage() + $this->getDetails();
+    }
+}
+
 class MissingGroupFormBuilderException extends WikiIocProjectException {
     public function __construct($page='', $message='MissingGroupFormBuilder', $code=7301) {
         parent::__construct($message, $code, $page, NULL, 'projectException');

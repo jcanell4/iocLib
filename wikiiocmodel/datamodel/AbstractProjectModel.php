@@ -637,6 +637,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
+    
+    /**
+     * Permet fer validació de les dades que es volen emmagatzmar. En cas de 
+     * dades no vàlides aquest mètode ha de llançar una excepció de tipus 
+     * InvalidDataProjectException.
+     * @param type $data
+     */
+    public function validateFields($data=NULL){
+        // A implementar a les subclasses, per defecte no es fa res
+    }
 
     public function getDraft($peticio=NULL) {
         //un draft distinto por cada subset de un proyecto (mismo id para todo el proyecto)

@@ -21,6 +21,7 @@ class BasicSetProjectMetaDataAction extends ProjectMetadataAction {
 
             $metaDataValues = $this->netejaKeysFormulari($this->params);
             $metaDataValues = $this->donaEstructuraALesDadesPlanes($metaDataValues, $model->getMetaDataAnyAttr());
+            $model->validateFields($metaDataValues);//valida les dades i llença excepció si cal
             if (!$model->validaNom($metaDataValues['autor']))
                 throw new UnknownUserException($metaDataValues['autor']." (indicat al camp 'autor') ");
             if (!$model->validaNom($metaDataValues['responsable']))
