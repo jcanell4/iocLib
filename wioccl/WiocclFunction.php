@@ -257,9 +257,10 @@ class WiocclFunction extends WiocclInstruction
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
-    protected function ARRAY_LENGTH($array)
-    {
-        if(!is_array($array)){
+    protected function ARRAY_LENGTH($array=NULL) {
+        if ($array===NULL) {
+            return 0;
+        }elseif (!is_array($array)){
             return "[ERROR! paràmetres incorrectes ARRAY_LENGTH($array)]"; //TODO: internacionalitzar
         }
         return count($array);
