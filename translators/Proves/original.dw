@@ -188,3 +188,14 @@ Prova gifs: {{iocgif>ruta_ns:archivo.gif?150|título}}
 Prova gifs: {{iocgif>ruta_ns:archivo.gif?large|título}}
 
 Prova media: {{vimeo>https://vimeo.com/176576698?large|title}}
+
+<newcontent>
+PROBLEMA: es crida al isClosing i això provoca el unimplemented, però al sound no passa, perqué??
+</newcontent>
+
+<newcontent>
+::example:
+  :title:ee
+Incloure exemples
+:::
+</newcontent>

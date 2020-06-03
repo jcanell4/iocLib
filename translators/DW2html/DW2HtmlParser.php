@@ -33,6 +33,9 @@ class DW2HtmlParser extends IocParser {
     protected static $tokenPatterns = [
         // Elements de block
 
+        "<newcontent>(.*?)<\/newcontent>" => [
+            'state' => 'newcontent',
+        ],
 
         "^----\n" => [
             'state' => 'hr',
@@ -138,6 +141,8 @@ class DW2HtmlParser extends IocParser {
 
     // ALERTA! La key es un string, no una expresió regular
     protected static $tokenKey = [
+
+        "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'DW2HtmlNewContent', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
