@@ -120,7 +120,7 @@ class DW2HtmlInstruction extends IocInstruction {
         switch ($action) {
             case 'content':
 
-                if (!$top) {
+                if (!$top || $top['state'] == 'newcontent') {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);

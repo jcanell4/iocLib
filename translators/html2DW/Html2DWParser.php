@@ -12,13 +12,12 @@ class Html2DWParser extends IocParser {
 
     ];
 
+    public static $forceReplacements = [];
+
     protected static $tokenPatterns = [
 
-        '<newcontent>' => [
-            'state' => 'open_newcontent',
-        ],
-        '<\/newcontent>' => [
-            'state' => 'close_newcontent',
+        "<newcontent>.*?<\/newcontent>" => [
+            'state' => 'newcontent',
         ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
@@ -176,11 +175,8 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenKey = [
 
-        '<newcontent>' => ['state' => 'open_newcontent', 'type' => 'newcontent', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<newcontent>\n", "\n</newcontent>\n"], 'regex' => TRUE]],
-        '</newcontent>' => ['state' => 'close_newcontent', 'type' => 'newcontent', 'class' => 'Html2DWMarkup', 'action' => 'close'],
 
-        /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
-
+        "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'Html2DWNewContent', 'action' => 'self-contained', 'extra' => ['replacement' => ["<newcontent>", "</newcontent>"], 'regex' => TRUE]],
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -297,7 +293,14 @@ class Html2DWParser extends IocParser {
 //        return $tokens;
 //    }
 
+
+    // @override
+
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+
+        foreach (static::$forceReplacements as $pattern => $replacementValue) {
+            $text = preg_replace($pattern, $replacementValue, $text);
+        }
 
         $value = parent::getValue($text, $arrays, $dataSource, $resetables);
 

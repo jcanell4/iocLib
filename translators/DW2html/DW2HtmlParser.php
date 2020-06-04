@@ -13,8 +13,10 @@ class DW2HtmlParser extends IocParser {
     // processaments portats a terme.
 
     public static $forceReplacements = [
-        '/\\\\\\\\ /ms' => '<br />',
+        "/\\\\\\\\ /ms" => '<br />',
         "/\\\\\\\\\n/ms" => '<br />',
+        // Alerta, encara que sembla el mateix un espai es ASCII 32 i l'altre es ASCII 160
+        "/^[  ]+\n/ms" => "\n",
     ];
 
     public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>"], 'regex' => TRUE, 'block' => TRUE]];
