@@ -176,7 +176,7 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenKey = [
 
-        '<newcontent>' => ['state' => 'open_newcontent', 'type' => 'newcontent', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<newcontent>\n", "\n</newcontent>\n"], 'regex' => TRUE, 'trim' => TRUE]],
+        '<newcontent>' => ['state' => 'open_newcontent', 'type' => 'newcontent', 'class' => 'Html2DWMarkup', 'action' => 'open', 'extra' => ['replacement' => ["<newcontent>\n", "\n</newcontent>\n"], 'regex' => TRUE]],
         '</newcontent>' => ['state' => 'close_newcontent', 'type' => 'newcontent', 'class' => 'Html2DWMarkup', 'action' => 'close'],
 
         /*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
