@@ -191,12 +191,10 @@ class IocCommon {
 
             $ret = TRUE;
             if (file_exists($directory)) {
-                if (!rmdir($directory)) {
-                    $ret = FALSE;
-                }
+                $ret = rmdir($directory);
             }
-            return $ret;
         }
+        return $ret;
     }
 
     public static function countRevisions($id, $media=false){
