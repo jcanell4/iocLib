@@ -39,7 +39,7 @@ class PreviewAction extends DokuAction{
     protected function runProcess(){
 
         $text = $this->params[PageKeys::KEY_TEXT];
-        if ($this->params['contentFormat'] === UserStateKeys::KEY_DOJO) {
+        if ($this->params['editorType'] === UserStateKeys::KEY_DOJO) {
             $text = Html2DWParser::getValue($text);
         }
 

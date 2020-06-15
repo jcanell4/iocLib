@@ -129,7 +129,7 @@ class RawPageAction extends EditPageAction {
 
 //        $response['format'] = $this->dokuPageModel->format;
         $response['format'] = $this->getEditorForContent();
-//        $response['format'] = isset($this->params['contentFormat']) ? $this->params['contentFormat'] : $this->dokuPageModel->format;
+//        $response['format'] = isset($this->params['editorType']) ? $this->params['editorType'] : $this->dokuPageModel->format;
 
         return $response;
     }
@@ -139,8 +139,8 @@ class RawPageAction extends EditPageAction {
         // Si el tipus es HTML es força
         if ($this->dokuPageModel->GetFormat() === "HTML") {
             return self::DOJO_EDITOR;
-        } else if ($this->params['contentFormat']) {
-            return $this->params['contentFormat'];
+        } else if ($this->params['editorType']) {
+            return $this->params['editorType'];
         } else {
             return self::ACE_EDITOR;
         }
@@ -289,7 +289,7 @@ class RawPageAction extends EditPageAction {
         $resp['content'] = $rawData['content'];
 
         // TODO s'ha de discriminar quan el $rawData ja és html
-        if (strtoupper($this->params['contentFormat']) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
+        if (strtoupper($this->params['editorType']) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
             $resp['content'] = $this->translateToHTML($resp['content']);
         }
         $resp['locked'] = $rawData['locked'];
