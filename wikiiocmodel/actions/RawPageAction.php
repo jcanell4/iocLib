@@ -6,20 +6,19 @@
 if (!defined("DOKU_INC")) die();
 
 class RawPageAction extends EditPageAction {
-    const HTML_FORMAT = "DOJO";
-    const DW_FORMAT = "ACE";
+    const DOJO_EDITOR = "DOJO";
+    const ACE_EDITOR = "ACE";
 
     protected $lockStruct;
 
-    public function init($modelManager=NULL) {
+    public function init($modelManager = NULL) {
         parent::init($modelManager);
         $this->defaultDo = PageKeys::DW_ACT_EDIT;
         //Indica que la resposta es renderitza i caldrà llançar l'esdeveniment quan calgui
         $this->setRenderer(TRUE);
     }
 
-    protected function startProcess()
-    {
+    protected function startProcess() {
         if ($this->params[PageKeys::KEY_DO] === PageKeys::KEY_TO_REQUIRE) {
             $this->params[PageKeys::KEY_TO_REQUIRE] = TRUE;
         } else if ($this->params[PageKeys::KEY_DO] === PageKeys::KEY_RECOVER_LOCAL_DRAFT) {
@@ -77,18 +76,15 @@ class RawPageAction extends EditPageAction {
             $response = $this->_getLocalDraftResponse();
             //enviar el contingut actual i determinar si hi ha canvis a l'esborrany
             $response['content'] = $this->getModel()->getRawData()['content'];
-        }
-        elseif ($this->lockState() === LockDataQuery::LOCKED_BEFORE) {
+        } elseif ($this->lockState() === LockDataQuery::LOCKED_BEFORE) {
             //1) L'usuari té obert el document en una altra sessió
             $response = $this->_getSelfLockedDialog($this->getModel()->getRawData());
-        }
-        elseif ($this->params[PageKeys::KEY_RECOVER_DRAFT]) {
+        } elseif ($this->params[PageKeys::KEY_RECOVER_DRAFT]) {
             //(2) Es demana recuperar el draft
             $response = $this->_getDraftResponse();
             //enviar el contingut actual i determinar si hi ha canvis a l'esborrany
             $response['content'] = $this->getModel()->getRawData()['content'];
-        }
-        else {
+        } else {
             $rawData = $this->getModel()->getRawData();
             $rawData['draftType'] = $this->_getDraftType($rawData['draftType']);
             //(3) No hi ha draft
@@ -132,9 +128,23 @@ class RawPageAction extends EditPageAction {
         }
 
 //        $response['format'] = $this->dokuPageModel->format;
-        $response['format'] = isset($this->params['contentFormat']) ? $this->params['contentFormat'] : $this->dokuPageModel->format;
+        $response['format'] = $this->getEditorForContent();
+//        $response['format'] = isset($this->params['contentFormat']) ? $this->params['contentFormat'] : $this->dokuPageModel->format;
 
         return $response;
+    }
+
+    protected function getEditorForContent() {
+
+        // Si el tipus es HTML es força
+        if ($this->dokuPageModel->GetFormat() === "HTML") {
+            return self::DOJO_EDITOR;
+        } else if ($this->params['contentFormat']) {
+            return $this->params['contentFormat'];
+        } else {
+            return self::ACE_EDITOR;
+        }
+
     }
 
     private function _cleanResponse($text) {
@@ -200,10 +210,10 @@ class RawPageAction extends EditPageAction {
 
         $metaId = $id . '_metaEditForm';
         $response['meta'] = [($this->getCommonPage($metaId,
-                              WikiIocLangManager::getLang('metaEditForm'),
-                              $meta)
-                             + ['type' => 'summary']
-                            )];
+                WikiIocLangManager::getLang('metaEditForm'),
+                $meta)
+            + ['type' => 'summary']
+        )];
 
         $response['htmlForm'] = $text;
 
@@ -215,20 +225,19 @@ class RawPageAction extends EditPageAction {
         return $response;
     }
 
-    protected function translateToDW($text){
+    protected function translateToDW($text) {
         return Hmtl2DWTranslator::translate($text);
 
     }
 
-    protected function translateToHTML($text){
+    protected function translateToHTML($text) {
 
 
         return DW2HtmlTranslator::translate($text);
 
     }
 
-    private function _getLocalDraftResponse()
-    {
+    private function _getLocalDraftResponse() {
         if ($this->lockState() == self::REQUIRED) {
             //No ha de ser possible aquest cas. LLancem excepció si arriba aquí.
             throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
@@ -251,8 +260,7 @@ class RawPageAction extends EditPageAction {
         return $this->lockStruct['state'];
     }
 
-    private function _getDraftResponse()
-    {
+    private function _getDraftResponse() {
         if (!$this->dokuPageModel->hasDraft()) {
             throw new DraftNotFoundException($this->params[PageKeys::KEY_ID]);
         }
@@ -275,22 +283,20 @@ class RawPageAction extends EditPageAction {
         return $resp;
     }
 
-    private function _getRawDataContent($rawData)
-    {
+    private function _getRawDataContent($rawData) {
         $resp = $this->_getBaseDataToSend();
         $resp = array_merge($resp, $this->_getStructuredHtmlForm($rawData['content']));
         $resp['content'] = $rawData['content'];
 
         // TODO s'ha de discriminar quan el $rawData ja és html
-        if (strtoupper($this->params['contentFormat']) === self::HTML_FORMAT && strtoupper($this->dokuPageModel->format) != 'HTML'){
+        if (strtoupper($this->params['contentFormat']) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
             $resp['content'] = $this->translateToHTML($resp['content']);
         }
         $resp['locked'] = $rawData['locked'];
         return $resp;
     }
 
-    private function _getStructuredHtmlForm($ptext)
-    {
+    private function _getStructuredHtmlForm($ptext) {
         global $DATE;
         global $SUM;
         global $TEXT;
@@ -310,8 +316,7 @@ class RawPageAction extends EditPageAction {
         return $this->_cleanResponse($form);
     }
 
-    private function _getLocalDraftDialog($rawData)
-    {
+    private function _getLocalDraftDialog($rawData) {
         $resp = $this->_getRawDataContent($rawData);
         $resp['type'] = "full_document";
         $resp['local'] = TRUE;
@@ -321,8 +326,7 @@ class RawPageAction extends EditPageAction {
         return $resp;
     }
 
-    private function _getDraftDialog($rawData)
-    {
+    private function _getDraftDialog($rawData) {
         $resp = $this->_getLocalDraftDialog($rawData);
         $resp['draft'] = $this->dokuPageModel->getFullDraft();
         $resp['local'] = FALSE;
@@ -330,8 +334,7 @@ class RawPageAction extends EditPageAction {
         return $resp;
     }
 
-    private function _getWaitingUnlockDialog($rawData)
-    {
+    private function _getWaitingUnlockDialog($rawData) {
         $resp = $this->_getBaseDataToSend();
         //TODO [Josep] Cal implementar quan estigui fet el sistema de diàlegs al client.
         //Aquí caldrà avisar que no és possible editar l'esborrany perquè hi ha algú editant prèviament el document
@@ -339,8 +342,7 @@ class RawPageAction extends EditPageAction {
         return $resp;
     }
 
-    private function _getSelfLockedDialog($rawData)
-    {
+    private function _getSelfLockedDialog($rawData) {
         $resp = $this->_getRawDataContent($rawData);
         $resp['locked_before'] = true;
 

@@ -7,7 +7,11 @@ if (!defined("DOKU_INC")) die();
 
 abstract class WikiRenderizableDataModel extends AbstractWikiDataModel{
 
-    public $format;
+    protected $format;
+
+    public function getFormat() {
+        return $this->format;
+    }
 
     //JOSEP: Això és necessari per poder passar a l'AbstractWikiDataModel el paràmetre del cosntructor!
     public function __construct($persistenceEngine){

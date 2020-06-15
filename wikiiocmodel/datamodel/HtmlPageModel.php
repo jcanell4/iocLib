@@ -17,14 +17,14 @@ class HtmlPageModel extends WikiRenderizableDataModel {
     protected $lockDataQuery;
     protected $resourceLocker;  //El $resourceLocker se ha trasladado desde los Actions hasta aquí. Cal revisar los Actions
 
-    public $format = 'html';
-
     public function __construct($persistenceEngine) {
         parent::__construct($persistenceEngine);
         $this->pageDataQuery = $persistenceEngine->createPageDataQuery();
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->resourceLocker = new ResourceLocker($persistenceEngine);
+
+        $this->format = 'HTML';
     }
 
     public function init($id, $editing=NULL, $selected=NULL, $rev=NULL) {
