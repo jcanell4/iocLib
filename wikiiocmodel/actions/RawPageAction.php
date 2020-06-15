@@ -127,9 +127,7 @@ class RawPageAction extends EditPageAction {
             $this->addRevisionSuffixIdToArray($response['meta']);
         }
 
-//        $response['format'] = $this->dokuPageModel->format;
-        $response['format'] = $this->getEditorForContent();
-//        $response['format'] = isset($this->params['editorType']) ? $this->params['editorType'] : $this->dokuPageModel->format;
+        $response['editorType'] = $this->getEditorForContent();
 
         return $response;
     }
