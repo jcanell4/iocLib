@@ -12,7 +12,13 @@ class Html2DWParser extends IocParser {
 
     ];
 
+    public static $forceReplacements = [];
+
     protected static $tokenPatterns = [
+
+        "<newcontent>.*?<\/newcontent>" => [
+            'state' => 'newcontent',
+        ],
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
@@ -25,13 +31,13 @@ class Html2DWParser extends IocParser {
 
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-box però els navegadors reordenan els atributs i posen primer el class si existeix
         '<div class="ioc(?:table|figure).*?" data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [
-/*        '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [*/
+            /*        '<div(?: class=".*?")? data-dw-box=.*?>\n?<div.*?iocinfo.*?>.*?<\/div>\n?.*?<\/div>' => [*/
             'state' => 'box',
         ],
 
 
         '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [
-/*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
+            /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
             'state' => 'box-text',
         ],
 
@@ -65,10 +71,6 @@ class Html2DWParser extends IocParser {
 //        ],
 
 
-
-
-
-
         '<b ?.*?>' => [
             'state' => 'open_bold',
         ],
@@ -96,10 +98,9 @@ class Html2DWParser extends IocParser {
             'state' => 'monospace',
         ],
 
-/*        '<div class="ioc-comment-block" data-ioc-comment=".*?".*?>(.*?)<\/div data-ioc-comment="">' => [*/
+        /*        '<div class="ioc-comment-block" data-ioc-comment=".*?".*?>(.*?)<\/div data-ioc-comment="">' => [*/
 //            'state' => 'note',
 //        ],
-
 
 
         '<h1.*?>' => [
@@ -175,9 +176,7 @@ class Html2DWParser extends IocParser {
     protected static $tokenKey = [
 
 
-/*        '<div class="ioc-comment-block".*?>(.*?)<\/div data-ioc-comment="">' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>\n", "\n</note>"], 'regex' => TRUE]],*/
-
-
+        "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'Html2DWNewContent', 'action' => 'self-contained', 'extra' => ['replacement' => ["<newcontent>", "</newcontent>"], 'regex' => TRUE]],
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -194,7 +193,7 @@ class Html2DWParser extends IocParser {
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement'=> ["<note>", "</note>"], 'regex' => TRUE]],
+        '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement' => ["<note>", "</note>"], 'regex' => TRUE]],
 
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
@@ -206,7 +205,6 @@ class Html2DWParser extends IocParser {
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
-
 
 
         // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
@@ -237,7 +235,6 @@ class Html2DWParser extends IocParser {
         '&nbsp;' => ['state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => " "]],
 
 
-
         '<li>' => ['state' => 'list-item', 'type' => 'li', 'class' => 'Html2DWListItem', 'action' => 'open', 'extra' => ['replacement' => "", 'regex' => TRUE]],
         "</li>" => ['state' => 'list-item', 'type' => 'li', 'action' => 'close'],
 
@@ -247,7 +244,6 @@ class Html2DWParser extends IocParser {
 
         '<ol.*?>' => ['state' => 'list', 'type' => 'ol', 'class' => 'Html2DWList', 'action' => 'open', 'extra' => ['container' => 'ol', 'regex' => TRUE]],
         '</ol>' => ['state' => 'list', 'type' => 'ol', 'action' => 'close'],
-
 
 
         '<img' => ['state' => 'image', 'type' => 'image', 'class' => 'Html2DWImage', 'action' => 'self-contained', 'extra' => ['replacement' => ['{{', '}}']]],
@@ -297,7 +293,14 @@ class Html2DWParser extends IocParser {
 //        return $tokens;
 //    }
 
+
+    // @override
+
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
+
+        foreach (static::$forceReplacements as $pattern => $replacementValue) {
+            $text = preg_replace($pattern, $replacementValue, $text);
+        }
 
         $value = parent::getValue($text, $arrays, $dataSource, $resetables);
 

@@ -1,153 +1,35 @@
+<newcontent>
 ::figure:aaa
   :title:bbb
   :footer:ccc
 {{:0xb6mp.jpg|}}
 :::
+</newcontent>
 
+<newcontent>
 {{soundcloud>89584381:clau}}
+</newcontent>
 
-::text:
-  :title: títol text
-Incloure la sintaxis de text
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-::text:
-  :title: títol text llarg
-  :large:
-Incloure la sintaxis de text large
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-::example:
-  :title: títol example
-Incloure la sintaxis d'example
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-::note:
-Incloure la sintaxis de note
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-::reference:
-Incloure la sintaxis de reference
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-
-::important:
-Incloure la sintaxis de'important
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-::quote:
-Incloure la sintaxis de quote
-
-Paràgraf 2
-
-Paràgraf 3
-
-Paràgraf 4
-:::
-
-
-
-
-:figure:aaa:
-
-::table:Identificador
-  :title:Introdueix un títol
-  :type:pt_taula
-  :footer: un peu
-| -- | -- |
-^ Primer | -- |
-| -- ^ segon |
-| -- | tercer ^
-^ dos ^ -- |
-| -- ^ dos ^
-^ tots ^ tots ^
-:::
-p1
-p2
-p3
-----
-**negreta** __subratllat__ //cursiva//
-
-//cursiva// **negreta** __subratllat__
-
-__subratllat__ **negreta** //cursiva//
-
-test (paràgraf que no comença amb canvi d'estat) **negreta** //cursiva// __subratllat__
-
-----
-
-__subratllat__
-
-<del>taxat</del>
-======h1======
-foo bar
-=====h2=====
-====h3====
-===h4===
-==h5==
-
-''test 2: code inline que ocupa tota la línia'' amb text final (això funciona)
-
-''test 2: code inline que ocupa tota la línia, això no''
-
-----
-Un paràgraf amb ''code inline això no s'ha de **processar**'' escapat?.
-
+<newcontent>
 <code java>
 block de codi
 en dos línies
 </code>
+</newcontent>
 
 
-
-PARAGRAPH
-
-
-
-
+<newcontent>
 <file>
 block de file
 en dos línies
 </file>
-----
+</newcontent>
+
+<newcontent>
 Un altre paràgraf.
-----
+</newcontent>
+
+<newcontent>
   * Item 1 **negreta**
   * Item 2
     * Subitem 2.1
@@ -162,11 +44,9 @@ Un altre paràgraf.
         * Subitem 3.2.2.2 [[https://google.com#ancla|enllaç extern]]  [[pt-loe:loe1:continguts|enllaç intern]] **negreta**.
         * Subitem 3.2.2.3
 
-Últim paràgraf.
+</newcontent>
 
-
-----
-
+<newcontent>
 ::table:T01
   :title:Eines d'aprenentatge
   :type:pt_taula
@@ -179,12 +59,109 @@ Un altre paràgraf.
 |||||
 | --- | @@@ | **aaa** bb ### | ... |
 :::
+</newcontent>
 
-  * ara dins d'una llista <note>Aquest és un exemple de nota contextual com les que fem servir per a la comunicació i resposta d'incidències.  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2013/07/30 15:04// Resposta A  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2005/07/30 15:04// Resposta B  --- //[[rogersegu@gmail.com|Roger Segú Cabrera (IOC)]] 2000/07/30 15:04//</note> amb continuació
-  * i un segon element de la llista
 
+<newcontent>
 Prova gifs: {{iocgif>ruta_ns:archivo.gif?150|título}}
+</newcontent>
 
+<newcontent>
 Prova gifs: {{iocgif>ruta_ns:archivo.gif?large|título}}
+</newcontent>
 
+<newcontent>
 Prova media: {{vimeo>https://vimeo.com/176576698?large|title}}
+</newcontent>
+
+<newcontent>
+PROBLEMA: es crida al isClosing i això provoca el unimplemented, però al sound no passa, perqué??
+</newcontent>
+
+<newcontent>
+::example:
+  :title:ee
+Incloure exemples
+:::
+</newcontent>
+
+
+<newcontent>
+::note:
+Incloure nota
+:::
+</newcontent>
+
+
+
+<newcontent>
+::text:
+  :title:llarg 1
+  :large:
+Incloure text complementari llarg
+:::
+</newcontent>
+
+
+
+<newcontent>
+::text:
+  :title:llarg 2
+  :large:
+Incloure text complementari llarg
+:::
+</newcontent>
+
+
+
+<newcontent>
+::note:
+Incloure nota
+:::
+</newcontent>
+
+
+
+<newcontent>
+::quote:
+Incloure citació
+:::
+</newcontent>
+
+
+
+<newcontent>
+::example:
+  :title:ex
+Incloure exemple
+:::
+</newcontent>
+
+<newcontent>
+{{iocgif>test:giphy-cat.gif|}} 
+</newcontent>
+ 
+<newcontent>
+[[www.facebook.com|www.facebook.com]]  \\
+</newcontent>
+
+<newcontent>
+::example:
+  :title:ee
+Incloure exemples
+:::
+</newcontent>
+
+
+
+<newcontent>
+dd [[minitest|minitest]] \\
+</newcontent>
+ 
+
+
+
+<newcontent>
+{{youtube>18i2RCB24Ws?small}}
+</newcontent>
+
