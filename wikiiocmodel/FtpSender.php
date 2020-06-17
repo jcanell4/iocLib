@@ -134,9 +134,9 @@ class FtpSender{
         if (@fwrite($stream, $data_to_send) === false)
             throw new Exception("Could not send data from file: $source$local_file.");
 
-        @fclose($stream);
+        $ret = fclose($stream);
         //Logger::debug("FtpSender::uploadFile-end", 0, __LINE__, "FtpSender.php", 1);
-        return TRUE;
+        return $ret;
     }
 
     private function connectSSH2() {
