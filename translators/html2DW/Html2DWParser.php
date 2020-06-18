@@ -20,6 +20,10 @@ class Html2DWParser extends IocParser {
             'state' => 'newcontent',
         ],
 
+        '<div>(<br ?\/>)*<\/div>' => [
+            'state' => 'paragraph',
+        ],
+
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
             'state' => 'image-lateral'
@@ -171,12 +175,19 @@ class Html2DWParser extends IocParser {
         ],
 
 
+
+
     ];
 
     protected static $tokenKey = [
 
 
         "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'Html2DWNewContent', 'action' => 'self-contained', 'extra' => ['replacement' => ["<newcontent>", "</newcontent>"], 'regex' => TRUE]],
+
+        "'<div>(<br ?\/>)*<\/div>'" => ['state' => 'paragraph', 'type' => 'paragraph', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
+
+
+
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
