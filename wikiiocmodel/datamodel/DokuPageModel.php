@@ -24,6 +24,8 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->resourceLocker = new ResourceLocker($persistenceEngine);
+
+        $this->format = "DW";
     }
 
     public function init($id, $editing=NULL, $selected=NULL, $rev=NULL) {

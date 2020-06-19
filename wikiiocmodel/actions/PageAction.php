@@ -22,6 +22,7 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
     }
 
     protected function instantiateModel() {
+        // ALERTA! Aquest format és correcte, pot ser html o wiki i determina el PageModel a utilitzar
         $type = isset($this->params['format']) ? $this->params['format'] : "";
         switch ($type) {
             case 'html':

@@ -327,7 +327,7 @@ class AjaxCmdResponseGenerator {
      * @param string $draft
      * @param string[] $editing - Editing params
      */
-    public function addWikiCodeDoc($id, $ns, $title, $content, $draft, $recover_drafts, $htmlForm, $editing, $timer, $rev = NULL, $autosaveTimer = NULL, $extra = NULL, $format= NULL)
+    public function addWikiCodeDoc($id, $ns, $title, $content, $draft, $recover_drafts, $htmlForm, $editing, $timer, $rev = NULL, $autosaveTimer = NULL, $extra = NULL, $editorType= NULL)
     {
         $contentData = [
             'id' => $id,
@@ -353,8 +353,8 @@ class AjaxCmdResponseGenerator {
             $contentData['extra'] = $extra;
         }
 
-        if ($format) {
-            $contentData['format'] = $format;
+        if ($editorType) {
+            $contentData['editorType'] = $editorType;
         }
 
         // ALERTA[Xavi] Pendent de determinar com s'ha d'obtenir aquest valor (del projecte)
@@ -378,7 +378,7 @@ class AjaxCmdResponseGenerator {
      * @param string[] $draft
      * @param string[] $editing - Editing params
      */
-    public function addRequiringDoc($id, $ns, $title, $action, $timer, $content, $type, $dialog = NULL)
+    public function addRequiringDoc($id, $ns, $title, $action, $timer, $content, $type, $editorType, $dialog = NULL)
     {
         $contentData = [
             'id' => $id,
@@ -388,6 +388,7 @@ class AjaxCmdResponseGenerator {
             'timer' => $timer,
             'content' => $content,
             'requiring_type' => $type,
+            'editorType' => $editorType,
         ];
         if ($dialog) {
             $contentData["dialog"] = $dialog;

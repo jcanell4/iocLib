@@ -134,7 +134,7 @@ class SavePageAction extends RawPageAction {
         $toSave = con($this->params[PageKeys::KEY_PRE],
                       $this->params[PageKeys::KEY_WIKITEXT],
                       $this->params[PageKeys::KEY_SUF], 1);
-        if (strtoupper($this->params["contentFormat"]) === self::HTML_FORMAT && strtoupper($this->dokuPageModel->format) !== 'HTML'){
+        if (strtoupper($this->params["editorType"]) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->getFormat()) !== 'HTML'){
             $toSave = $this->translateToDW($toSave);
         }
         $this->dokuPageModel->setData(array(
