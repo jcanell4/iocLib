@@ -567,7 +567,8 @@ class WiocclFunction extends WiocclInstruction
         return $suma;
     }
 
-    protected function GET_PERCENT ($suma, $valor, $redondeo=2) {
-        return ($suma > 0) ? round($valor / $suma * 100, $redondeo) : 0;
+    protected function GET_PERCENT ($suma=0, $valor=0, $redondeo=2) {
+        return ($suma > 0 && $valor > 0) ? round($valor / $suma * 100, $redondeo) : 0;
     }
 }
+
