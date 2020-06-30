@@ -24,9 +24,8 @@ class FtpSender{
 
     public function process() {
         //Codificar l'enviament de cada fitxer de la llista d'acord amb els seus paràmetres
-        //tractar les respostes a la variable $response per tal de poder informar del que
-        //ha passat duarnt la connexió
-        //Logger::debug("FtpSender::process", 0, __LINE__, "FtpSender.php", 1);
+        //tractar les respostes a la variable $response per tal de poder informar del que ha passat duarnt la connexió
+        //Logger::debug("FtpSender::process-INI", 0, __LINE__, "FtpSender.php", 1);
         $response=TRUE;
         foreach ($this->ftpObjectToSendList as $oFtp) {
             $action = $oFtp->getAction();
@@ -53,6 +52,7 @@ class FtpSender{
             }
         }
 
+        //Logger::debug("FtpSender::process-END: response: $response", 0, __LINE__, "FtpSender.php", 1);
         return $response;
     }
 
@@ -61,7 +61,7 @@ class FtpSender{
             //Logger::debug("FtpSender::remoteSSH2Copy-uploading file", 0, __LINE__, "FtpSender.php", 1);
             $ret = $this->uploadFile($local_file, $source, $remote_file, $remote_dir);
             $this->ssh2_disconnect($this->connection);
-            //Logger::debug("FtpSender::remoteSSH2Copy-uploaded", 0, __LINE__, "FtpSender.php", 1);
+            //Logger::debug("FtpSender::remoteSSH2Copy-ssh2_disconnect", 0, __LINE__, "FtpSender.php", 1);
             return $ret;
         }
     }
@@ -102,7 +102,7 @@ class FtpSender{
     }
 
     private function _iocUnzipAndFtpSend($source, $destination) {
-        //Logger::debug("FtpSender::_iocUnzipAndFtpSend-strating", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::_iocUnzipAndFtpSend-strating", 0, __LINE__, basename(__FILE__), 1);
         if (($dir = @opendir($source))) {
             $ret = TRUE;
             while ($file = readdir($dir)) {
@@ -119,23 +119,25 @@ class FtpSender{
     }
 
     private function uploadFile($local_file, $source, $remote_file, $remote_dir) {
-        //Logger::debug("FtpSender::uploadFile-start", 0, __LINE__, "FtpSender.php", 1);
-        $remote_dir = "/".trim($remote_dir,"/")."/";
-        ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
-
-        $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w');
-        if (! $stream)
-            throw new Exception("Could not open file: $remote_dir$remote_file");
+        //Logger::debug("FtpSender::uploadFile-start: $local_file", 0, __LINE__, basename(__FILE__), 1);
 
         $data_to_send = @file_get_contents("$source$local_file");
         if ($data_to_send === false)
             throw new Exception("Could not open local file: $source$local_file.");
 
+        $remote_dir = "/".trim($remote_dir,"/")."/";
+        ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
+
+        //$context = stream_context_create(['ssh2.sftp' => ['timeout' => 10.0]]);
+        $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w'); //, FALSE, $context);
+        if (! $stream)
+            throw new Exception("Could not open remote file: $remote_dir$remote_file");
+
         if (@fwrite($stream, $data_to_send) === false)
             throw new Exception("Could not send data from file: $source$local_file.");
 
         $ret = fclose($stream);
-        //Logger::debug("FtpSender::uploadFile-end", 0, __LINE__, "FtpSender.php", 1);
+        //Logger::debug("FtpSender::uploadFile-end: \$ret=$ret", 0, __LINE__, basename(__FILE__), 1);
         return $ret;
     }
 
@@ -146,6 +148,10 @@ class FtpSender{
         $user = $this->connectionData['sendftp_u'];
         $pass = $this->connectionData['sendftp_p'];
 
+        //$methods = ['hostkey' => 'ssh-rsa'];
+        //$callbacks = ['disconnect' => [$this, 'callback_ssh_disconnect']];
+        //$this->connection = ssh2_connect($host, $port, $methods, $callbacks);
+
         $this->connection = ssh2_connect($host, $port);
         if ($this->connection) {
             if (($ret = ssh2_auth_password($this->connection, $user, $pass))) {
@@ -155,11 +161,19 @@ class FtpSender{
         return $ret;
     }
 
+    // Notifica al usuario si el servidor ha terminado la conexión
+    public function callback_ssh_disconnect($reason, $message, $language) {
+        $message = sprintf("Servidor desconectado con el código [%d] y mensaje: %s\n", $reason, $message);
+        Logger::debug("FtpSender::my_ssh_disconnect: $message", 0, __LINE__, "FtpSender.php", 1);
+    }
+
     private function ssh2_disconnect(&$connection) {
         if (PHP_VERSION_ID < 70000) {
             unset($connection);
         }else{
-            ssh2_disconnect($connection);
+            //Verificar cual de los dos procedimientos produce realmente la desconexxión en PHP 7.x
+            unset($connection);
+            //ssh2_disconnect($connection);
         }
     }
 
