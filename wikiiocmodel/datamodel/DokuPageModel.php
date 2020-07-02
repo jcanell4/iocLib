@@ -551,13 +551,19 @@ class DokuPageModel extends WikiRenderizableDataModel {
     public function renameFolder($ns, $new_name) {
         $base_dir = explode(":", $ns);
         $old_name = array_pop($base_dir);
+        $ns = implode(":", $base_dir).":$new_name";
         $base_dir = implode("/", $base_dir);
 
-        $this->pageDataQuery->renameDirNames($base_dir, $old_name, $new_name);
-        $this->pageDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-        $this->pageDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-        $this->pageDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-        $this->pageDataQuery->changeOldPathInACLFile($old_name, $new_name);
+        if (file($base_dir/$new_name)) {
+            throw new Exception("Acció no permesa: el nom del directori ja existeix");
+        }else {
+            $this->pageDataQuery->renameDirNames($base_dir, $old_name, $new_name);
+            $this->pageDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name);
+            $this->pageDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->changeOldPathInACLFile($old_name, $new_name);
+        }
     }
 
     /**
