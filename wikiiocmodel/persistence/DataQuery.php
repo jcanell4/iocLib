@@ -203,21 +203,26 @@ abstract class DataQuery {
      * @param string $base_dir : directori wiki que està canviant de nom
      * @param string $old_name : antic nom del directori
      * @param string $new_name : nou nom del directori
+     * @throws Exception
      */
     public function addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name) {
         $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
         $path = WikiGlobalConfig::getConf($paths[0])."/$base_dir/$new_name";
         $attic = WikiGlobalConfig::getConf($paths[1])."/$base_dir/$new_name";
         if (@scandir($path)) {
-            $this->_addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name);
+            $ret = $this->_addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name);
+        }
+        if (is_string($ret)) {
+            throw new Exception("addLogEntryInRevisionFiles: Error mentre afegia nova entrada a l'arxiu .changes de $ret.");
         }
 
-        //$paths = ['mediadir' /*media*/, 'mediaolddir' /*media_attic*/];
-        //$path = WikiGlobalConfig::getConf('mediametadir')."/$base_dir/$new_name";
-        //$this->_addLogEntryInMediaRevisionFiles($ns, $path, ".changes");
+//        $path = WikiGlobalConfig::getConf('mediametadir')."/$base_dir/$new_name";
+//        $attic = WikiGlobalConfig::getConf('mediaolddir')."/$base_dir/$new_name";
+//        $this->_addLogEntryInMediaRevisionFiles($ns, $path, $attic, $old_name, $new_name, ".changes");
     }
 
     private function _addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name) {
+        $ret = "";
         $scan = @scandir($path);
         $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
@@ -236,7 +241,12 @@ abstract class DataQuery {
                         $time_rev = time();
                         $new_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${time_rev}$2.gz", $file);
                         $ret = system("cd $attic; ln -s $last_rev_name $new_rev_name"); //crea enlace simbólico
-                        addLogEntry($time_rev, $id, DOKU_CHANGE_TYPE_MINOR_EDIT, $summary);
+                        if ($ret === "") {
+                            addLogEntry($time_rev, $id, DOKU_CHANGE_TYPE_MINOR_EDIT, $summary);
+                        }else {
+                            $ret = "$path/$file";
+                            break;
+                        }
                     }else {
                         //generació forçada d'una revisió
                         $text = file_get_contents("$path/$file")."\n"; //els fitxers han de tenir algún canvi
@@ -245,36 +255,48 @@ abstract class DataQuery {
                 }
             }
         }
+        return ($ret === "");
     }
 
-//    private function _addLogEntryInMediaRevisionFiles($ns, $path, $old_name, $new_name, $type) {
+//    private function _addLogEntryInMediaRevisionFiles($ns, $path, $attic, $old_name, $new_name, $type) {
 //        global $conf;
+//        $ret = "";
 //        $scan = @scandir($path);
 //        $scan = array_diff($scan, [".", ".."]);
 //        if ($scan) {
 //            foreach ($scan as $file) {
 //                if (is_dir("$path/$file")) {
-//                    $this->_addLogEntryInRevisionFiles("$ns:$file", "$path/$file", $old_name, $new_name, $type);
+//                    $this->_addLogEntryInMediaRevisionFiles("$ns:$file", "$path/$file", "$attic/$file", $old_name, $new_name, $type);
 //                }elseif (substr($file, -8) === $type) {
 //                    $id = "$ns:".str_replace($type, "", $file);
-//                    $oldRev = getRevisions($id, -1, 1, 1024);
-//                    $oldRev = (int) (empty($oldRev) ? 0 : $oldRev[0]);
 //                    $summary = str_replace($new_name, $old_name, $ns);
-//                    //addLogEntry($oldRev, $id, DOKU_CHANGE_TYPE_MINOR_EDIT, "rename old_directory=$summary");
-//                    $logline = array(
-//                            'date'  => $oldRev,
-//                            'ip'    => clientIP(true),
-//                            'type'  => DOKU_CHANGE_TYPE_MINOR_EDIT,
-//                            'id'    => $id,
-//                            'user'  => $_SERVER['REMOTE_USER'],
-//                            'sum'   => "rename old_directory=$summary",
-//                            'extra' => ''
-//                            );
-//                    $logline = implode("\t", $logline)."\n";
-//                    io_saveFile($conf['changelog'], $logline, true);
+//                    $oldRev = getRevisions($id, -1, 1, 8192, TRUE);
+//                    $oldRev = (int) (empty($oldRev) ? 0 : $oldRev[0]);
+//                    $last_rev_name = preg_replace("/^(.*)(\..*)(".$type.")$/, "$1.${oldRev}$2", $file);
+//                    $time_rev = time();
+//                    $new_rev_name = preg_replace("/^(.*)(\..*)(".$type.")$/", "$1.${time_rev}$2", $file);
+//                    $ret = system("cd $attic; ln -s $last_rev_name $new_rev_name"); //crea enlace simbólico
+//                    if ($ret === "") {
+//                        $logline = array(
+//                                'date'  => $time_rev,
+//                                'ip'    => clientIP(true),
+//                                'type'  => DOKU_CHANGE_TYPE_MINOR_EDIT,
+//                                'id'    => $id,
+//                                'user'  => $_SERVER['REMOTE_USER'],
+//                                'sum'   => "rename old_directory=$summary",
+//                                'extra' => ''
+//                                );
+//                        $logline = implode("\t", $logline)."\n";
+//                        io_saveFile(metaFN($id, '.changes'), $logline, true); //page changelog
+//                        io_saveFile($conf['changelog'], $logline, true);      //global changelog cache
+//                     }else {
+//                        $ret = "$path/$file";
+//                        break;
+//                    }
 //                }
 //            }
 //        }
+//        return ($ret === "");
 //    }
 
     /**
