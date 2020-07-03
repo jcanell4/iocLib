@@ -554,7 +554,7 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $ns = implode(":", $base_dir).":$new_name";
         $base_dir = implode("/", $base_dir);
 
-        if (file($base_dir/$new_name)) {
+        if (is_dir("$base_dir/$new_name")) {
             throw new Exception("Acció no permesa: el nom del directori ja existeix");
         }else {
             $this->pageDataQuery->renameDirNames($base_dir, $old_name, $new_name);
