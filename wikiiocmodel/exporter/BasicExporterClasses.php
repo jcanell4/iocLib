@@ -431,7 +431,7 @@ class BasicStaticPdfRenderer {
         }*/
         else {
             $ret = static::getContent($content);
-            $iocTcPdf->writeHTML($ret, TRUE, FALSE);
+            self::_cleanWriteHTML($ret, $iocTcPdf);
         }
 
         if ($content["type"] == StructuredNodeDoc::ORDERED_LIST_TYPE
@@ -462,7 +462,7 @@ class BasicStaticPdfRenderer {
                 if ($content['title']) {
                     $ret .= "<p $center font-weight:bold;\">Figura ".self::$figureReferences[$content['id']].". ".$content['title']."</p>";
                 }
-                $iocTcPdf->writeHTML($ret, TRUE, FALSE);
+                self::_cleanWriteHTML($ret);
                 $ret = self::getFrameStructuredContent($content, $iocTcPdf);
                 if ($content['footer']) {
                     if ($content['title']) {
@@ -472,7 +472,7 @@ class BasicStaticPdfRenderer {
                     }
                 }
                 $ret .= "</div>";
-                $iocTcPdf->writeHTML($ret, TRUE, FALSE);
+                self::_cleanWriteHTML($ret);
                 break;
 
             default:
@@ -489,6 +489,28 @@ class BasicStaticPdfRenderer {
             $ret .= self::getFrameContent($content['content'][$i], $iocTcPdf);
         }
         return $ret;
+    }
+
+    /**
+     * Neteja de caracters indesitjables el text que s'envia a ser codificat com a PDF
+     * @param $content (string) text to convert
+     * @param $iocTcPdf (IocTcPdf)
+     * @param $ln (boolean) if true add a new line after text (default = true)
+     * @param $fill (boolean) Indicates if the background must be painted (true) or transparent (false).
+     * @param $reseth (boolean) if true reset the last cell height (default false).
+     * @param $cell (boolean) if true add the current left (or right for RTL) padding to each Write (default false).
+     * @param $align (string) Allows to center or align the text. Possible values are: L:left align - C:center - R:right align - empty:left for LTR or right for RTL
+     */
+    private static function _cleanWriteHTML($content, IocTcPdf &$iocTcPdf, $ln=TRUE, $fill=FALSE, $reseth=false, $cell=false, $align='') {
+        $c = 0;
+        $aSearch = ["/0xFF/", "/0xFEFF/"];
+        $aReplace = [" ", " "];
+        $m = preg_match($aSearch, $content, $c);
+        $content = preg_replace($aSearch, $aReplace, $content, -1, $c);
+        if ($c > 0) {
+            $content = str_replace($aSearch, $aReplace, $content);
+        }
+        $iocTcPdf->writeHTML($content, $ln, $fill, $reseth, $cell, $align);
     }
 
     private static function renderSmiley($content, IocTcPdf &$iocTcPdf) {
@@ -511,7 +533,7 @@ class BasicStaticPdfRenderer {
         //inserció del títol a sota de la imatge
         $center = "style=\"margin:auto; text-align:center;";
         $text = "<p $center font-size:80%;\">{$content['title']}</p>";
-        $iocTcPdf->writeHTML($text, TRUE, FALSE);
+        self::_cleanWriteHTML($text);
     }
 
     private static function setImageSize($imageFile, $w=NULL, $h=NULL) {
