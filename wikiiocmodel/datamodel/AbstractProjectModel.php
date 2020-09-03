@@ -35,7 +35,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getId(){
         return $this->id;
     }
-    
+
     public function getDokuPageModel(){
         return $this->dokuPageModel;
     }
@@ -448,7 +448,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
         $this->projectMetaDataQuery->renameDirNames($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name);
-        $this->projectMetaDataQuery->changeOldPathInACLFile($old_name, $new_name);
+        $this->projectMetaDataQuery->changeOldPathInACLFile($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
         $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->listGeneratedFilesByRender($base_dir, $old_name));
         $this->projectMetaDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name);
@@ -637,10 +637,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
-    
+
     /**
-     * Permet fer validació de les dades que es volen emmagatzmar. En cas de 
-     * dades no vàlides aquest mètode ha de llançar una excepció de tipus 
+     * Permet fer validació de les dades que es volen emmagatzmar. En cas de
+     * dades no vàlides aquest mètode ha de llançar una excepció de tipus
      * InvalidDataProjectException.
      * @param type $data
      */

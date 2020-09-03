@@ -357,10 +357,11 @@ abstract class DataQuery {
      * @param string $new_name : nou nom del projecte
      * @throws Exception
      */
-    public function changeOldPathInACLFile($old_name, $new_name) {
+    public function changeOldPathInACLFile($base_dir, $old_name, $new_name) {
         $file = DOKU_CONF."acl.auth.php";
         if (($content = file_get_contents($file))) {
-            $content = preg_replace("/(:*)$old_name:/m", "$1$new_name:", $content);
+            $ns = str_replace("/", ":", $base_dir);
+            $content = preg_replace("/$ns:$old_name:/m", "$ns:$new_name:", $content);
             if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                 throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/directori a $file.");
         }

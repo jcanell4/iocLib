@@ -562,7 +562,7 @@ class DokuPageModel extends WikiRenderizableDataModel {
             $this->pageDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
             $this->pageDataQuery->addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name);
             $this->pageDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-            $this->pageDataQuery->changeOldPathInACLFile($old_name, $new_name);
+            $this->pageDataQuery->changeOldPathInACLFile($base_dir, $old_name, $new_name);
         }
     }
 
