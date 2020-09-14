@@ -11,14 +11,18 @@ class Html2DWQuiz extends Html2DWInstruction {
 
     protected function getContent($token) {
 
+        $raw = str_replace('<br />', "\n", $token['raw']);
+        $raw = str_replace('<br>', "\n", $raw);
+
+
         $patternEnunciats = '/<div class="enunciat.*?>(.*?)<\/div>/ms';
 
-        preg_match_all($patternEnunciats, $token['raw'], $matches);
+        preg_match_all($patternEnunciats, $raw, $matches);
 
         $enunciats = count($matches) == 2 ? $matches[1] : [];
 
         $patternType = '/data-quiz-type="(.*?)"/ms';
-        preg_match($patternType, $token['raw'], $match);
+        preg_match($patternType, $raw, $match);
         $type = $match[1];
 
         // La obtenció de les solucions depén del tipus
@@ -29,7 +33,7 @@ class Html2DWQuiz extends Html2DWInstruction {
         $extraSolutionsPattern = '/data-ioc-extra-solutions=".*?>(.*?)<\/pre>/ms';
 
         $extraSolutions = [];
-        if (preg_match($extraSolutionsPattern, $token['raw'], $match)) {
+        if (preg_match($extraSolutionsPattern, $raw, $match)) {
             $extraSolutions = explode("\n", $match[1]);
             for ($i = count($extraSolutions) - 1; $i >= 0; $i--) {
                 if (strlen($extraSolutions[$i]) === 0) {
@@ -53,7 +57,7 @@ class Html2DWQuiz extends Html2DWInstruction {
 
                 $rowPattern = '/<tr class="editable.*?>(.*?)<\/tr>/ms';
 
-                if (preg_match_all($rowPattern, $token['raw'], $matches)) {
+                if (preg_match_all($rowPattern, $raw, $matches)) {
 
                     $rows = $matches[1];
 
@@ -76,6 +80,36 @@ class Html2DWQuiz extends Html2DWInstruction {
 
                 break;
 
+            case 'vf':
+
+                // TODO: Sense implementar
+                // el valor de true o false no arriba amb el token, s'ha d'afegir un camp ocult amb el valor
+                // i afegir els listeners al DojoQuiz per control·lar els canvis
+
+                $rowPattern = '/<tr class="editable.*?>(.*?)<\/tr>/ms';
+
+                if (preg_match_all($rowPattern, $raw, $matches)) {
+
+                    $rows = $matches[1];
+
+                    for ($i = 0; $i < count($rows); $i++) {
+                        $solucioPattern = '/<td class="hidden-field".*?>(.*?)<\/td>/ms';
+                        preg_match($solucioPattern, $rows[$i], $matches);
+                        $solucio = $matches[1] === 'true' ? ' (V)' : ' (F)';
+
+
+                        $colPattern = '/<td.*?>(.*?)<\/td>/ms';
+                        // en aquest nomes agafem el valor de la primera columna
+                        preg_match($colPattern, $rows[$i], $matches);
+                        $cols = rtrim($matches[1]);
+
+
+
+
+                        $content .= '  * ' . $cols . $solucio . "\n";;
+//                        $content .= '  * ' . $cols[0] . '<sol>' . $cols[1] . '</sol>' . $cols[2] . "\n";
+                    }
+                }
 
         }
 
