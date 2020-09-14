@@ -31,6 +31,11 @@ class ProfileAction extends DokuAction{
         if ($this->params[AdminKeys::KEY_PAGE]) {
             if ($plugin =& plugin_load('admin', $this->params[AdminKeys::KEY_PAGE]) !== NULL) {
                 $plugin->handle();
+                $userInfo = WikiIocInfoManager::getInfo("userinfo");
+                if ($this->params['usereditor'] && $this->params['usereditor'] !== $userInfo['editor']) {
+                    $userInfo['editor'] = $this->params['usereditor'];
+                    WikiIocInfoManager::setInfo('userinfo', $userInfo);
+                }
             }
             $ACT = act_permcheck($ACT);
         }
