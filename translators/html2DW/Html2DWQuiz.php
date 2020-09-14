@@ -32,13 +32,6 @@ class Html2DWQuiz extends Html2DWInstruction {
 
             }
 
-        } else {
-            $patternEnunciats = '/<div class="enunciat.*?>(.*?)<\/div>/ms';
-
-            preg_match_all($patternEnunciats, $raw, $matches);
-
-            $enunciats = count($matches) == 2 ? $matches[1] : [];
-
         }
 
 
@@ -90,7 +83,7 @@ class Html2DWQuiz extends Html2DWInstruction {
                         $colPattern = '/<td.*?>(.*?)<\/td>/ms';
                         preg_match_all($colPattern, $rows[$i], $matches);
                         $cols = $matches[1];
-                        $content .= '  * ' . $cols[0] . '<sol>' . $cols[1] . '</sol>' . $cols[2] . "\n";
+                        $content .= '  * ' . $cols[0] . ' <sol>' . $cols[1] . '</sol> ' . $cols[2] . "\n";
                     }
                 }
 
@@ -100,6 +93,8 @@ class Html2DWQuiz extends Html2DWInstruction {
                     for ($i = 0; $i < count($extraSolutions); $i++) {
                         $content .= ' - <sol>' . $extraSolutions[$i] . '</sol>';
                     }
+
+                    $content .= "\n";
                 }
 
 
@@ -143,7 +138,7 @@ class Html2DWQuiz extends Html2DWInstruction {
 
                     for ($i = 0; $i < count($rows); $i++) {
 
-                        $idPattern = '/<tr.*?data-row-count="' . $solucioId . '"/ms';
+                        $idPattern = '/<tr.*?data-row-id="' . $solucioId . '"/ms';
 
                         $solucio = preg_match($idPattern, $rows[$i], $matches) === 1;
 
