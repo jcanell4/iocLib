@@ -82,10 +82,6 @@ class Html2DWQuiz extends Html2DWInstruction {
 
             case 'vf':
 
-                // TODO: Sense implementar
-                // el valor de true o false no arriba amb el token, s'ha d'afegir un camp ocult amb el valor
-                // i afegir els listeners al DojoQuiz per control·lar els canvis
-
                 $rowPattern = '/<tr class="editable.*?>(.*?)<\/tr>/ms';
 
                 if (preg_match_all($rowPattern, $raw, $matches)) {
@@ -93,8 +89,8 @@ class Html2DWQuiz extends Html2DWInstruction {
                     $rows = $matches[1];
 
                     for ($i = 0; $i < count($rows); $i++) {
-                        $solucioPattern = '/<td class="hidden-field".*?>(.*?)<\/td>/ms';
-                        preg_match($solucioPattern, $rows[$i], $matches);
+                        $solucioIdPattern = '/<td class="hidden-field".*?>(.*?)<\/td>/ms';
+                        preg_match($solucioIdPattern, $rows[$i], $matches);
                         $solucio = $matches[1] === 'true' ? ' (V)' : ' (F)';
 
 
@@ -103,13 +99,41 @@ class Html2DWQuiz extends Html2DWInstruction {
                         preg_match($colPattern, $rows[$i], $matches);
                         $cols = rtrim($matches[1]);
 
-
-
-
                         $content .= '  * ' . $cols . $solucio . "\n";;
-//                        $content .= '  * ' . $cols[0] . '<sol>' . $cols[1] . '</sol>' . $cols[2] . "\n";
                     }
                 }
+
+                break;
+
+            case 'choice':
+                $rowPattern = '/(<tr class="editable.*?>.*?)<\/tr>/ms';
+
+                if (preg_match_all($rowPattern, $raw, $matches)) {
+
+                    $rows = $matches[1];
+
+                    $solucioIdPattern = '/<div class="hidden-field".*?>(.*?)<\/div>/ms';
+                    preg_match($solucioIdPattern, $raw, $matches);
+                    $solucioId = $matches[1];
+
+                    for ($i = 0; $i < count($rows); $i++) {
+
+                        $idPattern = '/<tr.*?data-row-count="' . $solucioId .'"/ms';
+
+                        $solucio = preg_match($idPattern, $rows[$i], $matches) === 1;
+
+
+                        $colPattern = '/<td.*?>(.*?)<\/td>/ms';
+                        // en aquest nomes agafem el valor de la primera columna
+                        preg_match($colPattern, $rows[$i], $matches);
+                        $cols = rtrim($matches[1]);
+
+
+                        $content .= '  * ' . $cols . ($solucio ? ' (ok)' : ''). "\n";;
+                    }
+                }
+                break;
+
 
         }
 
