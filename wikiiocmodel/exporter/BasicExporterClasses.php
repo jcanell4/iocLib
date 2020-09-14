@@ -462,7 +462,7 @@ class BasicStaticPdfRenderer {
                 if ($content['title']) {
                     $ret .= "<p $center font-weight:bold;\">Figura ".self::$figureReferences[$content['id']].". ".$content['title']."</p>";
                 }
-                self::_cleanWriteHTML($ret);
+                self::_cleanWriteHTML($ret, $iocTcPdf);
                 $ret = self::getFrameStructuredContent($content, $iocTcPdf);
                 if ($content['footer']) {
                     if ($content['title']) {
@@ -472,7 +472,7 @@ class BasicStaticPdfRenderer {
                     }
                 }
                 $ret .= "</div>";
-                self::_cleanWriteHTML($ret);
+                self::_cleanWriteHTML($ret, $iocTcPdf);
                 break;
 
             default:
@@ -505,7 +505,6 @@ class BasicStaticPdfRenderer {
         $c = 0;
         $aSearch = ["/0xFF/", "/0xFEFF/"];
         $aReplace = [" ", " "];
-        $m = preg_match($aSearch, $content, $c);
         $content = preg_replace($aSearch, $aReplace, $content, -1, $c);
         if ($c > 0) {
             $content = str_replace($aSearch, $aReplace, $content);
@@ -533,7 +532,7 @@ class BasicStaticPdfRenderer {
         //inserció del títol a sota de la imatge
         $center = "style=\"margin:auto; text-align:center;";
         $text = "<p $center font-size:80%;\">{$content['title']}</p>";
-        self::_cleanWriteHTML($text);
+        self::_cleanWriteHTML($text, $iocTcPdf);
     }
 
     private static function setImageSize($imageFile, $w=NULL, $h=NULL) {
