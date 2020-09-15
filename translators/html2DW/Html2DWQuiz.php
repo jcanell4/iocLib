@@ -11,8 +11,8 @@ class Html2DWQuiz extends Html2DWInstruction {
 
     protected function getContent($token) {
 
-        $raw = str_replace('<br />', "\n", $token['raw']);
-        $raw = str_replace('<br>', "\n", $raw);
+        $raw = str_replace('<br />', "\\\\ ", $token['raw']);
+        $raw = str_replace('<br>', "\\ ", $raw);
 
 
         // hi han 2 opcions, l'enunciat pot ser una única línia o múltiple, si és multiple cad alínia es troba en un div propi

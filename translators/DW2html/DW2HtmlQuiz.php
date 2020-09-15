@@ -44,7 +44,7 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
 
         $id = "ioc-quiz-" . date_timestamp_get(date_create());
 
-        $value .= '<div id="' . $id . '" class="ioc-quiz" data-quiz-type=". $type ." contenteditable="false">';
+        $value .= '<div id="' . $id . '" class="ioc-quiz" data-quiz-type="'. $type .'" contenteditable="false">';
         $value .= '<div class="editable-text">';
 
         $value .= '<div class="enunciat editable" contenteditable="true">';
@@ -82,11 +82,13 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
         $value .= '</tbody>';
 
 
+
+        $value .= '</table>';
+
         if ($type === 'choice') {
             $value .= '<div class="hidden-field"></div>';
         }
 
-        $value .= '</table>';
 
         // TODO: Si hi han solucions extras s'afegeixen abans de tancar
         if ($extraSolutionContent) {
@@ -157,21 +159,23 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
                 $value .= '</td>';
 
                 $value .= '<td class="center" contenteditable="false">';
-                $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" value="true">';
+                $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" value="false">';
                 $value .= '</td>';
+                $value .= '<td class="hidden-field">true</td>';
             } else {
                 $value .= '<td class="center" contenteditable="false">';
                 $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" value="true">';
                 $value .= '</td>';
 
                 $value .= '<td class="center" contenteditable="false">';
-                $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" value="true" checked="true">';
+                $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" value="false" checked="true">';
                 $value .= '</td>';
+                $value .= '<td class="hidden-field">false</td>';
             }
 
-            $value .= '<td class="hidden-field"></td>';
 
-            $value .= '<td><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+
+            $value .= '<td contenteditable="false"><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
 
             $value .= '</tr>';
 
@@ -192,21 +196,26 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
             $value .= '<tr class="editable">';
 
             $suffix = substr($options[$i], -4);
-            $content = rtrim(substr($options[$i], 4, count($options[$i]) - 5));
 
-            $value .= '<td>' . $content . '</td>';
 
             if ($suffix === '(ok)') {
+                $content = rtrim(substr($options[$i], 4, count($options[$i]) - 5));
+                $value .= '<td>' . $content . '</td>';
+
                 $value .= '<td class="center" contenteditable="false">';
                 $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '" checked="true">';
                 $value .= '</td>';
             } else {
+                $content = rtrim(substr($options[$i], 4));
+                $value .= '<td>' . $content . '</td>';
+
                 $value .= '<td class="center" contenteditable="false">';
                 $value .= '<input type="radio" name="' . $id . '_' . self::$counter . '">';
                 $value .= '</td>';
             }
 
-            $value .= '<td><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+            $value .= '<td contenteditable="false"><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+
 
             $value .= '</tr>';
 
@@ -239,7 +248,8 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
             $value .= trim($match[2]);
             $value .= '</td>';
 
-            $value .= '<td><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+            $value .= '<td contenteditable="false"><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+
 
             $value .= '</tr>';
 
@@ -271,7 +281,8 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
             $value .= trim($match[3]);
             $value .= '</td>';
 
-            $value .= '<td><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+            $value .= '<td contenteditable="false"><span class="iocDeleteIcon actionIcon delete" title="Eliminar"></span></td>';
+
 
             $value .= '</tr>';
 
