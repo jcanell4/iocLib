@@ -19,7 +19,7 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
         if (parent::canRun()) {
             if ($permis > AUTH_NONE && $this->permission->getInfoPerm() < $permis) {
                 $this->errorAuth['error'] = TRUE;
-                $this->errorAuth['exception'] = '"InsufficientPermissionTo'.$type_exception.'ProjectException"';
+                $this->errorAuth['exception'] = 'InsufficientPermissionTo'.$type_exception.'ProjectException';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();
             }else {
                 if (!$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
