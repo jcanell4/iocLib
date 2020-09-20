@@ -39,6 +39,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'newcontent',
         ],
 
+        "<quiz .*?>(.*?)<\/quiz>" => [
+            'state' => 'quiz',
+        ],
+
         "^----\n" => [
             'state' => 'hr',
         ],
@@ -145,6 +149,8 @@ class DW2HtmlParser extends IocParser {
     protected static $tokenKey = [
 
         "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'DW2HtmlNewContent', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+
+        "<quiz (.*?)>(.*?)<\/quiz>" => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'DW2HtmlQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 

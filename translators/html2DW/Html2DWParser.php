@@ -45,6 +45,11 @@ class Html2DWParser extends IocParser {
             'state' => 'box-text',
         ],
 
+        '<div class="ioc-quiz".*?(<\/div><\/div><\/div>|<\/pre><\/div><\/div>)' => [
+            'state' => 'quiz'
+        ],
+
+
         '<div(?: class="")?(?: contenteditable="false")? data-dw-block="(.*?)".*?>.*?<\/div>' => [
             'state' => 'block',
         ],
@@ -200,6 +205,10 @@ class Html2DWParser extends IocParser {
         '<div(?: class="")?(?: contenteditable="false")? data-dw-block="video".*?>.*?<\/div>' => ['state' => 'video', 'type' => 'video', 'class' => 'Html2DWMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => ['state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div class="ioc-quiz".*?(<\/div><\/div><\/div>|<\/pre><\/div><\/div>)' => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'Html2DWQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+/*        '<div class="ioc-quiz".*?><\/table><\/div><\/div><\/div>' => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'Html2DWQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],*/
 
 
         '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
