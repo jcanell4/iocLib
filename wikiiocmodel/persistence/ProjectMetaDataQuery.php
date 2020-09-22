@@ -724,7 +724,7 @@ class ProjectMetaDataQuery extends DataQuery {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
                 if (($content = file_get_contents($file))) {
-                    $content = preg_replace("/:$old_name(\W)/m", ":$new_name$1", $content);
+                    $content = preg_replace("/$old_name/", "$new_name", $content);
                     if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                         throw new Exception("renameProject: Error mentre canviava el contingut de la drecera de $user.");
                 }
