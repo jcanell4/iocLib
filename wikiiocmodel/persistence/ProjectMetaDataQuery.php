@@ -907,11 +907,9 @@ class ProjectMetaDataQuery extends DataQuery {
                 if (($content = file_get_contents($file))) {
                     $search = "/^\[\[{$old_name}.*\]\]$/m";
                     if (preg_match($search, $content, $stmp) === 1) {
-                        $insert = "\n\n[[{$new_name}|accés al projecte {$new_name}]]";
-                        $content = preg_replace($search, $stmp[0].$insert, $content);
+                        $insert = $stmp[0]."\n\n[[{$new_name}|accés al projecte {$new_name}]]";
+                        $content = preg_replace($search, $insert, $content);
                     }
-
-                    //$content = preg_replace("/$old_name/", "$new_name", $content);
                     if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                         throw new Exception("duplicateProject: Error mentre canviava el contingut de la drecera de $user.");
                 }
@@ -931,13 +929,10 @@ class ProjectMetaDataQuery extends DataQuery {
             $old_dir = str_replace("/", ":", $old_dir);
             $new_dir = str_replace("/", ":", $new_dir);
             $search = "/^({$old_dir}:{$old_name})(:\*\s*\b.*\s*[0-9])$/m";
-            $insert = "{$new_dir}:{$new_name}";
             if (preg_match($search, $content, $stmp) === 1) {
-                $i = $stmp[0]."\n".$insert.$stmp[2]."\n";
-                $content = preg_replace($search, $i, $content);
+                $insert = $stmp[1]."$2"."\n{$new_dir}:{$new_name}$2";
+                $content = preg_replace($search, $insert, $content);
             }
-
-            //$content = preg_replace("/$old_dir:$old_name:/m", "$new_dir:$new_name:", $content);
             if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                 throw new Exception("duplicateProject: Error mentre canviava el nom del projecte/directori a $file.");
         }
