@@ -466,7 +466,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return array : lista de ficheros
      */
     protected function listGeneratedFilesByRender($base_dir=NULL, $old_name=NULL) {
-        if (!empty($base_dir) && !empty($base_name)) {
+        if (!empty($base_dir) || !empty($old_name)) {
             $basename = str_replace([":","/"], "_", $base_dir) . "_" . $old_name;
             return ["fullname", $basename."\.zip"];
         }else {
