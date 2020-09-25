@@ -9,17 +9,25 @@ class BasicDuplicateProjectAction extends ProjectMetadataAction {
 
     protected function runAction() {
         $model = $this->getModel();
-        $newID = $this->params[ProjectKeys::KEY_ID];
-        $oldID = "{$this->params['old_path']}:{$this->params['old_project']}";
+        $oldID = $this->params[ProjectKeys::KEY_ID];
+        $newID = "{$this->params['new_path']}:{$this->params['new_project']}";
 
-        $this->params[ProjectKeys::KEY_ID] = $oldID;
-        parent::setParams($this->params);
         $response = $model->getData();
         $persons = $response['projectMetaData']['autor']['value'].",".$response['projectMetaData']['responsable']['value'];
 
         $this->params[ProjectKeys::KEY_ID] = $newID;
         parent::setParams($this->params);
-        $model->duplicateProject($this->params[ProjectKeys::KEY_ID], $this->params['old_path'], $this->params['old_project'], $persons);
+
+        //Sólo se ejecutará si no existe el proyecto que se desea crear (el duplicado)
+        if ($this->getModel()->existProject()) {
+            throw new ProjectExistException($this->params[ProjectKeys::KEY_ID]);
+        }
+
+        $old = explode(":", $oldID);
+        $old_project = array_pop($old);
+        $old_path = implode(":", $old);
+
+        $model->duplicateProject($this->params[ProjectKeys::KEY_ID], $old_path, $old_project, $persons);
 
         $response = $model->getData();
         $response[ProjectKeys::KEY_OLD_NS] = $oldID;
@@ -39,11 +47,6 @@ class BasicDuplicateProjectAction extends ProjectMetadataAction {
     }
 
     protected function initAction() {
-        //sólo se ejecuta si no existe el proyecto
-        if ($this->getModel()->existProject()) {
-            throw new ProjectExistException($this->params[ProjectKeys::KEY_ID]);
-        }
-
         $this->lockStruct = $this->requireResource(TRUE);
         if ($this->lockStruct["state"]!== ResourceLockerInterface::LOCKED){
             throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
