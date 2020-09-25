@@ -448,7 +448,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
         $this->projectMetaDataQuery->renameDirNames($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name);
-        $this->projectMetaDataQuery->changeOldPathInACLFile($base_dir, $old_name, $base_dir, $new_name);
+        $this->projectMetaDataQuery->changeOldPathInACLFile($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
         $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->listGeneratedFilesByRender());
         $this->projectMetaDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name);
@@ -500,8 +500,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->renameDuplicateGeneratedFiles($base_dir, $new_name, $old_path, $old_name, ["extension","\.zip","\.pdf"]);
         $this->projectMetaDataQuery->changeOldPathInDuplicateRevisionFiles($base_dir, $new_name, $old_path, $old_name);
         $this->projectMetaDataQuery->changeOldPathInDuplicateContentFiles($base_dir, $new_name, $old_path, $old_name);
-        $this->projectMetaDataQuery->changeOldPathInACLFile($old_path, $old_name, $base_dir, $new_name);
-        $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($this->sGlue([$old_path,$old_name],":"), $this->sGlue([$base_dir,$new_name],":"), $persons);
+        $this->projectMetaDataQuery->duplicateOldPathInACLFile($old_path, $old_name, $base_dir, $new_name);
+        $this->projectMetaDataQuery->duplicateOldPathProjectInShortcutFiles($this->sGlue([$old_path,$old_name],":"), $this->sGlue([$base_dir,$new_name],":"), $persons);
 
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
         $this->setProjectId($new_ns);
