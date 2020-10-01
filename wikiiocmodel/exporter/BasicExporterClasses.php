@@ -301,61 +301,61 @@ class renderArray extends renderComposite {
     }
 }
 
-class BasicStaticPdfRenderer {
-    static $tableCounter = 0;
-    static $tableReferences = array();
-    static $tablewidths = array();
-    static $nColInRow = 0;
-    static $figureCounter = 0;
-    static $figureReferences = array();
-    static $headerNum = array(0,0,0,0,0,0);
-    static $headerFont = "helvetica";
-    static $headerFontSize = 10;
-    static $footerFont = "helvetica";
-    static $footerFontSize = 8;
-    static $firstPageFont = "Times";
-    static $pagesFont = "helvetica";
-    static $state = ["table" => ["type" => "table"]];
-    static $tcpdfObj = NULL;
-    static $maxImgSize = 100;
+class BasicPdfRenderer {
+    protected $tableCounter = 0;
+    protected $tableReferences = array();
+    protected $tablewidths = array();
+    protected $nColInRow = 0;
+    protected $figureCounter = 0;
+    protected $figureReferences = array();
+    protected $headerNum = array(0,0,0,0,0,0);
+    protected $headerFont = "helvetica";
+    protected $headerFontSize = 10;
+    protected $footerFont = "helvetica";
+    protected $footerFontSize = 8;
+    protected $firstPageFont = "Times";
+    protected $pagesFont = "helvetica";
+    protected $state = ["table" => ["type" => "table"]];
+    protected $tcpdfObj = NULL;
+    protected $maxImgSize = 100;
 
     public function __construct() {
-        self::$maxImgSize = WikiGlobalConfig::getConf('max_img_size', 'wikiiocmodel');
+        $this->maxImgSize = WikiGlobalConfig::getConf('max_img_size', 'wikiiocmodel');
     }
 
-    public static function resetStaticDataRender() {
-        self::$tableCounter = 0;
-        self::$tableReferences = array();
-        self::$tablewidths = array();
-        self::$nColInRow = 0;
-        self::$figureCounter = 0;
-        self::$figureReferences = array();
-        self::$headerNum = array(0,0,0,0,0,0);
-        self::$headerFont = "helvetica";
-        self::$headerFontSize = 10;
-        self::$footerFont = "helvetica";
-        self::$footerFontSize = 8;
-        self::$firstPageFont = "Times";
-        self::$pagesFont = "helvetica";
-        self::$state = ["table" => ["type" => "table"]];
+    public function resetDataRender() {
+        $this->tableCounter = 0;
+        $this->tableReferences = array();
+        $this->tablewidths = array();
+        $this->nColInRow = 0;
+        $this->figureCounter = 0;
+        $this->figureReferences = array();
+        $this->headerNum = array(0,0,0,0,0,0);
+        $this->headerFont = "helvetica";
+        $this->headerFontSize = 10;
+        $this->footerFont = "helvetica";
+        $this->footerFontSize = 8;
+        $this->firstPageFont = "Times";
+        $this->pagesFont = "helvetica";
+        $this->state = ["table" => ["type" => "table"]];
     }
 
-    protected static function setMaxImgSize($max_img_size) {
-        self::$maxImgSize = $max_img_size;
+    protected function setMaxImgSize($max_img_size) {
+        $this->maxImgSize = $max_img_size;
     }
 
-    protected static function getMaxImgSize() {
-        return self::$maxImgSize;
+    protected function getMaxImgSize() {
+        return $this->maxImgSize;
     }
 
-    protected static function resolveReferences($content) {
+    protected function resolveReferences($content) {
         if (!empty($content["id"])) {
             if ($content["type"]===TableFrame::TABLEFRAME_TYPE_TABLE || $content["type"]===TableFrame::TABLEFRAME_TYPE_ACCOUNTING) {
-                self::$tableCounter++;
-                self::$tableReferences[$content["id"]] = self::$tableCounter;
+                $this->tableCounter++;
+                $this->tableReferences[$content["id"]] = $this->tableCounter;
             }elseif ($content["type"]===FigureFrame::FRAME_TYPE_FIGURE) {
-                self::$figureCounter++;
-                self::$figureReferences[$content["id"]] = self::$figureCounter;
+                $this->figureCounter++;
+                $this->figureReferences[$content["id"]] = $this->figureCounter;
             }
         }
         if (!empty($content["content"])) {
@@ -370,7 +370,7 @@ class BasicStaticPdfRenderer {
         }
     }
 
-    protected static function renderHeader($header, IocTcPdf &$iocTcPdf) {
+    protected function renderHeader($header, IocTcPdf &$iocTcPdf) {
         if ($header['type'] !== StructuredNodeDoc::ROOTCONTENT_TYPE) {
             $level = $header["level"]-1;
             $iocTcPdf->SetFont('Times', 'B', 12);
@@ -399,23 +399,23 @@ class BasicStaticPdfRenderer {
         }
     }
 
-    protected static function getHeaderCounter($level) {
+    protected function getHeaderCounter($level) {
         $ret = "";
         for ($i=0; $i<=$level; $i++) {
-            $ret .= self::$headerNum[$i].".";
+            $ret .= $this->headerNum[$i].".";
         }
         return $ret." ";
     }
 
-    protected static function incHeaderCounter($level) {
-        self::$headerNum[$level]++;
-        for ($i=$level+1; $i<count(self::$headerNum); $i++) {
-            self::$headerNum[$i]=0;
+    protected function incHeaderCounter($level) {
+        $this->headerNum[$level]++;
+        for ($i=$level+1; $i<count($this->headerNum); $i++) {
+            $this->headerNum[$i]=0;
         }
         return self::getHeaderCounter($level);
     }
 
-    protected static function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
+    protected function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
         $iocTcPdf->SetFont('helvetica', '', 10);
         if ($content['type'] === FigureFrame::FRAME_TYPE_FIGURE) {
             self::getFrameContent($content, $iocTcPdf);
@@ -441,7 +441,7 @@ class BasicStaticPdfRenderer {
         }
     }
 
-    protected static function getFrameContent($content, IocTcPdf &$iocTcPdf) {
+    protected function getFrameContent($content, IocTcPdf &$iocTcPdf) {
         switch ($content['type']) {
             case ImageNodeDoc::IMAGE_TYPE:
                 self::renderImage($content, $iocTcPdf);
@@ -460,7 +460,7 @@ class BasicStaticPdfRenderer {
                 }
                 $ret = "<div $style nobr=\"true\">";
                 if ($content['title']) {
-                    $ret .= "<p $center font-weight:bold;\">Figura ".self::$figureReferences[$content['id']].". ".$content['title']."</p>";
+                    $ret .= "<p $center font-weight:bold;\">Figura ".$this->figureReferences[$content['id']].". ".$content['title']."</p>";
                 }
                 self::_cleanWriteHTML($ret, $iocTcPdf);
                 $ret = self::getFrameStructuredContent($content, $iocTcPdf);
@@ -468,7 +468,7 @@ class BasicStaticPdfRenderer {
                     if ($content['title']) {
                         $ret .= "<p $center font-size:80%;\">".$content['footer']."</p>";
                     }else {
-                        $ret .= "<p $center font-size:80%;\">Figura ".self::$figureReferences[$content['id']].". ".$content['footer']."</p>";
+                        $ret .= "<p $center font-size:80%;\">Figura ".$this->figureReferences[$content['id']].". ".$content['footer']."</p>";
                     }
                 }
                 $ret .= "</div>";
@@ -482,7 +482,7 @@ class BasicStaticPdfRenderer {
         return "";
     }
 
-    protected static function getFrameStructuredContent($content, IocTcPdf &$iocTcPdf) {
+    protected function getFrameStructuredContent($content, IocTcPdf &$iocTcPdf) {
         $ret = "";
         $limit = count($content['content']);
         for ($i=0; $i<$limit; $i++) {
@@ -501,7 +501,7 @@ class BasicStaticPdfRenderer {
      * @param $cell (boolean) if true add the current left (or right for RTL) padding to each Write (default false).
      * @param $align (string) Allows to center or align the text. Possible values are: L:left align - C:center - R:right align - empty:left for LTR or right for RTL
      */
-    private static function _cleanWriteHTML($content, IocTcPdf &$iocTcPdf, $ln=TRUE, $fill=FALSE, $reseth=false, $cell=false, $align='') {
+    private function _cleanWriteHTML($content, IocTcPdf &$iocTcPdf, $ln=TRUE, $fill=FALSE, $reseth=false, $cell=false, $align='') {
         $c = 0;
         $aSearch = ["/0xFF/", "/0xFEFF/"];
         $aReplace = [" ", " "];
@@ -512,13 +512,13 @@ class BasicStaticPdfRenderer {
         $iocTcPdf->writeHTML($content, $ln, $fill, $reseth, $cell, $align);
     }
 
-    private static function renderSmiley($content, IocTcPdf &$iocTcPdf) {
+    private function renderSmiley($content, IocTcPdf &$iocTcPdf) {
         preg_match('/\.(.+)$/', $content['src'], $match);
         $ext = ($match) ? $match[1] : "JPG";
         $iocTcPdf->Image($content['src'], '', '', 0, 0, $ext, '', 'T');
     }
 
-    protected static function renderImage($content, IocTcPdf &$iocTcPdf) {
+    protected function renderImage($content, IocTcPdf &$iocTcPdf) {
         preg_match('/\.(.+)$/', $content['src'], $match);
         $ext = ($match) ? $match[1] : "JPG";
         //càlcul de les dimensions de la imatge
@@ -535,7 +535,7 @@ class BasicStaticPdfRenderer {
         self::_cleanWriteHTML($text, $iocTcPdf);
     }
 
-    private static function setImageSize($imageFile, $w=NULL, $h=NULL) {
+    private function setImageSize($imageFile, $w=NULL, $h=NULL) {
         if (@file($imageFile)) {
             list($w0, $h0) = getimagesize($imageFile);
         }
@@ -564,7 +564,7 @@ class BasicStaticPdfRenderer {
         return [$w/5, $h/5];
     }
 
-    private static function getImgReduction($file, $p) {
+    private function getImgReduction($file, $p) {
         list($w, $h) = getimagesize($file);
         if ($w > self::getMaxImgSize()) {
             $wreduc = self::getMaxImgSize() / $w;
@@ -586,7 +586,9 @@ class BasicStaticPdfRenderer {
         return ($r0 < $r1) ? $r0 : $r1;
     }
 
-    protected static function getContent($content ) {
+    protected function getContent($content ) {
+        $pre_active=false;
+        $aux="";
         $char = "";
         $ret = "";
         switch ($content["type"]) {
@@ -696,24 +698,55 @@ class BasicStaticPdfRenderer {
                 $ret = self::getStructuredContent($content);
                 break;
 
+            case IocElemNodeDoc::IOC_ELEM_TYPE_EXAMPLE:
+                $aux=" font-size: 120%;";
+            case IocElemNodeDoc::IOC_ELEM_TYPE_COMP_LARGE:
+                if($content["type"]=== IocElemNodeDoc::IOC_ELEM_TYPE_EXAMPLE){
+                    $bc = "";
+                }else{
+                    $bc = " background-color: #efefef;";
+                }
+                $p_style="style=\"margin-bottom: 2em;$aux\"";
+                $title = $content["title"];
+                $ret = "<div nobr=\"true\" style=\"width: 73%;\">";
+                $ret .= "<div style=\"clear:both;$bc width: 80%; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin: 1em auto; font-size: 85%;\">";
+                $ret .= "<p $p_style>$title<\p>";
+                $ret .= self::getStructuredContent($content);
+                $ret .= "</div></div>";
+                break;
+            case IocElemNodeDoc::IOC_ELEM_TYPE_QUOTE:
+            case IocElemNodeDoc::IOC_ELEM_TYPE_IMPORTANT:
+                if($content["type"]=== IocElemNodeDoc::IOC_ELEM_TYPE_QUOTE){
+                    $bc = " background-color: #efefef; padding: 1.5em 4.5em 2.5em 1.5em; font-size: 85%; color: #2c2c2c; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;";
+                }else{
+                    $bc = " background-color: #ccc; padding: 10mm;";
+                }
+                $ret = "<div nobr=\"true\" style=\"clear:both; width: 80%;$bc margin: 10mm auto;\">";
+                $ret .= self::getStructuredContent($content);
+                $ret .= "</div>";
+                break;
+            case IocElemNodeDoc::IOC_ELEM_TYPE_COMP:
+            case IocElemNodeDoc::IOC_ELEM_TYPE_NOTE:
+            case IocElemNodeDoc::IOC_ELEM_TYPE_REF:
+                break;
             case TableFrame::TABLEFRAME_TYPE_TABLE:
             case TableFrame::TABLEFRAME_TYPE_ACCOUNTING:
                 if ($content['widths']) {
                     $e = explode(',', $content['widths']);
                     $t = 0;
                     for ($i=0; $i<count($e); $i++) $t += $e[$i];
-                    for ($i=0; $i<count($e); $i++) self::$tablewidths[$i] = $e[$i] * 100 / $t;
+                    for ($i=0; $i<count($e); $i++) $this->tablewidths[$i] = $e[$i] * 100 / $t;
                 }
                 $ret = "<div nobr=\"true\">";
                 if ($content["title"]) {
-                    $ret .= "<h4 style=\"text-align:center;\"> Taula ".self::$tableReferences[$content["id"]].". ".$content["title"]."</h4>";
+                    $ret .= "<h4 style=\"text-align:center;\"> Taula ".$this->tableReferences[$content["id"]].". ".$content["title"]."</h4>";
                 }
                 $ret .= self::getStructuredContent($content);
                 if ($content["footer"]) {
                     if ($content["title"]) {
                         $ret .= "<p style=\"text-align:justify; font-size:80%;\">".$content["footer"]."</p>";
                     }else {
-                        $ret .= "<p style=\"text-align:justify; font-size:80%;\"> Taula ".self::$tableReferences[$content["id"]].". ".$content["footer"]."</p>";
+                        $ret .= "<p style=\"text-align:justify; font-size:80%;\"> Taula ".$this->tableReferences[$content["id"]].". ".$content["footer"]."</p>";
                     }
                 }
                 $ret .= "</div>";
@@ -723,7 +756,7 @@ class BasicStaticPdfRenderer {
                 break;
             case StructuredNodeDoc::TABLEROW_TYPE:
                 $ret = "<tr>".self::getStructuredContent($content)."</tr>";
-                self::$nColInRow = 0;
+                $this->nColInRow = 0;
                 break;
             case CellNodeDoc::TABLEHEADER_TYPE:
                 $align = $content["align"] ? "text-align:{$content["align"]};" : "text-align:center;";
@@ -737,11 +770,8 @@ class BasicStaticPdfRenderer {
                 $style = $content["hasBorder"] ? ' style="border:1px solid black; border-collapse:collapse; '.$align.'"' : " style=\"$align\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
-                $width =  (self::$tablewidths[self::$nColInRow++]) ? ' with="'.self::$tablewidths[self::$nColInRow++].'%"' : "";
+                $width =  ($this->tablewidths[$this->nColInRow++]) ? ' with="'.$this->tablewidths[$this->nColInRow++].'%"' : "";
                 $ret = "<td$colspan$rowspan$style$width>".self::getStructuredContent($content)."</td>";
-                break;
-            case CodeNodeDoc::CODE_TEXT_TYPE:
-                $ret = self::getTextContent($content);
                 break;
             case TextNodeDoc::HTML_TEXT_TYPE:
                 $ret = self::getTextContent($content);
@@ -755,11 +785,11 @@ class BasicStaticPdfRenderer {
                 switch ($content["referenceType"]) {
                     case ReferenceNodeDoc::REF_TABLE_TYPE:
                         $id = trim($content["referenceId"]);
-                        $ret = " <a href=\"#".$id."\"><em>Taula ".self::$tableReferences[$id]."</em></a> ";
+                        $ret = " <a href=\"#".$id."\"><em>Taula ".$this->tableReferences[$id]."</em></a> ";
                         break;
                     case ReferenceNodeDoc::REF_FIGURE_TYPE:
                         $id = trim($content["referenceId"]);
-                        $ret = " <a href=\"#".$id."\"><em>Figura ".self::$figureReferences[$id]."</em></a> ";
+                        $ret = " <a href=\"#".$id."\"><em>Figura ".$this->figureReferences[$id]."</em></a> ";
                         break;
                     case ReferenceNodeDoc::REF_WIKI_LINK:
                         $file = $_SERVER['HTTP_REFERER']."?id=".$content["referenceId"];
@@ -774,11 +804,11 @@ class BasicStaticPdfRenderer {
                 }
                 break;
 
-            case TextNodeDoc::PREFORMATED_TEXT_TYPE:
-                $ret = self::getTextContent($content);
-                break;
+            case CodeNodeDoc::CODE_TEXT_TYPE:
+                //$content["text"] = p_xhtml_cached_geshi($content["text"], $content["language"], "code");
             case TextNodeDoc::UNFORMATED_TEXT_TYPE:
-                $ret = self::getTextContent($content);
+            case TextNodeDoc::PREFORMATED_TEXT_TYPE:
+                $ret = "<pre>".self::getPreformatedTextContent($content)."</pre>";
                 break;
             default :
                 $ret = self::getLeafContent($content);
@@ -786,7 +816,7 @@ class BasicStaticPdfRenderer {
         return $ret;
     }
 
-    protected static function getStructuredContent($content) {
+    protected function getStructuredContent($content) {
         $ret = "";
         $limit = count($content["content"]);
         for ($i=0; $i<$limit; $i++) {
@@ -795,16 +825,27 @@ class BasicStaticPdfRenderer {
         return $ret;
     }
 
-    protected static function getTextContent($content) {
+    protected function getPreformatedTextContent($content) {
+        if (!empty($content["text"]) && empty(trim($content["text"]))) {
+            $ret = " ";
+        }else {
+            $ret = preg_replace(array("/<br>/"), array("\n"), trim($content["text"]));  
+            $ret = htmlspecialchars($ret, ENT_QUOTES, 'UTF-8');
+        }
+        return $ret;
+    }
+    
+    protected function getTextContent($content) {
         if (!empty($content["text"]) && empty(trim($content["text"]))) {
             $ret = " ";
         }else {
             $ret = preg_replace("/\s\s+/", " ", $content["text"]);
+            $ret = htmlspecialchars($ret, ENT_QUOTES, 'UTF-8');
         }
         return $ret;
     }
 
-    protected static function getLeafContent($content) {
+    protected function getLeafContent($content) {
         switch($content["type"]) {
             case LeafNodeDoc::HORIZONTAL_RULE_TYPE:
                 $ret = "<hr>";
