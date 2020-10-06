@@ -450,11 +450,28 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathInACLFile($base_dir, $old_name, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
-        $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->listGeneratedFilesByRender($base_dir, $old_name));
+        $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->listGeneratedFilesByRender());
         $this->projectMetaDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name);
 
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
         $this->setProjectId($new_ns);;
+    }
+
+    /**
+     * Lista de archivos que se generan a partir de la configuración indicada en el archivo 'configRender.json'
+     * Esos archivos se guardan en WikiGlobalConfig::getConf('mediadir')
+     * El nombre de estos archivos se construyó, en el momento de su creación, usando el nombre del proyecto
+     * @param string $base_dir : directori wiki del projecte
+     * @param string $old_name : nom actual del projecte
+     * @return array : lista de ficheros
+     */
+    protected function listGeneratedFilesByRender($base_dir=NULL, $old_name=NULL) {
+        if (!empty($base_dir) || !empty($old_name)) {
+            $basename = str_replace([":","/"], "_", $base_dir) . "_" . $old_name;
+            return ["fullname", $basename."\.zip"];
+        }else {
+            return ["extension", "\.zip"];
+        }
     }
 
     /**
@@ -464,6 +481,38 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function removeProject($ns, $persons) {
         $this->projectMetaDataQuery->removeProject($ns, $persons);
+    }
+
+    /**
+     * Duplica els directoris del projecte, els noms dels fitxers generats amb la base del nom del projecte i
+     * les referències a l'antic nom de projecte dins dels fitxers afectats
+     * @param string $ns : ns original del projecte
+     * @param string $new_name : nou nom pel projecte
+     * @param string $persons : noms dels autors i els responsables separats per ","
+     */
+    public function duplicateProject($ns, $old_path, $old_name, $persons) {
+        $base_dir = explode(":", $ns);
+        $new_name = array_pop($base_dir);
+        $base_dir = implode("/", $base_dir);
+        $old_path = str_replace(":", "/", $old_path);
+
+        $this->projectMetaDataQuery->duplicateDirNames($base_dir, $new_name, $old_path, $old_name);
+        $this->projectMetaDataQuery->renameDuplicateGeneratedFiles($base_dir, $new_name, $old_path, $old_name, ["extension","\.zip","\.pdf"]);
+        $this->projectMetaDataQuery->changeOldPathInDuplicateRevisionFiles($base_dir, $new_name, $old_path, $old_name);
+        $this->projectMetaDataQuery->changeOldPathInDuplicateContentFiles($base_dir, $new_name, $old_path, $old_name);
+        $this->projectMetaDataQuery->duplicateOldPathInACLFile($old_path, $old_name, $base_dir, $new_name);
+        $this->projectMetaDataQuery->duplicateOldPathProjectInShortcutFiles($this->sGlue([$old_path,$old_name],":"), $this->sGlue([$base_dir,$new_name],":"), $persons);
+
+        $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
+        $this->setProjectId($new_ns);
+    }
+
+    // Concatena los elementos del array, previamente transformados, con el $glue
+    private function sGlue($llista=[], $g=":") {
+        foreach ($llista as $e) {
+            $ret .= str_replace(["/",":"], $g, $e) . $g;
+        }
+        return substr($ret, 0, -1);
     }
 
     /**

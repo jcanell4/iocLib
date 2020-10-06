@@ -724,11 +724,217 @@ class ProjectMetaDataQuery extends DataQuery {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
                 if (($content = file_get_contents($file))) {
-                    $content = preg_replace("/:$old_name(\W)/m", ":$new_name$1", $content);
+                    $content = preg_replace("/$old_name/", "$new_name", $content);
                     if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                         throw new Exception("renameProject: Error mentre canviava el contingut de la drecera de $user.");
                 }
             }
+        }
+    }
+
+    /**
+     * Canvia el nom dels arxius que contenen (en el nom) la ruta del projecte original (del qual es fa la duplicació)
+     * @param string $base_dir : directori wiki del projecte duplicat
+     * @param string $old_path : directori wiki del projecte original
+     * @param string $old_name : nom actual del projecte original
+     * @param string $new_name : nou nom del projecte duplicat (nom actual)
+     * @param array|string $listfiles : llista d'arxius o extensió dels arxius (per defecte ".zip") generats pel render que cal renombrar
+     * @throws Exception
+     */
+    public function renameDuplicateGeneratedFiles($base_dir, $new_name, $old_path, $old_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_dir/$new_name";
+        $old_name = str_replace("/", "_", "$old_path/$old_name");
+        $new_name = str_replace("/", "_", "$base_dir/$new_name");
+        $ret = $this->_renameDuplicateGeneratedFiles($newPath, $old_name, $new_name, $listfiles, $recursive);
+        if (is_string($ret)) {
+            throw new Exception("duplicateProject: Error mentre canviava el nom de l'arxiu $ret.");
+        }
+    }
+
+    /**
+     * Canvia el nom dels arxius que contenen (en el nom) la ruta del projecte original (del qual es fa la duplicació)
+     * @param string $path : ruta sencera del sistema al directori 'data/media' de la wiki
+     * @param string $old_name : nom del projecte original
+     * @param string $new_name : nou nom del projecte duplicat
+     * @param array $listfiles : llista de terminacions dels arxius
+     * @return boolean|string TRUE si ha ido bien, "ruta del fichero" si se ha producido error al renombrar
+     */
+    private function _renameDuplicateGeneratedFiles($path, $old_name, $new_name, $listfiles, $recursive=FALSE) {
+        $ret = TRUE;
+        $scan = @scandir($path);
+        if ($scan) $scan = array_diff($scan, [".", ".."]);
+        if ($scan) {
+            foreach ($scan as $file) {
+                if (is_dir("$path/$file")) {
+                    if ($recursive) {
+                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $old_name, $new_name, $listfiles, TRUE);
+                        if (is_string($ret)) break;
+                    }
+                }elseif (preg_match("/^$old_name/", $file)) {
+                    if (!empty($listfiles)) {
+                        for ($i=1; $i<count($listfiles); $i++) {
+                            $ext .= $listfiles[$i] ."|";
+                        }
+                        $ext = substr($ext, 0, -1);
+                        if ($listfiles[0] === "fullname") {
+                            $search = "/($ext)/";
+                        }else {
+                            $search = "/{$old_name}($ext)/";
+                        }
+                        if (preg_match($search, $file)) {
+                            $newfile = preg_replace("/{$old_name}([\.|_])/", "{$new_name}$1", $file);
+                            $ret = rename("$path/$file", "$path/$newfile");
+                            if (!$ret) {
+                                $ret = "$path/$file";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Canvia el contingut dels arxius ".changes" i ".meta" que contenen la ruta del directori per la nova ruta
+     * @param string $base_dir : directori wiki del projecte duplicat
+     * @param string $new_name : nou nom del projecte duplicat
+     * @param string $old_path : base del projecte original
+     * @param string $old_name : nom del projecte original
+     * @throws Exception
+     */
+    public function changeOldPathInDuplicateRevisionFiles($base_dir, $new_name, $old_path, $old_name, $file_sufix=[], $recursive=FALSE) {
+        $paths = ['metadir',       /*meta*/
+                  'mediametadir',  /*media_meta*/
+                  'metaprojectdir' /*project_meta*/
+                 ];
+        if (empty($file_sufix)) {
+            $suffix = FALSE;
+        }else {
+            array_pop($file_sufix);
+            $suffix = "(".implode("|", $file_sufix).")";
+        }
+        $newName = str_replace("/", ":", $base_dir).":".$new_name;
+        $oldName = str_replace("/", ":", $old_path).":".$old_name;
+        $list_files = "\.(changes|meta)";
+        $ret = TRUE;
+        foreach ($paths as $dir) {
+            $newPath = WikiGlobalConfig::getConf($dir)."/$base_dir/$new_name";
+            $ret = $this->_changeOldPathInDuplicateFiles($newPath, $newName, $oldName, $list_files, $suffix, $recursive);
+            if (is_string($ret)) break;
+        }
+        if (is_string($ret)) {
+            throw new Exception("duplicateProject: Error mentre canviava el contingut de $ret.");
+        }
+    }
+
+    /**
+     * Canvia el contingut dels arxius que contenen l'antiga ruta del projecte (normalment la ruta absoluta a les imatges)
+     * @param string $base_dir : directori wiki del projecte duplicat
+     * @param string $new_name : nou nom del projecte duplicat
+     * @param string $old_path : base del projecte original
+     * @param string $old_name : nom del projecte original
+     * @throws Exception
+     */
+    public function changeOldPathInDuplicateContentFiles($base_dir, $new_name, $old_path, $old_name, $file_sufix=FALSE, $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('datadir')."/$base_dir/$new_name";
+        $suffix = (is_array($file_sufix)) ? "(".implode("|", $file_sufix).")" : FALSE;
+        $newName = str_replace("/", ":", $base_dir).":".$new_name;
+        $oldName = str_replace("/", ":", $old_path).":".$old_name;
+        $ret = $this->_changeOldPathInDuplicateFiles($newPath, $newName, $oldName, "\.txt$", $suffix, $recursive);
+        if (is_string($ret)) {
+            throw new Exception("duplicateProject: Error mentre canviava el contingut d'algun axiu a $ret.");
+        }
+    }
+
+    private function _changeOldPathInDuplicateFiles($path, $newName, $oldName, $list_files, $suffix=FALSE, $recursive=FALSE) {
+        $ret = TRUE;
+        $scan = @scandir($path);
+        $scan = ($scan) ? array_diff($scan, [".", ".."]) : NULL;
+        if ($scan) {
+            foreach ($scan as $file) {
+                if (is_dir("$path/$file")) {
+                    if ($recursive) {
+                        $ret = $this->_changeOldPathInDuplicateFiles("$path/$file", $newName, $oldName, $list_files, $suffix, TRUE);
+                        if (is_string($ret)) break;
+                    }
+                }elseif (preg_match("/$list_files/", $file)) {
+                    if (($content = file_get_contents("$path/$file"))) {
+                        $c = $c1 = $c2 = 0;
+                        $content = preg_replace("/\b$oldName((:|\t|\"))?/m", "{$newName}$1", $content, -1, $c);
+                        $nName = str_replace(":", "_", $newName);
+                        $oName = str_replace(":", "_", $oldName);
+                        $content = preg_replace("/\b$oName((:|\t|\"))?/m", "{$nName}$1", $content, -1, $c1);
+                        $c += $c1;
+                        if ($suffix) {
+                            if (preg_match("/{$oldName}/", $content)) {
+                                $content = preg_replace("/($oldName)(_*?.*?)($suffix)/", "{$newName}$2$3", $content, -1, $c2);
+                                $c += $c2;
+                            }elseif (preg_match("/{$oName}/", $content)) {
+                                $content = preg_replace("/($oName)(_*?.*?)($suffix)/", "{$nName}$2$3", $content, -1, $c2);
+                                $c += $c2;
+                            }
+                        }
+                        if ($c > 0) {
+                            $ret = file_put_contents("$path/$file", $content, LOCK_EX);
+                            if (!$ret) {
+                                $ret = "$path/$file";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Canvia el contingut dels arxius de dreceres d'autors i responsables amb la nova ruta del projecte
+     * @param string $old_name : nom actual del projecte
+     * @param string $new_name : nou nom del projecte
+     * @param string $persons : noms dels autors i els responsables separats per ","
+     * @throws Exception
+     */
+    public function duplicateOldPathProjectInShortcutFiles($old_name, $new_name, $persons) {
+        $path_dreceres = WikiGlobalConfig::getConf('datadir') . str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'));
+        $nom_dreceres = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel') . ".txt";
+        $persons = explode(",", $persons);
+        foreach ($persons as $user) {
+            $file = "$path_dreceres$user/$nom_dreceres";
+            if (@file_exists($file)) {
+                if (($content = file_get_contents($file))) {
+                    $search = "/^\[\[{$old_name}.*\]\]$/m";
+                    if (preg_match($search, $content, $stmp) === 1) {
+                        $insert = $stmp[0]."\n\n[[{$new_name}|accés al projecte {$new_name}]]";
+                        $content = preg_replace($search, $insert, $content);
+                    }
+                    if (file_put_contents($file, $content, LOCK_EX) === FALSE)
+                        throw new Exception("duplicateProject: Error mentre canviava el contingut de la drecera de $user.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Duplica les entrades de l'arxiu ACL que contenen la ruta antiga del projecte amb la nova ruta
+     * @param string $old_name : nom actual del projecte
+     * @param string $new_name : nou nom del projecte
+     * @throws Exception
+     */
+    public function duplicateOldPathInACLFile($old_dir, $old_name, $new_dir, $new_name) {
+        $file = DOKU_CONF."acl.auth.php";
+        if (($content = file_get_contents($file))) {
+            $old_dir = str_replace("/", ":", $old_dir);
+            $new_dir = str_replace("/", ":", $new_dir);
+            $search = "/^({$old_dir}:{$old_name})(:\*\s*\b.*\s*[0-9])$/m";
+            if (preg_match($search, $content, $stmp) === 1) {
+                $insert = $stmp[1]."$2"."\n{$new_dir}:{$new_name}$2";
+                $content = preg_replace($search, $insert, $content);
+            }
+            if (file_put_contents($file, $content, LOCK_EX) === FALSE)
+                throw new Exception("duplicateProject: Error mentre canviava el nom del projecte/directori a $file.");
         }
     }
 

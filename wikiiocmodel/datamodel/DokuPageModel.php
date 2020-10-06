@@ -570,9 +570,10 @@ class DokuPageModel extends WikiRenderizableDataModel {
      * @return array Llista de terminacions de fitxers que contenen el nom del directori
      */
     private function _arrayTerminators() {
-        return ['_htmlindex.zip',
-                '_pdfindex.pdf',
-                '_material_paper.pdf'
+        return ['extension',
+                '_htmlindex\.zip',
+                '_pdfindex\.pdf',
+                '_material_paper\.pdf'
                ];
     }
 
