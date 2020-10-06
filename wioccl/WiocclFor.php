@@ -13,22 +13,28 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
 
         $this->counterName = $this->extractVarName($value, "counter");
 
-        // Desactivem el parser pels valors perquè podem provenir de camps
-        $class = static::$parserClass;
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         $this->from = $this->extractNumber($value, "from");
         $this->to = $this->extractNumber($value, "to");
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
 
         $this->wiocclLoop = new _WiocclLoop($this);
     }
 
     public function parseTokens($tokens, &$tokenIndex=0)
     {
-        return $this->wiocclLoop->loop($tokens, $tokenIndex);
+
+        $result = $this->wiocclLoop->loop($tokens, $tokenIndex);
+
+        $token = $tokens[$tokenIndex];
+        $token['tokenIndex'] = $tokenIndex;
+
+        // ALERTA! No passava pel resolveOnclose, el retorn es descarta
+        $this->resolveOnClose($result, $token);
+
+        return $result;
     }
 
     public function getFrom() {

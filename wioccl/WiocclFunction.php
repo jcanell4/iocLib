@@ -14,13 +14,11 @@ class WiocclFunction extends WiocclInstruction
 
         $this->functionName = $matches[1];
 
-        // Desactivem la generació d'estructura pels paràmetres de la funció
-        $class = (static::$parserClass);
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         $this->arguments = $this->extractArgs($matches[2]);
-        $class::$generateStructure = $prev;
+
+        $this->resumeStructureGeneration();
 
         if($this->arguments==null){
             $this->arguments=[];
@@ -52,12 +50,7 @@ class WiocclFunction extends WiocclInstruction
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
 
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $result;
-
-        // Codi per afegir la estructura
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        $this->close($result, $token);
 
 
         return $result;

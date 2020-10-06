@@ -14,11 +14,7 @@ class WiocclSet extends WiocclInstruction {
 
         // Com que el subset només serveix per establir valors no generem nodes a la estructura per de cap atribut
 
-        $class = (static::$parserClass);
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
-
-
+        $this->pauseStructureGeneration();
 
         $rawVarName = $this->extractVarName($value, self::VAR_ATTR);
         $type = $this->extractVarName($value, self::TYPE_ATTR, FALSE);
@@ -37,6 +33,6 @@ class WiocclSet extends WiocclInstruction {
         }
 
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
     }
 }

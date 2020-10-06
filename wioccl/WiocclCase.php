@@ -39,11 +39,8 @@ class WiocclCase extends WiocclInstruction {
         $this->updateParentArray(self::FROM_CASE, $this->chooseId);
 
         // Codi per afegir la estructura?
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $result;
+        $this->close($result, $token);
 
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
         return "";
     }
 }

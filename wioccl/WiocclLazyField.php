@@ -7,12 +7,7 @@ class WiocclLazyField extends WiocclInstruction {
 
         $result = "{##$result##}";
 
-        // Codi per afegir la estructura
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $result;
-
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        $this->close($result, $token);
 
         return $result;
     }

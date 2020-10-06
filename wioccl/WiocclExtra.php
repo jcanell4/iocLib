@@ -16,12 +16,7 @@ class WiocclExtra extends WiocclField{
             $ret = json_encode($ret);
         }
 
-        // Codi per afegir la estructura
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $ret;
-
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        $this->close($ret, $token);
 
         return $ret;
 

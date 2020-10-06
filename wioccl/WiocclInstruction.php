@@ -41,15 +41,17 @@ class WiocclInstruction extends IocInstruction {
 
         // TODO: Determinar si aquest element és referenciable o no
 
+        $this->open();
 
+    }
+
+    protected function open() {
         $class = (static::$parserClass);
+        $this->item = new WiocclStructureItem($class::getStructure());
 
-        $this->item = new WiocclStructureItem();
-
-        $this->item->rawValue = $value;
+//        $this->item->rawValue = $value;
 
         $class::open($this->item);
-
     }
 
     public function updateParentArray($fromType, $key = NULL) {
@@ -199,7 +201,13 @@ class WiocclInstruction extends IocInstruction {
 
         // ALERTA! per aquí només passen els generics, cal implementar això a tots els @override
 
-        // Codi per afegir la estructura
+        $this->close($result, $token);
+
+        return parent::resolveOnClose($result, $token);
+    }
+
+    protected function close($result, $token) {
+
         $class = (static::$parserClass);
         $class::close();
         $this->item->result = $result;
@@ -207,8 +215,8 @@ class WiocclInstruction extends IocInstruction {
         // Codi per afegir la estructura
         $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
 
-        return parent::resolveOnClose($result, $token);
     }
+
 
     protected function rebuildRawValue(&$item, $startIndex, $endIndex) {
         $item->rawValue = "";

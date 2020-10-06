@@ -13,13 +13,11 @@ class WiocclConditionalSet extends WiocclInstruction {
     public function __construct($value = null, $arrays = [], $dataSource=[], &$resetables=NULL, &$parentInstruction=NULL){
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
-        $class = (static::$parserClass);
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         $evaluation= $this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true));
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
 
         if($evaluation){
 //        if($this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true))){

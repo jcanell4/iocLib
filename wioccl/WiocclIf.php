@@ -11,9 +11,6 @@ class WiocclIf extends WiocclInstruction{
         $this->resetables->addNewContext();
         $value = str_replace("\\", "", $value);
 
-//        $class = (static::$parserClass);
-//        $prev = $class::$generateStructure;
-//        $class::$generateStructure = false;
         $this->pauseStructureGeneration();
 
         $this->condition = $this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true));
@@ -31,12 +28,7 @@ class WiocclIf extends WiocclInstruction{
 
         $this->resetables->RemoveLastContext($this->condition);
 
-        // Codi per afegir la estructura
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $result;
-
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        $this->close($ret, $token);
 
         return $ret;
     }

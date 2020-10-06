@@ -329,8 +329,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $text = WiocclParser::getValue($text, [], $dataSource);
             WiocclParser::$generateStructure = false;
 
-            static::debugStructure(WiocclParser::getStructure());
-            // generar un json per comprovar els resultats
+            // dins es genera un json per comprovar els resultats de la estructura
+            // static::debugStructure(WiocclParser::getStructure());
+
 
         } else {
             $dataSource = [];
@@ -342,29 +343,28 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         return DW2HtmlParser::getValue($text, [], $dataSource);
     }
-//        return DW2HtmlParser::parse($text);
 
 
     protected static function debugStructure($structure) {
         // Primer hem de convertir la estructura en un array associatiu
-        $tree = static::getNode($structure);
-        $test =json_encode($tree);
-        $stop = true;
+        $tree = static::getNode($structure[0]);
+        $json = json_encode($tree);
     }
 
     private static function getNode($item) {
         // Primer hem de convertir la estructura en un array associatiu
         $node = [
-            'parent' => $item->parent ? $item->parent->id : -1,
+            'parent' => $item->parent ? $item->parent : NULL, // ALERTA! desem el id perquè si no es provoca un bucle infinit no, només s'afegeixen complets els fills
             'rawValue' => $item->rawValue,
             'result' => $item->result, // TODO: eliminar
             'id' => $item->id,
             'children' => []
         ];
 
+        $children = $item->getChildren();
 
-        for ($i = 0; $i<count($item->children); $i++) {
-            $node['children'][] = static::getNode($item->children[$i]);
+        for ($i = 0; $i<count($children); $i++) {
+            $node['children'][] = static::getNode($children[$i]);
         }
 
         return $node;

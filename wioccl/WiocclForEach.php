@@ -18,14 +18,11 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
         $this->varName = $this->extractVarName($value);
         $this->counterName = $this->extractVarName($value, self::ARRAY_INDEX_ATTR, false);
 
-        // Desactivem el parseig pels continguts de l'array a iterar
-        $class = static::$parserClass;
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         $this->fullArray = $this->extractArray($value);
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
 
 
         $strFilter = $this->extractVarName($value, self::FILTER_ATTR, false);
@@ -46,9 +43,6 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
 
         // ALERTA! No passava pel resolveOnclose, el retorn es descarta
         $this->resolveOnClose($result, $token);
-
-        // Codi per afegir la estructura
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
 
         return $result;
 //        return $this->wiocclLoop->loop($tokens, $tokenIndex);
@@ -77,13 +71,11 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     public function validateLoop() {
 
 
-        $class = static::$parserClass;
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
 
 
         return $this->filter->validate();        

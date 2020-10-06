@@ -198,12 +198,13 @@ class WiocclParser extends IocParser
 
 
     public static function resetStructure() {
-        static::$structure = null;
+//        static::$structure = null;
+        static::$structure = [];
         static::$currentTop = null;
         static::$counter = 0;
     }
 
-    public static function getStructure() {
+    public static function &getStructure() {
 
         return static::$structure;
     }
@@ -215,16 +216,18 @@ class WiocclParser extends IocParser
             return;
         }
 
-        if (static::$structure === null) {
-            static::$structure = $item;
-        }
+        static::$structure[] = $item;
+
+//        if (static::$structure === null) {
+//            static::$structure = $item;
+//        }
 
         $item->id = static::$counter++;
 
-        $item->parent = static::$currentTop;
+        $item->parent = static::$currentTop->id;
 
         if (static::$currentTop != null) {
-            array_push(static::$currentTop->children, $item);
+            array_push(static::$currentTop->children, $item->id);
         }
 
         static::$currentTop = $item;
@@ -240,7 +243,7 @@ class WiocclParser extends IocParser
             return;
         }
 
-        static::$currentTop = static::$currentTop->parent;
+        static::$currentTop = static::$currentTop->getParent();
 
     }
 }

@@ -20,9 +20,7 @@ class WiocclChoose extends WiocclInstruction {
 
 
         // Desactivem el parser pels atributs
-        $class = (static::$parserClass);
-        $prev = $class::$generateStructure;
-        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
 
         // obligatori
         $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource, $resetables ));
@@ -34,7 +32,7 @@ class WiocclChoose extends WiocclInstruction {
         }
 
 
-        $class::$generateStructure = $prev;
+        $this->resumeStructureGeneration();
 
     }
 
@@ -58,13 +56,11 @@ class WiocclChoose extends WiocclInstruction {
             $op = strlen($cases[$i]['condition']['operator'])===0?"==":$cases[$i]['condition']['operator'];
             $condition = $lv . $op . $rv;
 
-            $class = (static::$parserClass);
-            $prev = $class::$generateStructure;
-            $class::$generateStructure = false;
+            $this->pauseStructureGeneration();
 
             $evaluation= $this->evaluateCondition($condition);
 
-            $class::$generateStructure = $prev;
+            $this->resumeStructureGeneration();
 
             $aux = $cases[$i]["resetables"];
             $ctx = $aux->RemoveLastContext(FALSE);
@@ -77,12 +73,8 @@ class WiocclChoose extends WiocclInstruction {
             }
         }
 
-        // Codi per afegir la estructura
-        $class = (static::$parserClass);
-        $class::close();
-        $this->item->result  = $ret;
+        $this->close($ret, $token);
 
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
         return $ret;
     }
 
