@@ -51,7 +51,7 @@ class WiocclInstruction extends IocInstruction {
 
 //        $this->item->rawValue = $value;
 
-        $class::open($this->item);
+        $class::openItem($this->item);
     }
 
     public function updateParentArray($fromType, $key = NULL) {
@@ -209,8 +209,11 @@ class WiocclInstruction extends IocInstruction {
     protected function close($result, $token) {
 
         $class = (static::$parserClass);
-        $class::close();
-        $this->item->result = $result;
+        $class::closeItem();
+
+        if ($class::$debugStructure) {
+            $this->item->result = $result;
+        }
 
         // Codi per afegir la estructura
         $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);

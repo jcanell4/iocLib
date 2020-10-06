@@ -196,12 +196,14 @@ class WiocclParser extends IocParser
 
     public static $generateStructure = false;
 
+    public static $debugStructure = false;
 
-    public static function resetStructure() {
+    public static function resetStructure($shouldDebug = false) {
 //        static::$structure = null;
         static::$structure = [];
         static::$currentTop = null;
         static::$counter = 0;
+        static::$debugStructure = $shouldDebug;
     }
 
     public static function &getStructure() {
@@ -210,7 +212,7 @@ class WiocclParser extends IocParser
     }
 
 
-    public static function open($item) {
+    public static function openItem($item) {
 
         if (!static::$generateStructure) {
             return;
@@ -238,7 +240,7 @@ class WiocclParser extends IocParser
 //        return static::$currentTop;
 //    }
 
-    public static function close() {
+    public static function closeItem() {
         if (!static::$generateStructure) {
             return;
         }

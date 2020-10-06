@@ -8,6 +8,7 @@ require_once DOKU_INC . 'lib/lib_ioc/translators/translatorParserClasses.php';
  * @author josep
  */
 abstract class AbstractMarkDownTranslator {
+
     protected $modes = null;
     protected $rootLevelValues = array(1);
 
@@ -303,6 +304,9 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 
 class DW2HtmlTranslator extends AbstractTranslator {
 
+    // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
+    const DEBUG_STRUCTURE = true;
+
     public static function translate($text, $params) {
         global $plugin_controller;
 
@@ -325,12 +329,16 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
             // TODO: per evitar el crash de moment pasem la traducció completa del wioccl->dw->html
             WiocclParser::$generateStructure = true;
-            WiocclParser::resetStructure();
+            WiocclParser::resetStructure(self::DEBUG_STRUCTURE);
             $text = WiocclParser::getValue($text, [], $dataSource);
             WiocclParser::$generateStructure = false;
 
             // dins es genera un json per comprovar els resultats de la estructura
-            // static::debugStructure(WiocclParser::getStructure());
+
+            if (self::DEBUG_STRUCTURE) {
+                static::debugStructure(WiocclParser::getStructure());
+            }
+
 
 
         } else {
@@ -354,7 +362,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
     private static function getNode($item) {
         // Primer hem de convertir la estructura en un array associatiu
         $node = [
-            'parent' => $item->parent ? $item->parent : NULL, // ALERTA! desem el id perquè si no es provoca un bucle infinit no, només s'afegeixen complets els fills
+            'parent' => $item->parent !== NULL ? $item->parent : NULL, // ALERTA! desem el id perquè si no es provoca un bucle infinit no, només s'afegeixen complets els fills
             'rawValue' => $item->rawValue,
             'result' => $item->result, // TODO: eliminar
             'id' => $item->id,
