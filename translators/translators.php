@@ -12,6 +12,7 @@ abstract class AbstractMarkDownTranslator {
     protected $rootLevelValues = array(1);
 
     function init($params) {
+        // ALERTA[Xavi]! Això és correcte? no hauria de ser $this->rootLevelValues = $params["rootLevelValues"]; ?
         $this->$rootLevelValues = $params["rootLevelValues"];
     }
 
@@ -323,8 +324,13 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
 
             // TODO: per evitar el crash de moment pasem la traducció completa del wioccl->dw->html
-
+            WiocclParser::$generateStructure = true;
+            WiocclParser::resetStructure();
             $text = WiocclParser::getValue($text, [], $dataSource);
+            WiocclParser::$generateStructure = false;
+
+            static::debugStructure(WiocclParser::getStructure());
+            // generar un json per comprovar els resultats
 
         } else {
             $dataSource = [];
@@ -338,4 +344,30 @@ class DW2HtmlTranslator extends AbstractTranslator {
     }
 //        return DW2HtmlParser::parse($text);
 
+
+    protected static function debugStructure($structure) {
+        // Primer hem de convertir la estructura en un array associatiu
+        $tree = static::getNode($structure);
+        $test =json_encode($tree);
+        $stop = true;
+    }
+
+    private static function getNode($item) {
+        // Primer hem de convertir la estructura en un array associatiu
+        $node = [
+            'parent' => $item->parent ? $item->parent->id : -1,
+            'rawValue' => $item->rawValue,
+            'result' => $item->result, // TODO: eliminar
+            'id' => $item->id,
+            'children' => []
+        ];
+
+
+        for ($i = 0; $i<count($item->children); $i++) {
+            $node['children'][] = static::getNode($item->children[$i]);
+        }
+
+        return $node;
+    }
 }
+

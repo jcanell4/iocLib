@@ -7,7 +7,7 @@ class WiocclField extends WiocclInstruction {
         return $token['value'];
     }
     
-    protected function resolveOnClose ($field) {
+    protected function resolveOnClose ($field, $token) {
         $ret = '[ERROR: undefined field]';
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
@@ -78,6 +78,15 @@ class WiocclField extends WiocclInstruction {
         if(!is_string($ret)){
             $ret = json_encode($ret);
         }
+
+        // Codi per afegir la estructura
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $ret;
+
+        // Reconstruim el codi original
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+
         return $ret;
 
     }    

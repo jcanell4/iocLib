@@ -12,8 +12,16 @@ class WiocclFor extends WiocclInstruction implements WiocclLooperInstruction{
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
         $this->counterName = $this->extractVarName($value, "counter");
+
+        // Desactivem el parser pels valors perquè podem provenir de camps
+        $class = static::$parserClass;
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
         $this->from = $this->extractNumber($value, "from");
         $this->to = $this->extractNumber($value, "to");
+
+        $class::$generateStructure = $prev;
 
         $this->wiocclLoop = new _WiocclLoop($this);
     }

@@ -13,7 +13,15 @@ class WiocclFunction extends WiocclInstruction
         };
 
         $this->functionName = $matches[1];
+
+        // Desactivem la generació d'estructura pels paràmetres de la funció
+        $class = (static::$parserClass);
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
         $this->arguments = $this->extractArgs($matches[2]);
+        $class::$generateStructure = $prev;
+
         if($this->arguments==null){
             $this->arguments=[];
         }
@@ -22,6 +30,7 @@ class WiocclFunction extends WiocclInstruction
 
     protected function extractArgs($string)
     {
+
         $string = preg_replace("/''/", '"', $string);
 //        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
         $string = WiocclParser::getValue($string, $this->arrays, $this->dataSource, $this->resetables);
@@ -34,7 +43,7 @@ class WiocclFunction extends WiocclInstruction
         return ($jsonArgs==NULL || !is_array($jsonArgs)) ? [] : $jsonArgs;
     }
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $token) {
         $this->init($result);
         $method = array($this, $this->functionName);
         if(is_callable($method)){
@@ -42,8 +51,20 @@ class WiocclFunction extends WiocclInstruction
         }else{
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
+
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $result;
+
+        // Codi per afegir la estructura
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+
+
         return $result;
     }
+
+
+
 
     protected function COUNTINARRAY($array, $fields, $values=NULL){
         if($values==NULL){

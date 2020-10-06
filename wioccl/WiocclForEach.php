@@ -17,7 +17,17 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
         $this->varName = $this->extractVarName($value);
         $this->counterName = $this->extractVarName($value, self::ARRAY_INDEX_ATTR, false);
+
+        // Desactivem el parseig pels continguts de l'array a iterar
+        $class = static::$parserClass;
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
         $this->fullArray = $this->extractArray($value);
+
+        $class::$generateStructure = $prev;
+
+
         $strFilter = $this->extractVarName($value, self::FILTER_ATTR, false);
         if(empty($strFilter )){
             $strFilter = 'true';
@@ -28,7 +38,20 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
 
     public function parseTokens($tokens, &$tokenIndex = 0)
     {
-        return $this->wiocclLoop->loop($tokens, $tokenIndex);
+        // Afegit per controlar el tancament
+        $result = $this->wiocclLoop->loop($tokens, $tokenIndex);
+
+        $token = $tokens[$tokenIndex];
+        $token['tokenIndex'] = $tokenIndex;
+
+        // ALERTA! No passava pel resolveOnclose, el retorn es descarta
+        $this->resolveOnClose($result, $token);
+
+        // Codi per afegir la estructura
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+
+        return $result;
+//        return $this->wiocclLoop->loop($tokens, $tokenIndex);
     }
 
     public function getFrom() {
@@ -52,7 +75,17 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     }
 
     public function validateLoop() {
+
+
+        $class = static::$parserClass;
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
         $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
+
+        $class::$generateStructure = $prev;
+
+
         return $this->filter->validate();        
     }
  }

@@ -33,10 +33,17 @@ class WiocclCase extends WiocclInstruction {
 
     }
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $token) {
         $this->arrays[$this->chooseId][$this->index]['value'] = $result;
         $this->arrays[$this->chooseId][$this->index]['resetables'] = &$this->resetables;
         $this->updateParentArray(self::FROM_CASE, $this->chooseId);
+
+        // Codi per afegir la estructura?
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $result;
+
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
         return "";
     }
 }

@@ -18,6 +18,12 @@ class WiocclChoose extends WiocclInstruction {
 
         $this->chooseId = $this->extractVarName($value, "id", true);
 
+
+        // Desactivem el parser pels atributs
+        $class = (static::$parserClass);
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
         // obligatori
         $this->lExpression = $this->normalizeArg(WiocclParser::parse($this->extractVarName($value, self::LEXPRESSION, true), $arrays, $dataSource, $resetables ));
 
@@ -26,6 +32,10 @@ class WiocclChoose extends WiocclInstruction {
         if ($aux) {
             $this->rExpression = $this->normalizeArg(WiocclParser::parse($aux, $arrays, $dataSource, $resetables));
         }
+
+
+        $class::$generateStructure = $prev;
+
     }
 
     public function updateParentArray($fromType, $key=NULL){
@@ -35,9 +45,11 @@ class WiocclChoose extends WiocclInstruction {
     }
 
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $token) {
         // Comprovem si s'ha obtingut les condicions i valors dels case
         $cases = $this->arrays[self::PREFIX . $this->chooseId];
+
+        $ret = $result;
 
         // recorrem tots els casos fins trobar el primer que acompleixi la condició
         for ($i = 0; $i < count($cases); $i++) {
@@ -46,18 +58,32 @@ class WiocclChoose extends WiocclInstruction {
             $op = strlen($cases[$i]['condition']['operator'])===0?"==":$cases[$i]['condition']['operator'];
             $condition = $lv . $op . $rv;
 
+            $class = (static::$parserClass);
+            $prev = $class::$generateStructure;
+            $class::$generateStructure = false;
+
             $evaluation= $this->evaluateCondition($condition);
+
+            $class::$generateStructure = $prev;
 
             $aux = $cases[$i]["resetables"];
             $ctx = $aux->RemoveLastContext(FALSE);
 
             if ($evaluation) {
                 $this->resetables->updateData($ctx);
-                return $cases[$i]['value'];
+                $ret = $cases[$i];
+                break;
+//                return $cases[$i]['value'];
             }
         }
 
-        return $result;
+        // Codi per afegir la estructura
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $ret;
+
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        return $ret;
     }
 
     public function parseTokens($tokens, &$tokenIndex=0) {
@@ -72,7 +98,11 @@ class WiocclChoose extends WiocclInstruction {
             ++$tokenIndex;
 
         }
-        return $this->resolveOnClose("");
+
+        $auxToken = $tokens[$tokenIndex];
+        $auxToken['tokenIndex'] = $tokenIndex;
+
+        return $this->resolveOnClose("", $auxToken);
     }
 
     private function evaluateCondition($strCondition) {

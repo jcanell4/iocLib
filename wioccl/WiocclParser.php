@@ -188,4 +188,59 @@ class WiocclParser extends IocParser
 
         return $token;
     }
+
+//
+    protected static $structure;
+    protected static $currentTop = null;
+    protected static $counter;
+
+    public static $generateStructure = false;
+
+
+    public static function resetStructure() {
+        static::$structure = null;
+        static::$currentTop = null;
+        static::$counter = 0;
+    }
+
+    public static function getStructure() {
+
+        return static::$structure;
+    }
+
+
+    public static function open($item) {
+
+        if (!static::$generateStructure) {
+            return;
+        }
+
+        if (static::$structure === null) {
+            static::$structure = $item;
+        }
+
+        $item->id = static::$counter++;
+
+        $item->parent = static::$currentTop;
+
+        if (static::$currentTop != null) {
+            array_push(static::$currentTop->children, $item);
+        }
+
+        static::$currentTop = $item;
+
+    }
+
+//    public static function top() {
+//        return static::$currentTop;
+//    }
+
+    public static function close() {
+        if (!static::$generateStructure) {
+            return;
+        }
+
+        static::$currentTop = static::$currentTop->parent;
+
+    }
 }

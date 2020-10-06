@@ -22,6 +22,14 @@ class WiocclSubset extends WiocclInstruction {
         // varName correspón a la propietat var i es el nom de l'array
         // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
 
+        // Com que el subset només serveix per establir valors no generem nodes a la estructura per de cap atribut
+        $class = (static::$parserClass);
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
+
+
+
         $this->varName = $this->extractVarName($value, self::SUBSET_VAR_ATTR);
         $this->fullArray = $this->extractArray($value, self::ARRAY_ATTR);
         $this->itemName = $this->extractVarName($value, self::ARRAY_ITEM_ATTR);
@@ -36,6 +44,10 @@ class WiocclSubset extends WiocclInstruction {
 
         $subset = $this->generateSubset();
         $this->arrays[$this->varName] = $subset;
+
+
+
+        $class::$generateStructure = $prev;
 
     }
 

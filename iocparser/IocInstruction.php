@@ -18,12 +18,14 @@ class IocInstruction {
 
     public static $stack = [];
 
+    protected $tokens;
+
     public function __construct($value = null, $arrays = array()/*, $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL*/) {
         $this->rawValue = $value;
         $this->arrays += $arrays;
     }
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $token) {
         return $result;
     }
 
@@ -43,7 +45,11 @@ class IocInstruction {
     public function parseTokens($tokens, &$tokenIndex = 0) {
         $result = '';
 
+        $auxToken = [];
+
         while ($tokenIndex < count($tokens)) {
+            $auxToken = $tokens[$tokenIndex];
+            $auxToken['tokenIndex'] = $tokenIndex;
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
             if ($newChunk === NULL) { // tancament de la etiqueta
@@ -53,13 +59,14 @@ class IocInstruction {
             $result .= $newChunk;
         }
 
-        return $this->resolveOnClose($result);
+        return $this->resolveOnClose($result, $auxToken);
     }
 
     // l'index del token analitzat s'actualitza globalment per referència
     public function parseToken($tokens, &$tokenIndex) {
 
         $currentToken = $tokens[$tokenIndex];
+        $currentToken['tokenIndex'] = $tokenIndex;
         $nextToken = $tokenIndex + 1 < count($tokens) ? $tokens[$tokenIndex + 1] : NULL;
         $result = '';
 
@@ -136,7 +143,7 @@ class IocInstruction {
 
                 $content = $item->getContent($currentToken);
                 $value = $class::getValue($content);
-                $result = $item->resolveOnClose($value);
+                $result = $item->resolveOnClose($value, $tokens[$tokenIndex]);
                 $this->popState();
                 break;
 

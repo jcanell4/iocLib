@@ -10,10 +10,19 @@ class WiocclIf extends WiocclInstruction{
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
         $this->resetables->addNewContext();
         $value = str_replace("\\", "", $value);
+
+//        $class = (static::$parserClass);
+//        $prev = $class::$generateStructure;
+//        $class::$generateStructure = false;
+        $this->pauseStructureGeneration();
+
         $this->condition = $this->evaluateCondition($this->extractVarName($value, self::COND_ATTR, true));
+
+        $this->resumeStructureGeneration();
+
     }
     
-    public function resolveOnClose($result){
+    public function resolveOnClose($result, $token){
         if($this->condition){
             $ret = $result;
         }else{
@@ -21,6 +30,14 @@ class WiocclIf extends WiocclInstruction{
         }
 
         $this->resetables->RemoveLastContext($this->condition);
+
+        // Codi per afegir la estructura
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $result;
+
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+
         return $ret;
     }
 

@@ -12,6 +12,14 @@ class WiocclSet extends WiocclInstruction {
     public function __construct($value = null, $arrays = [], $dataSource=[], &$resetables=NULL, &$parentInstruction=NULL){
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
+        // Com que el subset només serveix per establir valors no generem nodes a la estructura per de cap atribut
+
+        $class = (static::$parserClass);
+        $prev = $class::$generateStructure;
+        $class::$generateStructure = false;
+
+
+
         $rawVarName = $this->extractVarName($value, self::VAR_ATTR);
         $type = $this->extractVarName($value, self::TYPE_ATTR, FALSE);
         if(empty($type)){
@@ -26,6 +34,9 @@ class WiocclSet extends WiocclInstruction {
         } elseif ($type === self::MAP_TYPE) {
             $map = $this->extractMap($value, self::MAP_ATTR);
             $this->resetables->setValue($varName, $map[$v]);
-        }            
+        }
+
+
+        $class::$generateStructure = $prev;
     }
 }

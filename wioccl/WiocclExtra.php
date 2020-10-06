@@ -3,7 +3,7 @@ require_once "WiocclParser.php";
 
 class WiocclExtra extends WiocclField{
 
-    protected function resolveOnClose ($key) {
+    protected function resolveOnClose ($key, $token) {
         $ret = '[ERROR: undefined extra data]';
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
@@ -15,6 +15,14 @@ class WiocclExtra extends WiocclField{
         if(!is_string($ret)){
             $ret = json_encode($ret);
         }
+
+        // Codi per afegir la estructura
+        $class = (static::$parserClass);
+        $class::close();
+        $this->item->result  = $ret;
+
+        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+
         return $ret;
 
     }
