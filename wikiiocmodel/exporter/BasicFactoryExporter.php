@@ -5,6 +5,8 @@
  */
 if (!defined('DOKU_INC')) die();
 
+require_once dirname(__FILE__)."/BasicExporterClasses.php";
+
 class BasicFactoryExporter {
     protected $mode;     //modelo de comando que genera la acción [html | pdf]
     protected $filetype; //tipo de fichero que se desea generar [zip | pdf]
@@ -45,8 +47,8 @@ class BasicFactoryExporter {
             require_once $this->path."/".$this->mode."/".$class."/exporterClasses.php";
         }
         $class = $this->validateClass($class, $typedef['type']);
-
-        //creamos una instancia del render correspontiente al tipo de elemento
+        
+       //creamos una instancia del render correspontiente al tipo de elemento
         switch ($typedef['type']) {
             case "array":  $render = new $class($this, $typedef, $renderdef, $params); break;
             case "object": $render = new $class($this, $typedef, $renderdef, $params); break;
@@ -83,6 +85,10 @@ class BasicFactoryExporter {
 
     public function getDocumentClass() {
         return $this->getKeyRenderClass($this->getTypesRender('document'));
+    }
+    
+    public function getPathExporterProject(){
+        return $this->path;
     }
 
     private function validateClass($class, $tipo) {

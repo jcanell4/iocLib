@@ -120,23 +120,31 @@ class FtpSender{
 
     private function uploadFile($local_file, $source, $remote_file, $remote_dir) {
         //Logger::debug("FtpSender::uploadFile-start: $local_file", 0, __LINE__, basename(__FILE__), 1);
-
-        $data_to_send = @file_get_contents("$source$local_file");
-        if ($data_to_send === false)
+        if (($fh = fopen("$source$local_file", "rb"))) {
+            $buffer = fread($fh, 4096);
+            fclose($fh);
+        }
+        if (empty($buffer))
             throw new Exception("Could not open local file: $source$local_file.");
 
-        $remote_dir = "/".trim($remote_dir,"/")."/";
-        ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
+        $fh = fopen("$source$local_file", "rb");
+        if ($fh) {
+            $maxBytes = WikiGlobalConfig::getConf('maxVarLengthFTP', 'wikiiocmodel');
+            $remote_dir = "/".trim($remote_dir,"/")."/";
+            ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
 
-        //$context = stream_context_create(['ssh2.sftp' => ['timeout' => 10.0]]);
-        $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w'); //, FALSE, $context);
-        if (! $stream)
-            throw new Exception("Could not open remote file: $remote_dir$remote_file");
+            $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w');
+            if (! $stream)
+                throw new Exception("Could not open remote file: $remote_dir$remote_file");
 
-        if (@fwrite($stream, $data_to_send) === false)
-            throw new Exception("Could not send data from file: $source$local_file.");
-
-        $ret = fclose($stream);
+            while (! feof($fh)) {
+                $data_to_send = @fread($fh, $maxBytes); //Llegir 1 MB
+                if (@fwrite($stream, $data_to_send) === false)
+                    throw new Exception("Could not send data from file: $source$local_file.");
+            }
+            $ret = fclose($stream);
+            fclose($fh);
+        }
         //Logger::debug("FtpSender::uploadFile-end: \$ret=$ret", 0, __LINE__, basename(__FILE__), 1);
         return $ret;
     }
