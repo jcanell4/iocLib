@@ -87,7 +87,6 @@ class WiocclField extends WiocclInstruction {
 
     protected function splitOpeningAttrs(&$tag, &$attrs) {
         // El tag no es modifica en aquest cas
-
     }
 
     protected function close($result, $tokenEnd) {

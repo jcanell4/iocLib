@@ -39,8 +39,6 @@ class WiocclInstruction extends IocInstruction {
             $this->resetables = $resetables;
         }
 
-        // TODO: Determinar si aquest element és referenciable o no
-
         $this->open();
 
     }
@@ -128,7 +126,7 @@ class WiocclInstruction extends IocInstruction {
                 $this->popState();
 
                 if ($addToStructure) {
-                    $this->addToStructure($item->getContent($currentToken), $currentToken['tokenIndex'], $currentToken['tokenIndex']);
+                    $this->addToStructure($item->getContent($currentToken), $currentToken['tokenIndex'], $currentToken['tokenIndex'], 'content');
                 }
 
                 break;
@@ -206,12 +204,12 @@ class WiocclInstruction extends IocInstruction {
 
 
     // Aquest mètode afegeix un element a la estructura sense modificar les propietats de la instrucció actual
-    protected function addToStructure($result, $startIndex, $endIndex) {
+    protected function addToStructure($result, $type, $startIndex = 0, $endIndex = 0) {
 
         $class = (static::$parserClass);
         $item = new WiocclStructureItem($class::getStructure());
 
-//        $this->item->rawValue = $value;
+        $this->item->type = $type;
 
         $class::openItem($item);
 
@@ -250,7 +248,14 @@ class WiocclInstruction extends IocInstruction {
         $attrs = "";
 
         $this->splitOpeningAttrs($tag, $attrs);
-        $this->item->open = $tag;
+
+
+        if ($this->currentToken['extra'] && isset($this->currentToken['extra']['opening-format'])) {
+            $this->item->open = $this->currentToken['extra']['format'];
+        } else {
+            $this->item->open = $tag;
+        }
+
         $this->item->attrs = $attrs;
 
         $this->item->close = $tokenEnd['value'];
@@ -272,7 +277,7 @@ class WiocclInstruction extends IocInstruction {
             return;
         }
 
-        $tag = $aux[0] . $tail;
+        $tag = $aux[0] . ' %s '. $tail;
 
         // Eliminem el primer element
         array_shift($aux);

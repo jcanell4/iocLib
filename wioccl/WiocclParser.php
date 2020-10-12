@@ -130,7 +130,7 @@ class WiocclParser extends IocParser
         '@@}' => ['state' => 'close_extra', 'type' => 'extra', 'action' => 'close'],
         '{##' => ['state' => 'open_field', 'type' => 'field', 'class' => 'WiocclField', 'action' => 'open'],
         '##}' => ['state' => 'close_field', 'type' => 'field', 'action' => 'close'],
-        '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open'],
+        '{#_' => ['state' => 'open_function', 'type' => 'function', 'class' => 'WiocclFunction', 'action' => 'open', 'extra' =>['opening-format' => '{#_%s(%s)_#}']],
         '_#}' => ['state' => 'close_function', 'type' => 'function', 'action' => 'close'],
         '{%%' => ['state' => 'open_lazyfield', 'type' => 'lazyfield', 'class' => 'WiocclLazyField', 'action' => 'open'],
         '%%}' => ['state' => 'close_lazyfield', 'type' => 'lazyfield', 'action' => 'close'],

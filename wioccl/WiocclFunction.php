@@ -6,8 +6,14 @@ class WiocclFunction extends WiocclInstruction
     protected $arguments = [];
     protected $rawArguments = '';
 
+    public function __construct($value = null, array $arrays = array(), array $dataSource = array(), $resetables = NULL, $parentInstruction = NULL) {
 
-    protected function init($value)
+        parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
+
+        $this->pauseStructureGeneration();
+    }
+
+    protected function init($value, $tokenEnd)
     {
         if (preg_match('/(.*?)\((.*)\)/s', $value, $matches) === 0) {
             throw new Exception("Incorrect function structure");
@@ -15,12 +21,22 @@ class WiocclFunction extends WiocclInstruction
 
         $this->functionName = $matches[1];
 
-        $this->pauseStructureGeneration();
+//        $this->pauseStructureGeneration();
 
         $this->arguments = $this->extractArgs($matches[2]);
-        $this->rawArguments = $matches[2];
 
-        $this->resumeStructureGeneration();
+//        ALERTA! Aquests no son els rawArguments, son els arguments ja parsejats!!
+
+        $this->generateRawValue($rawValue, $this->currentToken['tokenIndex']+1, $tokenEnd['tokenIndex']-1);
+
+        // Els arguments son els valors que es troben entre el primer ( i l'últim )
+
+        $paramStart = strpos($rawValue, '(') +1;
+        $paramEnd = strrpos($rawValue, ')');
+
+        $this->rawArguments = substr($rawValue, $paramStart, $paramEnd - $paramStart);
+
+//        $this->resumeStructureGeneration();
 
         if($this->arguments==null){
             $this->arguments=[];
@@ -44,7 +60,7 @@ class WiocclFunction extends WiocclInstruction
     }
 
     protected function resolveOnClose($result, $tokenEnd) {
-        $this->init($result);
+        $this->init($result, $tokenEnd);
         $method = array($this, $this->functionName);
         if(is_callable($method)){
             $result = call_user_func_array($method, $this->arguments);
@@ -52,12 +68,20 @@ class WiocclFunction extends WiocclInstruction
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
 
+        $this->resumeStructureGeneration();
+
         $this->close($result, $tokenEnd);
 
 
-        $this->item->open .= $this->functionName;
-        $this->item->attrs = $this->rawArguments;
+        // només s'ha de canviar el primer element del format
+        if ($this->rawArguments) {
+            $this->item->open = sprintf($this->currentToken['extra']['opening-format'], $this->functionName, "%s");
+        } else {
+            $this->item->open = sprintf($this->currentToken['extra']['opening-format'], $this->functionName, "");
+        }
 
+        $this->item->attrs = $this->rawArguments;
+        $this->item->close = "";
         return $result;
     }
 
@@ -489,7 +513,7 @@ class WiocclFunction extends WiocclInstruction
 
     protected function STR_SUBTR($text=NULL, $start=0, $len=NAN) {
         if(!(is_string($text)|| !is_numeric($start))){
-            return "[ERROR! paràmetres incorrectes STR_REPLACE($search, $replace, $subject, $count)]"; //TODO: internacionalitzar
+            return "[ERROR! paràmetres incorrectes STR_SUBSTR($text, $start, $len)]"; //TODO: internacionalitzar
         }
         if(is_numeric ($len)){
             $ret = substr($text, $start, $len);
