@@ -7,11 +7,11 @@ class WiocclField extends WiocclInstruction {
         return $token['value'];
     }
     
-    protected function resolveOnClose ($field, $token) {
+    protected function resolveOnClose ($result, $tokenEnd) {
         $ret = '[ERROR: undefined field]';
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
-        if (preg_match ('/(.*?)\[(.*?)\]/', $field, $matches)===1) {
+        if (preg_match ('/(.*?)\[(.*?)\]/', $result, $matches)===1) {
             // es un array
             $varName = $matches[1];
             $key = $matches[2];
@@ -46,15 +46,15 @@ class WiocclField extends WiocclInstruction {
             }else{
                 $ret=NULL;
             }
-            if(strlen($field)> strlen($matches[0])){
+            if(strlen($result)> strlen($matches[0])){
                 $this->arrays["_TMP_"]=$ret;
-                $newkey = substr($field, strlen($matches[0]));
+                $newkey = substr($result, strlen($matches[0]));
                 $newToken = ["state"=>"content","value"=>"_TMP_$newkey"];
                 $ret = $this->getContent($newToken);
                 unset($this->arrays["_TMP_"]);
             }
         } else {
-            $fieldName = $field;
+            $fieldName = $result;
 
             // Primer comprovem als resetables i si no es troba comprovem a l'arrays
             if ($this->resetables->issetKey($fieldName)) {
@@ -79,9 +79,23 @@ class WiocclField extends WiocclInstruction {
             $ret = json_encode($ret);
         }
 
-        $this->close($ret, $token);
+        $this->close($ret, $tokenEnd);
 
         return $ret;
 
-    }    
+    }
+
+    protected function splitOpeningAttrs(&$tag, &$attrs) {
+        // El tag no es modifica en aquest cas
+
+    }
+
+    protected function close($result, $tokenEnd) {
+
+        parent::close($result, $tokenEnd);
+
+        // Codi per afegir la estructura
+        $this->generateRawValue($this->item->attrs, $this->currentToken['tokenIndex']+1, $tokenEnd['tokenIndex']-1);
+
+    }
 }

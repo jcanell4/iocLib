@@ -4,6 +4,7 @@ class WiocclFunction extends WiocclInstruction
 
     protected $functionName = '';
     protected $arguments = [];
+    protected $rawArguments = '';
 
 
     protected function init($value)
@@ -17,6 +18,7 @@ class WiocclFunction extends WiocclInstruction
         $this->pauseStructureGeneration();
 
         $this->arguments = $this->extractArgs($matches[2]);
+        $this->rawArguments = $matches[2];
 
         $this->resumeStructureGeneration();
 
@@ -41,7 +43,7 @@ class WiocclFunction extends WiocclInstruction
         return ($jsonArgs==NULL || !is_array($jsonArgs)) ? [] : $jsonArgs;
     }
 
-    protected function resolveOnClose($result, $token) {
+    protected function resolveOnClose($result, $tokenEnd) {
         $this->init($result);
         $method = array($this, $this->functionName);
         if(is_callable($method)){
@@ -50,8 +52,11 @@ class WiocclFunction extends WiocclInstruction
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
 
-        $this->close($result, $token);
+        $this->close($result, $tokenEnd);
 
+
+        $this->item->open .= $this->functionName;
+        $this->item->attrs = $this->rawArguments;
 
         return $result;
     }

@@ -9,12 +9,12 @@ class Html2DWMarkup extends Html2DWInstruction {
 //        return $this->getReplacement(self::OPEN) . $token['value'];
 //    }
 
-    protected function resolveOnClose($field) {
+    protected function resolveOnClose($result) {
 
         if (isset($this->extra['trim']) && $this->extra['trim']) {
-            $field = trim($field);
+            $result = trim($result);
         }
 
-        return $this->getReplacement(self::OPEN) . $field . $this->getReplacement(self::CLOSE);
+        return $this->getReplacement(self::OPEN) . $result . $this->getReplacement(self::CLOSE);
     }
 }

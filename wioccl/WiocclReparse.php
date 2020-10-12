@@ -4,12 +4,12 @@ require_once "WiocclParser.php";
 class WiocclReparse extends WiocclInstruction {
     const VAR_ATTR = "variables";
 
-    protected function resolveOnClose($result, $token) {
+    protected function resolveOnClose($result, $tokenEnd) {
 
         $result = WiocclParser::getValue($result, $this->arrays, $this->dataSource, $this->resetables);
 
         // Codi per afegir la estructura
-        $this->close($result, $token);
+        $this->close($result, $tokenEnd);
 
         return $result;
     }

@@ -19,7 +19,7 @@ class WiocclIf extends WiocclInstruction{
 
     }
     
-    public function resolveOnClose($result, $token){
+    public function resolveOnClose($result, $tokenEnd){
         if($this->condition){
             $ret = $result;
         }else{
@@ -28,7 +28,7 @@ class WiocclIf extends WiocclInstruction{
 
         $this->resetables->RemoveLastContext($this->condition);
 
-        $this->close($ret, $token);
+        $this->close($ret, $tokenEnd);
 
         return $ret;
     }

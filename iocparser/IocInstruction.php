@@ -25,7 +25,7 @@ class IocInstruction {
         $this->arrays += $arrays;
     }
 
-    protected function resolveOnClose($result, $token) {
+    protected function resolveOnClose($result, $tokenEnd) {
         return $result;
     }
 

@@ -366,7 +366,10 @@ class DW2HtmlTranslator extends AbstractTranslator {
             'rawValue' => $item->rawValue,
             'result' => $item->result, // TODO: eliminar
             'id' => $item->id,
-            'children' => []
+            'children' => [],
+            'open' => $item->open,
+            'attrs' => $item->attrs,
+            'close' => $item->close
         ];
 
         $children = $item->getChildren();

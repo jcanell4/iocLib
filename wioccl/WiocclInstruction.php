@@ -109,6 +109,11 @@ class WiocclInstruction extends IocInstruction {
         switch ($action) {
             case 'content':
 
+
+                // Si el parent d'aquest element és un field, llavors aquest és el nom del field i no content
+                $top = $this->getTopState();
+                $addToStructure = $top['type'] !== "field";
+
                 $item = $this->getClassForToken($currentToken, $nextToken);
 
                 $currentToken['instruction'] = $item;
@@ -121,6 +126,10 @@ class WiocclInstruction extends IocInstruction {
                     $result .= $item->getContent($currentToken);
                 }
                 $this->popState();
+
+                if ($addToStructure) {
+                    $this->addToStructure($item->getContent($currentToken), $currentToken['tokenIndex'], $currentToken['tokenIndex']);
+                }
 
                 break;
 
@@ -196,17 +205,39 @@ class WiocclInstruction extends IocInstruction {
     }
 
 
-    protected function resolveOnClose($result, $token) {
+    // Aquest mètode afegeix un element a la estructura sense modificar les propietats de la instrucció actual
+    protected function addToStructure($result, $startIndex, $endIndex) {
+
+        $class = (static::$parserClass);
+        $item = new WiocclStructureItem($class::getStructure());
+
+//        $this->item->rawValue = $value;
+
+        $class::openItem($item);
+
+
+        $class = (static::$parserClass);
+        $class::closeItem();
+
+        if ($class::$debugStructure) {
+            $item->result = $result;
+        }
+
+
+    }
+
+
+    protected function resolveOnClose($result, $tokenEnd) {
         // Implementació per defecte
 
         // ALERTA! per aquí només passen els generics, cal implementar això a tots els @override
 
-        $this->close($result, $token);
+        $this->close($result, $tokenEnd);
 
-        return parent::resolveOnClose($result, $token);
+        return parent::resolveOnClose($result, $tokenEnd);
     }
 
-    protected function close($result, $token) {
+    protected function close($result, $tokenEnd) {
 
         $class = (static::$parserClass);
         $class::closeItem();
@@ -215,16 +246,46 @@ class WiocclInstruction extends IocInstruction {
             $this->item->result = $result;
         }
 
+        $tag = $this->currentToken['value'];
+        $attrs = "";
+
+        $this->splitOpeningAttrs($tag, $attrs);
+        $this->item->open = $tag;
+        $this->item->attrs = $attrs;
+
+        $this->item->close = $tokenEnd['value'];
+
         // Codi per afegir la estructura
-        $this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $token['tokenIndex']);
+        //$this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $tokenEnd['tokenIndex']);
+
+    }
+
+    protected function splitOpeningAttrs(&$tag, &$attrs) {
+        // La implementació més genèrica és considerar que tot el que estigui desprès del primer espai son atributs
+        // quan això no és vàlid (per exemple a les funcions), es fa @override d'aquesta funció
+
+        $tail = substr($tag, -1, 1);
+        $tag = substr($tag, 0, strlen($tag)-1);
+        $aux = explode(' ', $tag);
+
+        if (count($aux)===0) {
+            return;
+        }
+
+        $tag = $aux[0] . $tail;
+
+        // Eliminem el primer element
+        array_shift($aux);
+
+        $attrs = implode(" ", $aux);
 
     }
 
 
-    protected function rebuildRawValue(&$item, $startIndex, $endIndex) {
-        $item->rawValue = "";
+    protected function generateRawValue(&$value, $startIndex, $endIndex) {
+        $value = "";
         for ($i = $startIndex; $i <= $endIndex; $i++) {
-            $item->rawValue .= $this->tokens[$i]['value'];
+            $value.= $this->tokens[$i]['value'];
         }
     }
 

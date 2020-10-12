@@ -7,6 +7,12 @@ class WiocclStructureItem {
     public $result = ''; // TODO: eliminar el resultat
     public $id = -1;
 
+
+    public $type = "";
+    public $open = "";
+    public $close = "";
+    public $attrs = "";
+
     protected $structure;
 
     public function __construct(&$structure){

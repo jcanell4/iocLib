@@ -43,7 +43,7 @@ class WiocclChoose extends WiocclInstruction {
     }
 
 
-    protected function resolveOnClose($result, $token) {
+    protected function resolveOnClose($result, $tokenEnd) {
         // Comprovem si s'ha obtingut les condicions i valors dels case
         $cases = $this->arrays[self::PREFIX . $this->chooseId];
 
@@ -73,7 +73,7 @@ class WiocclChoose extends WiocclInstruction {
             }
         }
 
-        $this->close($ret, $token);
+        $this->close($ret, $tokenEnd);
 
         return $ret;
     }
