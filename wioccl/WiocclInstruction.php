@@ -209,8 +209,6 @@ class WiocclInstruction extends IocInstruction {
         $class = (static::$parserClass);
         $item = new WiocclStructureItem($class::getStructure());
 
-        $this->item->type = $type;
-
         $class::openItem($item);
 
 
@@ -221,6 +219,9 @@ class WiocclInstruction extends IocInstruction {
             $item->result = $result;
         }
 
+        $item->type = $type;
+        // No hi ha etiquetas, el resultat és el contingut sense modificar
+        $item->open = $result;
 
     }
 
@@ -277,7 +278,7 @@ class WiocclInstruction extends IocInstruction {
             return;
         }
 
-        $tag = $aux[0] . ' %s '. $tail;
+        $tag = $aux[0] . ' %s'. $tail;
 
         // Eliminem el primer element
         array_shift($aux);

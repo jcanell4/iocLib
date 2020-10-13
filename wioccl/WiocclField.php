@@ -86,7 +86,8 @@ class WiocclField extends WiocclInstruction {
     }
 
     protected function splitOpeningAttrs(&$tag, &$attrs) {
-        // El tag no es modifica en aquest cas
+        // el nom del camp es troba com atribut
+        $tag .= "%s";
     }
 
     protected function close($result, $tokenEnd) {

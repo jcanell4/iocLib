@@ -340,7 +340,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
             }
 
 
-
         } else {
             $dataSource = [];
         }
@@ -355,15 +354,42 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
     protected static function debugStructure($structure) {
         // Primer hem de convertir la estructura en un array associatiu
-        $tree = static::getNode($structure[0]);
+
+        $root = &$structure[0];
+
+        // El open del root no és correcte, ha d'incloure tot el contingut, ho canviem:
+        $root->open = "";
+
+        $tree = static::getNode($root);
         $json = json_encode($tree);
+
+        // Provem a reconstruir el document a partir dels nodes
+        $text = static::getText($root, $structure);
+
+
     }
+
+    protected static function getText($node, $structure) {
+
+        $text = sprintf($node->open, $node->attrs);
+
+        $children = '';
+
+        foreach ($node->children as $childId) {
+            $children.= static::getText($structure[$childId], $structure);
+        }
+
+        $text .= $children . $node->close;
+
+        return $text;
+    }
+
 
     private static function getNode($item) {
         // Primer hem de convertir la estructura en un array associatiu
         $node = [
             'parent' => $item->parent !== NULL ? $item->parent : NULL, // ALERTA! desem el id perquè si no es provoca un bucle infinit no, només s'afegeixen complets els fills
-            'rawValue' => $item->rawValue,
+//            'rawValue' => $item->rawValue,
             'result' => $item->result, // TODO: eliminar
             'id' => $item->id,
             'open' => $item->open,
@@ -374,7 +400,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         $children = $item->getChildren();
 
-        for ($i = 0; $i<count($children); $i++) {
+        for ($i = 0; $i < count($children); $i++) {
             $node['children'][] = static::getNode($children[$i]);
         }
 
