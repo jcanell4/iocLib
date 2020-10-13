@@ -11,6 +11,12 @@ class WiocclParser extends IocParser
     ];
 
     protected static $tokenPatterns = [
+        ':###' => [
+            'state' => 'open_readonly',
+        ],
+        '###:' => [
+            'state' => 'close_readonly',
+        ],
         '{@@' => [
             'state' => 'open_extra',
         ],
@@ -114,6 +120,8 @@ class WiocclParser extends IocParser
     ];
 
     protected static  $tokenKey = [
+        ':###' => ['state' => 'open_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'open', 'extra' => ['replacement'=>['<readonly>', '</readonly>'], 'exclude-stack' => true]],
+        '###:' => ['state' => 'close_readonly', 'type' => 'readonly', 'action' => 'close', 'extra' => ['exclude-stack' => true]],
         '<WIOCCL:FOR' => ['state' => 'open_for', 'type' => 'for', 'class' => 'WiocclFor', 'action' => 'open'],
         '</WIOCCL:FOR>' => ['state' => 'close_for', 'type' => 'for', 'action' => 'close'],
         '<WIOCCL:FOREACH' => ['state' => 'open_foreach', 'type' => 'foreach', 'class' => 'WiocclForEach', 'action' => 'open'],
@@ -152,9 +160,14 @@ class WiocclParser extends IocParser
 
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
     {
-        $replacements = array_fill(0, count(static::$removeTokenPatterns), '');
 
-        $text = preg_replace(static::$removeTokenPatterns, $replacements, $text);
+        // Quan generem la estructura no s'elimina cap element
+        if (!static::$generateStructure) {
+            $replacements = array_fill(0, count(static::$removeTokenPatterns), '');
+
+            $text = preg_replace(static::$removeTokenPatterns, $replacements, $text);
+        }
+
 
         return static::parse($text, $arrays, $dataSource, $resetables);
     }

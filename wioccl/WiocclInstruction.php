@@ -137,7 +137,15 @@ class WiocclInstruction extends IocInstruction {
                 $item = $this->getClassForToken($currentToken, $nextToken);
 
                 $currentToken['instruction'] = $item;
-                $this->pushState($currentToken);
+
+
+                if (!$currentToken['extra'] || !isset($currentToken['extra']['exclude-stack']) || !$currentToken['extra']['exclude-stack']) {
+                    $this->pushState($currentToken);
+                } else {
+                    // no afegim a l'statck
+                    $test = true;
+                }
+
 
                 if ($mark) {
                     ++$tokenIndex;
@@ -173,10 +181,17 @@ class WiocclInstruction extends IocInstruction {
 
             case 'close':
                 $top = $this->getTopState();
-                // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
-                $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
 
-                if (!$top || ($top['type'] !== $currentToken['type'] && !$isExcluded)) {
+
+                if ($currentToken['extra'] && isset($currentToken['extra']['exclude-stack']) && $currentToken['extra']['exclude-stack']) {
+                    $isExcluded = true;
+                    $top = true; // Alerta! això normalment conté un element d'un array, però en aquest cas només ens cal passar-lo com a true per no comprovar el tancament
+                } else {
+                    // ALERTA[Xavi]: el for/foreach no es pot tancar aquí perquè la etiqueta de tancament es processa a cada iteració
+                    $isExcluded = $this->isClosingTagExcluded($currentToken['type']);
+                }
+
+                if (!$top || (!$isExcluded && $top['type'] !== $currentToken['type'])) {
                     // Variables per testeig, per comprovar quina es la causa de l'error
                     $noHiHaTop = !$top;
                     $noEsDelTipus = $top['type'] !== $currentToken['type'];
