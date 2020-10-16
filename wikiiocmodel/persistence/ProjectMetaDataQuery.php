@@ -465,6 +465,21 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
+     * Establece el atributo con el valor especificado en la clave version del subset del archivo de sistema de un proyecto
+     * @return boolean : true si el atributo se ha establecido con éxito
+     */
+    public function setProjectSystemSubSetVersion($att, $value, $subset=FALSE) {
+        $jsSystem = $this->getSystemData($subset);
+        //if ($jsSystem == NULL) $jsSystem = [];
+        if ($att === "fields")
+            $jsSystem['versions'][$att] = $value;
+        else
+            $jsSystem['versions']['templates'][$att] = $value;
+        $success = $this->setSystemData($jsSystem, $subset);
+        return $success;
+    }
+
+    /**
      * Extrae, del contenido del fichero, los datos correspondientes a la clave
      * @param string $subSet : clave del contenido
      * @param string $revision : fecha unix de la revisión
@@ -504,9 +519,12 @@ class ProjectMetaDataQuery extends DataQuery {
     /**
      * Guarda el nuevo archivo de datos del proyecto, guardando previamente la versión anterior como una revisión
      * @param JSON   $metaDataValue   Nou contingut de l'arxiu de dades del projecte
+     * @param string $metadataSubset
+     * @param string $summary
+     * @param JSON   $upgrade
      * @return string
      */
-    public function setMeta($metaDataValue, $metadataSubset=FALSE, $summary="") {
+    public function setMeta($metaDataValue, $metadataSubset=FALSE, $summary="", $upgrade="") {
         if (!$metadataSubset){
             $metadataSubset = $this->getProjectSubset();
         }
@@ -514,7 +532,8 @@ class ProjectMetaDataQuery extends DataQuery {
                                $this->getProjectFilePath($this->getProjectId()),
                                $this->getProjectFileName($metadataSubset, $this->getProjectType()),
                                $metaDataValue,
-                               $summary);
+                               $summary,
+                               $upgrade);
     }
 
     /**
@@ -522,9 +541,11 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param string $metaDataSubSet  Valor de metadatasubset (exemple: "main")
      * @param string $projectFileName Nom de l'arxiu de dades del projecte (exemple: "meta.mdpr")
      * @param JSON   $metaDataValue   Nou contingut de l'arxiu de dades del projecte
+     * @param string $summary
+     * @param JSON   $upgrade
      * @return string
      */
-    private function _setMeta($metaDataSubSet, $projectFilePath, $projectFileName, $metaDataValue, $summary="") {
+    private function _setMeta($metaDataSubSet, $projectFilePath, $projectFileName, $metaDataValue, $summary="", $upgrade="") {
         $projectFilePathName = $projectFilePath . $projectFileName;
         $projectId = $this->getProjectId();
 
@@ -546,9 +567,12 @@ class ProjectMetaDataQuery extends DataQuery {
         if ($resourceCreated) {
             $new_date = filemtime($projectFilePathName);
             if (!$prev_date) $prev_date = $new_date;
-            $this->_saveRevision($prev_date, $new_date, $projectId, $projectFileName, $contentFile, $summary);
-        }
+            if (!empty($upgrade)) $extra['extra'] = $upgrade;
+            $this->_saveRevision($prev_date, $new_date, $projectId, $projectFileName, $contentFile, $summary, $extra);
 
+            //$contentVersion = "{\"$metaDataSubSet\":{\"versions\":{\"fields\":$fields}}}";
+            //$this->_saveRevision($prev_date, $new_date, $projectId, "version", $contentVersion, "fields version: $fieldsVersion", ['extra'=>$fieldsVersion]);
+        }
         return $resourceCreated;
     }
 
@@ -572,7 +596,7 @@ class ProjectMetaDataQuery extends DataQuery {
         if ($resourceCreated) {
             // Crea y verifica el fichero .mdpr que contendrá los datos del proyecto
             $fp = @fopen("$dirProject/$file", 'w');
-            if ($resourceCreated = ($fp !== false)) {
+            if (($resourceCreated = ($fp !== false))) {
                 fclose($fp);
             }
         }
@@ -1030,7 +1054,7 @@ class ProjectMetaDataQuery extends DataQuery {
         }
     }
 
-    private function _saveRevision($prev_date, $new_date, $projectId, $projectFileName, $old_content, $summary="") {
+    private function _saveRevision($prev_date, $new_date, $projectId, $projectFileName, $old_content, $summary="", $flags=[]) {
         $resourceCreated = FALSE;
         $new_rev_file = $this->getProjectFilePath($projectId, NULL, $new_date) . "$projectFileName.$new_date.txt";
         $resourceCreated = io_saveFile("$new_rev_file.gz", $old_content);
@@ -1038,7 +1062,7 @@ class ProjectMetaDataQuery extends DataQuery {
         $last_rev_date = key($this->getProjectRevisionList(1));
         if ($last_rev_date && $last_rev_date < $prev_date) {
             $summary = WikiIocLangManager::getLang('external_edit') . ". $summary";
-            $flags = array('ExternalEdit' => true);
+            $flags['ExternalEdit'] = TRUE;
         }
         $resourceCreated &= $this->_addProjectLogEntry($new_date, $projectId, self::LOG_TYPE_EDIT, $summary, $flags);
         return ($resourceCreated) ? $new_date : "";
@@ -1053,10 +1077,12 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param array $flags
      * @return boolean
      */
-    private function _addProjectLogEntry($mdate, $projectId, $type=self::LOG_TYPE_EDIT, $summary="", $flags=NULL) {
-        $strip  = array("\t", "\n");
-        if (is_array($flags))
+    private function _addProjectLogEntry($mdate, $projectId, $type=self::LOG_TYPE_EDIT, $summary="", $flags=[]) {
+        $strip = array("\t", "\n");
+        if (!empty($flags)) {
             $flagExternalEdit = isset($flags['ExternalEdit']);
+            $extra = isset($flags['extra']) ? $flags['extra'] : "";
+        }
         $record = array(
             'date'  => $mdate,
             'ip'    => (!$flagExternalEdit) ? clientIP(true) : "127.0.0.1",
@@ -1064,7 +1090,7 @@ class ProjectMetaDataQuery extends DataQuery {
             'id'    => str_replace("/", ":", $projectId),
             'user'  => (!$flagExternalEdit) ? $_SERVER['REMOTE_USER'] : "",
             'sum'   => utf8_substr(str_replace($strip, "", $summary), 0, 255),
-            'extra' => ""
+            'extra' => ($extra!==NULL) ? $extra : ""
             );
 
         //meta log

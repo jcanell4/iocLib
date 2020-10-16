@@ -604,10 +604,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Guarda los datos del proyecto
      * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
      */
-    public function setDataProject($dataProject, $summary="") {
+    public function setDataProject($dataProject, $summary="", $upgrade="") {
         $calculatedData = $this->processAutoFieldsOnSave($dataProject);
         $calculatedData = $this->_updateCalculatedFieldsOnSave($calculatedData);
-        $this->projectMetaDataQuery->setMeta($calculatedData, $this->getMetaDataSubSet(), $summary);
+        $succes = $this->projectMetaDataQuery->setMeta($calculatedData, $this->getMetaDataSubSet(), $summary, $upgrade);
+        return $succes;
     }
 
     private function processAutoFieldsOnSave($data) {
