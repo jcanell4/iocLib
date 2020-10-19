@@ -41,7 +41,7 @@ class UpgradeManager {
                     break;  //Se ha producido un error en una actualización y, por tanto, se fuerza la finalización del proceso
                 }
             }else{
-                $i=$ver_config+1;
+                break;
             }
         }
 
