@@ -48,7 +48,8 @@ class DW2HtmlParser extends IocParser {
         ],
 
 
-        "={2,6}\n?" => [
+
+        "={2,6}" => [
             'state' => 'header'
         ],
 
@@ -141,6 +142,14 @@ class DW2HtmlParser extends IocParser {
             'state' => 'close'
         ],
 
+        "<readonly>" => [
+            'state' => 'readonly-open'
+        ],
+
+        "<\/readonly>" => [
+            'state' => 'readonly-close'
+        ],
+
 
 
     ];
@@ -152,6 +161,7 @@ class DW2HtmlParser extends IocParser {
 
         "<quiz (.*?)>(.*?)<\/quiz>" => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'DW2HtmlQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
+
         "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>(.*?)}}" => ['state' => 'video', 'type' => 'video', 'class' => 'DW2HtmlMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // ALERTA! no ha de ser regex, si es posa com a regex es pot considerar match de les captures multilínia
@@ -161,9 +171,8 @@ class DW2HtmlParser extends IocParser {
         "^::(.*?):(.*?):::" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-        // El close ha d'anar abans perquè si no es detecta com a open
-        "={2,6}\n" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
-        '={2,6}' => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open', 'extra' => ['block' => TRUE, 'regex' => TRUE]],
+
+        "={2,6}" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         '^\[{2}(.*?)\]{2}' => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
@@ -179,8 +188,8 @@ class DW2HtmlParser extends IocParser {
         "^{{(.*?)}}" => ['state' => 'image', 'type' => 'image', 'class' => 'DW2HtmlImage', 'action' => 'self-contained', 'extra' => ['replacement' => ["<img ", ""], 'regex' => TRUE, 'block' => TRUE]],
 
 
-        ':table:(.*?):' => ['state' => 'box', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
-        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
+//        ':table:(.*?):' => ['state' => 'box', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
+//        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
         "<code.*?>(.*?)<\/code>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE,'block' => TRUE]],
 
@@ -201,6 +210,11 @@ class DW2HtmlParser extends IocParser {
 
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
+
+        ':table:(.*?):' => ['state' => 'box', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
+        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
+
+
         "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
 
@@ -212,6 +226,9 @@ class DW2HtmlParser extends IocParser {
 
         "\n" => ['state' => 'close', 'type' => '', 'action' => 'close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
+
+        "<readonly>" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'open', 'extra' => ['regex' => TRUE, 'inline-block' => TRUE, 'replacement' => ["<div class='readonly'>", "</div>"]]],
+        "<\/readonly>" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
 
     ];

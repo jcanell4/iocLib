@@ -89,19 +89,27 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
 
+        // Alerta, això de tancar automàticament és necessari per les llistes amb mùltiples nivells
+        // Detectat problema només amb el <readonly></readonly> quan es embolcallat per altre readonly, afegit com a cas especial
         while ($top && $top['instruction']->isClosing($currentToken)) {
-
 
             $result .= $top['instruction']->Close();
             $this->popState();
+            $extra = $top['extra'];
             $top = end(static::$stack);
+
+            if ($extra && $extra['inline-block']) {
+                break;
+            }
+
 
         }
 
         $class = static::$parserClass;
 
         // Aquest cas es dona quan una línia comença per una etiqueta de tipus inline (no és block)
-        if (!$class::isInner() && !$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE && $currentToken['action'] !== 'close') {
+        if (!$class::isInner() && !$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE &&
+                $currentToken['extra']['inline-block'] !== TRUE  && $currentToken['action'] !== 'close') {
 
             $newContainerToken = DW2HtmlParser::$defaultContainer;
             $container = $this->getClassForToken($newContainerToken, $nextToken);

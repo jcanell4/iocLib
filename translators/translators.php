@@ -320,15 +320,10 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $dataSource = $plugin_controller->getCurrentProjectDataSource($params['projectOwner'], $params['projectSourceType']);
 
 
-            // Cambiem les marques de només lectura?
-            //// TODO: ALERTA: actualment es perden els /:###/ i /###:/
 
-//            $text = preg_replace("/:###/", '<div class="wioccl-readonly">', $text);
-//            $text = preg_replace("/###:/", '</div>', $text);
-
-
-            // TODO: per evitar el crash de moment pasem la traducció completa del wioccl->dw->html
             WiocclParser::$generateStructure = true;
+
+
             WiocclParser::resetStructure(self::DEBUG_STRUCTURE);
             $text = WiocclParser::getValue($text, [], $dataSource);
             WiocclParser::$generateStructure = false;
