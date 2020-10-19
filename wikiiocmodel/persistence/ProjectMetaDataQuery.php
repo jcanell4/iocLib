@@ -470,7 +470,6 @@ class ProjectMetaDataQuery extends DataQuery {
      */
     public function setProjectSystemSubSetVersion($att, $value, $subset=FALSE) {
         $jsSystem = $this->getSystemData($subset);
-        //if ($jsSystem == NULL) $jsSystem = [];
         if ($att === "fields")
             $jsSystem['versions'][$att] = $value;
         else
