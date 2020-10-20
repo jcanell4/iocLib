@@ -6,9 +6,14 @@ class WiocclSimpleReplacement extends WiocclInstruction {
     const OPEN = 0;
     const CLOSE = 1;
 
+    protected function getContent($token) {
+        return $this->extra['replacement'];
+    }
+
     protected function resolveOnClose($result, $tokenEnd) {
 
-        $result = $this->extra['replacement'][static::OPEN] . $result . $this->extra['replacement'][static::CLOSE];
+//        $result = $this->extra['replacement'][static::OPEN] . $result . $this->extra['replacement'][static::CLOSE];
+        $result = $this->extra['replacement'];
 
         $this->close($result, $tokenEnd);
 

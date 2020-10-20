@@ -47,6 +47,7 @@ class WiocclParser extends IocParser
         '</WIOCCL:IF>(\n)?' => [
             'state' => 'close_if',
         ],
+
         '<WIOCCL:FOREACH .*?[^\\\\]>(\n)?' => [
             'state' => 'open_foreach',
         ],
@@ -120,8 +121,10 @@ class WiocclParser extends IocParser
     ];
 
     protected static  $tokenKey = [
-        ':###' => ['state' => 'open_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'open', 'extra' => ['replacement'=>['<readonly>', '</readonly>'], 'exclude-stack' => true]],
-        '###:' => ['state' => 'close_readonly', 'type' => 'readonly', 'action' => 'close', 'extra' => ['exclude-stack' => true]],
+        ':###' => ['state' => 'open_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'self-contained', 'extra' => ['replacement'=>'[readonly-open]']],
+        '###:' => ['state' => 'close_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => '[readonly-close]']], // versió per fer proves que no s'atura si l'ordre a l'stack és incorrecte
+        // TODO: afegir les ~~~
+
         '<WIOCCL:FOR' => ['state' => 'open_for', 'type' => 'for', 'class' => 'WiocclFor', 'action' => 'open'],
         '</WIOCCL:FOR>' => ['state' => 'close_for', 'type' => 'for', 'action' => 'close'],
         '<WIOCCL:FOREACH' => ['state' => 'open_foreach', 'type' => 'foreach', 'class' => 'WiocclForEach', 'action' => 'open'],
