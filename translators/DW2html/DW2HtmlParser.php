@@ -227,8 +227,8 @@ class DW2HtmlParser extends IocParser {
         "\n" => ['state' => 'close', 'type' => '', 'action' => 'close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-        "[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-readonly='open'></span>", ""]]],
-        "[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-readonly='close'></span>",""]]],
+        "[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-readonly='open'></span>", ""]]],
+        "[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-readonly='close'></span>",""]]],
 
         // TODO: afegir el procesament dels ~~~
 
