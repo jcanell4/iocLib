@@ -527,6 +527,10 @@ class ProjectMetaDataQuery extends DataQuery {
         if (!$metadataSubset){
             $metadataSubset = $this->getProjectSubset();
         }
+        if ($upgrade==="") {
+            global $plugin_controller;
+            $upgrade = '{"fields":"'.$plugin_controller->getCurrentProjectVersions("fields").'"}' ;
+        }
         return $this->_setMeta($metadataSubset,
                                $this->getProjectFilePath($this->getProjectId()),
                                $this->getProjectFileName($metadataSubset, $this->getProjectType()),
@@ -568,9 +572,6 @@ class ProjectMetaDataQuery extends DataQuery {
             if (!$prev_date) $prev_date = $new_date;
             if (!empty($upgrade)) $extra['extra'] = $upgrade;
             $this->_saveRevision($prev_date, $new_date, $projectId, $projectFileName, $contentFile, $summary, $extra);
-
-            //$contentVersion = "{\"$metaDataSubSet\":{\"versions\":{\"fields\":$fields}}}";
-            //$this->_saveRevision($prev_date, $new_date, $projectId, "version", $contentVersion, "fields version: $fieldsVersion", ['extra'=>$fieldsVersion]);
         }
         return $resourceCreated;
     }
