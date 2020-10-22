@@ -29,8 +29,6 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
 
         //sólo se ejecuta si existe el proyecto
         if ($model->existProject()) {
-
-            //$dataProject = $model->getCurrentDataProject();
             $oldPersonsDataProject = $model->getOldPersonsDataProject($id, $this->params[ProjectKeys::KEY_PROJECT_TYPE], $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
             $dataRevision = $model->getDataRevisionProject($this->params[ProjectKeys::KEY_REV]);
 
@@ -54,18 +52,31 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
 
             //Elimina todos los borradores dado que estamos haciendo una reversión del proyecto
             $model->removeDraft();
+
             //afegim les revisions del projecte a la resposta
             $response[ProjectKeys::KEY_REV] = $this->projectModel->getProjectRevisionList(0);
+
             //Revertimos el número de versión en el archivo de sistema del proyecto
-            $fieldRevVersion = $response[ProjectKeys::KEY_REV][$this->params['rev']]['extra'];
-            $att = json_decode($fieldRevVersion, TRUE);
-            $model->setProjectSystemSubSetVersion(key($att), $att[key($att)], $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+            $fieldRevVersion = json_decode($response[ProjectKeys::KEY_REV][$this->params['rev']]['extra'], TRUE);
+            $model->setProjectSystemSubSetVersion(key($fieldRevVersion), current($fieldRevVersion), $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
 
             $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('project_reverted'), $id, -1, $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
-            $response[ProjectKeys::KEY_ID] = $this->idToRequestId($id . $this->projectModel->getIdSuffix());
+            $response[ProjectKeys::KEY_ID] = $this->idToRequestId($id);
+
+            $response['close'] = [ProjectKeys::KEY_ID => $response[ProjectKeys::KEY_ID].ProjectKeys::REVISION_SUFFIX,
+                                  'idToShow' => $response[ProjectKeys::KEY_ID]
+                                 ];
+            $response['reload'] = ['urlBase' => "lib/exe/ioc_ajax.php?",
+                                   'params' => [ProjectKeys::KEY_ID => $id,
+                                                ProjectKeys::KEY_CALL => ProjectKeys::KEY_PROJECT,
+                                                ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
+                                                ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET]]
+                                  ];
         }
 
-        if (!$response) throw new ProjectExistException($id);
+        if (!$response)
+            throw new ProjectExistException($id);
+
         return $response;
     }
 
