@@ -34,7 +34,9 @@ class WiocclCase extends WiocclInstruction {
     }
 
     protected function resolveOnClose($result, $tokenEnd) {
-        $this->arrays[$this->chooseId][$this->index]['value'] = $result;
+        // ALERTA! és aquí on s'ha d'afegir el ref perquè el result és el que es fa servir al choose
+
+        $this->arrays[$this->chooseId][$this->index]['value'] = &$result;
         $this->arrays[$this->chooseId][$this->index]['resetables'] = &$this->resetables;
         $this->updateParentArray(self::FROM_CASE, $this->chooseId);
 

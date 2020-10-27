@@ -67,7 +67,7 @@ class WiocclChoose extends WiocclInstruction {
 
             if ($evaluation) {
                 $this->resetables->updateData($ctx);
-                $ret = $cases[$i];
+                $ret = $cases[$i]['value'];
                 break;
 //                return $cases[$i]['value'];
             }
