@@ -312,13 +312,19 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         // TODO: Això s'haurà d'afegir automàticament en desar
 
-        $text = preg_replace("/:###.*?~~USE:WIOCCL~~\n?###:/ms", "", $text, 1, $counter);
-//        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
+
+        $headerData = [];
+        if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
+            $headerData = $matches[1];
+        }
+
+        $text = preg_replace("/:###.*?~~.*?~~\n?###:/ms", "", $text, 1, $counter);
+
+        //        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
         if ($counter > 0) {
 
 
             $dataSource = $plugin_controller->getCurrentProjectDataSource($params['projectOwner'], $params['projectSourceType']);
-
 
 
             WiocclParser::$generateStructure = true;
@@ -331,7 +337,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
             // dins es genera un json per comprovar els resultats de la estructura
 
             if (self::DEBUG_STRUCTURE) {
-                static::debugStructure(WiocclParser::getStructure());
+                static::debugStructure(WiocclParser::getStructure(), $headerData);
             }
 
 
@@ -343,23 +349,37 @@ class DW2HtmlTranslator extends AbstractTranslator {
         // i cridant a: $result .=  WiocclParser::getValue($content, [], $this->dataSource);
         // també s'han de processar els :### i ###:
 
+
+        // TODO: en aquest punt tenim las metadades que es reconstrueixen afegint-les entre ':###\n' i '/n###:\n'
+        // i la estructura
+
         return DW2HtmlParser::getValue($text, [], $dataSource);
     }
 
 
-    protected static function debugStructure($structure) {
+    protected static function debugStructure($structure, $header) {
         // Primer hem de convertir la estructura en un array associatiu
 
         $root = &$structure[0];
 
-        // El open del root no és correcte, ha d'incloure tot el contingut, ho canviem:
+        // El open del root no és correcte, eliminem les etiquetes d'apertura i tancament
         $root->open = "";
+        $root->close = "";
 
         $tree = static::getNode($root);
         $json = json_encode($tree);
 
+
+        // Reconstruim la capçalera
+        $meta = ":###\n";
+        foreach ($header as $value) {
+            $meta .= '~~' . $value . "~~\n";
+        }
+        $meta .= "###:\n";
+
+
         // Provem a reconstruir el document a partir dels nodes
-        $text = static::getText($root, $structure);
+        $text = $meta . static::getText($root, $structure);
 
 
     }
@@ -371,7 +391,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
         $children = '';
 
         foreach ($node->children as $childId) {
-            $children.= static::getText($structure[$childId], $structure);
+            $children .= static::getText($structure[$childId], $structure);
         }
 
         $text .= $children . $node->close;

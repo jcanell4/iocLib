@@ -19,7 +19,7 @@ class WiocclLazyField extends WiocclInstruction {
     }
 
     // ALERTA! No està comprovat, això és només per generar la estructura. Copiat de WiocclField
-    protected function close($result, $tokenEnd) {
+    protected function close(&$result, $tokenEnd) {
 
         parent::close($result, $tokenEnd);
 

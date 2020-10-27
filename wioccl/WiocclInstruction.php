@@ -74,7 +74,7 @@ class WiocclInstruction extends IocInstruction {
         return in_array($type, $class::getExcludedClosingTags());
     }
 
-    // ALERTA[Xavi] duplicat inicialment del IocInstruction per afegir el control de generated
+
     public function parseToken($tokens, &$tokenIndex) {
 
         $currentToken = $tokens[$tokenIndex];
@@ -118,16 +118,28 @@ class WiocclInstruction extends IocInstruction {
                 $this->pushState($currentToken);
 
                 // ALERTA: Els salts de línia s'afegeixen directament, sense processar
+
+
                 if ($currentToken['value'] == "\n") {
-                    $result .= $currentToken['value'];
+                    $auxResult = $currentToken['value'];
+//                    $result .= $currentToken['value'];
                 } else {
-                    $result .= $item->getContent($currentToken);
+
+                    $auxResult = $item->getContent($currentToken);
                 }
-                $this->popState();
+
 
                 if ($addToStructure) {
-                    $this->addToStructure($item->getContent($currentToken), $currentToken['tokenIndex'], $currentToken['tokenIndex'], 'content');
+                    $this->addToStructure($auxResult, $currentToken['tokenIndex'], $currentToken['tokenIndex'], 'content');
                 }
+
+                $result .= $auxResult;
+                $this->popState();
+
+
+
+
+
 
                 break;
 
@@ -143,7 +155,6 @@ class WiocclInstruction extends IocInstruction {
                     $this->pushState($currentToken);
                 } else {
                     // no afegim a l'statck
-                    $test = true;
                 }
 
 
@@ -162,7 +173,7 @@ class WiocclInstruction extends IocInstruction {
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $currentToken['instruction'] = $item;
                 $this->pushState($currentToken);
-                $result = $item->getContent($currentToken);
+                $result = $item->resolveOnClose($item->getContent($currentToken));
                 $this->popState();
                 break;
 
@@ -219,7 +230,10 @@ class WiocclInstruction extends IocInstruction {
 
 
     // Aquest mètode afegeix un element a la estructura sense modificar les propietats de la instrucció actual
-    protected function addToStructure($result, $type, $startIndex = 0, $endIndex = 0) {
+    protected function addToStructure(&$result, $type, $startIndex = 0, $endIndex = 0) {
+
+
+
 
         $class = (static::$parserClass);
         $item = new WiocclStructureItem($class::getStructure());
@@ -227,16 +241,23 @@ class WiocclInstruction extends IocInstruction {
         $class::openItem($item);
 
 
-        $class = (static::$parserClass);
+        $item->type = $type;
+        // No hi ha etiquetas, el resultat és el contingut sense modificar
+        $item->open = $result;
+
         $class::closeItem();
+
+
+        if ($class::$generateStructure && $item->id>=0) {
+            $result = '[ref:' . $item->id . ']' . $result . '[/ref:' . $item->id . ']';
+        }
+
 
         if ($class::$debugStructure) {
             $item->result = $result;
         }
 
-        $item->type = $type;
-        // No hi ha etiquetas, el resultat és el contingut sense modificar
-        $item->open = $result;
+
 
     }
 
@@ -251,7 +272,13 @@ class WiocclInstruction extends IocInstruction {
         return parent::resolveOnClose($result, $tokenEnd);
     }
 
-    protected function close($result, $tokenEnd) {
+    protected function close(&$result, $tokenEnd) {
+
+
+        if ($this->item->id>=0) {
+            $result = '[ref:' . $this->item->id . ']' . $result . '[/ref:' . $this->item->id . ']';
+        }
+
 
         $class = (static::$parserClass);
         $class::closeItem();
@@ -285,8 +312,17 @@ class WiocclInstruction extends IocInstruction {
         // La implementació més genèrica és considerar que tot el que estigui desprès del primer espai son atributs
         // quan això no és vàlid (per exemple a les funcions), es fa @override d'aquesta funció
 
-        $tail = substr($tag, -1, 1);
-        $tag = substr($tag, 0, strlen($tag)-1);
+        // Cerquem el primer element començant per la cua que no sigui ni un espai ni un salt de línia
+        preg_match('/(>.*)$/m', $tag, $match);
+        $tail = $match[1];
+
+
+
+
+//        $tag = substr($tag, 0, strlen($tag)-1);
+        $tag = preg_replace('/(>.*)$/m', '', $tag);
+
+
         $aux = explode(' ', $tag);
 
         if (count($aux)===0) {

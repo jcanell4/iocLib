@@ -42,7 +42,7 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
         $token['tokenIndex'] = $tokenIndex;
 
         // ALERTA! No passava pel resolveOnclose, el retorn es descarta
-        $this->resolveOnClose($result, $token);
+        $result = $this->resolveOnClose($result, $token);
 
         return $result;
 //        return $this->wiocclLoop->loop($tokens, $tokenIndex);

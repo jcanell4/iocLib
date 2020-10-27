@@ -15,6 +15,7 @@ class WiocclSimpleReplacement extends WiocclInstruction {
 //        $result = $this->extra['replacement'][static::OPEN] . $result . $this->extra['replacement'][static::CLOSE];
         $result = $this->extra['replacement'];
 
+        $this->item->open = $result;
         $this->close($result, $tokenEnd);
 
         return $result;

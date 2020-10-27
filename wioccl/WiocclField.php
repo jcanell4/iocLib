@@ -90,7 +90,7 @@ class WiocclField extends WiocclInstruction {
         $tag .= "%s";
     }
 
-    protected function close($result, $tokenEnd) {
+    protected function close(&$result, $tokenEnd) {
 
         parent::close($result, $tokenEnd);
 
