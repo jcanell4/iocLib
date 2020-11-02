@@ -289,14 +289,14 @@ class DikuWiki2MarkDownTranslator extends AbstractMarkDownTranslator {
  * @author Xavier Garcia
  */
 abstract class AbstractTranslator {
-    public static function translate($text, $params) {
+    public static function translate($text, $params, &$extra) {
         throw new UnimplementedTranslatorException();
     }
 }
 
 class Hmtl2DWTranslator extends AbstractTranslator {
 
-    public static function translate($text, $params) {
+    public static function translate($text, $params, &$extra) {
 //        return Html2DWParser::parse($text);
         return Html2DWParser::getValue($text);
     }
@@ -307,7 +307,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
     const DEBUG_STRUCTURE = true;
 
-    public static function translate($text, $params) {
+    public static function translate($text, $params, &$extra) {
         global $plugin_controller;
 
         // TODO: Això s'haurà d'afegir automàticament en desar
@@ -333,6 +333,14 @@ class DW2HtmlTranslator extends AbstractTranslator {
             WiocclParser::resetStructure(self::DEBUG_STRUCTURE);
             $text = WiocclParser::getValue($text, [], $dataSource);
             WiocclParser::$generateStructure = false;
+
+            if ($extra == NULL) {
+                $extra = [];
+            }
+            $extra['wioccl_structure'] = [
+                'header' => $headerData,
+                'structure' => WiocclParser::getStructure()
+            ];
 
             // dins es genera un json per comprovar els resultats de la estructura
 

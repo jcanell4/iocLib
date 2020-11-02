@@ -241,7 +241,7 @@ class WiocclInstruction extends IocInstruction {
         $class::openItem($item);
 
 
-        $item->type = $type;
+        //$item->type = $type;
         // No hi ha etiquetas, el resultat és el contingut sense modificar
         $item->open = $result;
 

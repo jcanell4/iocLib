@@ -228,10 +228,10 @@ class RawPageAction extends EditPageAction {
 
     }
 
-    protected function translateToHTML($text) {
+    protected function translateToHTML($text, &$extra) {
 
 
-        return DW2HtmlTranslator::translate($text, $this->params);
+        return DW2HtmlTranslator::translate($text, $this->params, $extra);
 
     }
 
@@ -288,7 +288,9 @@ class RawPageAction extends EditPageAction {
 
         // TODO s'ha de discriminar quan el $rawData ja és html
         if (strtoupper($this->params['editorType']) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
-            $resp['content'] = $this->translateToHTML($resp['content']);
+            // Pasem el extra perquè s'ompli, si escau al traductor (en aquest cas per afegir la estructura)
+            // ALERTA! La implementació actual fa que això s'envii també al ['editing']['extra']
+            $resp['content'] = $this->translateToHTML($resp['content'], $resp['extra']);
         }
         $resp['locked'] = $rawData['locked'];
         return $resp;

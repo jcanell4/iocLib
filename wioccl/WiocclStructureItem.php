@@ -7,7 +7,7 @@ class WiocclStructureItem {
     public $id = -1;
 
 
-    public $type = "";
+//    public $type = "";
     public $open = "";
     public $close = "";
     public $attrs = "";
