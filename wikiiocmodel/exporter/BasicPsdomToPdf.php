@@ -276,6 +276,9 @@ class TcPdfStyle{
     }
 }
 
+require_once DOKU_INC."inc/inc_ioc/tcpdf/tcpdf_include.php";
+require_once DOKU_INC."inc/inc_ioc/tcpdf/tcpdf.php";
+
 class BasicIocTcPdf extends TCPDF{
     private $counterToSaveTmpPdf = 0;
     private $nexStyletAttributes = array();

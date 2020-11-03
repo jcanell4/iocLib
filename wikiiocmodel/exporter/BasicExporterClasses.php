@@ -376,6 +376,9 @@ class BasicRenderFile extends AbstractRenderer {
         $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
         $_SESSION['alternateAddress'] = TRUE;
         $_SESSION['dir_images'] = "img/";
+        if($this->cfgExport->styletype){
+            $_SESSION['styletype'] = $this->cfgExport->styletype;
+        }
 
         if(preg_match("/".$this->cfgExport->id."/", $data)!=1){
             $fns = $this->cfgExport->id.":".$data;
