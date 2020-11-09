@@ -317,17 +317,18 @@ class BasicIocTcPdf extends TCPDF{
     }
     
     public function setBorderFromCurrentStyle(){
+        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER);
         $border = "";
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr)){
             $border.="L";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBordeStyr)){
             $border.="T";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBordeStyr)){
             $border.="R";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBordeStyr)){
             $border.="B";
         }
         if(!empty($border)){
@@ -893,6 +894,11 @@ class BasicPdfRenderer {
         $margins = $iocTcPdf->getMargins();
         $cellMargins = $iocTcPdf->getCellMargins();
         $cellPaddings = $iocTcPdf->getCellPaddings();
+        $lineheight = $iocTcPdf->getCellHeight($iocTcPdf->getFontSize(), FALSE);
+        
+        if(($iocTcPdf->getY()+$cellMargins["T"]+$cellMargins["B"]+$cellPaddings["T"]+$cellPaddings["B"]+$lineheight+$lineheight+$margins["bottom"])>=$iocTcPdf->getPageHeight()){
+            $iocTcPdf->AddPage();
+        }
         
         $w = $iocTcPdf->getPageWidth()-$cellMargins["L"]-$cellMargins["R"]-$margins["left"]-$margins["right"];
         $y = $iocTcPdf->getY();
@@ -908,7 +914,7 @@ class BasicPdfRenderer {
             }
         }else{
             $x="";
-        }
+        }        
         
         if(isset($nextAttributes[TcPdfStyle::BORDER])){
             $border = $nextAttributes[TcPdfStyle::BORDER];
