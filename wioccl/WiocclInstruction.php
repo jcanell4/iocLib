@@ -130,7 +130,7 @@ class WiocclInstruction extends IocInstruction {
 
 
                 if ($addToStructure) {
-                    $this->addToStructure($auxResult, $currentToken['tokenIndex'], $currentToken['tokenIndex'], 'content');
+                    $this->addToStructure($auxResult, 'content', $currentToken['tokenIndex'], 'content');
                 }
 
                 $result .= $auxResult;
@@ -238,6 +238,7 @@ class WiocclInstruction extends IocInstruction {
         $class = (static::$parserClass);
         $item = new WiocclStructureItem($class::getStructure());
 
+        $item->type = $type;
         $class::openItem($item);
 
 

@@ -7,7 +7,9 @@ class WiocclStructureItem {
     public $id = -1;
 
 
-//    public $type = "";
+    // Només s'indica quan és relevant, per exemple per discriminar el content
+    public $type = "";
+
     public $open = "";
     public $close = "";
     public $attrs = "";

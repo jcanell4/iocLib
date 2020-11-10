@@ -55,7 +55,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             $type = 'textl';
         }
 
-        $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '').'>'
+        $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '') . '>'
             . '<div class="ioccontent">';
 
         if (isset($fields['title'])) {
@@ -141,7 +141,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function getContent($token) {
-        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*)^:::$/ms";
+        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*):::$/ms";
         if (preg_match($typeContent, $token['raw'], $matches)) {
 
             $content = $matches[1];
@@ -188,23 +188,82 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $this->parsingContent = true;
 
+        // Problema amb els ref:
+        //  - Per contingut: els caràcters que delimiten la taula com ^ i | es troben envoltats per [ref] i [/ref],
+        //      solucionat eliminant tots els refs de tipus content.
+        //  - Per files:
+        //      L'apertura es troba al principi de la línia però el tancament es troba al principi de la següent
 
 
 
+        $teststructure = WiocclParser::getStructure();
+
+        $rowAttrs = [];
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
             // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
             // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
 
+
+            // ALERTA! Cal gestionar les referéncies manualment, això és una excepció i no agafa la informació del parser
+            // PROBLEMA: no es pot ficar una fila o una cel·la dins dins d'un div, ni span, ni cap element que no
+            //      sigui de taula (TR, TD o TH), cal ficar la informació de la referència com atribut del TR
+
+            // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
+
+
+            $patternOpen = "/^(?:\[\/ref:\d+\])*\[ref:(.*?)\]/ms";
+            if ($rowIndex < count($rows) - 1 && preg_match($patternOpen, $rows[$rowIndex], $match)) {
+
+                $refId = $match[1];
+
+                // S'ha de fer una comprovació similar a l'anterior però cercant el tancament
+                $patternClose = "/^(?:\[\/ref:\d+\])*\[\/ref:" . $refId . "\]/ms";
+
+
+                // ALERTA! Un foreach pot inclorue múltiples files per iteració, cerquem el tancament en totes les línies posteriors
+                // ALERTA! si no es troba el tancament no cal fer res, no és un foreach
+
+                $closingIndex = -1;
+                for ($i = $rowIndex + 1; $i < count($rows); $i++) {
+                    $foundClose = preg_match($patternClose, $rows[$i], $matchClose);
+
+                    // ALERTA! Problema detectat! quan hi ha més d'un element al foreach el tancament s'ha de fer a
+                    // la última i no a la primera! així doncs s'han de recorrer tots els elements de la taula
+                    if ($foundClose) {
+                        $closingIndex = $i;
+//                        break;
+                    }
+                }
+
+                if ($closingIndex !== -1) {
+                    $refOpen = '[ref:' . $refId . ']';
+                    $refClose = '[/ref:' . $refId . ']';
+
+                    $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
+                    $rows[$closingIndex] = str_replace($refClose, '', $rows[$closingIndex]);
+//                    $rowAttrs[$rowIndex]['data-wioccl-ref'] = $refId;
+
+
+                    // La fila on s'ha trobat el tancament no s'inclou
+                    for ($i = $rowIndex; $i<$closingIndex; $i++) {
+                        if (!isset($rowAttrs[$i]['data-wioccl-ref'])) {
+                            $rowAttrs[$i]['data-wioccl-ref'] = [];
+                        }
+                        $rowAttrs[$i]['data-wioccl-ref'][] = $refId;
+                    }
+                }
+
+            }
+
+
             $rows[$rowIndex] = preg_replace('/\[\[(.*?)\|(.*?)\]\]/ms', '[[$1&$2]]', $rows[$rowIndex]);
-
-
 
 
             // dividim les files en cel.les
             $cols = preg_split("/[\|\^]/", $rows[$rowIndex]);
 
-            // Eliminem el primer i l'últim elements perque sempre son buits
+
             array_pop($cols);
             array_shift($cols);
 
@@ -288,8 +347,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 $cols[$colIndex] = preg_replace('/\[\[(.*?)&(.*?)\]\]/ms', '[[$1|$2]]', $cols[$colIndex]);
 
 
-
-
+                // Cal fer un parser per cel·las encara que en alguns casos ja s'haurà parsejat per resoldre els ref de fila
                 $cell['content'] = $this->parseContent($cols[$colIndex]);
 
 //                $class::setInner($isInnerPrevious);
@@ -300,17 +358,16 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             }
 
 
-
         }
 
         $this->parsingContent = false;
 
 
-        return $this->makeTable($table);
+        return $this->makeTable($table, $rowAttrs);
     }
 
 
-    protected function makeTable($tableData) {
+    protected function makeTable($tableData, $rowAttrs) {
 
         $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
 
@@ -318,7 +375,20 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $len = $this->findRowCount($tableData);
 
         for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
-            $table .= '<tr>';
+
+            $attrs = '';
+
+            if (isset($rowAttrs[$rowIndex])) {
+                foreach ($rowAttrs[$rowIndex] as $key => $value) {
+                    if (is_array($value)) {
+                        $attrs .= ' ' . $key . '="' . implode(',', $value) . '"';
+                    } else {
+                        $attrs .= ' ' . $key . '="' . $value . '"';
+                    }
+
+                }
+            }
+            $table .= '<tr' . $attrs . '>';
 
 
             for ($colIndex = 0; $colIndex < count($tableData); $colIndex++) {

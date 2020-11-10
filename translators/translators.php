@@ -412,8 +412,8 @@ class DW2HtmlTranslator extends AbstractTranslator {
         // Primer hem de convertir la estructura en un array associatiu
         $node = [
             'parent' => $item->parent !== NULL ? $item->parent : NULL, // ALERTA! desem el id perquè si no es provoca un bucle infinit no, només s'afegeixen complets els fills
-//            'rawValue' => $item->rawValue,
-            'result' => $item->result, // TODO: eliminar
+            'type' => $item->type,
+            'result' => $item->result, // TODO: eliminar, només es fa servir als tests
             'id' => $item->id,
             'open' => $item->open,
             'attrs' => $item->attrs,
