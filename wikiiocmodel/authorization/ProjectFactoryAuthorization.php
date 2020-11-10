@@ -25,6 +25,9 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
      * 	'saveProject' => 'editProject'
      */
     public function setAuthorizationCfg() {
+
+        parent::setAuthorizationCfg();
+
         $aCfg = ['_default'                     => "admin"  //default case
                  ,'cancelProject'               => "editProject"
                  ,'create_projectProject'       => "createProject"
@@ -44,6 +47,7 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
                  ,'viewProject'                 => "viewProject"
                  ,'_none'                       => "basicCommand"
                 ];
-        $this->authCfg = $aCfg;
+        
+        $this->authCfg = array_merge($this->authCfg, $aCfg);
     }
 }
