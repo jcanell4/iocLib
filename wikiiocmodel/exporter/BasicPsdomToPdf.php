@@ -317,7 +317,7 @@ class BasicIocTcPdf extends TCPDF{
     }
     
     public function setBorderFromCurrentStyle(){
-        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER);
+        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
         $border = "";
         if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr)){
             $border.="L";
