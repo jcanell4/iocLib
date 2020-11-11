@@ -190,7 +190,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
         //Actualitzar a aquí els camps calculats
         $ret =  $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
-        if ($ret) { //En el momento de la creación de proyecto $ret es NULL
+        $rev = $this->projectMetaDataQuery->getRevision();
+        if ($ret && !$rev) { //En el momento de la creación de proyecto $ret es NULL. No se aplica en las revisiones
             $ret = $this->processAutoFieldsOnRead($ret);
             $ret = $this->_updateCalculatedFieldsOnRead($ret);
         }
