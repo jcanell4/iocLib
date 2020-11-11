@@ -60,6 +60,7 @@ class TcPdfStyle{
     const FOOTER_FONT_NAME = "footer-font-name";
     const FOOTER_FONT_SIZE = "footer-font-size";
     const MONOSPACE_FONT_NAME = "monospace-font-name";
+    const FONT = "font";
     const FONT_NAME = "font-name";
     const FONT_SIZE = "font-size";
     const FONT_ATTR = "font-attribute";
@@ -92,6 +93,8 @@ class TcPdfStyle{
     const IMAGE = "image";
     const IMAGE_FILENAMEMAP = "image-filenameMap";
     const IMAGE_BASEDIR = "image-basedir";
+    const IMAGE_SCFACTOR = "image-scalarfactor";
+    const IMAGE_PADDING = "image-padding";
     const ICON_FILENAME = "icon-filepath";
 
     const PAGE_STYLE = "PageStyle";
@@ -102,6 +105,8 @@ class TcPdfStyle{
     const DEFAULT_CLASS_VALUE = "";
     const DEFAULT_STYLE_VALUES = [self::STYLE=>[]];
     const EMPTY_STYLE_VALUES = [self::STYLE=>[]];
+    const EMPTY_STYLE_STRUCTURE_VALUES = [self::CONTAINER_STYLE=>[self::STYLE=>[]]];
+    const DEFAULT_PAGE_STYLE_VALUES = [];
 
     private $pageStyleDefs;
     private $styleStack;
@@ -122,7 +127,7 @@ class TcPdfStyle{
         $this->styleStack = array(self::DEFAULT_STYLE_VALUES);
         $this->classStack = array(self::DEFAULT_CLASS_VALUE);
         $this->styleDepth=0;
-        $this->pageStyleDefs = $styleStructure[self::PAGE_STYLE];
+        $this->pageStyleDefs = $styleStructure[self::PAGE_STYLE]?$styleStructure[self::PAGE_STYLE]:self::DEFAULT_PAGE_STYLE_VALUES;
         $this->pushCurrentStyleContainer($styleStructure[self::CONTAINER_STYLE]);
     }
 
@@ -138,10 +143,26 @@ class TcPdfStyle{
         return $ret;
     }
 
-    function getCurrentContainerStyleAttr($attr, $default=FALSE, $tryDefaultAsArray=TRUE){
+    function getCurrentContainerStyleAttr($attr, $default=FALSE, $tryDefaultAsArray=TRUE, $elements=FALSE){
+        $firstRet = $this->_getCurrentContainerStyleAttr($attr, $default, $tryDefaultAsArray);
+        if($elements){
+            $ret = array();
+            foreach ($elements as $item) {
+                $aux = $this->_getCurrentContainerStyleAttr("$attr-$item", $firstRet);
+                if($aux!==FALSE){
+                    $ret[$item] = $aux;
+                }
+            }
+        }else{
+            $ret = $firstRet;
+        }
+        return $ret;
+    }
+    
+    private function _getCurrentContainerStyleAttr($attr, $default=FALSE, $tryDefaultAsArray=TRUE){
         $ret = $this->_getSingleValueContainerStyleAttr($attr);
         if(!$ret && strpos($attr, "-")!==FALSE){
-            $bound==0;
+            $bound=0;
             do{
                 $bound--;
                 $aAttr = $this->_getSplitNameAttr($bound, $attr);
@@ -156,8 +177,23 @@ class TcPdfStyle{
             }while(!$trobat && $aAttr);
         }
         if(!$ret){
-            if($tryDefaultAsArray && is_array($default) && isset($default[$attr])){
-                $ret = $default[$attr];
+            if($tryDefaultAsArray && is_array($default)){
+                if(isset($default[$attr])){
+                    $ret = $default[$attr];
+                }else if(strpos($attr, "-")!==FALSE){
+                    $bound=0;
+                    do{
+                        $bound--;
+                        $aAttr = $this->_getSplitNameAttr($bound, $attr);
+                        if($trobat=isset($default[$aAttr[1]])){
+                            $ret = $default[$aAttr[1]];
+                        }else{
+                            $ret = FALSE;
+                        }
+                    }while(!$trobat && $aAttr);
+                }else{
+                    $ret = $default;
+                }
             }else{
                 $ret = $default;
             }
@@ -283,12 +319,14 @@ class BasicIocTcPdf extends TCPDF{
     private $counterToSaveTmpPdf = 0;
     private $nexStyletAttributes = array();
     private $defaultMargins;
+    private $defaultFontName;
+    private $defaultFontSize;
 
     protected $head;
     protected $style;
     protected $header_logo_height;
 
-    public function __construct(TcPdfStyle &$style) {
+    public function __construct(TcPdfStyle &$style, $defaultFontName="helvetica", $defaultFontSize=10) {
         //"$orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false, $pdfa=false"
         parent::__construct($style->getPageStyleAttr(TcPdfStyle::PAGE_ORIENTATION, "P"),
                             $style->getPageStyleAttr(TcPdfStyle::UNIT, "mm"),
@@ -308,6 +346,8 @@ class BasicIocTcPdf extends TCPDF{
         $this->SetAutoPageBreak(TRUE, $style->getPageStyleAttr(TcPdfStyle::PAGE_MARGIN_BOTTOM, PDF_MARGIN_BOTTOM));
         $this->setImageScale($style->getPageStyleAttr(TcPdfStyle::PAGE_IMAGE_SCALE_RATIO, PDF_IMAGE_SCALE_RATIO));
         $this->defaultMargins = array_merge(array(), $this->getMargins());
+        $this->defaultFontName = $defaultFontName;
+        $this->defaultFontSize = $defaultFontSize;
     }
 
     public function popNextAttributes(){
@@ -317,7 +357,7 @@ class BasicIocTcPdf extends TCPDF{
     }
 
     public function setBorderFromCurrentStyle(){
-        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER);
+        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
         $border = "";
         if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr)){
             $border.="L";
@@ -356,6 +396,17 @@ class BasicIocTcPdf extends TCPDF{
             $this->nexStyletAttributes["renderIconContainer"] = $iconPath;
         }
     }
+    
+    public function updateAllStyleAttributesFromCurrentStyle(){
+        $this->setFontFromCurrentStyle($this->defaultFontName, "", $this->defaultFontSize);
+        $this->setCellPaddingsFromCurrentStyle();
+        $this->setCellMarginsFromCurrentStyle();
+        $this->setBorderFromCurrentStyle();
+        $this->setFillColorFromCurrentStyle();
+        $this->setPositonFromCurrentStyle();        
+    }
+
+
 
     public function setFillColorFromCurrentStyle(){
         $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, FALSE);
@@ -383,7 +434,7 @@ class BasicIocTcPdf extends TCPDF{
         $fontSize = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, $fontSizeDef);
         $this->SetFont($fontName, $fontAttr, $fontSize);
     }
-
+    
     public function setCellPaddingsFromCurrentStyle($left = '', $top = '', $right = '', $bottom = '') {
         $margins = $this->defaultMargins;
         $padding = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::PADDING, 0);
@@ -649,6 +700,7 @@ class BasicPdfRenderer {
     protected $tcpdfObj = NULL;
     protected $maxImgSize = 100;
     protected $iocTcPdf;
+    protected $imgScalarFactor=1;
 
     public function __construct() {
         $this->maxImgSize = WikiGlobalConfig::getConf('max_img_size', 'wikiiocmodel');
@@ -675,12 +727,14 @@ class BasicPdfRenderer {
     }
 
     public function renderToc(){
-        $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
-        $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
-        $this->iocTcPdf->setCellMarginsFromCurrentStyle();
-        $this->iocTcPdf->setBorderFromCurrentStyle();
-        $this->iocTcPdf->setFillColorFromCurrentStyle();
-        $this->iocTcPdf->setPositonFromCurrentStyle();
+        $this->style->goInTextContainer("TOC");        
+        $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();
+//        $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
+//        $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
+//        $this->iocTcPdf->setCellMarginsFromCurrentStyle();
+//        $this->iocTcPdf->setBorderFromCurrentStyle();
+//        $this->iocTcPdf->setFillColorFromCurrentStyle();
+//        $this->iocTcPdf->setPositonFromCurrentStyle();
 
         $this->iocTcPdf->addTOCPage();
 
@@ -709,7 +763,7 @@ class BasicPdfRenderer {
         }
 
 
-        $this->iocTcPdf = new IocTcPdf($this->style);
+        $this->iocTcPdf = new IocTcPdf($this->style, $this->pagesFont, $this->pagesFontSize);
         $this->iocTcPdf->SetCreator("DOKUWIKI IOC");
         $this->iocTcPdf->setHeaderData($params["data"]["header"]["logo"], $params["data"]["header"]["wlogo"], $params["data"]["header"]["hlogo"], $params["data"]["header"]["ltext"], $params["data"]["header"]["rtext"]);
         $this->setMaxImgSize($params['max_img_size']);
@@ -757,12 +811,13 @@ class BasicPdfRenderer {
             $this->style->goInTextContainer($header["type"]);
             $level = $header["level"]-1;
             $this->style->goInTextContainer($header["type"].$header["level"]);
-            $iocTcPdf->setFontFromCurrentStyle($this->pagesFontHt, "B", $this->pagesFontHtSize);
-            $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
-            $this->iocTcPdf->setCellMarginsFromCurrentStyle();
-            $this->iocTcPdf->setBorderFromCurrentStyle();
-            $this->iocTcPdf->setFillColorFromCurrentStyle();
-            $this->iocTcPdf->setPositonFromCurrentStyle();
+            $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();
+//            $iocTcPdf->setFontFromCurrentStyle($this->pagesFontHt, "B", $this->pagesFontHtSize);
+//            $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
+//            $this->iocTcPdf->setCellMarginsFromCurrentStyle();
+//            $this->iocTcPdf->setBorderFromCurrentStyle();
+//            $this->iocTcPdf->setFillColorFromCurrentStyle();
+//            $this->iocTcPdf->setPositonFromCurrentStyle();
             $title = $this->incHeaderCounter($level).$header["title"];
 
             //Control de espacio disponible para impedir títulos huérfanos
@@ -809,11 +864,11 @@ class BasicPdfRenderer {
     protected function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
 //        $iocTcPdf->SetFont('helvetica', '', 10);
         if ($content['type'] === FigureFrame::FRAME_TYPE_FIGURE) {
-            $this->getFrameContent($content, $iocTcPdf);
+            $ret = $this->getFrameContent($content, $iocTcPdf);
         }else {
             $ret = $this->getContent($content);
-            $this->_cleanWriteHTML($ret, $iocTcPdf);
         }
+        $this->_cleanWriteHTML($ret, $iocTcPdf);                            
 
         if ($content["type"] == StructuredNodeDoc::ORDERED_LIST_TYPE
                 || $content["type"] == StructuredNodeDoc::UNORDERED_LIST_TYPE
@@ -823,61 +878,62 @@ class BasicPdfRenderer {
     }
 
     protected function getFrameContent($content, IocTcPdf &$iocTcPdf) {
-        $this->style->goInTextContainer($content["type"]);
         switch ($content['type']) {
             case ImageNodeDoc::IMAGE_TYPE:
-                $this->renderImage($content, $iocTcPdf);
+                $ret = $this->renderImage($content, $iocTcPdf);
                 break;
 
             case FigureFrame::FRAME_TYPE_FIGURE:
+                $this->style->goInTextContainer($content["type"]);
+                $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();
+                $frameMargins = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::MARGIN, 0, TRUE, ["top", "bottom", "left", "right"]);
+                $framePadding = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::IMAGE_PADDING, 0);
+                $this->imgScalarFactor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::IMAGE_SCFACTOR, 1);
                 // Comprueba si queda suficiente espacio vertical para poner la imagen
                 // junto al título, es decir, si cabe el bloque título + imagen en el resto de página
-                list($w, $h) = $this->setImageSize($content['content'][0]['content'][0]['src'], $content['content'][0]['content'][0]['width'], $content['content'][0]['content'][0]['height']);
-                if ($iocTcPdf->GetY() + $h + 25 > $iocTcPdf->getPageHeight()) {
+                list($w, $h) = $this->setImageSize($content['content'][0]['content'][0]['src'], 
+                        $content['content'][0]['content'][0]['width'], 
+                        $content['content'][0]['content'][0]['height'], 640, 780);
+                if ($iocTcPdf->GetY() + $h + $frameMargins["top"] + $framePadding 
+                        + $frameMargins["bottom"] + $framePadding + $iocTcPdf->getMargins()["bottom"] 
+                        + $iocTcPdf->getCellHeight($iocTcPdf->getFontSize(), TRUE) > $iocTcPdf->getPageHeight()) {
                     $iocTcPdf->AddPage(); //inserta salto de pagina
                 }
-                $center = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "C");
-                $center = "style=\"margin:auto; $center;";
+                $attAlign= $this->_getTextAlignAttrFromCurrentStyle("C");
+                $styleOp = "style=\"margin:auto; $attAlign";
                 if ($content["hasBorder"]) {
-                    $this->style->goInTextContainer($content["type"]);
-                    $b = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, TRUE);
-                    $bc = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDERCOLOR, "gray");
-                    //$style = "$center border:1px solid gray;";
-                    $style = "$center $b $bc;";
-                    $this->style->goOutTextContainer();
+                    $style = "$styleOp border:1px solid gray;\"";
+                }else{
+                    $b = $this->_getBorderAttrFromCurrentStyle(FALSE, "#000");
+                    $style = "$styleOp $b\"";                    
                 }
                 $ret = "<div $style nobr=\"true\">";
                 if ($content['title']) {
-                    $this->style->goInTextContainer($content["type"]);
-                    $fa = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_ATTR, "B");
-                    //$ret .= "<p $center font-weight:bold;\">Figura ".$this->figureReferences[$content['id']].". ".$content['title']."</p>";
-                    $ret .= "<p $center $fa;\">Figura ".$this->figureReferences[$content['id']].". ".$content['title']."</p>";
+                    $this->style->goInTextContainer($content["type"]."Title");
+                    $fa = $this->_getFontAttrFromCurrentStyle(FALSE, "B", FALSE);
+                    $ret .= "<p style=\"$attAlign $fa\">Figura ".$this->figureReferences[$content['id']].". ".$content['title']."</p>";
                     $this->style->goOutTextContainer();
                 }
-                $this->_cleanWriteHTML($ret, $iocTcPdf);
-                $ret = $this->getFrameStructuredContent($content, $iocTcPdf);
+                $ret .= $this->getFrameStructuredContent($content, $iocTcPdf);
                 if ($content['footer']) {
-                    $this->style->goInTextContainer($content["type"]);
-                    $fs = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, "80%");
+                    $this->style->goInTextContainer($content["type"]."Footer");
+                    $fs = $this->_getFontAttrFromCurrentStyle(FALSE, FALSE, $this->iocTcPdf->getFontSize()*0.8);
                     if ($content['title']) {
-                        //$ret .= "<p $center font-size:80%;\">".$content['footer']."</p>";
-                        $ret .= "<p $center $fs;\">".$content['footer']."</p>";
+                        $ret .= "<p style=\"$attAlign $fs\">".$content['footer']."</p>";
                     }else {
-                        //$ret .= "<p $center font-size:80%;\">Figura ".$this->figureReferences[$content['id']].". ".$content['footer']."</p>";
-                        $ret .= "<p $center $fs;\">Figura ".$this->figureReferences[$content['id']].". ".$content['footer']."</p>";
+                        $ret .= "<p style=\"$attAlign $fs\">Figura ".$this->figureReferences[$content['id']].". ".$content['footer']."</p>";
                     }
                     $this->style->goOutTextContainer();
                 }
                 $ret .= "</div>";
-                $this->_cleanWriteHTML($ret, $iocTcPdf);
+                $this->style->goOutTextContainer();
                 break;
 
             default:
-                $this->getFrameStructuredContent($content, $iocTcPdf);
+                $ret .= $this->getFrameStructuredContent($content, $iocTcPdf);
                 break;
         }
-        $this->style->goOutTextContainer();
-        return "";
+        return $ret;
     }
 
     protected function getFrameStructuredContent($content, IocTcPdf &$iocTcPdf) {
@@ -987,24 +1043,34 @@ class BasicPdfRenderer {
     }
 
     protected function renderImage($content, IocTcPdf &$iocTcPdf) {
-        preg_match('/\.(.+)$/', $content['src'], $match);
-        $ext = ($match) ? $match[1] : "JPG";
+        $imagePadding = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::IMAGE_PADDING, 0);
+        $attAlign= $this->_getTextAlignAttrFromCurrentStyle("C", "align", FALSE);
+        
         //càlcul de les dimensions de la imatge
-        list($w, $h) = $this->setImageSize($content['src'], $content['width'], $content['height']);
-        if ($iocTcPdf->GetY() + $h > $iocTcPdf->getPageHeight()) {
-            $iocTcPdf->AddPage(); //inserta salto de pagina
-        }
+//        $k = $iocTcPdf->getScaleFactor();
+        list($w, $h) = $this->setImageSize($content['src'], $content['width'], $content['height'], 640, 780, TRUE);
+//        if ($iocTcPdf->GetY() + $h/$k + $imageMagins["top"] + $imagePaddins["top"] + $imageMagins["bottom"] + $imagePaddins["bottom"] + $iocTcPdf->getMargins()["bottom"] + $iocTcPdf->getCellHeight($iocTcPdf->getFontSize(), TRUE) > $iocTcPdf->getPageHeight()) {
+//            $iocTcPdf->AddPage(); //inserta salto de pagina
+//        }
         //inserció de la imatge
-       //$iocTcPdf::Image(file, x, y, width, height, type/extension, link, valign, resize, dpi, halign, ismask, imgmask, border, fitbox, hidden, fitonpage, alt, altimgs);
-        $iocTcPdf->Image($content['src'], '', '', $w, 0, $ext, '', 'T', true, 300, 'C');
-        $iocTcPdf->SetY($iocTcPdf->GetY() + $h); //correcció de la coordinada Y desprès de insertar la imatge
+        $content['src'] = realpath ( $content['src']);
+        $content["src"] = DOKU_BASE.str_replace(DOKU_INC, "", $content["src"]);
+        $ret = "<table width=\"100%\" cellpadding=\"$imagePadding\"><tr valign=\"top\"><td $attAlign>";
+//        $ret = "<table width=\"100%\"><tr valign=\"top\"><td $attAlign>";
+        $ret .= "<img alt=\"\" width=\"{$w}\" src=\"{$content['src']}\" >";
+        $ret .= "</td></tr></table>";
+        
+
         //inserció del títol a sota de la imatge
-        $center = "style=\"margin:auto; text-align:center;";
-        $text = "<p $center font-size:80%;\">{$content['title']}</p>";
-        $this->_cleanWriteHTML($text, $iocTcPdf);
+        if($content["title"]){
+            $center = "style=\"margin:auto; text-align:center;";
+            //$text = "<p $center font-size:80%;\">{$content['title']}</p>";
+            $ret .= "<p $center font-size:80%;\">{$content['title']}</p>";
+        }
+        return $ret;
     }
 
-    private function setImageSize($imageFile, $w=NULL, $h=NULL, $maxWidth=800, $maxHeight=1200) {
+    private function setImageSize($imageFile, $w=NULL, $h=NULL, $maxWidth=640, $maxHeight=972, $inPixels=FALSE) {
         if (@file($imageFile)) {
             list($w0, $h0) = getimagesize($imageFile);
         }
@@ -1030,7 +1096,16 @@ class BasicPdfRenderer {
                 $w = $w * $factor_reduc;
             }
         }
-        return [$w/5, $h/5];
+        if(!isset($this->imgScalarFactor) || $this->imgScalarFactor==0){
+            $this->imgScalarFactor=1;
+        }
+        if($inPixels){
+            $ret = [$w*$this->imgScalarFactor, $h*$this->imgScalarFactor];
+        }else{
+            $k = $this->iocTcPdf->getScaleFactor();
+            $ret = [$w*$this->imgScalarFactor/$k, $h*$this->imgScalarFactor/$k];
+        }
+        return $ret;
     }
 
     private function getImgReduction($file, $p) {
@@ -1055,10 +1130,109 @@ class BasicPdfRenderer {
         return ($r0 < $r1) ? $r0 : $r1;
     }
 
-    private function _getTextAlignAttrFromCurrentStyle($align){
+    private function _getFontAttrFromCurrentStyle($family=FALSE, $attr=FALSE, $size=FALSE, $color=FALSE){
+        $hasDecoration = FALSE;
+        $decoration = " font-decoration:";
+        $mapValues = array("B" => " font-weight:bold; ", "I" => " font-style:italic; ", "U"=>" underline", "D"=>" line-through", "O" => " overline");
+        $ret = "";
+        $attrValue = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT, 
+                array("name"=>$family, "attribute"=>$attr, "size"=>$size, "color"=>$color), 
+                TRUE,
+                array("attribute", "color", "name", "size"));
+        if($attrValue){
+            if($attrValue["name"]){
+                $ret .= " font-family: {$attrValue['name']};";
+            }
+            if($attrValue["attribute"]){
+                for($i=0; $i<strlen($attrValue["attribute"]); $i++){
+                    $c = $attrValue["attribute"][$i];
+                    if($c=="U" || $c =="D" || $c=="O"){
+                        $hasDecoration = TRUE;
+                        $decoration .= $mapValues[$c];
+                        
+                    }else{
+                        $ret .= $mapValues[$c];
+                    }
+                }                
+                if($hasDecoration){
+                    $ret .= "$decoration;";
+                }
+            }
+            if($attrValue["size"]){
+                $ret .= " font-size: {$attrValue['size']}px;";
+            }
+            if($attrValue["color"]){
+                $ret .= " color: {$attrValue['color']};";
+            }
+        }
+        return $ret;
+    }
+    
+    private function _getBorderAttrFromCurrentStyle($border, $color){
+        $borderValue = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, $border, TRUE, array("left", "top", "right", "bottom"));
+        $colorValue = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDERCOLOR, $color, TRUE, array("left", "top", "right", "bottom"));
+        $attStyle = "";
+        if(is_array($borderValue)){
+            if(is_array($colorValue)){
+                if($borderValue["left"] && $colorValue['left']){                    
+                    $attStyle .= "border-left: 1px solid {$colorValue['left']}; ";
+                }
+                if($borderValue["top"] && $colorValue['top']){                    
+                    $attStyle .= "border-top: 1px solid {$colorValue['top']}; ";
+                }
+                if($borderValue["right"] && $colorValue['right']){                    
+                    $attStyle .= "border-right: 1px solid {$colorValue['right']}; ";
+                }
+                if($borderValue["bottom"] && $colorValue['bottom']){                    
+                    $attStyle .= "border-bottom: 1px solid {$colorValue['bottom']}; ";
+                }
+            }else if($colorValue){
+                if($borderValue["left"]){                    
+                    $attStyle .= "border-left: 1px solid $colorValue; ";
+                }
+                if($borderValue["top"]){                    
+                    $attStyle .= "border-top: 1px solid $colorValue; ";
+                }
+                if($borderValue["right"]){                    
+                    $attStyle .= "border-right: 1px solid $colorValue; ";
+                }
+                if($borderValue["bottom"]){                    
+                    $attStyle .= "border-bottom: 1px solid $colorValue; ";
+                }
+            }
+        }else if($borderValue){
+            if(is_array($colorValue)){
+                if($colorValue['left']){                    
+                    $attStyle .= "border-left: 1px solid {$colorValue['left']}; ";
+                }
+                if($colorValue['top']){                    
+                    $attStyle .= "border-top: 1px solid {$colorValue['top']}; ";
+                }
+                if($colorValue['right']){                    
+                    $attStyle .= "border-right: 1px solid {$colorValue['right']}; ";
+                }
+                if($colorValue['bottom']){                    
+                    $attStyle .= "border-bottom: 1px solid {$colorValue['bottom']}; ";
+                }
+            }else if($colorValue){
+                $attStyle .= "border: 1px solid $colorValue; ";
+            }
+        }
+        return $attStyle;
+        
+    }
+    
+    private function _getTextAlignAttrFromCurrentStyle($align, $nameAttr="text-align", $isCSS=TRUE){
         $mapValues = array("L" => "left", "R" => "right", "C"=>"center", "J"=>"justify", "left" => "left", "right" => "right", "center"=>"center", "justify"=>"justify");
         $value = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, $align);
-        return "text-align:{$mapValues[$value]}; ";
+        $sep1 = $isCSS?":": "=\"";
+        $sep2 = $isCSS?";": "\"";
+        if($value){
+            $ret = "$nameAttr$sep1{$mapValues[$value]}$sep2 ";
+        }else{
+            $ret = "";
+        }
+        return $ret;
     }
 
     protected function getContent($content ) {
@@ -1067,12 +1241,13 @@ class BasicPdfRenderer {
         $char = "";
         $ret = "";
         $this->style->goInTextContainer($content["type"]);
-        $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
-        $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
-        $this->iocTcPdf->setCellMarginsFromCurrentStyle();
-        $this->iocTcPdf->setBorderFromCurrentStyle();
-        $this->iocTcPdf->setFillColorFromCurrentStyle();
-        $this->iocTcPdf->setPositonFromCurrentStyle();
+        $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();        
+//        $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
+//        $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
+//        $this->iocTcPdf->setCellMarginsFromCurrentStyle();
+//        $this->iocTcPdf->setBorderFromCurrentStyle();
+//        $this->iocTcPdf->setFillColorFromCurrentStyle();
+//        $this->iocTcPdf->setPositonFromCurrentStyle();
         switch ($content["type"]) {
             case ListItemNodeDoc::LIST_ITEM_TYPE:
                 $textAlign = $this->_getTextAlignAttrFromCurrentStyle("justify");
@@ -1185,12 +1360,13 @@ class BasicPdfRenderer {
             case IocElemNodeDoc::IOC_ELEM_TYPE:
                 $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, FALSE);
                 $this->style->goInTextContainer($content["elemType"]);
-                $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
-                $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
-                $this->iocTcPdf->setCellMarginsFromCurrentStyle();
-                $this->iocTcPdf->setBorderFromCurrentStyle();
-                $this->iocTcPdf->setFillColorFromCurrentStyle();
-                $this->iocTcPdf->setPositonFromCurrentStyle();
+                $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();                
+//                $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
+//                $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
+//                $this->iocTcPdf->setCellMarginsFromCurrentStyle();
+//                $this->iocTcPdf->setBorderFromCurrentStyle();
+//                $this->iocTcPdf->setFillColorFromCurrentStyle();
+//                $this->iocTcPdf->setPositonFromCurrentStyle();
                 $this->iocTcPdf->setIconContainerToRender($content["elemType"]);
                 switch ($content["elemType"]){
                     case IocElemNodeDoc::IOC_ELEM_TYPE_EXAMPLE:
@@ -1316,12 +1492,13 @@ class BasicPdfRenderer {
             case ReferenceNodeDoc::REFERENCE_TYPE:
                 $titol = (empty($content["referenceTitle"])) ? $content["referenceId"] : $content["referenceTitle"];
                 $this->style->goInTextContainer($content["referenceType"]);
-                $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
-                $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
-                $this->iocTcPdf->setCellMarginsFromCurrentStyle();
-                $this->iocTcPdf->setBorderFromCurrentStyle();
-                $this->iocTcPdf->setFillColorFromCurrentStyle();
-                $this->iocTcPdf->setPositonFromCurrentStyle();
+                $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();                
+//                $this->iocTcPdf->setFontFromCurrentStyle($this->pagesFont, "", $this->pagesFontSize);
+//                $this->iocTcPdf->setCellPaddingsFromCurrentStyle();
+//                $this->iocTcPdf->setCellMarginsFromCurrentStyle();
+//                $this->iocTcPdf->setBorderFromCurrentStyle();
+//                $this->iocTcPdf->setFillColorFromCurrentStyle();
+//                $this->iocTcPdf->setPositonFromCurrentStyle();
                 switch ($content["referenceType"]) {
                     case ReferenceNodeDoc::REF_TABLE_TYPE:
                         $id = trim($content["referenceId"]);
@@ -1428,7 +1605,7 @@ class BasicPdfRenderer {
 
 
     protected function getPdfStyleFromFile($filePath) {
-        $estils = TcPdfStyle::EMPTY_STYLE_VALUES;
+        $estils = TcPdfStyle::EMPTY_STYLE_STRUCTURE_VALUES;
         if (file_exists($filePath)) {
             $json = file_get_contents($filePath);
             $estils =json_decode($json, true);
