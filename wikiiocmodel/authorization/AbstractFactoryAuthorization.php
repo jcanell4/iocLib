@@ -145,7 +145,7 @@ abstract class AbstractFactoryAuthorization {
                  ,'save_partial'	 => 'write'
                  ,'unlock'               => 'read'
                  ,'user_list'            => 'editing'
-                 ,"_none"                => 'command'
+                 ,'_none'                => "basicCommand"
                 ];
         $this->authCfg = $aCfg;
     }
