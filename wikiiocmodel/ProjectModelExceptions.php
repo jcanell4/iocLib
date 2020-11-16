@@ -80,8 +80,8 @@ class InsufficientPermissionToCommandProjectException extends WikiIocProjectExce
 class InvalidDataProjectException extends WikiIocProjectException{
     public function __construct($nsProject, $details, $message='InvalidDataProjectException', $code=7213) {
         if(isset($details)){
-            $tdet = strtoupper(WikiIocLangManager::getLang("details"))+":\n";
-            $message += $tdet + $details;
+            $tdet = ucfirst(WikiIocLangManager::getLang("details")).":\n";
+            $message .= ". ".$tdet.$details;
         }
         parent::__construct($message, $code, $nsProject, NULL, 'projectException');
     }
@@ -89,8 +89,8 @@ class InvalidDataProjectException extends WikiIocProjectException{
     public function getDetails(){
         $ret="";
         if(isset($this->details)){
-            $tdet = strtoupper(WikiIocLangManager::getLang("details"))+":\n";
-            $ret = $tdet + $this->details;
+            $tdet = ucfirst(WikiIocLangManager::getLang("details")).":\n";
+            $ret = $tdet . $this->details;
         }
         return $ret;
     }

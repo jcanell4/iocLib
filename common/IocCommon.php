@@ -16,16 +16,16 @@ class IocCommon {
             if ($calculator) {
                 //init
                 if($calculator->isCalculatorOfTypeData(ICalculateWithProjectId::WITH_PROJECT_ID_TYPE)){
-                    $calculator->init($projectId);
+                    $calculator->init($projectId, ICalculateWithProjectId::WITH_PROJECT_ID_TYPE);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateFromValues::FROM_VALUES_TYPE)){
-                    $calculator->init($values);
+                    $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
                         $persistence = $this->getPersistenceEngineFromPlugincontroller();
                     }
-                    $calculator->init($persistence);
+                    $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE);
                 }
                 $value = $calculator->calculate($calcDefProp['data']);
             }

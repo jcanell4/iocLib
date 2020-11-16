@@ -6,7 +6,8 @@
 class CalculateByCurrentDate extends AbstractCalculate {
 
     public function calculate($data) {
-        $ret = date($data);
+        $date = $this->getParamValue($data);
+        $ret = date($date);
         return $ret;
     }
 
