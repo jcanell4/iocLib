@@ -58,7 +58,7 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
             }
 
             //Guardar los datos del proyecto correspondientes a la revisión tratada ($contentDataRev) en meta.mdpr
-            $summary = "Retorn a la versió " . (($fieldRevVersion) ? current($fieldRevVersion) : $rev);
+            $summary = "Retorn a la versió: $rev";
             $extra = ($fieldRevVersion) ? json_encode($fieldRevVersion) : NULL;
             $model->setDataReversionProject($contentDataRev, $metaDataSubSet, $summary, $extra, FALSE);
 
