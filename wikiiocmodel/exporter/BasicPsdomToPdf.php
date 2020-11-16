@@ -1016,14 +1016,17 @@ class BasicPdfRenderer {
         $iocTcPdf->Image($content['src'], '', '', 0, 0, $ext, '', 'T');
     }
 
-    protected function renderIconIocContainer($x, $y, $width=32, $numPage, $iconPath, IocTcPdf &$iocTcPdf) {
+    protected function renderIconIocContainer($x, $y, $width=16, $numPage, $iconPath, IocTcPdf &$iocTcPdf) {
         preg_match('/\.(.+)$/', $iconPath, $match);
         $ext = ($match) ? $match[1] : "JPG";
         //càlcul de les dimensions de la imatge
         if($width==0){
-            $width = 32;
+            $width = 16;
         }
+        $aux = $this->imgScalarFactor;
+        $this->imgScalarFactor=1;
         list($w, $h) = $this->setImageSize($iconPath, NULL, NULL, $width, $width);
+        $this->imgScalarFactor=$aux;
         $currentY = $iocTcPdf->GetY();
         $currentX = $iocTcPdf->GetX();
         $currentPage = $iocTcPdf->getPage();

@@ -2,11 +2,9 @@
 /**
  * interface ICalculateWithPersistence
  */
-interface ICalculateWithPersistence {
+interface ICalculateWithPersistence extends ICalculate{
 
     const WITH_PERSISTENCE_TYPE = "with_persistence";
-
-    function init($value);
 
     function getPersistence();
 
