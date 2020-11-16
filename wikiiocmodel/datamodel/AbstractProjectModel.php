@@ -203,6 +203,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
        return $ret;
     }
 
+    //Informa si un proyecto tiene establecida a la actualización de proyecto (clave metaDataProjectConfig de configMain)
+    public function hasTypeConfigFile($projectType=FALSE, $metaDataSubSet=FALSE) {
+       return $this->projectMetaDataQuery->hasTypeConfigFile($projectType, $metaDataSubSet);
+    }
+
     /**
      * Obtiene y, después, retorna una estructura con los metadatos y valores del proyecto
      * @return array('projectMetaData'=>array('values','structure'), array('projectViewData'))
@@ -610,6 +615,18 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $calculatedData = $this->_updateCalculatedFieldsOnSave($calculatedData);
         $succes = $this->projectMetaDataQuery->setMeta($calculatedData, $this->getMetaDataSubSet(), $summary, $upgrade);
         return $succes;
+    }
+
+    /**
+     * Guarda los datos de una revisión del proyecto durante el proceso de Revertir Proyecto
+     * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
+     * @param string $metaDataSubSet
+     * @param string $summary
+     * @param JSON   $upgrade Contine un objeto {'fields':number}
+     * @param boolean $revision Debe indicarse FALSE cuando lo llama el proceso RevertProject para ignorar la exitencia de $rev
+     */
+    public function setDataReversionProject($dataProject, $metaDataSubSet, $summary="", $upgrade="", $revision=FALSE) {
+        return $this->projectMetaDataQuery->setMeta($dataProject, $metaDataSubSet, $summary, $upgrade, $revision);
     }
 
     private function processAutoFieldsOnSave($data) {
