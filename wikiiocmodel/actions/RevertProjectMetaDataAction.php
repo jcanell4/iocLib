@@ -25,31 +25,22 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
      */
     private function localRunProcess() {
         $id = $this->params[ProjectKeys::KEY_ID];
+        $projectType = $this->params[ProjectKeys::KEY_PROJECT_TYPE];
+        $metaDataSubSet = $this->params[ProjectKeys::KEY_METADATA_SUBSET];
+        $rev = $this->params[ProjectKeys::KEY_REV];
         $model = $this->getModel();
 
         //sólo se ejecuta si existe el proyecto
         if ($model->existProject()) {
-            $oldPersonsDataProject = $model->getOldPersonsDataProject($id, $this->params[ProjectKeys::KEY_PROJECT_TYPE], $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
-            $dataRevision = $model->getDataRevisionProject($this->params[ProjectKeys::KEY_REV]);
+            $oldPersonsDataProject = $model->getOldPersonsDataProject($id, $projectType, $metaDataSubSet);
+            $dataRevision = $model->getDataRevisionProject($rev); //Datos del proyecto correspondientes a la revisión tratada
+            $contentDataRev = json_encode($dataRevision);
 
-            $metaData = [
-                ProjectKeys::KEY_ID_RESOURCE => $id,
-                ProjectKeys::KEY_PERSISTENCE => $this->persistenceEngine,
-                ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
-                //ProjectKeys::KEY_REV => $this->params[ProjectKeys::KEY_REV],
-                //PageKeys::KEY_SUM => "Revertir Projecte: {$this->params[ProjectKeys::KEY_REV]}",
-                ProjectKeys::KEY_METADATA_VALUE => json_encode($dataRevision)
-            ];
-
-            $model->setData($metaData);
-            $response = $model->getData();
-
+            $response = $model->getData(); //Contiene las estructuras de projectMetaData y projectViewData del configMain actual
             if ($model->isProjectGenerated()) {
                 $params = $model->buildParamsToPersons($response['projectMetaData'], $oldPersonsDataProject);
                 $model->modifyACLPageAndShortcutToPerson($params);
             }
-
             //Elimina todos los borradores dado que estamos haciendo una reversión del proyecto
             $model->removeDraft();
 
@@ -57,10 +48,21 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
             $response[ProjectKeys::KEY_REV] = $this->projectModel->getProjectRevisionList(0);
 
             //Revertimos el número de versión en el archivo de sistema del proyecto
-            $fieldRevVersion = json_decode($response[ProjectKeys::KEY_REV][$this->params['rev']]['extra'], TRUE);
-            $model->setProjectSystemSubSetVersion(key($fieldRevVersion), current($fieldRevVersion), $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+            $fieldRevVersion = json_decode($response[ProjectKeys::KEY_REV][$rev]['extra'], TRUE);
+            if ($fieldRevVersion)
+                $model->setProjectSystemSubSetVersion(key($fieldRevVersion), current($fieldRevVersion), $metaDataSubSet);
 
-            $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('project_reverted'), $id, -1, $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+            //Si este proyecto necesita actualizar el atributo 'updatedDate', lo actualiza con la fecha de la revisión
+            if ($model->hasTypeConfigFile($projectType, $metaDataSubSet)) {
+                $model->setProjectSystemSubSetAttr("updatedDate", $rev, $metaDataSubSet);
+            }
+
+            //Guardar los datos del proyecto correspondientes a la revisión tratada ($contentDataRev) en meta.mdpr
+            $summary = "Retorn a la versió: $rev";
+            $extra = ($fieldRevVersion) ? json_encode($fieldRevVersion) : NULL;
+            $model->setDataReversionProject($contentDataRev, $metaDataSubSet, $summary, $extra, FALSE);
+
+            $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('project_reverted'), $id, -1, $metaDataSubSet);
             $response[ProjectKeys::KEY_ID] = $this->idToRequestId($id);
 
             $response['close'] = [ProjectKeys::KEY_ID => $response[ProjectKeys::KEY_ID].ProjectKeys::REVISION_SUFFIX,
@@ -69,8 +71,8 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
             $response['reload'] = ['urlBase' => "lib/exe/ioc_ajax.php?",
                                    'params' => [ProjectKeys::KEY_ID => $id,
                                                 ProjectKeys::KEY_CALL => ProjectKeys::KEY_PROJECT,
-                                                ProjectKeys::KEY_PROJECT_TYPE => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                                                ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET]]
+                                                ProjectKeys::KEY_PROJECT_TYPE => $projectType,
+                                                ProjectKeys::KEY_METADATA_SUBSET => $metaDataSubSet]
                                   ];
         }
 

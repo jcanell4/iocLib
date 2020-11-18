@@ -4,18 +4,13 @@
  */
 abstract class CalculateFromValues extends AbstractCalculate implements ICalculateFromValues {
 
-   protected $values;
-
-    function init($value) {
-        $this->values = $value;
+    function __construct() {
+        $this->addCalculatorTypeData(self::FROM_VALUES_TYPE);
+        $this->setCalculatorTypeToInitParam(self::FROM_VALUES_TYPE, self::VALUES_VAR);
     }
-
-    function getCalculatorTypeData(){
-        return [self::FROM_VALUES_TYPE];
-    }
-
+    
     function getValues(){
-        return $this->values;
+        return $this->getVariable(ICalculateFromValues::VALUES_VAR);
     }
 
 }

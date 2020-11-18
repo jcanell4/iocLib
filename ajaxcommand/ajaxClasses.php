@@ -222,7 +222,6 @@ class ajaxCall {
      * @return string el resultat de executar el command en format JSON o un missatge d'error
      */
     function callCommand( $respHandDir=NULL ) {
-
         $resp = $this->getResponseHandlerClass($respHandDir);
         if ($resp) {
             require_once($resp['respHandFile']);
@@ -231,17 +230,21 @@ class ajaxCall {
 
         $str_command = $this->commandClass;
         $command = new $str_command();
-        $command->setParameters($this->request_params);
-        if ($this->extra_url_params) {
-            $command->setParamValuesFromUrl($this->extra_url_params);
-        }
-        $command->init();
+        try{
+            $command->setParameters($this->request_params);
+            if ($this->extra_url_params) {
+                $command->setParamValuesFromUrl($this->extra_url_params);
+            }
+            $command->init();
 
-        if ($respHandObj) {
-            $command->setResponseHandler($respHandObj);
-        }
+            if ($respHandObj) {
+                $command->setResponseHandler($respHandObj);
+            }
 
-        $ret = $command->run();
+            $ret = $command->run();
+        } catch (Exception $e){
+            $command->error = $e;
+        }
 
         if ($command->error) {
             if (is_object($command->error)) {

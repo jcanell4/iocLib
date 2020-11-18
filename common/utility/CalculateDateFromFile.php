@@ -6,7 +6,9 @@
 class CalculateDateFromFile extends CalculateWithProjectId {
 
     public function calculate($data) {
-        $file = wikiFN("{$this->projectId}:$data");
+        $projectId = $this->getProjectId();
+        $nsFile = $this->getParamValue($data);
+        $file = wikiFN("$projectId:$nsFile");
         $ret = date('d/m/Y', filemtime($file));
         return $ret;
     }

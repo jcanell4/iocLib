@@ -10,6 +10,10 @@ class BasicPermission extends AbstractPermission {
     protected $info_perm;
     protected $resourceExist;
 
+    private $overwriteRequired;
+    private $isMyOwnNs;
+    private $isEmptyText;
+
     public function getInfoPerm() {
         return $this->info_perm;
     }
@@ -28,6 +32,30 @@ class BasicPermission extends AbstractPermission {
 
     public function setResourceExist($resourceExist) {
         $this->resourceExist = $resourceExist;
+    }
+
+    public function getOverwriteRequired() {
+        return $this->overwriteRequired;
+    }
+
+    public function setOverwriteRequired($overwriteRequired) {
+        $this->overwriteRequired = $overwriteRequired;
+    }
+
+    public function getIsMyOwnNs() {
+        return $this->isMyOwnNs;
+    }
+
+    public function setIsMyOwnNs($isMyOwnNs) {
+        $this->isMyOwnNs = $isMyOwnNs;
+    }
+
+    public function getIsEmptyText() {
+        return $this->isEmptyText;
+    }
+
+    public function setIsEmptyText($isEmptyText) {
+        $this->isEmptyText = $isEmptyText;
     }
 
 }
