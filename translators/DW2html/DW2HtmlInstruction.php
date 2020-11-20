@@ -27,7 +27,9 @@ class DW2HtmlInstruction extends IocInstruction {
 
 //        var_dump($token);
 
-        die("Unimplemented");
+        // Això es pot cridar quan es un parse directe de content
+        return false;
+//        die("Unimplemented");
     }
 
     public function parseToken($tokens, &$tokenIndex) {
@@ -134,7 +136,11 @@ class DW2HtmlInstruction extends IocInstruction {
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
                     $newContainerToken['instruction'] = $container;
                     $this->pushState($newContainerToken);
+
+                    // TEST: Afegir spans adicionals al content
+//                    $result .= '<span data-test="**">' . $container->open() .'</span>';
                     $result .= $container->open();
+
 //                    die ("no hi ha top");
 
                 }
@@ -150,9 +156,28 @@ class DW2HtmlInstruction extends IocInstruction {
 
                 // ALERTA: Els salts de línia s'afegeixen directament, sense processar
                 if ($currentToken['value'] == "\n") {
+
+                    // TEST: Afegir spans adicionals al content
                     $result .= $currentToken['value'];
+//                    $result .= '<span data-test="**">' . $currentToken['value'] . '</span>';
                 } else {
-                    $result .= $item->getContent($currentToken);
+
+                    // ALERTA! Aquest és l'original
+//                    $result .= $item->getContent($currentToken);
+
+                    // TEST: Afegir spans adicionals al content
+                    $topIndex = count(WiocclParser::$structureStack)-1;
+
+                    // El element amb id === 0 és el root, no s'afegeix
+                    if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+                        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
+                        $result .= '<span data-wioccl-ref="'. $refId.'">'. $item->getContent($currentToken) . '</span>';
+                    } else {
+                        $result .= $item->getContent($currentToken);
+                    }
+
+
+
                 }
                 $this->popState();
 

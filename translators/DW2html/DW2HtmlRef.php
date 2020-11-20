@@ -5,7 +5,23 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
 
 
+    // NO ES CRIDA
 //    public function isClosing($token) {
+//        if ($this->currentToken['state'] === 'ref-open') {
+//            array_push(WiocclParser::$structureStack,$this->refId);
+//        }  else if ($this->currentToken['state'] === 'ref-close'){
+//            $test = array_pop(WiocclParser::$structureStack);
+//
+//            // TODO: llençar excepció?
+//
+//
+//
+//        } else {
+//            die ('unimplemented');
+//        }
+//
+//        return parent::isClosing($token);
+//    }
 //
 //
 //        if ((isset($token['extra']) && $token['extra']['block'] === TRUE && $token['action'] == 'open')
@@ -27,6 +43,30 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
         preg_match($this->currentToken['pattern'], $this->currentToken['raw'], $match);
         $this->refId = $match[1];
+
+
+
+        // ALERTA! Només afegim a la pila els elements que no siguin de tipus content
+        $structure = WiocclParser::getStructure();
+        if ($structure[$this->refId]->type === 'content') {
+            return ;
+        }
+
+
+        if ($this->currentToken['state'] === 'ref-open') {
+            array_push(WiocclParser::$structureStack,$this->refId);
+        }  else if ($this->currentToken['state'] === 'ref-close'){
+            $top = array_pop(WiocclParser::$structureStack);
+
+
+            if ($top !== $this->refId) {
+                // TODO: llençar excepció?
+            }
+
+
+        } else {
+            die ('unimplemented');
+        }
 
     }
 

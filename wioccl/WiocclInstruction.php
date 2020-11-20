@@ -250,7 +250,7 @@ class WiocclInstruction extends IocInstruction {
 
 
         if ($class::$generateStructure && $item->id>=0) {
-            $result = '[ref:' . $item->id . ']' . $result . '[/ref:' . $item->id . ']';
+            $result = '[ref=' . $item->id . ']' . $result . '[/ref=' . $item->id . ']';
         }
 
 
@@ -277,7 +277,7 @@ class WiocclInstruction extends IocInstruction {
 
 
         if ($this->item->id>=0) {
-            $result = '[ref:' . $this->item->id . ']' . $result . '[/ref:' . $this->item->id . ']';
+            $result = '[ref=' . $this->item->id . ']' . $result . '[/ref=' . $this->item->id . ']';
         }
 
 

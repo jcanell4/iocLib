@@ -13,7 +13,16 @@ class DW2HtmlLinkSpecial extends DW2HtmlInstruction {
             $anchor = $match[1];
         }
 
-        return '<a href="' . $anchor . '" contenteditable="false" data-ioc-link="' . $this->extra['type'] . '" title="' . $anchor . '">' . $anchor . '</a>&nbsp;';
+        $sanitized = $this->sanitize($anchor);
+
+        return '<a href="' . $sanitized . '" contenteditable="false" data-ioc-link="' . $this->extra['type'] . '" title="' . $sanitized . '">' . $this->parseContent($anchor) . '</a>&nbsp;';
+
+    }
+
+    // això és necessari perquè els enllaços no han de contenir referències
+    public function sanitize($anchor) {
+        return preg_replace('/\[\/?ref=\d]/ms', '', $anchor);
+
 
     }
 

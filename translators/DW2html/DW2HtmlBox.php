@@ -157,19 +157,22 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             $realType = $type;
         }
 
+        // fem el parse dels id perquè poden haver etiquetes de referència
+
+
         $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $realType . '" data-dw-type="'
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
         $pre .= '<a data-dw-link="' . $realType . '" name="' . $id . '">';
-        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $id . "<br>\n";
+        $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $this->parseContent($id) . "<br>\n";
         $pre .= '</a>';
 
         if (isset($fields['title'])) {
-            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $fields['title'] . "<br>\n";
+            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $this->parseContent($fields['title']) . "<br>\n";
         }
 
         if (isset($fields['footer'])) {
-            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $fields['footer'] . "<br>\n";
+            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $this->parseContent($fields['footer']) . "<br>\n";
         }
 
         $pre .= '</div>';
@@ -188,7 +191,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $this->parsingContent = true;
 
-        // Problema amb els ref:
+        // Problema amb els ref=
         //  - Per contingut: els caràcters que delimiten la taula com ^ i | es troben envoltats per [ref] i [/ref],
         //      solucionat eliminant tots els refs de tipus content.
         //  - Per files:
@@ -196,7 +199,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
 
-        $teststructure = WiocclParser::getStructure();
+        //$teststructure = WiocclParser::getStructure();
 
         $rowAttrs = [];
 
@@ -212,13 +215,13 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
 
 
-            $patternOpen = "/^(?:\[\/ref:\d+\])*\[ref:(.*?)\]/ms";
+            $patternOpen = "/^(?:\[\/ref=\d+\])*\[ref=(.*?)\]/ms";
             if ($rowIndex < count($rows) - 1 && preg_match($patternOpen, $rows[$rowIndex], $match)) {
 
                 $refId = $match[1];
 
                 // S'ha de fer una comprovació similar a l'anterior però cercant el tancament
-                $patternClose = "/^(?:\[\/ref:\d+\])*\[\/ref:" . $refId . "\]/ms";
+                $patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
 
 
                 // ALERTA! Un foreach pot inclorue múltiples files per iteració, cerquem el tancament en totes les línies posteriors
@@ -237,8 +240,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 }
 
                 if ($closingIndex !== -1) {
-                    $refOpen = '[ref:' . $refId . ']';
-                    $refClose = '[/ref:' . $refId . ']';
+                    $refOpen = '[ref=' . $refId . ']';
+                    $refClose = '[/ref=' . $refId . ']';
 
                     $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
                     $rows[$closingIndex] = str_replace($refClose, '', $rows[$closingIndex]);
