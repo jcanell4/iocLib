@@ -278,6 +278,8 @@ class WiocclInstruction extends IocInstruction {
 
         if ($this->item->id>=0) {
             $result = '[ref=' . $this->item->id . ']' . $result . '[/ref=' . $this->item->id . ']';
+
+            $this->item->type = $this->currentToken['type'];
         }
 
 

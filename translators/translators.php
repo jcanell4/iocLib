@@ -313,7 +313,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
         // TODO: Això s'haurà d'afegir automàticament en desar
 
 
-        $headerData = [];
+            $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
             $headerData = $matches[1];
         }

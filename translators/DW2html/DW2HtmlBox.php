@@ -159,6 +159,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         // fem el parse dels id perquè poden haver etiquetes de referència
 
+        $previousParsingState = $this->parsingContent;
+        $this->parsingContent = true;
 
         $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $realType . '" data-dw-type="'
             . $fields['type'] . "\">\n";
@@ -176,6 +178,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         }
 
         $pre .= '</div>';
+
+        $this->parsingContent = $previousParsingState;
 
         return $pre;
     }
@@ -250,10 +254,17 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
                     // La fila on s'ha trobat el tancament no s'inclou
                     for ($i = $rowIndex; $i<$closingIndex; $i++) {
-                        if (!isset($rowAttrs[$i]['data-wioccl-ref'])) {
-                            $rowAttrs[$i]['data-wioccl-ref'] = [];
-                        }
-                        $rowAttrs[$i]['data-wioccl-ref'][] = $refId;
+
+                        // Canvi de sistema, desem només la última referència
+//                        if (!isset($rowAttrs[$i]['data-wioccl-ref'])) {
+//                            $rowAttrs[$i]['data-wioccl-ref'] = [];
+//                        } else {
+//                            // ALERTA! ja existeix, això sempre ha de contenir només 1 referència (la idea anterior era fer servir una llista de ids separada per comes però ho vam canviar)
+//                            $test = false;
+//                        }
+//                        $rowAttrs[$i]['data-wioccl-ref'][] = $refId;
+
+                        $rowAttrs[$i]['data-wioccl-ref'] = $refId;
                     }
                 }
 

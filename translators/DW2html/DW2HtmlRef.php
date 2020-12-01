@@ -3,39 +3,6 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlRef extends DW2HtmlMarkup {
 
-
-
-    // NO ES CRIDA
-//    public function isClosing($token) {
-//        if ($this->currentToken['state'] === 'ref-open') {
-//            array_push(WiocclParser::$structureStack,$this->refId);
-//        }  else if ($this->currentToken['state'] === 'ref-close'){
-//            $test = array_pop(WiocclParser::$structureStack);
-//
-//            // TODO: llençar excepció?
-//
-//
-//
-//        } else {
-//            die ('unimplemented');
-//        }
-//
-//        return parent::isClosing($token);
-//    }
-//
-//
-//        if ((isset($token['extra']) && $token['extra']['block'] === TRUE && $token['action'] == 'open')
-//            || ($token['action'] === 'close' && $token['state'] == $this->currentToken['state']
-//                && $token['type'] == $this->currentToken['type'])) {
-//
-//            return true;
-//        } else {
-//            return false;
-//        }
-//
-//    }
-
-
     protected $refId = -1;
 
     public function setTokens($tokens, $next) {
@@ -81,6 +48,8 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
         preg_match($pattern, $this->currentToken['raw'], $match);
 
+
+
         switch ($position) {
             case IocInstruction::OPEN:
                 return sprintf($this->extra['replacement'][0], $match[1]);
@@ -100,9 +69,10 @@ class DW2HtmlRef extends DW2HtmlMarkup {
         $structure = WiocclParser::getStructure();
 
         // Ignorem els nodes de tipus content
-        if ($structure[$this->refId]->type === 'content') {
+        if ($structure[$this->refId]->type === 'content' || $this->currentToken['state'] === 'ref-close') {
             return false;
         }
+
 
         // Amb això es consideran nodes fulles tots els node no tenen fills o els fills son de tipus content
 //        foreach ($structure[$this->refId]->children as $child) {

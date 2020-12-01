@@ -74,7 +74,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "^::.*?:.*?:::$" => [
+        "::.*?:.*?:::$" => [
 //        "::.*?:.*?:::" => [
             'state' => 'box'
         ],
@@ -216,8 +216,8 @@ class DW2HtmlParser extends IocParser {
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
 
-        ':table:(.*?):' => ['state' => 'box', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
-        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
+        ':table:(.*?):' => ['state' => 'link-special', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
+        ':figure:(.*?):' => ['state' => 'link-special', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
 
         "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
@@ -239,11 +239,6 @@ class DW2HtmlParser extends IocParser {
         "\\[ref=(.*?)\\]" => ['state' => 'ref-open', 'type' => 'wioccl', 'class' => 'DW2HtmlRef', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-ref=\"%d\" data-wioccl-state='open'></span>", ""], 'regex' => TRUE]],
         "\[\\/ref=(.*?)\\]" => ['state' => 'ref-close', 'type' => 'wioccl', 'class' => 'DW2HtmlRef', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-ref=\"%d\" data-wioccl-state='close'></span>", ""], 'regex' => TRUE]],
 
-
-
-//        "\\[ref=(.*?)\\]" => ['state' => 'wioccl-open', 'type' => 'wioccl', 'class' => 'DW2HtmlReference', 'action' => 'open', 'extra' => ['regex' => TRUE, 'replacement' => ["<span data-wioccl-ref=\"%d\">", "</span>"]]],
-//
-//        "\[\\/ref=(.*?)\\]" => ['state' => 'wioccl-close', 'type' => 'wioccl', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
     ];
 
