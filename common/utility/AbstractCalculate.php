@@ -3,7 +3,7 @@
  * AbstractCalculate
  * @culpable rafa
  */
-abstract class AbstractCalculate {
+abstract class AbstractCalculate implements ICalculate{
     const DEFAULT_VALUE_PARAM = "defaultValue";
     const DEFAULT_TYPE="default";
     private $typeDatas=array();
@@ -186,14 +186,14 @@ abstract class AbstractCalculate {
                 break;
             case "+":
                 $ret = 0;
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret += $value1;
                 }
                 break;
             case "-":
                 $ret = 0;
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret -= $value1;
                 }
@@ -201,14 +201,14 @@ abstract class AbstractCalculate {
                 
             case "*":
                 $ret = 0;
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret *= $value1;
                 }
                 break;
             case "/":
                 $ret = 0;
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret /= $value1;
                 }
@@ -216,19 +216,77 @@ abstract class AbstractCalculate {
             case ".":
             case "concat":
                 $ret = "";
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret .= $value1;
                 }
                 break;
             case "mergeArray":
                 $ret = array();
-                foreach ($array as $value) {
+                foreach ($values as $value) {
                     $value1 = $this->getParamValue($value);
                     $ret = array_merge($ret, $value1);
                 }
                 break;
                 
+        }
+        return $ret;
+    }
+    
+    protected function existValueInArray($values, $field, $valueToSearch, $toReturn=FALSE){    
+        $ret=FALSE;
+        
+        $array = $this->setVariable(ICalculate::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
+        
+        if($toReturn){
+            $ret = $this->getParamValue($toReturn["ifFalse"]);
+            $RetIfTrue = $this->getParamValue($toReturn["ifTrue"]);
+        }else{
+            $RetIfTrue = TRUE;
+        }
+        $pos=0;
+        foreach ($array as $element) {
+            $this->setVariable(ICalculate::ARRAY_ELEMENT_VAR, $element);            
+            if($element === $valueToSearch){
+                $ret = $RetIfTrue;
+                break;
+            }
+            $pos++;
+        }
+        return $ret;
+    }
+    
+    protected function existValueInArrayObject($values, $field, $fieldToSearch, $valueToSearch, $toReturn=FALSE){    
+        $ret=FALSE;
+        
+        $array = $this->setVariable(ICalculate::ARRAY_OBJECT_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
+        
+        if($toReturn){
+            $ret = $this->getParamValue($toReturn["ifFalse"]);
+            $RetIfTrue = $this->getParamValue($toReturn["ifTrue"]);
+        }else{
+            $RetIfTrue = TRUE;
+        }
+        $pos=0;
+        foreach ($array as $element) {
+            $this->setVariable(ICalculate::ROW_VALUE_VAR, $element);            
+            if($element[$fieldToSearch] === $valueToSearch){
+                $ret = $RetIfTrue;
+                break;
+            }
+            $pos++;
+        }
+        return $ret;
+    }
+    
+    protected function castToArray($var){
+        $ret;
+        if(is_string($var)){
+            $ret = json_decode($var, TRUE);
+        }elseif(is_array($var)){
+            $ret = $var;
+        }else{
+            throw new Exception("'$var' no es pot transformar a un tipus ARRAY");
         }
         return $ret;
     }

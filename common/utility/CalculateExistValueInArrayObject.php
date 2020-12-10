@@ -9,19 +9,22 @@
 /**
  * Description of CalculateSearchInArrayObjectAndGetFieldValue. Aquesta classe permet cercar dins d'un arrayObject
  * del propi projecte un objecte que tingui un camp amb el un valor de cerca i si el troba retorna el valor del cap de retorn.
+ * Si no s'expressa camp de retorn, es retorna un valor booleà: CERT/FALS.
  * Els paramentres que arriben amb $data són:
- *  - fieldToSearch: Camp sobre el que es gestiona la cerca
+ *  - field: Camp que conté l'ObjectArray on fer la cerca
+ *  - searchField: Camp sobre el que es gestiona la cerca
  *  - searchValue: valor de cerca. És a dir, el valor que es compararà amb el camp de cerca fins trobar una coincidència
- *  - fieldToReturn: Camp a retornar quan es trobi una coincidència entre el camp de cerca i el valor a cercar. 
+ *  - returnValues: Camp a retornar quan es trobi una coincidència entre el camp de cerca i el valor a cercar.Aquest paràmetre és opcional 
  *  - defaultValue: És el valor a retornar si la xerca és infructuosa. Aquest és un camp
  *          opcional. En cas que no es passi, es retornarà FALSE si la cerca és infroctuosa
  *
  * @author josep
  */
-class CalculateSearchInArrayAndGetPosition extends CalculateFromValues{
+class CalculateExistValueInArrayObject extends CalculateFromValues{
     const FIELD_PARAM = "field";
     const SEARCH_VALUE_PARAM = "searchValue";
-    const DEFAULT_VALUE_PARAM = "defaultValue";
+    const SEARCH_FIELD_PARAM = "searchField";
+    const RETURN_VALUES_PARAM = "returnValues";
     
     //put your code here
     public function calculate($data) {
@@ -29,20 +32,15 @@ class CalculateSearchInArrayAndGetPosition extends CalculateFromValues{
         
         $values = $this->getValues();
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
-        $array = $this->setVariable(self::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
-        $pos=0;
         $valueToSearch = $this->getParamValue($data[self::SEARCH_VALUE_PARAM]);
-        foreach ($array as $element) {
-            $this->setVariable(self::ARRAY_ELEMENT_VAR, $element);            
-            if($element === $valueToSearch){
-                $ret = $pos;
-                break;
-            }
-            $pos++;
+        $fieldToSearch = $this->getParamValue($data[self::SEARCH_FIELD_PARAM]);
+         
+        if(isset($data[self::RETURN_VALUES_PARAM])){
+            $toReturn = $this->getParamValue($data[self::RETURN_VALUES_PARAM]);
+        }else{
+            $toReturn = FALSE;
         }
-        if(!$ret){
-            $ret = $this->getDefaultValue($data, FALSE);
-        }
+        $ret = $this->existValueInArrayObject($values, $field, $fieldToSearch, $valueToSearch, $toReturn);
         return $ret;
     }
 }

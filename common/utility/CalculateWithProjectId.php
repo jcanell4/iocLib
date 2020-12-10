@@ -10,7 +10,7 @@
     }
 
     function getProjectId(){
-        return $this->getVariable(self::PROJECT_ID);
+        return $this->getVariable(self::PROJECT_ID_VAR);
     }
     
 }

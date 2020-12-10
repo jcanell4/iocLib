@@ -22,6 +22,8 @@ class WiocclFunction extends WiocclInstruction
 
     protected function extractArgs($string)
     {
+        $string = preg_replace('/(^|\\s)\'\'\'/', '$1"\'', $string);
+        $string = preg_replace('/\'\'\'(\\s|$)/', '\'"$1', $string);
         $string = preg_replace("/''/", '"', $string);
 //        $string = (new WiocclParser($string, $this->arrays, $this->dataSource))->getValue();
         $string = WiocclParser::getValue($string, $this->arrays, $this->dataSource, $this->resetables);
@@ -56,7 +58,7 @@ class WiocclFunction extends WiocclInstruction
             if(count($values)>0 && is_array($values[0])){
                 $ret = $this->_countValuesInFieldsOfArray($array, $fields, $values);
             }else{
-                $ret = $this->_countValueInFieldsObjectArray($array, $fields);
+                $ret = $this->_countValueInFieldsObjectArray($array, $fields, $values);
             }
         }else{
             if(is_array($values)){
@@ -79,9 +81,9 @@ class WiocclFunction extends WiocclInstruction
     }
 
     private function _countValuesInArray($array, $values){
-        $compliant = false;
         $cont=0;
         foreach ($array as $item) {
+            $compliant = false;
             for($ind=0; !$compliant && $ind<count($values); $ind++) {
                 $compliant = $item==$values[$ind];
             }
@@ -103,9 +105,9 @@ class WiocclFunction extends WiocclInstruction
     }
 
     private function _countValuesInFieldOfArray($array, $field, $values){
-        $compliant = false;
         $cont=0;
         foreach ($array as $item) {
+            $compliant = false;
             for($ind=0; !$compliant && $ind<count($values); $ind++) {
                 $compliant = $item[$field]==$values[$ind];
             }
@@ -117,12 +119,11 @@ class WiocclFunction extends WiocclInstruction
     }
 
     private function _countValuesInFieldsOfArray($array, $fields, $valuesOfValues){
-        $compliantField = true;
-        $compliantValue = false;
         $cont=0;
         foreach ($array as $item) {
+            $compliantField = true;
             for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
-                // ALERTA[Xavi] $values no està definit, ha de ser $valuesOfValues?
+                $compliantValue = false;
                 for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
                     $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
                 }
@@ -136,9 +137,9 @@ class WiocclFunction extends WiocclInstruction
     }
 
     private function _countValueInFieldsObjectArray($array, $fields, $values){
-        $compliant = true;
         $cont=0;
         foreach ($array as $item) {
+            $compliant = true;
             for($ind=0; $compliant && $ind<count($fields); $ind++) {
                 $compliant = $item[$fields[$ind]]==$values[$ind];
             }
@@ -215,6 +216,11 @@ class WiocclFunction extends WiocclInstruction
         return $newDate;
     }
 
+    protected function IN_ARRAY($value, $array){
+        $ret = in_array($value, $array);
+        return $ret;
+    }
+
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function SEARCH_VALUE($toSearch, $array, $column=NULL)
     {
@@ -240,7 +246,7 @@ class WiocclFunction extends WiocclInstruction
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_GET_VALUE($key, $array, $defaultValue=FALSE)
     {
-        if($key==null || !is_array($array)){
+        if($key===null || !is_array($array)){
             if($defaultValue===false){
                 return "[ERROR! paràmetres incorrectes ARRAY_GET_VALUE($key, $array)]"; //TODO: internacionalitzar
             } else {
@@ -466,6 +472,18 @@ class WiocclFunction extends WiocclInstruction
         }
         $ret = explode($delimiter, $string, $limit);
         return self::_normalizeValue($ret);
+    }
+
+    protected function STR_TRIM($text=NULL, $mask=NULL) {
+        if(!is_string($text)){
+            return "[ERROR! paràmetres incorrectes STR_TRIM($text, $mask)]"; //TODO: internacionalitzar
+        }
+        if($mask){
+            $ret = trim($text, $mask);
+        }else{
+            $ret = trim($text);
+        }
+        return $ret;
     }
 
     protected function STR_SUBTR($text=NULL, $start=0, $len=NAN) {
