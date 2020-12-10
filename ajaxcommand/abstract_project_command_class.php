@@ -58,5 +58,12 @@ abstract class abstract_project_command_class extends abstract_command_class {
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_PROJECT_TYPE] = $this->params[ProjectKeys::KEY_PROJECT_TYPE];
         }
     }
-
+    
+    protected function postResponse($responseData, &$ajaxCmdResponseGenerator) {
+        parent::postResponse($responseData, $ajaxCmdResponseGenerator);
+        if ($responseData[AjaxKeys::KEY_ID] && $responseData[RequestParameterKeys::KEY_CODETYPE] !== RequestParameterKeys::VAL_CODETYPE_REMOVE) {
+            $value = ($responseData[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] === "1"||$responseData[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] >=1 ) ? "1" : "0";
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], "updateButton", $value);
+        }
+    }
 }

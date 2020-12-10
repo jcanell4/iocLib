@@ -5,19 +5,20 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     protected $fullArray =[];
     protected $filter;
     protected $wiocclLoop;
+    protected $counterFromZero=FALSE;
     
     const ARRAY_INDEX_ATTR = "counter";
+    const COUNTER_FROM_ZERO_ATTR = "counterFromZero";
     const FILTER_ATTR = "filter";
 
     public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables=NULL, &$parentInstruction=NULL)
     {
         parent::__construct($value, $arrays, $dataSource, $resetables, $parentInstruction);
 
-        // varName correspón a la propietat var i es el nom de l'array
-        // ALERTA! els arrays es llegeixen com un camp, la conversió d'array al seu valor es tracta al field
         $this->varName = $this->extractVarName($value);
         $this->counterName = $this->extractVarName($value, self::ARRAY_INDEX_ATTR, false);
         $this->fullArray = $this->extractArray($value);
+        $this->counterFromZero = $this->extractBoolean($value, self::COUNTER_FROM_ZERO_ATTR, false);
         $strFilter = $this->extractVarName($value, self::FILTER_ATTR, false);
         if(empty($strFilter )){
             $strFilter = 'true';
@@ -44,10 +45,14 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     }
 
     public function updateLoop() {
-        $row = $this->fullArray[$this->wiocclLoop->getCounter()];
+        $row = $this->fullArray[$this->wiocclLoop->getIndex()];
         $this->setArrayValue($this->varName, $row);
         if(!empty($this->counterName)){
-            $this->setArrayValue($this->counterName, $this->wiocclLoop->getCounter());
+            if($this->counterFromZero){
+                $this->setArrayValue($this->counterName, $this->wiocclLoop->getCounter());
+            }else{
+                $this->setArrayValue($this->counterName, $this->wiocclLoop->getIndex());
+            }
         }
     }
 

@@ -32,7 +32,7 @@ class CalculateSearchInArrayObjectAndGetFieldValue extends CalculateFromValues{
         
         $values = $this->getValues();
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
-        $arrayObject = $this->setVariable(self::ARRAY_OBJECT_VALUE_VAR, $this->getValueFieldFromValues($values, $field));
+        $arrayObject = $this->setVariable(self::ARRAY_OBJECT_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
         $valueToSearch = $this->getParamValue($data[self::SEARCH_VALUE_PARAM]);
         $fieldToSearch = $this->getParamValue($data[self::FIELD_TO_SEARCH_PARAM]);
         foreach ($arrayObject as $row) {

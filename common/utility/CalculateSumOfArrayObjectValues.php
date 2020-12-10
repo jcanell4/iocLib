@@ -15,7 +15,7 @@ class CalculateSumOfArrayObjectValues extends CalculateFromValues{
     //put your code here
     public function calculate($data) {        
         $arrayObjectfield = $this->getParamValue($data[self::ARRAY_OBJECT_FIELD_PARAM]);
-        $values= $this->setVariable(self::ARRAY_OBJECT_VALUE_VAR, $this->getValues()[$arrayObjectfield]);
+        $values= $this->setVariable(self::ARRAY_OBJECT_VALUE_VAR, $this->castToArray($this->getValues()[$arrayObjectfield]));
         $sum =0;
         if(is_array($values)){
             foreach ($values as $item) {

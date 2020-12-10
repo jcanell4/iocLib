@@ -18,10 +18,10 @@
  *
  * @author josep
  */
-class CalculateSearchInArrayAndGetPosition extends CalculateFromValues{
+class CalculateExistValueInArray extends CalculateFromValues{
     const FIELD_PARAM = "field";
     const SEARCH_VALUE_PARAM = "searchValue";
-    const DEFAULT_VALUE_PARAM = "defaultValue";
+    const RETURN_VALUES_PARAM = "returnValues";
     
     //put your code here
     public function calculate($data) {
@@ -30,19 +30,14 @@ class CalculateSearchInArrayAndGetPosition extends CalculateFromValues{
         $values = $this->getValues();
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
         $array = $this->setVariable(self::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
-        $pos=0;
         $valueToSearch = $this->getParamValue($data[self::SEARCH_VALUE_PARAM]);
-        foreach ($array as $element) {
-            $this->setVariable(self::ARRAY_ELEMENT_VAR, $element);            
-            if($element === $valueToSearch){
-                $ret = $pos;
-                break;
-            }
-            $pos++;
+         
+        if(isset($data[self::RETURN_VALUES_PARAM])){
+            $toReturn = $this->getParamValue($data[self::RETURN_VALUES_PARAM]);
+        }else{
+            $toReturn = FALSE;
         }
-        if(!$ret){
-            $ret = $this->getDefaultValue($data, FALSE);
-        }
+        $ret = $this->existValueInArray($array, $field, $valueToSearch, $toReturn);
         return $ret;
     }
 }
