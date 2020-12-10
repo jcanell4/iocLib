@@ -422,6 +422,8 @@ abstract class DataQuery {
     private function _recurse_copy($src, $dst) {
         $dir = opendir($src);
         $ret = mkdir($dst, 0775, TRUE);
+        if (!$ret)
+            throw new Exception("duplicateProject: Error mentre duplicava el projecte. Error de creació del directori: $dst.");
         while(false !== ($file = readdir($dir))) {
             if ($file != "." && $file != "..") {
                 if (is_dir("$src/$file") ) {
