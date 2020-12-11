@@ -1,5 +1,30 @@
 <?php
 require_once "WiocclParser.php";
+/*
+ * Fa una assignació a una variable si i només si es compleix una determinada condició. L'assigació es fa de forma identica 
+ * a la realitzada amb la instrucció <WIOCCL:SET>. 
+ * Atributs:
+ *   - condition: conté la condició que cal complir per a fer l'assignació 
+ *   - var: no de la variabla a la que es farà l'assignació
+ *   - value: Valor o clau de l'assignació
+ *   - type: literal o map (vegeu <WIOCCL:SET>)
+ *   - map: array que servirà par mapejar l'assignació  arealitzar a partir de value usat com a key (vegeu <WIOCCL:SET>)
+ * 
+ * Syntax:
+ *   <WIOCCL:CONDSET condition="{#_STR_CONTAINS(''/'', ''{##nomPeriode##}'')_#}" var="nomPeriodeSing" type="literal" value="{#_ARRAY_GET_VALUE(0,{#_EXPLODE(''/'',''{##nomPeriode##}'')_#})_#}">
+ *   <WIOCCL:CONDSET condition="{#_STR_CONTAINS(''/'', ''{##nomPeriode##}'')_#}" var="nomPeriodePlur" type="literal" value="{#_ARRAY_GET_VALUE(1,{#_EXPLODE(''/'',''{##nomPeriode##}'')_#})_#}">
+ *   <WIOCCL:CONDSET condition="!{#_STR_CONTAINS(''/'', ''{##nomPeriode##}'')_#}" var="nomPeriodeSing" type="literal" value="{##nomPeriode##}">
+ *   <WIOCCL:CONDSET condition="!{#_STR_CONTAINS(''/'', ''{##nomPeriode##}'')_#}" var="nomPeriodePlur" type="literal" value="{##nomPeriode##}s">
+ *          //Si el camp nomPeriode conté comes, significa que contè a més del nom, la forma plural i s'aasigna a dues noves variables (nomPeriodeSing i nomPeriodePlur) 
+ *          //ambdues formes respectivament. Si no conté comes significa que només conté el nom en singular i es dedueix el nom plural afegint una s al final
+ *          //En aquest context es pot usar les expressions {##nomPeriodeSing##} i {##nomPeriodePlur##}
+ *   </WIOCCL:CONDSET>
+ *   </WIOCCL:CONDSET>
+ *   </WIOCCL:CONDSET>
+ *   </WIOCCL:CONDSET>
+
+
+ */
 
 class WiocclConditionalSet extends WiocclInstruction {
     const COND_ATTR = "condition";

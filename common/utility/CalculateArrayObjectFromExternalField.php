@@ -11,6 +11,7 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
     const FILTERING_CONDITION_PARAM = "filterCondition";
     const EXTERNAL_FIELD_SUBSET_PARAM = "externalFieldSubset";
     const FIELD_SUBSET_PARAM = "fieldSubset";
+    const RESULT_ROW_PARAM = "resultRow";
 
     public function calculate($data) {
         if(isset($data[self::PROJECT_ID_PARAM])){
@@ -55,6 +56,11 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
         }else{
             $subset = FALSE;
         }
+        if(isset($data[self::RESULT_ROW_PARAM])){
+            $resultRow = $this->getParamValue($data[self::RESULT_ROW_PARAM]);
+        }else{
+            $resultRow = FALSE;
+        }
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
         $arrayObject = $this->getValueFieldFromValues($values, $field);
         if(is_string($arrayObject)){
@@ -77,6 +83,14 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
                         }
                     }
                     $ret[]= $newrow;
+                }elseif($resultRow){
+                    $newrow = array();
+                    foreach ($resultRow as $k => $v) {
+                        $field = $this->getParamValue($k);
+                        $value = $this->getParamValue($v);
+                        $newrow[$field]=$value;
+                    }
+                    $ret[] = $newrow;
                 }else{
                     $ret[]= $rowValue;
                 }

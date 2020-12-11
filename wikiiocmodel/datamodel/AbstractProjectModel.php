@@ -131,8 +131,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $content;
     }
 
+    //Obté un fitxer de daya que actuarà com a plantilla
     public function getRawTemplate($filename, $version) {
         $content = $this->getPageDataQuery()->getTemplateRaw($filename, $version);
+        return $content;
+    }
+
+    //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
+    public function getRawProjectTemplate($filename, $version=FALSE) {
+        $content = $this->getProjectMetaDataQuery()->getRawProjectTemplate($filename, $version);
         return $content;
     }
 
@@ -1061,7 +1068,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * (només s'utilitza el primer fitxer de la llista)
      * @return string HTML per a les metadades
      */
-    public function get_ftpsend_metadata() {
+    public function get_ftpsend_metadata($useSavedTime=TRUE) {
         $connData = $this->getFtpConfigData();
         $mdFtpSender = $this->getMetaDataFtpSender();
         $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
@@ -1074,7 +1081,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $fileexists = @file_exists($file);
         if ($fileexists) $filetime = filemtime($file);
 
-        if ($fileexists && $savedtime === $filetime) {
+        if ($fileexists && (!$useSavedTime || ($savedtime === $filetime))) {
             foreach ($mdFtpSender['files'] as $objFile) {
                 $index = (empty($objFile['remoteIndex'])) ? $mdFtpSender['remoteIndex'] : $objFile['remoteIndex'];
                 if (empty($index)) {

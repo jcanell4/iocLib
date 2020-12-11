@@ -616,6 +616,18 @@ class ProjectMetaDataQuery extends DataQuery {
         }
         return NULL;
     }
+    
+      //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
+    public function getRawProjectTemplate($filename, $version=FALSE) {
+        if($version){
+            $extension = ".txt.v$version";
+        }else{
+            $extension = ".txt";
+        }
+        $dir = $this->getProjectTypeDir();
+        $content = io_readFile("{$dir}metadata/plantilles/$filename$extension");
+        return $content;
+    }
 
     public function setSystemData($data, $metadataSubset=FALSE) {
         if (!$metadataSubset){
