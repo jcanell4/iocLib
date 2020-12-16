@@ -49,7 +49,7 @@ class IocInstruction {
 
         while ($tokenIndex < count($tokens)) {
             $auxToken = $tokens[$tokenIndex];
-            $auxToken['tokenIndex'] = $tokenIndex;
+                $auxToken['tokenIndex'] = $tokenIndex;
 
             $newChunk = $this->parseToken($tokens, $tokenIndex);
             if ($newChunk === NULL) { // tancament de la etiqueta

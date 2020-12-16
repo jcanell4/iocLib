@@ -130,7 +130,7 @@ class DW2HtmlInstruction extends IocInstruction {
         switch ($action) {
             case 'content':
 
-                if (!$top || $top['state'] == 'newcontent') {
+                if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -314,6 +314,25 @@ class DW2HtmlInstruction extends IocInstruction {
         $class::setInner(true);
 
         $content = $class::getValue($raw);
+
+        $class::setInner($isInnerPrevious);
+
+//        echo '<pre>' . $content . '</pre>';
+//        die();
+
+        return $content;
+    }
+
+    public static function parseContent2($raw, $inline) {
+        $class = static::$parserClass;
+        $isInnerPrevious = $class::isInner();
+        $class::setInner(true);
+
+        $previousInline = $class::isInline();
+        $class::setInline($inline);
+        $content = $class::getValue($raw);
+
+        $class::setInline($previousInline);
 
         $class::setInner($isInnerPrevious);
 

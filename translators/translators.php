@@ -307,13 +307,12 @@ class DW2HtmlTranslator extends AbstractTranslator {
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
     const DEBUG_STRUCTURE = false;
 
-    public static function translate($text, $params, &$extra) {
+    public static function translate($text, $params, &$extra, $isPartial = false) {
         global $plugin_controller;
 
-        // TODO: Això s'haurà d'afegir automàticament en desar
 
 
-            $headerData = [];
+        $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
             $headerData = $matches[1];
         }
@@ -321,7 +320,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
         $text = preg_replace("/:###.*?~~.*?~~\n?###:/ms", "", $text, 1, $counter);
 
         //        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
-        if ($counter > 0) {
+        if ($counter > 0 || isset($params['generateStructure']) && $params['generateStructure']) {
 
 
             $dataSource = $plugin_controller->getCurrentProjectDataSource($params['projectOwner'], $params['projectSourceType']);
@@ -330,8 +329,36 @@ class DW2HtmlTranslator extends AbstractTranslator {
             WiocclParser::$generateStructure = true;
 
 
-            WiocclParser::resetStructure(self::DEBUG_STRUCTURE);
-            $text = WiocclParser::getValue($text, [], $dataSource);
+
+
+            $rootId = 0;
+            if (isset($params['rootRef'])) {
+                $rootId = $params['rootRef'];
+            }
+
+            $counter = 1;
+
+            if (isset($params['nextRef'])) {
+                $counter = $params['nextRef'];
+            }
+
+
+
+            WiocclParser::resetStructure(self::DEBUG_STRUCTURE, $rootId, $counter);
+
+
+            if ($isPartial) {
+                WiocclParser::setInner(true);
+                $null = []; //necesari perquè es passa per referència però no es fa servir
+                $text = WiocclParser::getValue($text, [], $dataSource, $null, false);
+                WiocclParser::setInner(false);
+            } else {
+                $text = WiocclParser::getValue($text, [], $dataSource);
+            }
+
+
+
+
             WiocclParser::$generateStructure = false;
 
             if ($extra == NULL) {
@@ -361,7 +388,17 @@ class DW2HtmlTranslator extends AbstractTranslator {
         // TODO: en aquest punt tenim las metadades que es reconstrueixen afegint-les entre ':###\n' i '/n###:\n'
         // i la estructura
 
-        return DW2HtmlParser::getValue($text, [], $dataSource);
+
+        // ALERTA! això és per fer el parser del document complet
+        if ($isPartial) {
+            // TODO: determinar si el $inline ha de ser true o false?
+            $inline = true;
+            return DW2HtmlInstruction::parseContent2($text, $inline);
+        } else {
+            return DW2HtmlParser::getValue($text, [], $dataSource);
+        }
+
+
     }
 
 

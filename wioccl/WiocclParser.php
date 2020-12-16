@@ -161,7 +161,7 @@ class WiocclParser extends IocParser
 
     protected static $instructionClass = "WiocclInstruction";
 
-    public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
+    public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL, $generateRoot = TRUE)
     {
 
         // Quan generem la estructura no s'elimina cap element
@@ -172,13 +172,25 @@ class WiocclParser extends IocParser
         }
 
 
-        return static::parse($text, $arrays, $dataSource, $resetables);
+        return static::parse($text, $arrays, $dataSource, $resetables, $generateRoot);
     }
 
-    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables=NULL)
+
+//     original
+    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables=NULL, $generateRoot)
     {
-        $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables);
+
+        if ($generateRoot) {
+            $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables);
+        } else {
+            $null = NULL;
+            $instruction = new static::$instructionClass($text, $arrays, $dataSource, $resetables, $null, true);
+        }
+
+
         $tokens = static::tokenize($instruction->getRawValue()); // això ha de retornar els tokens
+
+
         return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
     }
 
@@ -209,17 +221,19 @@ class WiocclParser extends IocParser
     protected static $structure;
     protected static $currentTop = null;
     protected static $counter;
+    protected static $rootId;
 
     public static $generateStructure = false;
     public static $structureStack = [];
 
     public static $debugStructure = false;
 
-    public static function resetStructure($shouldDebug = false) {
+    public static function resetStructure($shouldDebug, $rootId, $counter) {
 //        static::$structure = null;
         static::$structure = [];
         static::$currentTop = null;
-        static::$counter = 0;
+        static::$counter = $counter;
+        static::$rootId = $rootId;
         static::$debugStructure = $shouldDebug;
     }
 
@@ -235,15 +249,21 @@ class WiocclParser extends IocParser
             return;
         }
 
-        static::$structure[] = $item;
+
+        if (count(static::$structure)==0) {
+            $item->id = static::$rootId;
+        } else {
+            $item->id = static::$counter++;
+        }
 
 //        if (static::$structure === null) {
 //            static::$structure = $item;
 //        }
 
-        $item->id = static::$counter++;
 
         $item->parent = static::$currentTop->id;
+
+        static::$structure[$item->id] = $item;
 
         if (static::$currentTop != null) {
             array_push(static::$currentTop->children, $item->id);

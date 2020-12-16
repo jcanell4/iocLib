@@ -27,8 +27,10 @@ class WiocclInstruction extends IocInstruction {
     protected $item;
     protected $previousStructureGeneration = false;
 
+    protected $skipOpening;
+
     // TODO: Afegir dataSource al constructor, deixem els arrays separats perque el seu us es intern, al datasource es ficaran com a JSON
-    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables = NULL, &$parentInstruction = NULL) {
+    public function __construct($value = null, $arrays = array(), $dataSource = array(), &$resetables = NULL, &$parentInstruction = NULL, $skipOpening = false) {
         $this->rawValue = $value;
         $this->arrays += $arrays;
         $this->dataSource = $dataSource;
@@ -39,7 +41,12 @@ class WiocclInstruction extends IocInstruction {
             $this->resetables = $resetables;
         }
 
-        $this->open();
+        $this->skipOpening = $skipOpening;
+
+        if (!$skipOpening) {
+            $this->open();
+        }
+
 
     }
 
@@ -233,7 +240,9 @@ class WiocclInstruction extends IocInstruction {
     protected function addToStructure(&$result, $type, $startIndex = 0, $endIndex = 0) {
 
 
-
+        if ($this->skipOpening) {
+            return;
+        }
 
         $class = (static::$parserClass);
         $item = new WiocclStructureItem($class::getStructure());
@@ -275,6 +284,9 @@ class WiocclInstruction extends IocInstruction {
 
     protected function close(&$result, $tokenEnd) {
 
+        if ($this->skipOpening) {
+            return;
+        }
 
         if ($this->item->id>=0) {
             $result = '[ref=' . $this->item->id . ']' . $result . '[/ref=' . $this->item->id . ']';
