@@ -11,20 +11,41 @@ class _WiocclLoop
         $this->looperInstruction = $looper;
     }
 
+
     public function loop($tokens, &$tokenIndex)
     {
 
+        $previous = WiocclParser::$cloning;
+
         $result = '';
+
         if($this->looperInstruction->getFrom() > $this->looperInstruction->getTo()){
+
+
+            if ($this->looperInstruction->getFrom() != $this->looperInstruction->getStep()) {
+                WiocclParser::$cloning = true;
+            }
+
             $this->index = -1;
             $this->looperInstruction->updateLoop();
             $this->parseTokensOfItem($tokens, $tokenIndex);
+
+
         }else{
             $startTokenIndex = $tokenIndex;
             $lastBlockIndex = null;
             $lastTokenIndex = 0;
 
+            $first = true;
+
             for ($this->index = $this->looperInstruction->getFrom(); $this->index <= $this->looperInstruction->getTo(); $this->index+= $this->looperInstruction->getStep()) {
+
+                if ($first) {
+                    $first = false;
+                    WiocclParser::$cloning = $previous;
+                } else {
+                    WiocclParser::$cloning = true;
+                }
 
                 $tokenIndex = $startTokenIndex;
 
@@ -50,9 +71,12 @@ class _WiocclLoop
             $tokenIndex = $lastTokenIndex;
         }
 
+        WiocclParser::$cloning = $previous;
+
         // ALERTA[Xavi] : pel cas del foreach s'ha de fer aqui el pop perquè el token de tancament es processa a cada
         // iteració
         $this->looperInstruction->popState();
+
         return $result;
     }
     
@@ -63,9 +87,19 @@ class _WiocclLoop
     public function parseTokensOfItem($tokens, &$tokenIndex)
     {
         $result = '';
+
+        // tots els elements excepte el primer es marcaran com a IsCloned=true a la estructura
+
+
         while ($tokenIndex < count($tokens)) {
 
-            $parsedValue = $this->looperInstruction->parseToken($tokens, $tokenIndex, $this->source);
+            // Considerem que només el for i foreach son loopers, són els unics casos en que que es té en compte
+            // que els elements després del primer son clons
+
+            // versió original, el $this->source no és un paràmetre que accepti wiocclintruction
+            //$parsedValue = $this->looperInstruction->parseToken($tokens, $tokenIndex, $this->source);
+
+            $parsedValue = $this->looperInstruction->parseToken($tokens, $tokenIndex);
 
             if ($parsedValue === null) { // tancament del foreach
                 break;
@@ -74,7 +108,9 @@ class _WiocclLoop
             $result .= $parsedValue;
 
             ++$tokenIndex;
+
         }
+
         return $result;
     }
 }

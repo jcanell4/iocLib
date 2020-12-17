@@ -4,6 +4,13 @@ require_once DOKU_INC . 'inc/parser/parser.php';
 require_once DOKU_INC . 'inc/parser/handler.php';
 require_once DOKU_INC . 'lib/lib_ioc/translators/translatorParserClasses.php';
 
+if (!function_exists('array_key_last')) {
+    function array_key_last(array $array) {
+        if (!empty($array)) return key(array_slice($array, -1, 1, true));
+    }
+}
+
+
 /**
  * @author josep
  */
@@ -14,7 +21,7 @@ abstract class AbstractMarkDownTranslator {
 
     function init($params) {
         // ALERTA[Xavi]! Això és correcte? no hauria de ser $this->rootLevelValues = $params["rootLevelValues"]; ?
-        $this->$rootLevelValues = $params["rootLevelValues"];
+//        $this->$rootLevelValues = $params["rootLevelValues"];
     }
 
     function getInstructions($text) {
@@ -311,7 +318,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
         global $plugin_controller;
 
 
-
         $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
             $headerData = $matches[1];
@@ -329,8 +335,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
             WiocclParser::$generateStructure = true;
 
 
-
-
             $rootId = 0;
             if (isset($params['rootRef'])) {
                 $rootId = $params['rootRef'];
@@ -341,7 +345,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
             if (isset($params['nextRef'])) {
                 $counter = $params['nextRef'];
             }
-
 
 
             WiocclParser::resetStructure(self::DEBUG_STRUCTURE, $rootId, $counter);
@@ -357,8 +360,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
             }
 
 
-
-
             WiocclParser::$generateStructure = false;
 
             if ($extra == NULL) {
@@ -370,6 +371,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
             ];
 
             // dins es genera un json per comprovar els resultats de la estructura
+
+            // TEST, això ho converteix en un objecte?
+            $extra['wioccl_structure']['structure']['next'] = strval(array_key_last($extra['wioccl_structure']['structure']) + 1);
 
             if (self::DEBUG_STRUCTURE) {
                 static::debugStructure(WiocclParser::getStructure(), $headerData);
@@ -391,7 +395,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         // ALERTA! això és per fer el parser del document complet
         if ($isPartial) {
-            // TODO: determinar si el $inline ha de ser true o false?
+            // TODO: determinar si el $inline ha de ser true o false? <-- les traduccions parcials sempre son inline
             $inline = true;
             return DW2HtmlInstruction::parseContent2($text, $inline);
         } else {
@@ -455,6 +459,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
             'open' => $item->open,
             'attrs' => $item->attrs,
             'close' => $item->close,
+            'isClone' => $item->isClone,
             'children' => []
         ];
 

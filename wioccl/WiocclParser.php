@@ -228,12 +228,14 @@ class WiocclParser extends IocParser
 
     public static $debugStructure = false;
 
+    public static $cloning = false;
+
     public static function resetStructure($shouldDebug, $rootId, $counter) {
 //        static::$structure = null;
         static::$structure = [];
         static::$currentTop = null;
         static::$counter = $counter;
-        static::$rootId = $rootId;
+        static::$rootId = strval($rootId); // els ids son strings, perquè no sempre son consecutius
         static::$debugStructure = $shouldDebug;
     }
 
@@ -253,8 +255,10 @@ class WiocclParser extends IocParser
         if (count(static::$structure)==0) {
             $item->id = static::$rootId;
         } else {
-            $item->id = static::$counter++;
+            $item->id = strval(static::$counter++); // els ids son strings, perquè no sempre son consecutius
         }
+
+        $item->isClone = static::$cloning;
 
 //        if (static::$structure === null) {
 //            static::$structure = $item;

@@ -80,4 +80,6 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
 
         return $this->filter->validate();        
     }
- }
+
+
+}

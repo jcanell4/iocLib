@@ -332,6 +332,19 @@ class DW2HtmlInstruction extends IocInstruction {
         $class::setInline($inline);
         $content = $class::getValue($raw);
 
+        // ALERTA! Hi ha un cas en que el html retornat no és correcte:
+        // Es un cas molt concret i dificil de generalitzar, per això ho gestionem aquí mitjançant regex
+        // cas: si es tracta d'una conversió parcial wioccl d'elements dins d'una taula generada amb foreach
+
+        $pattern = "/^<span data-wioccl-ref=.*? data-wioccl-state='open'><\/span>(<tr.*)/";
+
+        if (preg_match($pattern, $content, $matches)) {
+
+            $content = $matches[1];
+        }
+
+
+
         $class::setInline($previousInline);
 
         $class::setInner($isInnerPrevious);

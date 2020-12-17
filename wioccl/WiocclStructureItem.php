@@ -5,6 +5,7 @@ class WiocclStructureItem {
     public $children = [];
     public $result = ''; // TODO: eliminar el resultat
     public $id = -1;
+    public $isClone = false;
 
 
     // Només s'indica quan és relevant, per exemple per discriminar el content

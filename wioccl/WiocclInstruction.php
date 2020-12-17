@@ -327,6 +327,13 @@ class WiocclInstruction extends IocInstruction {
         // La implementació més genèrica és considerar que tot el que estigui desprès del primer espai son atributs
         // quan això no és vàlid (per exemple a les funcions), es fa @override d'aquesta funció
 
+
+        // ALERTA! substituim el \> per &gt; perquè si no dona problemas amb el > de tancament normal
+
+        $tag = str_replace('\\>', '&gt;', $tag);
+
+
+
         // Cerquem el primer element començant per la cua que no sigui ni un espai ni un salt de línia
         preg_match('/(>.*)$/m', $tag, $match);
         $tail = $match[1];
@@ -336,6 +343,7 @@ class WiocclInstruction extends IocInstruction {
 
 //        $tag = substr($tag, 0, strlen($tag)-1);
         $tag = preg_replace('/(>.*)$/m', '', $tag);
+//        $tag = preg_replace('/(>.*)$/m', '', $tag);
 
 
         $aux = explode(' ', $tag);
@@ -349,7 +357,7 @@ class WiocclInstruction extends IocInstruction {
         // Eliminem el primer element
         array_shift($aux);
 
-        $attrs = implode(" ", $aux);
+        $attrs = trim(implode(" ", $aux));
 
     }
 

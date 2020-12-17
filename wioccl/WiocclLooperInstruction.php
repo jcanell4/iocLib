@@ -15,5 +15,6 @@ interface WiocclLooperInstruction {
     
     public function validateLoop();    
 
-    public function parseToken($tokens, &$tokenIndex);    
+    public function parseToken($tokens, &$tokenIndex);
+
 }
