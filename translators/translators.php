@@ -350,7 +350,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
             WiocclParser::resetStructure(self::DEBUG_STRUCTURE, $rootId, $counter);
 
 
-            if ($isPartial) {
+            if ($isPartial && $rootId >0) {
                 WiocclParser::setInner(true);
                 $null = []; //necesari perquè es passa per referència però no es fa servir
                 $text = WiocclParser::getValue($text, [], $dataSource, $null, false);

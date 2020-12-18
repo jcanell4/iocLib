@@ -286,7 +286,8 @@ class WiocclParser extends IocParser
             return;
         }
 
-        static::$currentTop = static::$currentTop->getParent();
+        $parent = static::$currentTop->getParent();
+        static::$currentTop = $parent;
 
     }
 }

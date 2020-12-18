@@ -162,7 +162,20 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $previousParsingState = $this->parsingContent;
         $this->parsingContent = true;
 
-        $pre = '<div class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $realType . '" data-dw-type="'
+
+        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+//        $result .= '<span data-wioccl-ref="'. $refId.'">'. $item->getContent($currentToken) . '</span>';
+
+
+
+        $pre ='<div ';
+
+        if ($refId > 0) {
+            $pre .= 'data-wioccl-ref="' . $refId . '" ';
+
+        }
+
+        $pre .= 'class="ioc' . $type . ' ' . $fields['type'] . '" data-dw-box="' . $realType . '" data-dw-type="'
             . $fields['type'] . "\">\n";
         $pre .= '<div class="iocinfo">';
         $pre .= '<a data-dw-link="' . $realType . '" name="' . $id . '">';
