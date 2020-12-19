@@ -330,7 +330,7 @@ class WiocclInstruction extends IocInstruction {
 
         // ALERTA! substituim el \> per &gt; perquè si no dona problemas amb el > de tancament normal
 
-        $tag = str_replace('\\>', '&gt;', $tag);
+        $tag = str_replace('\\>', '&escapedgt;', $tag);
 
 
 

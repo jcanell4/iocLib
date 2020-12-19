@@ -26,6 +26,9 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     const T_FLOAT_KEY    = "float_key";
     const T_STRING_KEY   = "string_key";
 
+    const T_JSON         = "json";
+
+
     protected static $PLUGUIN_TYPE = 'command';
     protected static $FILENAME_PARAM = 'name';
     protected static $FILE_TYPE_PARAM = 'type';
@@ -212,6 +215,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                     && $this->types[$key]!= self::T_FUNCTION
                     && $this->types[$key]!= self::T_METHOD
                     && $this->types[$key]!= self::T_FILE
+                    && $this->types[$key]!= self::T_JSON
                     && gettype($value) != $this->types[$key]) {
                 settype($value, $this->types[$key]);
             }else if(isset($this->types[$key])
@@ -231,7 +235,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
                     && $this->types[$key]== self::T_FILE
                     && gettype($value) != self::T_ARRAY){
                 settype($value, self::T_ARRAY);
+            }else if(isset($this->types[$key])
+                && $this->types[$key]== self::T_JSON
+                && gettype($value) == self::T_STRING) {
+                $value = json_decode($value, true);
             }
+
             $this->params[$key] = $value;
         }
     }

@@ -305,6 +305,22 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 
     public static function translate($text, $params, &$extra) {
 //        return Html2DWParser::parse($text);
+
+        $header = '';
+        if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {
+            $header .= ":###\n";
+            foreach ($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'] as $data) {
+                $header .= "~~" . $data ."~~\n";
+            }
+            $header .= "###:\n";
+        }
+        // si s'inclou estructura, cal afegir la capçalera
+
+        // TODO: com passem la estructura? -> la fiquem directament al Html2DWParser?
+        Html2DWParser::initializeStructure($params[PageKeys::KEY_WIOCCL_STRUCTURE]['structure']);
+
+        $text = $header . $text;
+
         return Html2DWParser::getValue($text);
     }
 }
@@ -428,6 +444,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
 
         // Provem a reconstruir el document a partir dels nodes
+        // TODO: fer servir el nou métode ToWioccl() del WiocclStructureItem (no caldrà cridar al getNode)
         $text = $meta . static::getText($root, $structure);
 
 

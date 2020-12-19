@@ -10,11 +10,19 @@ class Html2DWParser extends IocParser {
         "/<div class=\"no-render.*?<\/div>/ms",
         "/<span class=\"no-render.*?<\/span>/ms",
 
+        // Aquests es poden eliminar perquè hi ha una instrucció wioccl associada amb refid
+        "/<span data-wioccl-state=\"open\"><\/span>/",
+        "/<span data-wioccl-state=\"close\"><\/span>/"
     ];
 
-    public static $forceReplacements = [];
+    public static $forceReplacements = [
+    ];
 
     protected static $tokenPatterns = [
+
+        '<span data-wioccl-ref="\d+" data-wioccl-state="open"><\/span>' => [
+            'state' => 'wioccl'
+        ],
 
         "<newcontent>.*?<\/newcontent>" => [
             'state' => 'newcontent',
@@ -186,13 +194,11 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenKey = [
 
+        '<span data-wioccl-ref="(\d+)" data-wioccl-state="open"><\/span>' => ['state' => 'wioccl', 'type' => 'wioccl', 'class' => 'Html2DWWioccl', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'Html2DWNewContent', 'action' => 'self-contained', 'extra' => ['replacement' => ["<newcontent>", "</newcontent>"], 'regex' => TRUE]],
 
         "'<div>(<br ?\/>)*<\/div>'" => ['state' => 'paragraph', 'type' => 'paragraph', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
-
-
-
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -325,5 +331,16 @@ class Html2DWParser extends IocParser {
         $value = parent::getValue($text, $arrays, $dataSource, $resetables);
 
         return html_entity_decode($value);
+    }
+
+    public static $structure;
+
+    public static function initializeStructure($structureData) {
+        static::$structure = [];
+
+        foreach ($structureData as $data) {
+            static::$structure[] = new WiocclStructureItem(static::$structure, $data);
+        }
+
     }
 }
