@@ -243,7 +243,8 @@ abstract class DataQuery {
                 }else {
                     $id = "$ns:".str_replace(".txt", "", $file);
                     $summary = "rename old_directory=".str_replace(["$new_name",":"], ["$old_name","."], $ns);
-                    $oldRev = getRevisions($id, -1, 1, 1024);
+                    $pagelog = new PageChangeLog($id);
+                    $oldRev = $pagelog->getRevisions(-1, 1);
                     if (!empty($oldRev)) {
                         $oldRev = $oldRev[0];
                         $last_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${oldRev}$2.gz", $file);
@@ -282,7 +283,8 @@ abstract class DataQuery {
                 }elseif (substr($file, -8) === $type) {
                     $id = "$ns:".str_replace($type, "", $file);
                     $summary = str_replace($new_name, $old_name, $ns);
-                    $oldRev = getRevisions($id, -1, 1, 8192, TRUE);
+                    $medialog = new MediaChangeLog($id);
+                    $oldRev = $medialog->getRevisions(-1, 1);
                     $oldRev = (int) (empty($oldRev) ? 0 : $oldRev[0]);
                     $last_rev_name = preg_replace("/^(.*)(\..*)(".$type.")$/, $1.{$oldRev}$2", $file);
                     $time_rev = time();

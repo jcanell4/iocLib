@@ -134,10 +134,11 @@ class PageDataQuery extends DataQuery {
     public function getRevisionList($id, $offset = 0){
         $maxAmount = $amount = WikiGlobalConfig::getConf('revision-lines-per-page', 'wikiiocmodel');
 
-        $revisions = getRevisions($id, $offset, $maxAmount + 1 );
+        $pagelog = new PageChangeLog($id);
+        $revisions = $pagelog->getRevisions($offset, $maxAmount + 1 );
 
         $ret = [];
-        $ret['totalamount'] = IocCommon::countRevisions($id);
+        $ret['totalamount'] = count($revisions);
          if (count($revisions)>$maxAmount) {
              $ret['show_more_button'] = true;
              array_pop($revisions);
@@ -150,7 +151,7 @@ class PageDataQuery extends DataQuery {
          }
 
         foreach ($revisions as $revision) {
-            $ret[$revision] = getRevisionInfo($id, $revision);
+            $ret[$revision] = $pagelog->getRevisionInfo($revision);
             $ret[$revision]['date'] =  WikiPageSystemManager::extractDateFromRevision($ret[$revision]['date']);
         }
 
@@ -159,7 +160,7 @@ class PageDataQuery extends DataQuery {
         $ret['position'] = $offset;
         $ret['amount'] = $amount;
         $ret['maxamount'] = $maxAmount;
-        $ret['summary'] = getRevisionInfo($id, $ret['current'])['sum'];
+        $ret['summary'] = $pagelog->getRevisionInfo($ret['current'])['sum'];
 
         return $ret;
     }

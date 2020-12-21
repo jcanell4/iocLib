@@ -26,7 +26,7 @@ class ProfileAction extends DokuAction{
 
     protected function runProcess(){
         global $ACT;
-        $ACT = act_permcheck( $ACT );
+        $ACT = IocCommon::act_permcheck( $ACT );
 
         if ($this->params[AdminKeys::KEY_PAGE]) {
             if ($plugin =& plugin_load('admin', $this->params[AdminKeys::KEY_PAGE]) !== NULL) {
@@ -37,7 +37,7 @@ class ProfileAction extends DokuAction{
                     WikiIocInfoManager::setInfo('userinfo', $userInfo);
                 }
             }
-            $ACT = act_permcheck($ACT);
+            $ACT = IocCommon::act_permcheck($ACT);
         }
     }
 
