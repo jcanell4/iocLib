@@ -31,7 +31,7 @@ class BasicCreateDocumentAction extends CreatePageAction {
 
     private function _runProcess() {
         global $ACT;
-        $ACT = act_permcheck($ACT);
+        $ACT = IocCommon::act_permcheck($ACT);
         if ($ACT === "denied"){
             throw new InsufficientPermissionToCreatePageException($this->params[PageKeys::KEY_ID]);
         }

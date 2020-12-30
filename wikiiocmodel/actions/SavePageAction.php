@@ -33,7 +33,7 @@ class SavePageAction extends RawPageAction {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
 
-        $ACT = act_permcheck($ACT);
+        $ACT = IocCommon::act_permcheck($ACT);
         if ($ACT === "denied"){
             throw new InsufficientPermissionToCreatePageException($this->params[PageKeys::KEY_ID]);
         }

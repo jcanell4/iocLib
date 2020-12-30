@@ -172,7 +172,8 @@ class WikiPageSystemManager {
             $href = '';
 
             if ($recent['media']) {
-                $diff = (count(getRevisions($recent['id'], 0, 1, 8192, true)) && @file_exists(mediaFN($recent['id'])));
+                $medialog = new MediaChangeLog($recent['id']);
+                $diff = (count($medialog->getRevisions(0, 1)));
                 if ($diff) {
                     $href = media_managerURL(array('tab_details' => 'history',
                         'mediado' => 'diff', 'image' => $recent['id'], 'ns' => getNS($recent['id'])), '&');

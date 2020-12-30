@@ -38,7 +38,7 @@ class AdminTaskAction extends DokuAction{
     protected function runProcess(){
         global $ACT;
 
-        $ACT = act_permcheck( $ACT );
+        $ACT = IocCommon::act_permcheck( $ACT );
         //handle admin tasks
         // retrieve admin plugin name from $_REQUEST['page']
         if ( ! empty( $_REQUEST['page'] ) ) {
@@ -68,7 +68,7 @@ class AdminTaskAction extends DokuAction{
             }
         }
         // check permissions again - the action may have changed
-        $ACT = act_permcheck( $ACT );
+        $ACT = IocCommon::act_permcheck( $ACT );
     }
 
     /**
@@ -98,6 +98,16 @@ class AdminTaskAction extends DokuAction{
                     } else {
                         $response['info'] = self::generateInfo("info", \WikiIocLangManager::getLang('button_clicked') . '"'.\WikiIocLangManager::getLang('button_desa').'"', $id, $info_time_visible );
                     }
+                }
+                break;
+            case 'extension':
+                if (empty($_REQUEST['fn'])) {
+                    $response['info'] = self::generateInfo("info", \WikiIocLangManager::getLang('admin_task_loaded'), $id, $info_time_visible);
+                    break;
+                }else {
+                    $fn = $_REQUEST['fn'];
+                    $button = is_array($fn) ? key($fn) : $fn;
+                    $response['info'] = self::generateInfo("info", \WikiIocLangManager::getLang('button_clicked') . '"'.$button.'"', $id, $info_time_visible);
                 }
                 break;
             case 'plugin':
@@ -182,6 +192,8 @@ class AdminTaskAction extends DokuAction{
                 } else {
                     $response['info'] = self::generateInfo("info", \WikiIocLangManager::getLang('admin_task_loaded'), $id, $info_time_visible );
                 }
+                break;
+            case "smtp":
                 break;
             default:
                 $response['info'] = self::generateInfo("info", "Emplenar a DokumodelAdapter->getAdminTask:" . $_REQUEST['page'], $id );

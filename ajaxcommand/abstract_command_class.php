@@ -4,7 +4,6 @@
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
 if(!defined('DOKU_INC')) die();
-require_once(DOKU_INC."inc/plugin.php");
 require_once(DOKU_INC."inc/events.php");
 //include_once(DOKU_INC."inc/inc_ioc/Logger.php"); //USO: Logger::debug($Texto, $NúmError, __LINE__, __FILE__, $level=-1, $append);
 
