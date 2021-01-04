@@ -460,6 +460,19 @@ class ProjectMetaDataQuery extends DataQuery {
     public function setProjectSystemSubSetAttr($att, $value, $subset=FALSE) {
         $jsSystem = $this->getSystemData($subset);
         $jsSystem[$att] = $value;
+        return $this->setSystemData($jsSystem, $subset);
+    }
+
+    /**
+     * Establece el atributo con el valor especificado en la clave version del subset del archivo de sistema de un proyecto
+     * @return boolean : true si el atributo se ha establecido con éxito
+     */
+    public function setProjectSystemSubSetVersion($att, $value, $subset=FALSE) {
+        $jsSystem = $this->getSystemData($subset);
+        if ($att === "fields")
+            $jsSystem['versions'][$att] = $value;
+        else
+            $jsSystem['versions']['templates'][$att] = $value;
         $success = $this->setSystemData($jsSystem, $subset);
         return $success;
     }
@@ -504,17 +517,27 @@ class ProjectMetaDataQuery extends DataQuery {
     /**
      * Guarda el nuevo archivo de datos del proyecto, guardando previamente la versión anterior como una revisión
      * @param JSON   $metaDataValue   Nou contingut de l'arxiu de dades del projecte
+     * @param string $metaDataSubSet
+     * @param string $summary
+     * @param JSON   $upgrade
+     * @param boolean $revision Debe indicarse FALSE cuando lo llama el proceso RevertProject
      * @return string
      */
-    public function setMeta($metaDataValue, $metadataSubset=FALSE, $summary="") {
-        if (!$metadataSubset){
-            $metadataSubset = $this->getProjectSubset();
+    public function setMeta($metaDataValue, $metaDataSubSet=FALSE, $summary="", $upgrade="", $revision=NULL) {
+        if (!$metaDataSubSet){
+            $metaDataSubSet = $this->getProjectSubset();
         }
-        return $this->_setMeta($metadataSubset,
-                               $this->getProjectFilePath($this->getProjectId()),
-                               $this->getProjectFileName($metadataSubset, $this->getProjectType()),
+        if ($upgrade==="") {
+            global $plugin_controller;
+            $upgrade = '{"fields":"'.$plugin_controller->getCurrentProjectVersions("fields").'"}' ;
+        }
+        $projectType = $this->getProjectType();
+        return $this->_setMeta($metaDataSubSet,
+                               $this->getProjectFilePath($this->getProjectId(), $projectType, $revision),
+                               $this->getProjectFileName($metaDataSubSet, $projectType, $revision),
                                $metaDataValue,
-                               $summary);
+                               $summary,
+                               $upgrade);
     }
 
     /**
@@ -522,9 +545,11 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param string $metaDataSubSet  Valor de metadatasubset (exemple: "main")
      * @param string $projectFileName Nom de l'arxiu de dades del projecte (exemple: "meta.mdpr")
      * @param JSON   $metaDataValue   Nou contingut de l'arxiu de dades del projecte
+     * @param string $summary
+     * @param JSON   $upgrade
      * @return string
      */
-    private function _setMeta($metaDataSubSet, $projectFilePath, $projectFileName, $metaDataValue, $summary="") {
+    private function _setMeta($metaDataSubSet, $projectFilePath, $projectFileName, $metaDataValue, $summary="", $upgrade="") {
         $projectFilePathName = $projectFilePath . $projectFileName;
         $projectId = $this->getProjectId();
 
@@ -546,9 +571,9 @@ class ProjectMetaDataQuery extends DataQuery {
         if ($resourceCreated) {
             $new_date = filemtime($projectFilePathName);
             if (!$prev_date) $prev_date = $new_date;
-            $this->_saveRevision($prev_date, $new_date, $projectId, $projectFileName, $contentFile, $summary);
+            if (!empty($upgrade)) $extra['extra'] = $upgrade;
+            $this->_saveRevision($prev_date, $new_date, $projectId, $projectFileName, $contentFile, $summary, $extra);
         }
-
         return $resourceCreated;
     }
 
@@ -572,7 +597,7 @@ class ProjectMetaDataQuery extends DataQuery {
         if ($resourceCreated) {
             // Crea y verifica el fichero .mdpr que contendrá los datos del proyecto
             $fp = @fopen("$dirProject/$file", 'w');
-            if ($resourceCreated = ($fp !== false)) {
+            if (($resourceCreated = ($fp !== false))) {
                 fclose($fp);
             }
         }
@@ -590,6 +615,18 @@ class ProjectMetaDataQuery extends DataQuery {
             return $systemContent[$metadataSubset];
         }
         return NULL;
+    }
+    
+      //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
+    public function getRawProjectTemplate($filename, $version=FALSE) {
+        if($version){
+            $extension = ".txt.v$version";
+        }else{
+            $extension = ".txt";
+        }
+        $dir = $this->getProjectTypeDir();
+        $content = io_readFile("{$dir}metadata/plantilles/$filename$extension");
+        return $content;
     }
 
     public function setSystemData($data, $metadataSubset=FALSE) {
@@ -632,9 +669,9 @@ class ProjectMetaDataQuery extends DataQuery {
         $revision = (isset($params[ProjectKeys::KEY_REV])) ? $params[ProjectKeys::KEY_REV] : $this->getRevision();
         $projectType = (isset($params[ProjectKeys::KEY_PROJECT_TYPE])) ? $params[ProjectKeys::KEY_PROJECT_TYPE] : $this->getProjectType();
         $metadataSubset = (isset($params[ProjectKeys::KEY_METADATA_SUBSET])) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : $this->getProjectSubset();
-//        $path = $this->getProjectFilePath($id, $projectType, $revision);
-//        $file = $this->getProjectFileName($metadataSubset, $projectType, $revision);
-        return $this->getProjectFilePath($id, $projectType, $revision) . $this->getProjectFileName($metadataSubset, $projectType, $revision);
+        $path = $this->getProjectFilePath($id, $projectType, $revision);
+        $file = $this->getProjectFileName($metadataSubset, $projectType, $revision);
+        return $path . $file;
     }
 
     /**
@@ -1030,7 +1067,21 @@ class ProjectMetaDataQuery extends DataQuery {
         }
     }
 
-    private function _saveRevision($prev_date, $new_date, $projectId, $projectFileName, $old_content, $summary="") {
+    /**
+     * Informa si un proyecto tiene establecida a la actualización de proyecto (clave metaDataProjectConfig de configMain)
+     * @return boolean : TRUE indica que el proyecto tiene establecida la clave de actualización
+     */
+    public function hasTypeConfigFile($projectType=FALSE, $metaDataSubSet=FALSE) {
+        if (!$projectType)
+            $projectType = $this->getProjectType();
+        if (!$metaDataSubSet)
+            $metaDataSubSet = $this->getProjectSubset();
+        $jsonConfigProject = $this->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_CONFIG, $projectType);
+        $arrConfigProject = $this->controlMalFormedJson($jsonConfigProject, "array");
+        return !empty($arrConfigProject[$metaDataSubSet][ProjectKeys::KEY_MD_PROJECTTYPECONFIGFILE]);
+    }
+
+    private function _saveRevision($prev_date, $new_date, $projectId, $projectFileName, $old_content, $summary="", $flags=[]) {
         $resourceCreated = FALSE;
         $new_rev_file = $this->getProjectFilePath($projectId, NULL, $new_date) . "$projectFileName.$new_date.txt";
         $resourceCreated = io_saveFile("$new_rev_file.gz", $old_content);
@@ -1038,7 +1089,7 @@ class ProjectMetaDataQuery extends DataQuery {
         $last_rev_date = key($this->getProjectRevisionList(1));
         if ($last_rev_date && $last_rev_date < $prev_date) {
             $summary = WikiIocLangManager::getLang('external_edit') . ". $summary";
-            $flags = array('ExternalEdit' => true);
+            $flags['ExternalEdit'] = TRUE;
         }
         $resourceCreated &= $this->_addProjectLogEntry($new_date, $projectId, self::LOG_TYPE_EDIT, $summary, $flags);
         return ($resourceCreated) ? $new_date : "";
@@ -1053,10 +1104,12 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param array $flags
      * @return boolean
      */
-    private function _addProjectLogEntry($mdate, $projectId, $type=self::LOG_TYPE_EDIT, $summary="", $flags=NULL) {
-        $strip  = array("\t", "\n");
-        if (is_array($flags))
+    private function _addProjectLogEntry($mdate, $projectId, $type=self::LOG_TYPE_EDIT, $summary="", $flags=[]) {
+        $strip = array("\t", "\n");
+        if (!empty($flags)) {
             $flagExternalEdit = isset($flags['ExternalEdit']);
+            $extra = isset($flags['extra']) ? $flags['extra'] : "";
+        }
         $record = array(
             'date'  => $mdate,
             'ip'    => (!$flagExternalEdit) ? clientIP(true) : "127.0.0.1",
@@ -1064,7 +1117,7 @@ class ProjectMetaDataQuery extends DataQuery {
             'id'    => str_replace("/", ":", $projectId),
             'user'  => (!$flagExternalEdit) ? $_SERVER['REMOTE_USER'] : "",
             'sum'   => utf8_substr(str_replace($strip, "", $summary), 0, 255),
-            'extra' => ""
+            'extra' => ($extra!==NULL) ? $extra : ""
             );
 
         //meta log
@@ -1114,7 +1167,8 @@ class ProjectMetaDataQuery extends DataQuery {
      * @return boolean
      */
     private function _addLogMetaFile($projectId, $record) {
-        $projectFilePathName = $this->projectFilePath . $this->projectFileName;
+        $projectFilePath = ($this->projectFilePath) ? $this->projectFilePath : $this->getProjectFilePath($projectId, NULL, FALSE);
+        $projectFilePathName = $projectFilePath . $this->projectFileName;
         $minor = ($record['type'] === self::LOG_TYPE_MINOR_EDIT);
         $user   = $record['user'];
         $created = @filectime($projectFilePathName);
@@ -1146,7 +1200,7 @@ class ProjectMetaDataQuery extends DataQuery {
     private function _metaProjectFN($projectId, $filename="", $ext="") {
         $projectId = utf8_encodeFN(str_replace(":", "/", $projectId));
         if ($filename==="") {
-            $filename = $this->getProjectFileName();
+            $filename = $this->getProjectFileName(FALSE, FALSE, FALSE); //Siempre ignora la existencia de $revision
         }
         $file = WikiGlobalConfig::getConf('metaprojectdir') . "/$projectId/$filename$ext";
         return $file;

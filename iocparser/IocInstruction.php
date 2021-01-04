@@ -209,16 +209,35 @@ class IocInstruction {
         }
 
     }
+    
+    protected function existAttribute($value, $attr){
+        $ret = preg_match('/' . $attr . '="(.*?)"/', $value);
+        return $ret;
+    }
 
-    protected function extractNumber($value, $attr, $mandatory = true) {
-        $ret = 0;
+    protected function extractBoolean($value, $attr, $mandatory = true, $defaultValue=false) {
+        $ret = $defaultValue;
         if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
             $class = static::$parserClass;
             $ret = $class::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
         } else if ($mandatory) {
             throw new Exception("$attr is missing");
         }
-        if (is_numeric($ret)) {
+        if (!is_bool($ret)) {
+            $ret = boolval($ret);
+        }
+        return $ret;
+    }
+
+    protected function extractNumber($value, $attr, $mandatory = true, $defaultValue=0) {
+        $ret = $defaultValue;
+        if (preg_match('/' . $attr . '="(.*?)"/', $value, $matches)) {
+            $class = static::$parserClass;
+            $ret = $class::getValue($matches[1], $this->getArrays(), $this->getDataSource(), $this->getResetables());
+        } else if ($mandatory) {
+            throw new Exception("$attr is missing");
+        }
+        if (!is_numeric($ret)) {
             $ret = intval($ret);
         }
         return $ret;

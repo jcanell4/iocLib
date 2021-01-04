@@ -3,19 +3,14 @@
  * CalculateWithProjectId
  */
  abstract class CalculateWithProjectId extends AbstractCalculate implements ICalculateWithProjectId {
-
-    protected $projectId;
-
-    function init($value) {
-        $this->projectId = $value;
-    }
-
-    function getCalculatorTypeData(){
-        return [self::WITH_PROJECT_ID_TYPE];
+     
+    public function __construct() {
+        $this->addCalculatorTypeData(self::WITH_PROJECT_ID_TYPE);
+        $this->setCalculatorTypeToInitParam(self::WITH_PROJECT_ID_TYPE, self::PROJECT_ID_VAR);
     }
 
     function getProjectId(){
-        return $this->projectId;
+        return $this->getVariable(self::PROJECT_ID_VAR);
     }
     
 }

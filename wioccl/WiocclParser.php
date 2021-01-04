@@ -177,7 +177,7 @@ class WiocclParser extends IocParser
 
 
 //     original
-    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables=NULL, $generateRoot)
+    public static function parse($text = null, $arrays = [], $dataSource = [], &$resetables=NULL, $generateRoot = TRUE)
     {
 
         if ($generateRoot) {

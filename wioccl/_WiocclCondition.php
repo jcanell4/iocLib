@@ -237,6 +237,12 @@ class _ConditionOperation extends _LogicOperation {
         switch ($operator) {
 
             case '==':
+                if(is_bool($arg1)&&$arg2==="null"){
+                    $arg2=false;
+                }                
+                if(is_bool($arg2)&&$arg1==="null"){
+                    $arg1=false;
+                }
                 return $arg1 == $arg2;
             case '<=':
                 return $arg1 <= $arg2;

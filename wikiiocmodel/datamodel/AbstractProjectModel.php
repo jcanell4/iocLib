@@ -131,8 +131,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $content;
     }
 
+    //Obté un fitxer de daya que actuarà com a plantilla
     public function getRawTemplate($filename, $version) {
         $content = $this->getPageDataQuery()->getTemplateRaw($filename, $version);
+        return $content;
+    }
+
+    //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
+    public function getRawProjectTemplate($filename, $version=FALSE) {
+        $content = $this->getProjectMetaDataQuery()->getRawProjectTemplate($filename, $version);
         return $content;
     }
 
@@ -186,13 +193,24 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
     }
 
+    //Obté les dades d'una altre projecte directament del fitxer i es retornen sense cap tractament.
+    //Per tant hi falten les modificacions realiutzades en els camps calculats i/o modificats en lectura.
+    //Cal usar AMB MOLTA CURA perquè pot oferir dades incompletes!
+    protected function getRawDataProjectFromOtherId($id, $projectType=FALSE, $metaDataSubSet=FALSE) {
+        $values = $this->getPersistenceEngine()->createProjectMetaDataQuery($id, $projectType, $metaDataSubSet)->getDataProject();
+        return $values;
+    }
+    
     //Obtiene un array [key, value] con los datos del proyecto solicitado
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
         //Actualitzar a aquí els camps calculats
-        $ret =  $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
-        if ($ret) { //En el momento de la creación de proyecto $ret es NULL
-            $ret = $this->processAutoFieldsOnRead($ret);
-            $ret = $this->_updateCalculatedFieldsOnRead($ret);
+        $values =  $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
+        $rev = $this->projectMetaDataQuery->getRevision();
+        if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
+            $ret = $this->processAutoFieldsOnRead($values);
+            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);
+        }else{
+            $ret = $values;
         }
         return $ret;
     }
@@ -200,6 +218,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function hasDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE){
        $ret =  $this->projectMetaDataQuery->hasDataProject($id, $projectType, $metaDataSubSet);
        return $ret;
+    }
+
+    //Informa si un proyecto tiene establecida a la actualización de proyecto (clave metaDataProjectConfig de configMain)
+    public function hasTypeConfigFile($projectType=FALSE, $metaDataSubSet=FALSE) {
+       return $this->projectMetaDataQuery->hasTypeConfigFile($projectType, $metaDataSubSet);
     }
 
     /**
@@ -595,8 +618,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @param array $toSet (s'ha generat a l'Action corresponent)
      */
     public function setData($toSet) {
-        $toSet[ProjectKeys::KEY_METADATA_VALUE] = $this->processAutoFieldsOnSave($toSet[ProjectKeys::KEY_METADATA_VALUE]);
-        $toSet[ProjectKeys::KEY_METADATA_VALUE] = $this->_updateCalculatedFieldsOnSave($toSet[ProjectKeys::KEY_METADATA_VALUE]);
+        $values = $this->processAutoFieldsOnSave($toSet[ProjectKeys::KEY_METADATA_VALUE]);
+        $toSet[ProjectKeys::KEY_METADATA_VALUE] = $this->_updateCalculatedFieldsOnSave($values, $toSet[ProjectKeys::KEY_METADATA_VALUE]);
         $this->metaDataService->setMeta($toSet);
     }
 
@@ -604,10 +627,23 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Guarda los datos del proyecto
      * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
      */
-    public function setDataProject($dataProject, $summary="") {
+    public function setDataProject($dataProject, $summary="", $upgrade="") {
         $calculatedData = $this->processAutoFieldsOnSave($dataProject);
-        $calculatedData = $this->_updateCalculatedFieldsOnSave($calculatedData);
-        $this->projectMetaDataQuery->setMeta($calculatedData, $this->getMetaDataSubSet(), $summary);
+        $calculatedData = $this->_updateCalculatedFieldsOnSave($calculatedData, $dataProject);
+        $succes = $this->projectMetaDataQuery->setMeta($calculatedData, $this->getMetaDataSubSet(), $summary, $upgrade);
+        return $succes;
+    }
+
+    /**
+     * Guarda los datos de una revisión del proyecto durante el proceso de Revertir Proyecto
+     * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
+     * @param string $metaDataSubSet
+     * @param string $summary
+     * @param JSON   $upgrade Contine un objeto {'fields':number}
+     * @param boolean $revision Debe indicarse FALSE cuando lo llama el proceso RevertProject para ignorar la exitencia de $rev
+     */
+    public function setDataReversionProject($dataProject, $metaDataSubSet, $summary="", $upgrade="", $revision=FALSE) {
+        return $this->projectMetaDataQuery->setMeta($dataProject, $metaDataSubSet, $summary, $upgrade, $revision);
     }
 
     private function processAutoFieldsOnSave($data) {
@@ -653,36 +689,36 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         foreach ($data as $item){
             $dataKeyValue[$item["id"]] = $item['value'];
         }
-        $dataKeyValue = $this->processAutoFieldsOnRead($dataKeyValue, $data);
-        $dataKeyValue = $this->_updateCalculatedFieldsOnRead($dataKeyValue);
+        $newDataKeyValue = $this->processAutoFieldsOnRead($dataKeyValue, $data);
+        $newDataKeyValue = $this->_updateCalculatedFieldsOnRead($newDataKeyValue, $dataKeyValue);
         foreach ($data as $key => $item){
-            $data[$key]['value'] = $dataKeyValue[$item["id"]];
+            $data[$key]['value'] = $newDataKeyValue[$item["id"]];
         }
         return $data;
     }
 
-    private function _updateCalculatedFieldsOnSave($data) {
+    private function _updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
-        $values = $this->updateCalculatedFieldsOnSave($values);
+        $values = $this->updateCalculatedFieldsOnSave($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
     }
 
-    private function _updateCalculatedFieldsOnRead($data) {
+    private function _updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
-        $values = $this->updateCalculatedFieldsOnRead($values);
+        $values = $this->updateCalculatedFieldsOnRead($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
     }
 
-    public function updateCalculatedFieldsOnSave($data) {
+    public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
 
-    public function updateCalculatedFieldsOnRead($data) {
+    public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
@@ -816,6 +852,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function setProjectSystemSubSetAttr($attr, $value, $subSet=NULL) {
         return $this->projectMetaDataQuery->setProjectSystemSubSetAttr($attr, $value, $subSet);
+    }
+
+    public function setProjectSystemSubSetVersion($attr, $value, $subSet=NULL) {
+        return $this->projectMetaDataQuery->setProjectSystemSubSetVersion($attr, $value, $subSet);
     }
 
     /*
@@ -1028,7 +1068,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * (només s'utilitza el primer fitxer de la llista)
      * @return string HTML per a les metadades
      */
-    public function get_ftpsend_metadata() {
+    public function get_ftpsend_metadata($useSavedTime=TRUE) {
         $connData = $this->getFtpConfigData();
         $mdFtpSender = $this->getMetaDataFtpSender();
         $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
@@ -1041,7 +1081,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $fileexists = @file_exists($file);
         if ($fileexists) $filetime = filemtime($file);
 
-        if ($fileexists && $savedtime === $filetime) {
+        if ($fileexists && (!$useSavedTime || ($savedtime === $filetime))) {
             foreach ($mdFtpSender['files'] as $objFile) {
                 $index = (empty($objFile['remoteIndex'])) ? $mdFtpSender['remoteIndex'] : $objFile['remoteIndex'];
                 if (empty($index)) {

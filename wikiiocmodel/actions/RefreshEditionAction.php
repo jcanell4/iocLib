@@ -20,7 +20,7 @@ class RefreshEditionAction extends PageAction implements ResourceLockerInterface
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
 
-        $ACT = act_permcheck(PageKeys::DW_ACT_EDIT);
+        $ACT = IocCommon::act_permcheck(PageKeys::DW_ACT_EDIT);
 
         if ($ACT == PageKeys::DW_ACT_DENIED) {
             throw new InsufficientPermissionToEditPageException($this->params[PageKeys::KEY_ID]);

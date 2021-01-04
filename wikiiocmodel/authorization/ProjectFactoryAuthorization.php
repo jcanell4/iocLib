@@ -25,8 +25,12 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
      * 	'saveProject' => 'editProject'
      */
     public function setAuthorizationCfg() {
-        $aCfg = ['_default'                     => "admin"  //default case
-                 ,'cancelProject'               => "editProject"
+
+        if (empty($this->authCfg)) {
+            parent::setAuthorizationCfg();
+        }
+
+        $aCfg = ['cancelProject'                => "editProject"
                  ,'create_projectProject'       => "createProject"
                  ,'create_subprojectProject'    => "createProject"
                  ,'diffProject'                 => "editProject"
@@ -38,11 +42,12 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
                  ,'remove_project_draftProject' => "editProject"
                  ,'remove_projectProject'       => "deleteProject"
                  ,'rename_projectProject'       => "responsableProject"
+                 ,'revert_projectProject'       => "responsableProject"
                  ,'save_project_draftProject'   => "editProject"
                  ,'saveProject'                 => "editProject"
                  ,'viewProject'                 => "viewProject"
-                 ,'_none'                       => "basicCommand"
                 ];
-        $this->authCfg = $aCfg;
+        
+        $this->authCfg = array_merge($this->authCfg, $aCfg);
     }
 }

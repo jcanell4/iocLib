@@ -5,6 +5,7 @@ class _WiocclLoop
     protected $looperInstruction;
 
     protected $index;
+    protected $counter;
     
     public function __construct($looper)
     {
@@ -27,6 +28,7 @@ class _WiocclLoop
             }
 
             $this->index = -1;
+            $this->counter = 0;
             $this->looperInstruction->updateLoop();
             $this->parseTokensOfItem($tokens, $tokenIndex);
 
@@ -35,6 +37,7 @@ class _WiocclLoop
             $startTokenIndex = $tokenIndex;
             $lastBlockIndex = null;
             $lastTokenIndex = 0;
+            $this->counter=0;
 
             $first = true;
 
@@ -56,6 +59,12 @@ class _WiocclLoop
                 if (!$process && $lastTokenIndex > 0) {
                     // Ja s'ha processat previament el token de tancament i no s'acompleix la condició, no cal continuar processant
                     continue;
+                }
+                
+                if($process){
+                    //La primera iteració sempre es processa malgrat no toqui processar-la. Això és necessari per tal que funcioni el parsejador! 
+                    //Si és aquest el cas, cal evitar que s'incrementi el comptador!
+                    $this->counter++;
                 }
 
                 $parseValue = $this->parseTokensOfItem($tokens, $tokenIndex);
@@ -81,6 +90,10 @@ class _WiocclLoop
     }
     
     public function getCounter(){
+        return $this->counter;
+    }
+
+    public function getIndex(){
         return $this->index;
     }
 

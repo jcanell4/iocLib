@@ -45,7 +45,7 @@ class RawPartialPageAction extends EditPageAction {
             throw new PageNotFoundException($this->params[PageKeys::KEY_ID]);
         }
 
-        $ACT = act_permcheck($this->defaultDo);
+        $ACT = IocCommon::act_permcheck($this->defaultDo);
 
         if ($ACT == PageKeys::DW_ACT_DENIED) {
             throw new InsufficientPermissionToEditPageException($this->params[PageKeys::KEY_ID]);

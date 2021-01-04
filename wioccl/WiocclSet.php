@@ -1,5 +1,24 @@
 <?php
 require_once "WiocclParser.php";
+/*
+ * Assigna un valor a una variable i la manté disponible per a qualsevol instrucció que contingui (entre la obetura i el tancament).
+ * paràmetres:
+ *    var: nom de la variable
+ *    value: valor a assignar a la variable
+ *    type: tipus de assignació. Pot ser literal o map. Si type és 'literal' el valor assignat a la variable serà el valor literal contingut a l'atribut value.
+ *          si type és map, l'atribut value actuarà com un clau del conjunt de valors cintinguts a l'atribut map.
+ *    map: array de valors que mapegen el valor a assignar a la variable
+ * Syntax:
+ * <WIOCCL:SET var="itinerari" type="literal" value="{##itinerarisRecomanats[0]##}"> 
+ *   //dins d'aquets context la variable itinerari tindrà el valor contingut a la posició 0 del camp itinerarisRecomanats
+ *   //Així en aquest context, l'expressió {##itinerari##} serà reconeguda
+ * </WIOCCL:SET>
+ * 
+ * <WIOCCL:SET var="nbloc" type="map" value="{##tipusBlocModul##}" map="{''mòdul'':0,''1r. bloc'':1,''2n. bloc'':2,''3r. bloc'':3}">
+ *   //dins d'aquets context la variable nbloc tindrà el valor numèric corresponent a l'item de l'array contingut a map que tingui una clai amb el valor 
+ *   //corresponent a l'atribut value. Així en aquest context, l'expressió {##nBloc##} serà reconeguda. Si tipusBlocModul valgués 1r. bloc, nBloc valdria 1
+ * </WIOCCL:SET>
+ */
 
 class WiocclSet extends WiocclInstruction {
     const VAR_ATTR = "var";    

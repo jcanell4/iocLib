@@ -8,6 +8,49 @@ require_once (DOKU_INC . 'inc/pageutils.php');
 require_once(DOKU_TPL_INCDIR.'conf/cfgIdConstants.php');
 
 class IocCommon {
+    /*
+     * Run permissionchecks
+     */
+    public function act_permcheck($act){
+        global $INFO;
+
+        if (in_array($act, array('save','preview','edit','recover'))) {
+            if ($INFO['exists']){
+                $permneed = ($act == 'edit') ? AUTH_READ : AUTH_EDIT;
+            }else{
+                $permneed = AUTH_CREATE;
+            }
+        }elseif(in_array($act, array('login','search','recent','profile','profile_delete','index', 'sitemap'))){
+            $permneed = AUTH_NONE;
+        }elseif($act == 'revert'){
+            $permneed = ($INFO['ismanager']) ? AUTH_EDIT : AUTH_ADMIN;
+        }elseif($act == 'register'){
+            $permneed = AUTH_NONE;
+        }elseif($act == 'resendpwd'){
+            $permneed = AUTH_NONE;
+        }elseif($act == 'admin'){
+            $permneed = ($INFO['ismanager']) ? AUTH_READ : AUTH_ADMIN;
+        }else{
+            $permneed = AUTH_READ;
+        }
+
+        if ($INFO['perm'] >= $permneed) {
+            return $act;
+        }else {
+            return 'denied';
+        }
+    }
+
+    /*
+     * Deletes the draft for the current page and user
+     */
+    public function act_draftdel($act="show"){
+        global $INFO;
+        @unlink($INFO['draft']);
+        $INFO['draft'] = null;
+        return 'show';
+    }
+
 
     public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values, $persistence=NULL) {
         if (isset($calcDefProp)) {
@@ -16,16 +59,16 @@ class IocCommon {
             if ($calculator) {
                 //init
                 if($calculator->isCalculatorOfTypeData(ICalculateWithProjectId::WITH_PROJECT_ID_TYPE)){
-                    $calculator->init($projectId);
+                    $calculator->init($projectId, ICalculateWithProjectId::WITH_PROJECT_ID_TYPE);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateFromValues::FROM_VALUES_TYPE)){
-                    $calculator->init($values);
+                    $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
                         $persistence = $this->getPersistenceEngineFromPlugincontroller();
                     }
-                    $calculator->init($persistence);
+                    $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE);
                 }
                 $value = $calculator->calculate($calcDefProp['data']);
             }

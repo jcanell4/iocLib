@@ -20,7 +20,7 @@ class AdminTaskListAction extends AdminTaskAction {
         if(WikiIocInfoManager::getInfo("ismanager")){
             WikiIocInfoManager::setInfo("perm", 1);
         }
-        $ACT = act_permcheck($ACT);
+        $ACT = IocCommon::act_permcheck($ACT);
         $this->pageToSend = $this->getAdminTaskListHtml();
     }
 

@@ -129,7 +129,7 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
 
     protected function clearFullDraft() {
         WikiIocInfoManager::setInfo('draft', $this->getModel()->getDraftFileName());
-        act_draftdel($this->params[PageKeys::KEY_DO]);
+        IocCommon::act_draftdel($this->params[PageKeys::KEY_DO]);
     }
 
     protected function clearPartialDraft() {

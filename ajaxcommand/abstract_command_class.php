@@ -4,7 +4,6 @@
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
 if(!defined('DOKU_INC')) die();
-require_once(DOKU_INC."inc/plugin.php");
 require_once(DOKU_INC."inc/events.php");
 //include_once(DOKU_INC."inc/inc_ioc/Logger.php"); //USO: Logger::debug($Texto, $NúmError, __LINE__, __FILE__, $level=-1, $append);
 
@@ -373,7 +372,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
      *
      * @return mixed
      */
-    protected function getDefaultErrorResponse($params, $e, &$ret){
+    public function getDefaultErrorResponse($params, $e, &$ret){
         $ret->addError($e->getCode(), $e->getMessage());
     }
 
@@ -489,6 +488,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         if ($responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]){
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::KEY_FTPSEND_BUTTON, $responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]);
         }
+        
+        if ($responseData[ProjectKeys::KEY_EXTRA_STATE]) {
+            $stateId = $responseData[ProjectKeys::KEY_EXTRA_STATE][ProjectKeys::KEY_EXTRA_STATE_ID];
+            $stateValue = $responseData[ProjectKeys::KEY_EXTRA_STATE][ProjectKeys::KEY_EXTRA_STATE_VALUE];
+            $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[ProjectKeys::KEY_ID], $stateId, $stateValue);
+        }        
 
         if ($responseData['user_state']) {
             $ajaxCmdResponseGenerator->addUserState($responseData['user_state']);

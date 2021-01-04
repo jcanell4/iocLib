@@ -4,7 +4,6 @@
  * @author Josep Cañellas <jcanell4@ioc.cat>
  */
 if(!defined('DOKU_INC')) die();
-require_once(DOKU_INC."inc/plugin.php");
 require_once(DOKU_INC."inc/events.php");
 
 abstract class abstract_writer_command_class extends abstract_command_class {
