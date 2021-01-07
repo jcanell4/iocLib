@@ -69,9 +69,9 @@ abstract class _LogicOperation {
     abstract function parseData($arrays, $datasource, &$resetables);
 
     protected function normalizeArg($arg) {
-        if (strtolower($arg) == 'true') {
+        if (strtolower(trim($arg)) == 'true') {
             return true;
-        } else if (strtolower($arg) == 'false') {
+        } else if (strtolower(trim($arg)) == 'false') {
             return false;
         } else if (is_int($arg)) {
             return intval($arg);
@@ -111,7 +111,7 @@ abstract class _BinaryOperation extends _LogicOperation {
         $this->operator2 = $operator2;
     }
 
-    public function parseData($arrays, $datasource, &$restables) {
+    public function parseData($arrays, $datasource, &$resetables) {
         $this->operator1->parseData($arrays, $datasource, $resetables);
         if ($this->operator2 !== NULL) {
             $this->operator2->parseData($arrays, $datasource, $resetables);
@@ -218,7 +218,7 @@ class _ConditionOperation extends _LogicOperation {
     }
 
     protected function extractFilterArgs($value) {
-        if (preg_match('/(.*?)([><=!]=?| in )(.*)/', $value, $matches) === 1) {
+        if (preg_match('/(.*?)([><=!]={0,2}| in )(.*)/', $value, $matches) === 1) {
             // ALERTA: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura
 
             $arg1 = $matches[1];
@@ -236,6 +236,8 @@ class _ConditionOperation extends _LogicOperation {
 
         switch ($operator) {
 
+            case '===':
+                return $arg1 === $arg2;
             case '==':
                 if(is_bool($arg1)&&$arg2==="null"){
                     $arg2=false;
@@ -252,6 +254,8 @@ class _ConditionOperation extends _LogicOperation {
                 return $arg1 >= $arg2;
             case '>':
                 return $arg1 > $arg2;
+            case '!==':
+                return $arg1 !== $arg2;
             case '!=':
                 return $arg1 != $arg2;
 
