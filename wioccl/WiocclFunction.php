@@ -301,7 +301,8 @@ class WiocclFunction extends WiocclInstruction
                 return $defaultValue;
             }
         }
-        return  isset($array[$key])?$array[$key]:$defaultValue;
+        $ret = isset($array[$key])?$array[$key]:$defaultValue;
+        return  self::_normalizeValue($ret);
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -488,6 +489,23 @@ class WiocclFunction extends WiocclInstruction
         }
         return $ret;
     }
+    
+    protected function LOWERCASE($value1, $value2, $value3=0)
+    {
+        $ret;
+        if(!is_numeric($value2) || !is_numeric($value3)){
+            return "[ERROR! paràmetres incorrectes LOWERCASE($value1, $value2, $value3)]"; //TODO: internacionalitzar
+        }
+        if($value3==0){
+            $value3 = $value2;
+            $value2 = 0;
+        }
+        $ret = strtolower(substr($value1, $value2, $value3));
+        if($value3< strlen($value1)){
+            $ret .= substr($value1, $value3, strlen($value1));
+        }
+        return $ret;
+    }
 
     // Uppercase només pel primer caràcter
     protected function UCFIRST($value=NULL) {
@@ -495,6 +513,14 @@ class WiocclFunction extends WiocclInstruction
             return "[ERROR! paràmetres incorrectes UCFIRST($value)]"; //TODO: internacionalitzar
         }
         return ucfirst($value);
+    }
+
+    // Uppercase només pel primer caràcter
+    protected function LCFIRST($value=NULL) {
+        if(!is_string($value)){
+            return "[ERROR! paràmetres incorrectes UCFIRST($value)]"; //TODO: internacionalitzar
+        }
+        return lcfirst($value);
     }
 
     protected function STR_CONTAINS($subs=NULL, $string=NULL){
