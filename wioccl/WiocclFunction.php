@@ -49,106 +49,120 @@ class WiocclFunction extends WiocclInstruction
 
     protected function COUNTINARRAY($array, $fields, $values=NULL){
         if($values==NULL){
-            if(is_array($fields)){
-                $ret = $this->_countValuesInArray($array, $fields);
-            }else{
-                $ret = $this->_countValueInArray($array, $fields);
-            }
-        }else if(is_array($fields)){
-            if(count($values)>0 && is_array($values[0])){
-                $ret = $this->_countValuesInFieldsOfArray($array, $fields, $values);
-            }else{
-                $ret = $this->_countValueInFieldsObjectArray($array, $fields, $values);
-            }
-        }else{
-            if(is_array($values)){
-                $ret = $this->_countValuesInFieldOfArray($array, $fields, $values);
-            }else{
-                $ret = $this->_countValueInFieldOfArray($array, $fields, $values);
-            }
+            $values=$fields;
+            $fields=NULL;
         }
-        return $ret;
-    }
-
-    private function _countValueInArray($array, $value){
         $cont=0;
         foreach ($array as $item) {
-            if ($item==$value) {
+            if (self::_arrayFilter($item, $values, $fields)) {
                 $cont++;
             }
         }
         return $cont;
     }
-
-    private function _countValuesInArray($array, $values){
-        $cont=0;
-        foreach ($array as $item) {
-            $compliant = false;
-            for($ind=0; !$compliant && $ind<count($values); $ind++) {
-                $compliant = $item==$values[$ind];
-            }
-            if ($compliant) {
-                $cont++;
-            }
-        }
-        return $cont;
-    }
-
-    private function _countValueInFieldOfArray($array, $field, $value){
-        $cont=0;
-        foreach ($array as $item) {
-            if ($item[$field]==$value) {
-                $cont++;
-            }
-        }
-        return $cont;
-    }
-
-    private function _countValuesInFieldOfArray($array, $field, $values){
-        $cont=0;
-        foreach ($array as $item) {
-            $compliant = false;
-            for($ind=0; !$compliant && $ind<count($values); $ind++) {
-                $compliant = $item[$field]==$values[$ind];
-            }
-            if ($compliant) {
-                $cont++;
-            }
-        }
-        return $cont;
-    }
-
-    private function _countValuesInFieldsOfArray($array, $fields, $valuesOfValues){
-        $cont=0;
-        foreach ($array as $item) {
-            $compliantField = true;
-            for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
-                $compliantValue = false;
-                for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
-                    $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
-                }
-                $compliantField = $compliantValue;
-            }
-            if ($compliantField) {
-                $cont++;
-            }
-        }
-        return $cont;
-    }
-
-    private function _countValueInFieldsObjectArray($array, $fields, $values){
-        $cont=0;
-        foreach ($array as $item) {
-            $compliant = true;
-            for($ind=0; $compliant && $ind<count($fields); $ind++) {
-                $compliant = $item[$fields[$ind]]==$values[$ind];
-            }
-            if ($compliant) {
-                $cont++;
-            }
-        }
-        return $cont;
-    }
+    
+//    protected function COUNTINARRAY($array, $fields, $values=NULL){
+//        if($values==NULL){
+//            if(is_array($fields)){
+//                $ret = $this->_countValuesInArray($array, $fields);
+//            }else{
+//                $ret = $this->_countValueInArray($array, $fields);
+//            }
+//        }else if(is_array($fields)){
+//            if(count($values)>0 && is_array($values[0])){
+//                $ret = $this->_countValuesInFieldsOfArray($array, $fields, $values);
+//            }else{
+//                $ret = $this->_countValueInFieldsObjectArray($array, $fields, $values);
+//            }
+//        }else{
+//            if(is_array($values)){
+//                $ret = $this->_countValuesInFieldOfArray($array, $fields, $values);
+//            }else{
+//                $ret = $this->_countValueInFieldOfArray($array, $fields, $values);
+//            }
+//        }
+//        return $ret;
+//    }
+//
+//    private function _countValueInArray($array, $value){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            if ($item==$value) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
+//
+//    private function _countValuesInArray($array, $values){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            $compliant = false;
+//            for($ind=0; !$compliant && $ind<count($values); $ind++) {
+//                $compliant = $item==$values[$ind];
+//            }
+//            if ($compliant) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
+//
+//    private function _countValueInFieldOfArray($array, $field, $value){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            if ($item[$field]==$value) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
+//
+//    private function _countValuesInFieldOfArray($array, $field, $values){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            $compliant = false;
+//            for($ind=0; !$compliant && $ind<count($values); $ind++) {
+//                $compliant = $item[$field]==$values[$ind];
+//            }
+//            if ($compliant) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
+//
+//    private function _countValuesInFieldsOfArray($array, $fields, $valuesOfValues){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            $compliantField = true;
+//            for($indFields=0; $compliantField && $indFields<count($fields); $indFields++) {
+//                $compliantValue = false;
+//                for($indValues=0; !$compliantValue && $indValues<count($values[$indFields]); $indValues++) {
+//                    $compliantValue = $item[$fields[$indFields]]==$valuesOfValues[$indFields][$indValues];
+//                }
+//                $compliantField = $compliantValue;
+//            }
+//            if ($compliantField) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
+//
+//    private function _countValueInFieldsObjectArray($array, $fields, $values){
+//        $cont=0;
+//        foreach ($array as $item) {
+//            $compliant = true;
+//            for($ind=0; $compliant && $ind<count($fields); $ind++) {
+//                $compliant = $item[$fields[$ind]]==$values[$ind];
+//            }
+//            if ($compliant) {
+//                $cont++;
+//            }
+//        }
+//        return $cont;
+//    }
 
     protected function IS_STR_EMPTY($text=""){
         return empty($text)?"true":"false";
@@ -222,13 +236,11 @@ class WiocclFunction extends WiocclInstruction
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    //[JOSEP]TODO: Cal canviar el nom de la funció per SEARCH_ROW per precisar millor la seva funcionalitat. 
+    // Per fer el canvi caldrà crear un nou procediment upgrade en tots els projectes.
     protected function SEARCH_VALUE($toSearch, $array, $column=NULL)
     {
-        if($column!=NULL){
-            $key = array_search($toSearch, array_column($array, $column));
-        }else{
-            $key = array_search($toSearch, $array);
-        }
+        $key = $this->SEARCH_KEY($toSearch, $array, $column);
         $ret = $key ===false?"null":$array[$key];
         return self::_normalizeValue($ret);
     }
@@ -237,12 +249,48 @@ class WiocclFunction extends WiocclInstruction
     protected function SEARCH_KEY($toSearch, $array, $column=NULL)
     {
         if($column!=NULL){
-            $key = array_search($toSearch, array_column($array, $column));
+            if(is_array($column)&& is_array($toSearch)){
+                $key=false;
+                for($i=0; $key===false && $i<count($array); $i++){
+                    $isOk=true;
+                    for($j=0; $j<count($column);$j++){
+                        $isOk = $isOk && $array[$i][$column[$j]]==$toSearch[$j];
+                    }
+                    if($isOk){
+                        $key=$i;
+                    }
+                }
+            }elseif(is_array($column)){
+                $key=false;
+                for($i=0; $key===false && $i<count($array); $i++){
+                    $isOk=true;
+                    foreach ($column as $field) {
+                        $isOk = $isOk && $array[$i][$field]==$toSearch;
+                    }
+                    if($isOk){
+                        $key=$i;
+                    }
+                }
+            }elseif(is_array($toSearch)){
+                $key=false;
+                for($i=0; $key===false && $i<count($array); $i++){
+                    $isOk=true;
+                    foreach ($toSearch as $value) {
+                        $isOk = $isOk && $array[$i][$column]==$value;
+                    }
+                    if($isOk){
+                        $key=$i;
+                    }
+                }
+            }else{
+                $key = array_search($toSearch, array_column($array, $column));
+            }
         }else{
             $key = array_search($toSearch, $array);
         }
-        return $key;
+        return self::_normalizeValue($key);
     }
+    
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     protected function ARRAY_GET_VALUE($key, $array, $defaultValue=FALSE)
     {
@@ -281,6 +329,9 @@ class WiocclFunction extends WiocclInstruction
 
         $unique = [];
 
+        if(!is_array($fields)){
+            $fields = [$fields];
+        }
 
         foreach ($array as $item) {
             $aux = '';
@@ -315,12 +366,41 @@ class WiocclFunction extends WiocclInstruction
     private static function _normalizeValue($ret){
         if(is_array($ret) || is_object($ret)){
             $ret= json_encode($ret);
+        }else if(is_bool($ret)){
+            $ret = $ret?"true":"false";
 //        }else if(is_string($ret)){
 //            $ret = "\"$ret\"";
         }
         return $ret;
     }
-
+    
+    private static function _arrayFilter($element, $value, $field=false){
+        if(is_array($value)){
+            if(is_array($field)){
+                $compliant=true;
+                for($i=0; $compliant && $i<count($field); $i++){
+                    $compliant = $compliant && self::_arrayFilter($element[$field[$i]],$value[$i]);
+                }
+            }elseif($field===false){
+                $compliant = in_array($element, $value);
+            }else{
+                $compliant = in_array($element[$field], $value);
+            }
+        }else{
+            if(is_array($field)){
+                $compliant=true;
+                for($i=0; $compliant && $i<count($field); $i++){
+                    $compliant = $compliant && $element[$field[$i]]==$value;
+                }
+            }elseif($field===false){
+                $compliant = $element == $value;
+            }else{
+                $compliant = $element[$field] == $value;
+            }
+        }
+        return $compliant;
+    }
+    
     private static function _compareMultiObjectFields($obj1, $obj2, $type, $fields, $pos=0){
         if($pos >= count($fields)){
             $ret = substr($type, 1, 1)==="=";
@@ -598,7 +678,8 @@ class WiocclFunction extends WiocclInstruction
         if (!empty($taula)) {
             if ($filter_field !== NULL && $filter_value !== NULL) {
                 foreach ($taula as $fila) {
-                    if ($fila[$filter_field] == $filter_value) {
+//                    if ($fila[$filter_field] == $filter_value) {
+                    if (self::_arrayFilter($fila, $filter_value, $filter_field)) {
                         $suma += $fila[$camp];
                     }
                 }

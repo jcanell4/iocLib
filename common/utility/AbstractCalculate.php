@@ -116,7 +116,7 @@ abstract class AbstractCalculate implements ICalculate{
     protected function getValueFieldFromValues($values, $field, $defaultValue=NULL){
         $ret = $values[$field];
 
-        if (!$ret) {
+        if (!isset($ret)) {
             $components = explode("#", $field);
             $ret = $values;
             foreach ($components as $sfield) {
@@ -126,9 +126,9 @@ abstract class AbstractCalculate implements ICalculate{
             }
         }
 
-        if (!$ret && $defaultValue!==NULL){
+        if (!isset($ret) && $defaultValue!==NULL){
             $ret = $defaultValue;
-        }elseif(!$ret){
+        }elseif(!isset($ret)){
             throw new Exception("Error: No s'ha trobat {$field} definit a configMain");
         }
         return $ret;

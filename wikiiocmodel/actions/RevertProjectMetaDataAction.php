@@ -37,9 +37,10 @@ class RevertProjectMetaDataAction extends ProjectMetadataAction {
             $contentDataRev = json_encode($dataRevision);
 
             $response = $model->getData(); //Contiene las estructuras de projectMetaData y projectViewData del configMain actual
-            if ($model->isProjectGenerated()) {
+            if (!$model->getNeedGenerateAction() || $model->isProjectGenerated()) {
                 $params = $model->buildParamsToPersons($response['projectMetaData'], $oldPersonsDataProject);
                 $model->modifyACLPageAndShortcutToPerson($params);
+                $model->forceFileComponentRenderization();
             }
             //Elimina todos los borradores dado que estamos haciendo una reversión del proyecto
             $model->removeDraft();

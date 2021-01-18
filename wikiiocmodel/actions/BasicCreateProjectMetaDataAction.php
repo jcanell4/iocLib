@@ -38,8 +38,12 @@ class BasicCreateProjectMetaDataAction extends ProjectMetadataAction {
 
             //[TODO: Rafael] La asignación de permisos y shortcuts a las 'personas' del proyecto debería hacerse
             //               en el momento de la Generación y no en la Creación
-            $params = $model->buildParamsToPersons($ret['projectMetaData'], NULL);
-            $model->modifyACLPageAndShortcutToPerson($params);
+            //[JOSEP] Ara s'han canviat per tal aquells projectes que no necessitin generació puguin actaulitzar-se sense 
+            // necessitat de generar-se.
+            if(!$model->getNeedGenerateAction()){
+                $params = $model->buildParamsToPersons($ret['projectMetaData'], NULL);
+                $model->modifyACLPageAndShortcutToPerson($params);
+            }
 
             $ret['info'] = self::generateInfo("info", WikiIocLangManager::getLang('project_created'), $id);  //añade info para la zona de mensajes
             $ret[ProjectKeys::KEY_ID] = $this->idToRequestId($id);

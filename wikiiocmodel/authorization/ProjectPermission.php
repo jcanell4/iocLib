@@ -18,6 +18,7 @@ class ProjectPermission extends BasicPermission {
     protected $responsable = [];
     protected $author = [];
     protected $rol = [];
+    protected $roleMembers = [];
 
     protected $aRoles = [self::ROL_RESPONSABLE => self::ROL_RESPONSABLE_ORDER,
                          self::ROL_AUTOR       => self::ROL_AUTOR_ORDER,
@@ -68,6 +69,28 @@ class ProjectPermission extends BasicPermission {
     public function setAuthor($author) {
         if (is_string($author) && !empty($author)){
             $this->author = preg_split("/[\s,]+/", $author);
+        }
+    }
+    
+    public function setAllRoleMembers($roleMembers){
+        foreach ($roleMembers as $role => $member) {
+            $this->setRoleMembers($role, $member);
+        }
+    }
+    
+    public function getRoleMembers($role=NULL){
+        if($role==NULL){
+            $ret=$this->roleMembers;
+        }else{
+            $ret=$this->roleMembers[$role];            
+        }
+                
+        return $ret;
+    }
+    
+    public function setRoleMembers($role, $member=NULL){
+        if (is_string($member) && !empty($member)){
+            $this->roleMembers[$role] = preg_split("/[\s,]+/", $member);
         }
     }
 
