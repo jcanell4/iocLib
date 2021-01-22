@@ -616,7 +616,7 @@ class ProjectMetaDataQuery extends DataQuery {
         }
         return NULL;
     }
-    
+
       //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
     public function getRawProjectTemplate($filename, $version=FALSE) {
         if($version){

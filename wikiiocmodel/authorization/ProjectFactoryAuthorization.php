@@ -47,7 +47,7 @@ class ProjectFactoryAuthorization extends AbstractFactoryAuthorization {
                  ,'saveProject'                 => "editProject"
                  ,'viewProject'                 => "viewProject"
                 ];
-        
+
         $this->authCfg = array_merge($this->authCfg, $aCfg);
     }
 }
