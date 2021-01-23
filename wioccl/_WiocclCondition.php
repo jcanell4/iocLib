@@ -42,11 +42,11 @@ class _LogicParser {
 //        }
         $aOrOp = explode("||", $text, 2);
         if (count($aOrOp) > 1) {//OR
-            $ret = new _OrOperation(_LogicParser::getOperator($aOrOp[0]), _LogicParser::getOperator($aOrOp[1]));
+            $ret = new _OrOperation(_LogicParser::getOperator(trim($aOrOp[0])), _LogicParser::getOperator(trim($aOrOp[1])));
         } else {//AND
             $aAndOp = explode("&&", $text, 2);
             if (count($aAndOp) > 1) {
-                $ret = new _AndOperation(_LogicParser::getOperator($aAndOp[0]), _LogicParser::getOperator($aAndOp[1]));
+                $ret = new _AndOperation(_LogicParser::getOperator(trim($aAndOp[0])), _LogicParser::getOperator(trim($aAndOp[1])));
             } else if (preg_match('/[=!]=/', $text) === 1) {//CONDITION == o !=
                 $ret = new _ConditionOperation($text);
             } else if (preg_match('/[><]=?/', $text) === 1) {//CONDITION <, >, <=, <=

@@ -21,7 +21,7 @@ class BasicSetProjectMetaDataAction extends ProjectMetadataAction {
 
             $metaDataValues = $this->netejaKeysFormulari($this->params);
             $metaDataValues = $this->donaEstructuraALesDadesPlanes($metaDataValues, $model->getMetaDataAnyAttr());
-            $model->validateFields($metaDataValues);//valida les dades i llença excepció si cal
+            $model->validateFields($metaDataValues);//valida les dades i llença excepció si cal <per cada camp role>
             if (!$model->validaNom($metaDataValues['autor']))
                 throw new UnknownUserException($metaDataValues['autor']." (indicat al camp 'autor') ");
             if (!$model->validaNom($metaDataValues['responsable']))
@@ -44,9 +44,10 @@ class BasicSetProjectMetaDataAction extends ProjectMetadataAction {
             $response = $model->getData();  //obtiene la estructura y el contenido del proyecto
             $response[ProjectKeys::KEY_GENERATED] = $model->isProjectGenerated();
 
-            if ($response[ProjectKeys::KEY_GENERATED]) {
+            if ($response[ProjectKeys::KEY_GENERATED] || !$model->getNeedGenerateAction()) {
                 $params = $model->buildParamsToPersons($response['projectMetaData'], $oldPersonsDataProject);
                 $model->modifyACLPageAndShortcutToPerson($params);
+                $model->forceFileComponentRenderization();
             }
             if (!$this->params[ProjectKeys::KEY_KEEP_DRAFT]) {
                 $model->removeDraft();

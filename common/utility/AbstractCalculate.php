@@ -9,11 +9,11 @@ abstract class AbstractCalculate implements ICalculate{
     private $typeDatas=array();
     private $variables=array();
     private $typeDatasToInitParamsMap=array();
-    
+
     public function init($values, $calculatorType){
         $this->variables[$this->typeDatasToInitParamsMap[$calculatorType]]=$values;
     }
- 
+
     protected function getInitParams($calculatorType){
         return $this->variables[$this->typeDatasToInitParamsMap[$calculatorType]];
     }
@@ -25,15 +25,15 @@ abstract class AbstractCalculate implements ICalculate{
     public function addCalculatorTypeData($typeData){
         $this->typeDatas[] = $typeData;
     }
-    
+
     public function setCalculatorTypeToInitParam($typeData, $initParam){
         $this->typeDatasToInitParamsMap[$typeData] = $initParam;
     }
-    
+
     public function isCalculatorOfTypeData($typeData){
         return in_array($typeData, $this->getCalculatorTypeData());
     }
-    
+
     public function getDefaultValue($data, $error=TRUE){
         if(isset($data[self::DEFAULT_VALUE_PARAM])){
             $ret = $this->getParamValue($data[self::DEFAULT_VALUE_PARAM]);
@@ -44,23 +44,23 @@ abstract class AbstractCalculate implements ICalculate{
         }
         return $ret;
     }
-    
+
     public abstract function calculate($data);
 
     protected function setVariable($name, $value){
         $this->variables[$name] = $value;
         return $value;
     }
-    
+
     protected function getVariable($name){
         return $this->variables[$name];
     }
-    
+
     protected function unsetVariable($name){
         unset($this->variables[$name]);
     }
-    
-    
+
+
     protected function getParamValue($value){
        if(is_array($value) && isset($value["_type_"])){
            $ret = $this->getTypedValue($value);
@@ -72,7 +72,7 @@ abstract class AbstractCalculate implements ICalculate{
        }
        return $ret;
     }
-    
+
     private function getTypedValue($value){
         switch($value["_type_"]){
             case "var":
@@ -108,15 +108,15 @@ abstract class AbstractCalculate implements ICalculate{
     }
 
     /* FUNCIONS QUE VENEN DES DE PARÀMETRES i es criden a través de getParamValue*/
-    
+
     protected function getValueFromVariable($name){
         return $this->variables[$name];
     }
-    
+
     protected function getValueFieldFromValues($values, $field, $defaultValue=NULL){
         $ret = $values[$field];
 
-        if (!$ret) {
+        if (!isset($ret)) {
             $components = explode("#", $field);
             $ret = $values;
             foreach ($components as $sfield) {
@@ -126,14 +126,14 @@ abstract class AbstractCalculate implements ICalculate{
             }
         }
 
-        if (!$ret && $defaultValue!==NULL){
+        if (!isset($ret) && $defaultValue!==NULL){
             $ret = $defaultValue;
-        }elseif(!$ret){
+        }elseif(!isset($ret)){
             throw new Exception("Error: No s'ha trobat {$field} definit a configMain");
         }
         return $ret;
     }
-    
+
     protected function getCalculatedValueFromValues($values, $class, $data, $variables=FALSE){
         $calculator = new $class;
         $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE);
@@ -145,7 +145,7 @@ abstract class AbstractCalculate implements ICalculate{
         }
         return $calculator->calculate($data);
     }
-    
+
     protected function getOperationResult($values, $operation){
         $ret = true;
         switch ($operation){
@@ -198,7 +198,7 @@ abstract class AbstractCalculate implements ICalculate{
                     $ret -= $value1;
                 }
                 break;
-                
+
             case "*":
                 $ret = 0;
                 foreach ($values as $value) {
@@ -228,16 +228,16 @@ abstract class AbstractCalculate implements ICalculate{
                     $ret = array_merge($ret, $value1);
                 }
                 break;
-                
+
         }
         return $ret;
     }
-    
-    protected function existValueInArray($values, $field, $valueToSearch, $toReturn=FALSE){    
+
+    protected function existValueInArray($values, $field, $valueToSearch, $toReturn=FALSE){
         $ret=FALSE;
-        
+
         $array = $this->setVariable(ICalculate::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
-        
+
         if($toReturn){
             $ret = $this->getParamValue($toReturn["ifFalse"]);
             $RetIfTrue = $this->getParamValue($toReturn["ifTrue"]);
@@ -246,7 +246,7 @@ abstract class AbstractCalculate implements ICalculate{
         }
         $pos=0;
         foreach ($array as $element) {
-            $this->setVariable(ICalculate::ARRAY_ELEMENT_VAR, $element);            
+            $this->setVariable(ICalculate::ARRAY_ELEMENT_VAR, $element);
             if($element === $valueToSearch){
                 $ret = $RetIfTrue;
                 break;
@@ -255,12 +255,12 @@ abstract class AbstractCalculate implements ICalculate{
         }
         return $ret;
     }
-    
-    protected function existValueInArrayObject($values, $field, $fieldToSearch, $valueToSearch, $toReturn=FALSE){    
+
+    protected function existValueInArrayObject($values, $field, $fieldToSearch, $valueToSearch, $toReturn=FALSE){
         $ret=FALSE;
-        
+
         $array = $this->setVariable(ICalculate::ARRAY_OBJECT_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
-        
+
         if($toReturn){
             $ret = $this->getParamValue($toReturn["ifFalse"]);
             $RetIfTrue = $this->getParamValue($toReturn["ifTrue"]);
@@ -269,7 +269,7 @@ abstract class AbstractCalculate implements ICalculate{
         }
         $pos=0;
         foreach ($array as $element) {
-            $this->setVariable(ICalculate::ROW_VALUE_VAR, $element);            
+            $this->setVariable(ICalculate::ROW_VALUE_VAR, $element);
             if($element[$fieldToSearch] === $valueToSearch){
                 $ret = $RetIfTrue;
                 break;
@@ -278,14 +278,14 @@ abstract class AbstractCalculate implements ICalculate{
         }
         return $ret;
     }
-    
-    protected function castToArray($var){
-        $ret;
-        if(is_string($var)){
+
+    protected function castToArray($var, $ThrowException=TRUE){
+        $ret = NULL;
+        if (is_string($var)){
             $ret = json_decode($var, TRUE);
         }elseif(is_array($var)){
             $ret = $var;
-        }else{
+        }elseif($ThrowException) {
             throw new Exception("'$var' no es pot transformar a un tipus ARRAY");
         }
         return $ret;

@@ -22,6 +22,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $lockDataQuery;
     protected $dokuPageModel;
     protected $viewConfigName;
+    protected $roleProperties;
+    protected $needGenerateAction;
 
     public function __construct($persistenceEngine)  {
         parent::__construct($persistenceEngine);
@@ -30,6 +32,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
         $this->viewConfigName = "defaultView";
+        $this->neeeGenerateAction=TRUE;
     }
 
     public function getId(){
@@ -75,16 +78,55 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $attr[ProjectKeys::KEY_METADATA_SUBSET] = $this->getMetaDataSubSet();
         return ($key) ? $attr[$key] : $attr;
     }
-
-    public function getContentDocumentId($docId){
-        if(is_array($docId)){
-            return $this->getContentDocumentIdFromResponse($docId);
+    
+    public function llistaDeEspaiDeNomsDeDocumentsDelProjecte() {
+        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $scdir = scandir($pdir);
+        foreach($scdir as $file){
+            if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
+                $arrTemplates[] = $this->id.":".substr($file, 0, -4);
+            }
         }
-        return $this->id.":".$docId;
+        return $arrTemplates;
     }
 
-    protected function getContentDocumentIdFromResponse($responseData){
-//        Cal fer abstracta aquesta funció
+    public function llistaDeNomsDeLesPlantillesDelProjecte() {
+        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $scdir = scandir($pdir);
+        foreach($scdir as $file){
+            if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
+                $arrTemplates[] = substr($file, 0, -4);
+            }
+        }
+        return $arrTemplates;
+    }
+
+    /*
+     * Obté l'espai de noms (ID) del d'un dels dcouments del projecte. El parametre
+     * pot contenir:
+     *   - NULL => es desitja el primer document provinent de la llista de documents del projecte
+     *   - la posició => la posicio indicada provinent de la llista de  de documents del projecte
+     *   - el nom del document 
+     *   - La dades d'uun projecte, doncs en alguns projectes, els noms de les plantilles s'inclouen en un camp ocult del projecte
+     * 
+     *Retorna l'id (espai de noms) del document.
+     */
+    public function getContentDocumentId($posOrResponseDataOrDocName=NULL){
+        if(is_numeric($posOrResponseDataOrDocName)){
+            return $this->llistaDeEspaiDeNomsDeDocumentsDelProjecte()[$posOrResponseDataOrDocName];           
+        }elseif(is_array($posOrResponseDataOrDocName)){
+            return $this->getContentDocumentIdFromResponse($posOrResponseDataOrDocName);
+        }
+        return $this->id.":".$posOrResponseDataOrDocName;
+    }
+
+    private function getContentDocumentIdFromResponse($responseData=NULL) {
+        if ($responseData && $responseData['projectMetaData']["fitxercontinguts"]['value']) {
+            $contentName = $responseData['projectMetaData']["fitxercontinguts"]['value'];
+        } else {
+            $contentName = end(explode(":", $this->getTemplateContentDocumentId($responseData)));
+        }
+        return $this->id . ":" . $contentName;
     }
 
 
@@ -276,6 +318,37 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return array con los datos necesarios
      */
     public function buildParamsToPersons($newDataProject, $oldDataProject=NULL) {
+        if(is_array($this->getRoleProperties())&&!empty($this->getRoleProperties())){
+           $params = $this->_generictBuildParamsToPersons($this->getRoleProperties(), $newDataProject, $oldDataProject);
+        }else{
+           $params = $this->_defaultBuildParamsToPersons($newDataProject, $oldDataProject); 
+        }
+        return $params;
+    }
+    
+    private function _generictBuildParamsToPersons($dataRoles, $newDataProject, $oldDataProject=NULL) {
+         $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
+         
+         $persons = [];
+         foreach ($dataRoles as $dataRole) {
+             if (!empty($oldDataProject[$dataRole['role']]) || !empty($newDataProject[$dataRole['role']]['value'])) {
+                $persons[$dataRole['role']] = ['old' => $oldDataProject[$dataRole['role']],
+                                     'new' => $newDataProject[$dataRole['role']]['value'],
+                                     'permis' => $dataRole['wiki_permission'],
+                                     'drecera' => $dataRole['shortcut']];
+            }             
+         }
+         $params = [
+             'id' => $this->id
+            ,'link_page' => $this->id
+            ,'persons' => $persons
+            ,'userpage_ns' => $userpage_ns
+            ,'shortcut_name' => WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel')
+         ];
+         return $params;
+    }
+    
+    private function _defaultBuildParamsToPersons($newDataProject, $oldDataProject=NULL) {
         $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
 
         $persons = [];
@@ -834,7 +907,30 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->projectMetaDataQuery->setProjectSystemSubSetAttr($att, $value);
     }
 
-    public abstract function generateProject();
+    public function generateProject(){
+        $ret = array();
+        //0. Obtiene los datos del proyecto
+        $ret = $this->getData();   //obtiene la estructura y el contenido del proyecto
+
+        //2. Establece la marca de 'proyecto generado'
+        $ret[ProjectKeys::KEY_GENERATED] = $this->getProjectMetaDataQuery()->setProjectGenerated();
+
+        if ($ret[ProjectKeys::KEY_GENERATED]) {
+            try {
+                 //3. Otorga, a cada 'person', permisos adecuados sobre el directorio de proyecto y añade shortcut si no se ha otorgado antes
+                if($this->getNeedGenerateAction()){
+                    $params = $this->buildParamsToPersons($ret['projectMetaData'], NULL);
+                    $this->modifyACLPageAndShortcutToPerson($params);
+                }
+            }
+            catch (Exception $e) {
+                $ret[ProjectKeys::KEY_GENERATED] = FALSE;
+                $this->getProjectMetaDataQuery()->setProjectSystemStateAttr("generated", FALSE);
+            }
+        }
+
+        return $ret;
+    }
 
     //Del fichero _wikiIocSystem_.mdpr, del proyecto en curso, el elemento subSet solicitado
     public function getSystemData($subSet=FALSE) {
@@ -926,13 +1022,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     /**
      * Retorna el nom e la plantilla corresponent al document.
      *
-     * @param array|string $responseData ruta de la plantilla, nom de la plantilla o objecte de configuració
+     * @param array|string $responseData ruta de la plantilla, nom de la plantilla o objecte amb les dades del projecte
      * @return string nom de la plantilla
      */
-    public function getTemplateContentDocumentId($responseData){
+    public function getTemplateContentDocumentId($responseData=NULL){
 
-        // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
+        if($responseData==NULL)
+            $plantilla = $this->_getTemplateContentDocumentId ();
         if (is_string($responseData)) {
+           // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
             $plantilla = $responseData;
 
         } else {
@@ -951,6 +1049,19 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
         return $plantilla;
 
+    }
+    
+    private function _getTemplateContentDocumentId(){   
+        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $scdir = scandir($pdir);
+        $found=FALSE;
+        while (!$found){
+            if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
+                $templateName = substr($file, 0, -4);
+                $found=TRUE;
+            }
+        }
+        return $templateName;
     }
 
     public function getTemplatePath($templateName, $version = null){
@@ -1114,15 +1225,39 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function getRoleData(){
         $ret = array();
+        $this->roleProperties = array();
         $data = $this->getCurrentDataProject();
         if ($data) { //En la creación de proyecto $data es NULL
             $struct = $this->getMetaDataDefKeys();
             foreach ($struct as $field => $cfgField) {
                 if (isset($cfgField["isRole"]) && $cfgField["isRole"]){
                     $ret[$field] = $data[$field];
+                    $this->roleProperties[$field] = $cfgField["roleProperties"];
                 }
             }
         }
+         
         return $ret;
     }
+    
+    public function getRoleProperties(){
+        if(!isset($this->roleProperties)){
+            $this->roleProperties = array();
+            $struct = $this->getMetaDataDefKeys();
+            foreach ($struct as $field => $cfgField) {
+                if (isset($cfgField["isRole"]) && $cfgField["isRole"]){
+                    if(isset($cfgField["roleProperties"])){
+                        $this->roleProperties[$field] = $cfgField["roleProperties"];
+                    }
+                }
+            }
+        }
+        return $this->roleProperties;
+    }
+    
+    public function getNeedGenerateAction() {
+        return $this->needGenerateAction;
+    }
+    
+    public function forceFileComponentRenderization($isGenerated=NULL){}
 }

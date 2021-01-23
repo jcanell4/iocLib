@@ -13,6 +13,47 @@
  */
 abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
     public function createTemplateDocument($data=NULL){
-        StaticUniqueContentFileProjectModel::createTemplateDocument($this, $data);
+        StaticUniqueContentFileProjectModel::stCreateTemplateDocument($this, $data);
+    }
+    
+    public static function stCreateTemplateDocument($obj, $data=NULL){
+        $pdir = $obj->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $file = $obj->getTemplateContentDocumentId() . ".txt";
+        $plantilla = file_get_contents($pdir.$file);
+        $name = substr($file, 0, -4);
+        $destino = $obj->getContentDocumentId($name);
+        $obj->getDokuPageModel()->setData([PageKeys::KEY_ID => $destino,
+                                       PageKeys::KEY_WIKITEXT => $plantilla,
+                                       PageKeys::KEY_SUM => "generate project"]);
+    }
+    
+    public function forceFileComponentRenderization($isGenerated=NULL){
+        self::stForceFileComponentRenderization($this, $isGenerated);
+    }
+    
+    public function getProjectDocumentName() {
+        return self::stGetProjectDocumentName($this);
+    }
+    
+    /*
+     * Foaça un registre de canvi del fitxer que pertany a un projecte per tal de forçar
+     * una rendereització posterior. Ës útil en projectes que tenen plantilles amb camps 
+     * inclosos en els seus fitxers
+     */
+    public static function stForceFileComponentRenderization($model, $isGenerated=NULL){
+        if (!$model->getNeedGenerateAction() || $isGenerated){
+            $ns_continguts = $model->getContentDocumentId();
+            p_set_metadata($ns_continguts, array('metadataProjectChanged' => time()));
+        }
+    }
+    
+    public static function stGetProjectDocumentName($model){
+        $ns_continguts = $model->getContentDocumentId();
+        $lastPos = strrpos($ns_continguts, ':');
+
+        if ($lastPos) {
+            $ns_continguts = substr($ns_continguts, $lastPos+1);
+        }
+        return $ns_continguts;
     }
 }
