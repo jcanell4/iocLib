@@ -33,7 +33,8 @@ abstract class ProjectMetadataAction extends AbstractWikiAction {
         $this->projectModel->init([ProjectKeys::KEY_ID              => $this->params[ProjectKeys::KEY_ID],
                                    ProjectKeys::KEY_PROJECT_TYPE    => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
                                    ProjectKeys::KEY_REV             => $this->params[ProjectKeys::KEY_REV],
-                                   ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET]
+                                   ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
+                                   ProjectKeys::KEY_ACTION          => $this->params[ProjectKeys::KEY_ACTION]
                                 ]);
     }
 
