@@ -25,14 +25,13 @@ abstract class AbstractFactoryAuthorization {
     }
 
     public function createAuthorizationManager($str_cmd) {
+        $fileAuthorization = NULL;
+        $pathAuthList[] = $this->projectAuth;
+        $pathAuthList = array_merge($pathAuthList, $this->defaultAuth);
 
-        $fileAuthorization = $this->_createAuthorization($str_cmd, $this->projectAuth);
-
-        if ($fileAuthorization === NULL && $this->defaultAuth) {
-            foreach ($this->defaultAuth as $pathAuth) {
-                if ($fileAuthorization === NULL) {
-                    $fileAuthorization = $this->_createAuthorization($str_cmd, $pathAuth);
-                }
+        foreach ($pathAuthList as $pathAuth) {
+            if ($fileAuthorization === NULL) {
+                $fileAuthorization = $this->_createAuthorization($str_cmd, $pathAuth);
             }
         }
 
