@@ -15,6 +15,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $rev;
     protected $projectType;
     protected $metaDataSubSet;
+    protected $actionCommand;
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -43,30 +44,32 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
-        if(is_array($params)){
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL) {
+        if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
             $this->rev         = $params[ProjectKeys::KEY_REV];
             $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : ProjectKeys::VAL_DEFAULTSUBSET;
+            $this->actionCommand  = $params[ProjectKeys::KEY_ACTION];
             if ($params[ProjectKeys::VIEW_CONFIG_NAME]){
                 $this->viewConfigName = $params[ProjectKeys::VIEW_CONFIG_NAME];
             }
-        }else{
+        }else {
             $this->id = $params;
             $this->projectType = $projectType;
             $this->rev = $rev;
             $this->metaDataSubSet = $metadataSubset;
+            $this->actionCommand  = $actionCommand;
             $this->viewConfigName=empty($viewConfigName)?"defaultView":$viewConfigName;
         }
         $this->projectMetaDataQuery->init($this->id);
-        if($this->projectType){
+        if ($this->projectType) {
             $this->projectMetaDataQuery->setProjectType($this->projectType);
         }
-        if($this->metaDataSubSet){
+        if ($this->metaDataSubSet) {
             $this->projectMetaDataQuery->setProjectSubset($this->metaDataSubSet);
         }
-        if($this->rev){
+        if ($this->rev){
             $this->projectMetaDataQuery->setRevision($this->rev);
         }
     }
@@ -76,6 +79,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $attr[ProjectKeys::KEY_PROJECT_TYPE] = $this->getProjectType();
         $attr[ProjectKeys::KEY_REV] = $this->rev;
         $attr[ProjectKeys::KEY_METADATA_SUBSET] = $this->getMetaDataSubSet();
+        $attr[ProjectKeys::KEY_ACTION] = $this->actionCommand;
         return ($key) ? $attr[$key] : $attr;
     }
 
@@ -231,8 +235,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * a la clave $metaDataSubset si se passa por paràmetro o a su valor por
      * defecto si no se pasa.
      */
-    public function getCurrentDataProject($metaDataSubSet=FALSE) {
-        return $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
+    public function getCurrentDataProject($metaDataSubSet=FALSE, $calculate=TRUE) {
+        if ($calculate)
+            $data = $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
+        else
+            $data = $this->projectMetaDataQuery->getDataProject($this->id, $this->projectType, $metaDataSubSet);
+        return $data;
     }
 
     /**
@@ -255,7 +263,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     //Obtiene un array [key, value] con los datos del proyecto solicitado
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
         //Actualitzar a aquí els camps calculats
-        $values =  $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
+        $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
         $rev = $this->projectMetaDataQuery->getRevision();
         if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
             $ret = $this->processAutoFieldsOnRead($values);
@@ -843,6 +851,17 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function removeDraft() {
         $this->draftDataQuery->removeProjectDraft($this->id.$this->getMetaDataSubSet());
+    }
+
+    /**
+     * Obtiene un array con el contenido del archivo de control (formato json) especificado
+     * @param string $projectType
+     * @param string $jsonFile : fichero json requerido
+     * @param string $configKey : conjunto principal requerido
+     * @return Json con el array correspondiente a la clave $configKey
+     */
+    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=NULL, $configKey=NULL) {
+        return $this->projectMetaDataQuery->getMetaDataJsonFile($projectType, $jsonFile, $configKey);
     }
 
     /**

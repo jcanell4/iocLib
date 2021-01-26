@@ -115,7 +115,8 @@ class ajaxCall {
         $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
                                                AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
                                                AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
-                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET]]);
+                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET],
+                                               AjaxKeys::KEY_ACTION          => $this->request_params[RequestParameterKeys::KEY_ACTION]]);
     }
 
     /**

@@ -12,11 +12,17 @@ class WorkflowProjectAuthorization extends ProjectCommandAuthorization {
         parent::__construct();
         $model = $plugin_controller->getCurrentProjectModel("management");
 
-        $dataProject = $model->getCurrentDataProject("management");
-        $dadesControl = $model->getProjectControls(FALSE, "workflow");
+        $dataProject = $model->getCurrentDataProject("management", FALSE);
+        $state = $dataProject['workflow']['currentState'];
 
-        $this->allowedGroups = ["admin"];
-        $this->allowedRoles = [Permission::ROL_RESPONSABLE];
+        $jsonConfig = $model->getMetaDataJsonFile(FALSE, "workFlow.json", $state);
+        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
+        $permissions = $jsonConfig['actions'][$actionCommand]['permissions'];
+
+        $controlMetaData = $model->getProjectControls(FALSE, "workflow");
+
+        $this->allowedGroups = $permissions['groups'];
+        $this->allowedRoles = $permissions['rols'];
     }
 
 }
