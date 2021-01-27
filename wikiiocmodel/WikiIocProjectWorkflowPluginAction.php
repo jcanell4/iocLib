@@ -11,7 +11,7 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
 
     public function __construct($projectType, $dirProjectType) {
         parent::__construct($projectType, $dirProjectType);
-        $this->workflowArray = $this->projectMetaDataQuery->getMetaViewConfig("workFlow", $projectType);
+        $this->workflowArray = $this->projectMetaDataQuery->getMetaViewConfig("workflow", $projectType);
     }
 
     function addControlScripts(Doku_Event &$event, $param) {
