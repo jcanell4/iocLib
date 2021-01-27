@@ -26,8 +26,8 @@ abstract class AbstractFactoryAuthorization {
 
     public function createAuthorizationManager($str_cmd) {
         $fileAuthorization = NULL;
-        $pathAuthList[] = $this->projectAuth;
-        $pathAuthList = array_merge($pathAuthList, $this->defaultAuth);//CAL CANVIAR l'ORDRE
+        $pathAuthList[] = $this->defaultAuth;
+        $pathAuthList = array_merge($pathAuthList, $this->projectAuth);//[JOSEP] ALERTA=>RAFA: HE CANVIAT l'ORDRE per un tema de prioritats
 
         foreach ($pathAuthList as $pathAuth) {
             if ($fileAuthorization === NULL) {
