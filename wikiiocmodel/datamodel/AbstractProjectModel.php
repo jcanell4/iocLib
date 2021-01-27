@@ -266,8 +266,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
         $rev = $this->projectMetaDataQuery->getRevision();
         if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
-            $ret = $this->processAutoFieldsOnRead($values);
-            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);
+            $ret = $this->processAutoFieldsOnRead($values);  //[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
+            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);//[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
         }else{
             $ret = $values;
         }

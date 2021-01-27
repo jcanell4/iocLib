@@ -112,11 +112,18 @@ class ajaxCall {
 
     function uploadParamsInPluginController(){
         global $plugin_controller;
-        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
-                                               AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
-                                               AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
-                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET],
-                                               AjaxKeys::KEY_ACTION          => $this->request_params[RequestParameterKeys::KEY_ACTION]]);
+//        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
+//                                               AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
+//                                               AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
+//                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET],
+//                                               AjaxKeys::KEY_ACTION          => $this->request_params[RequestParameterKeys::KEY_ACTION]]);
+        $plugin_controller->setCurrentProject([AjaxKeys::KEY_ID              => $this->params[AjaxKeys::KEY_ID],
+                                               AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
+                                               AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
+                                               AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
+                                               AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET],
+                                               AjaxKeys::KEY_ACTION          => $this->params[AjaxKeys::KEY_ACTION]
+                                             ]);
     }
 
     /**
