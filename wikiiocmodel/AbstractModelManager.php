@@ -22,7 +22,6 @@ abstract class AbstractModelManager {
     public static function Instance($projectType){
         if (!$projectType) {
             global $plugin_controller;
-//            $projectType = $plugin_controller->getCurrentProject();
             $projectType = $plugin_controller->getProjectType();
         }
         $inst = self::createModelManager($projectType);
