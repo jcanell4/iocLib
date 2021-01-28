@@ -64,13 +64,13 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         global $plugin_controller;
 
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-//            $plugin_controller->setCurrentProject([AjaxKeys::KEY_ID              => $this->params[AjaxKeys::KEY_ID],
-//                                                   AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
-//                                                   AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
-//                                                   AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
-//                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET],
-//                                                   AjaxKeys::KEY_ACTION          => $this->params[AjaxKeys::KEY_ACTION]
-//                                                ]);
+            $plugin_controller->setCurrentProject([AjaxKeys::KEY_ID              => $this->params[AjaxKeys::KEY_ID],
+                                                   AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
+                                                   AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
+                                                   AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
+                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET],
+                                                   AjaxKeys::KEY_ACTION          => $this->params[AjaxKeys::KEY_ACTION]
+                                                ]);
         }
 
         if (!$modelManager) {

@@ -3,19 +3,19 @@ if (!defined('DOKU_INC')) die();
 
 class WorkflowProjectMetaDataAction extends ProjectMetadataAction {
 
-    public function getActionInstance($param){
-        $action = parent::getActionInstance($this->getActionName($param));
-        return $action;
-    }
-
     public function responseProcess() {
-        return parent::responseProcess();
+        $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
+        $projectMetaData = $action->get($this->params);
+        return $projectMetaData;
     }
 
     private function getActionName($action) {
-        $actions = ["edit" => "GetProjectMetaDataAction"
+        $actions = [ProjectKeys::KEY_EDIT => "GetProjectMetaDataAction",
+                    ProjectKeys::KEY_IMPORT => "ImportProjectAction"
                    ];
-        return $actions[$action];
+
+        $ret = ($actions[$action]) ? $actions[$action]: "{$action}Action";
+        return $ret;
     }
 
 }
