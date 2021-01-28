@@ -44,7 +44,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL) {
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL) {
         if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
@@ -58,7 +58,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->id = $params;
             $this->projectType = $projectType;
             $this->rev = $rev;
-            $this->metaDataSubSet = $metadataSubset;
+            $this->metaDataSubSet = $metaDataSubSet;
             $this->actionCommand  = $actionCommand;
             $this->viewConfigName=empty($viewConfigName)?"defaultView":$viewConfigName;
         }
@@ -691,8 +691,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     }
 
-    public function getProjectType() {
-        return $this->projectType;
+    public function getProjectType($id=NULL) {
+        return ($id===NULL) ? $this->projectType : $this->projectMetaDataQuery->getProjectType($id);
     }
 
     public function getViewConfigName() {
