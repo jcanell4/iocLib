@@ -31,9 +31,10 @@ abstract class AbstractModelManager {
     private static function createModelManager($projectType){
         global $plugin_controller;
         $dir = $plugin_controller->getProjectTypeDir($projectType);
-        $file = realpath("{$dir}DokuModelManager.php");
+        $file = realpath("{$dir}{$projectType}DokuModelManager.php");
         require_once $file;
-        return new DokuModelManager($projectType);
+        $dmm = "{$projectType}DokuModelManager";
+        return new $dmm($projectType);
     }
 
     public function getPersistenceEngine() {
