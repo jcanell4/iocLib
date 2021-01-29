@@ -15,10 +15,11 @@ abstract class AbstractFactoryAuthorization {
         $this->projectAuth = $projectAuth;
     }
 
-    public static function Instance($defaultAuth=NULL){
+    public static function Instance($defaultAuth=NULL, $namespace="") {
         static $inst = NULL;
         if ($inst === NULL) {
-            $inst = new FactoryAuthorization();
+            $class = "$namespace\FactoryAuthorization";
+            $inst = new $class();
             $inst->defaultAuth = $defaultAuth;
         }
         return $inst;
