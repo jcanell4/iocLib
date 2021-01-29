@@ -11,26 +11,15 @@ class SupervisorProjectAuthorization extends ProjectCommandAuthorization {
     public function __construct() {
         parent::__construct();
         $this->allowedGroups[] = "manager";
-        $this->allowedRoles[] = Permission::ROL_AUTOR;
-        $this->allowedRoles[] = Permission::ROL_SUPERVISOR;
+        $this->allowedRoles[] = ProjectPermission::ROL_AUTOR;
+        $this->allowedRoles[] = ProjectPermission::ROL_SUPERVISOR;
     }
 
-//    public function canRun() {
-//        if (parent::canRun()) {
-//            if (!$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
-//                $this->errorAuth['error'] = TRUE;
-//                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
-//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-//            }
-//        }
-//        return !$this->errorAuth['error'];
-//    }
-
     public function setPermission($command) {
-        $this->permission->setSupervisor($command->getKeyDataProject(Permission::ROL_SUPERVISOR));
+        $this->permission->setSupervisor($command->getKeyDataProject(ProjectPermission::ROL_SUPERVISOR));
 
         if ($this->isSupervisor()) {
-            $this->permission->setRol(Permission::ROL_SUPERVISOR);
+            $this->permission->setRol(ProjectPermission::ROL_SUPERVISOR);
         }
         parent::setPermission($command);
     }
