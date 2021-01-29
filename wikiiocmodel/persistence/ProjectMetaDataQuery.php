@@ -87,10 +87,11 @@ class ProjectMetaDataQuery extends DataQuery {
         return $this->actual_revision;
     }
 
-    public function getProjectType($id=NULL){
-        if (!$this->projectType || $id) {
+    public function getProjectType($external_id=NULL) {
+        $ret = $this->projectType;
+        if (!$this->projectType || $external_id) {
             //obtenir el projectType del directori
-            if ($id===NULL) $id = $this->getProjectId();
+            $id = ($external_id===NULL) ? $this->getProjectId() : $external_id;
             $dir = WikiGlobalConfig::getConf('mdprojects')."/".str_replace(":", "/", $id)."/";
             $ext = WikiGlobalConfig::getConf('mdextension');
             $dirList = scandir($dir) ;
@@ -98,13 +99,16 @@ class ProjectMetaDataQuery extends DataQuery {
             for ($i=0; !$found && $i<count($dirList); $i++){
                 if (is_dir($dir.$dirList[$i])){
                     if (preg_grep("/.*\.$ext/", scandir($dir.$dirList[$i]))){
-                        $this->projectType = $dirList[$i];
+                        $ret = $dirList[$i];
+                        if ($external_id===NULL) {
+                            $this->projectType = $dirList[$i];
+                        }
                         $found = true;
                     }
                 }
             }
         }
-        return  $this->projectType;
+        return  $ret;
     }
 
     public function getListMetaDataComponentTypes($configMainKey, $component) {
