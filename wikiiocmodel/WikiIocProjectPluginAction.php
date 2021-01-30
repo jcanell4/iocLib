@@ -59,7 +59,12 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 if ($arrayButton['scripts']['updateHandler']['command_authorization']) {
                     $modelManager = AbstractModelManager::Instance($this->projectType);
                     $buttonAuthorization = $modelManager->getAuthorizationManager($arrayButton['scripts']['updateHandler']['command_authorization']);
-                    $aPermissions = $buttonAuthorization->getAllowedGroups();
+                    if(!empty($buttonAuthorization->getAllowedGroups())){
+                        $aPermissions =[];
+                        foreach ($buttonAuthorization->getAllowedGroups() as $value) {
+                            $aPermissions[] = "is$value";
+                        }
+                    }
                     $aRoles = $buttonAuthorization->getAllowedRoles();
                 }
 
