@@ -7,6 +7,7 @@ if (!defined('DOKU_INC')) die();
 abstract class abstract_project_command_class extends abstract_command_class {
 
     protected $dataProject;   //guarda los datos del proyecto para verificar la autorización
+    protected $roleProperties;   //guarda la propiedades relativas a los roles del proyecto para saber el orden
 
     public function __construct() {
         parent::__construct();
@@ -27,12 +28,26 @@ abstract class abstract_project_command_class extends abstract_command_class {
         }else {
             $id = $this->params[ProjectKeys::KEY_ID];
         }
-        $this->dataProject = $this->getModelManager()->getProjectRoleData(
-                                                                    $id,
-                                                                    $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                                                                    $this->params[ProjectKeys::KEY_REV],
-                                                                    "",
-                                                                    $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+        $roles = $this->getModelManager()->getProjectRoleData($id,
+                                                                $this->params[ProjectKeys::KEY_PROJECT_TYPE],
+                                                                $this->params[ProjectKeys::KEY_REV],
+                                                                "",
+                                                                $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+        $this->dataProject = $roles["roleData"];
+        $this->roleProperties = $roles["roleProperties"];
+    }
+    
+    public function getRoleProperty($role=NULL, $property=NULL){
+        if($role){
+            if($property){
+                $ret = $this->roleProperties[$role][$property];                
+            }else{
+                $ret = $this->roleProperties[$role];
+            }
+        }else{
+            $ret= $this->roleProperties;
+        }
+        return $ret;
     }
 
     public function getKeyDataProject($key=NULL) {

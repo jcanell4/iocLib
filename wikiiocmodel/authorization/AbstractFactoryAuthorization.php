@@ -10,6 +10,7 @@ abstract class AbstractFactoryAuthorization {
     protected $projectAuth; //ruta de las autorizaciones particular del proyecto
     protected $defaultAuth; //array de rutas por defecto de las autorizaciones
     protected $authCfg = array();
+    protected $namespace;
 
     protected function __construct($projectAuth=NULL) {
         $this->projectAuth = $projectAuth;
@@ -21,6 +22,7 @@ abstract class AbstractFactoryAuthorization {
             $class = "$namespace\FactoryAuthorization";
             $inst = new $class();
             $inst->defaultAuth = $defaultAuth;
+            $inst->namespace = $namespace;
         }
         return $inst;
     }
@@ -62,7 +64,8 @@ abstract class AbstractFactoryAuthorization {
 
         if (file_exists($file)) {
             include_once $file;
-            $permis = new Permission($authorization);
+            $PermissionClassName = $this->namespace."\Permission";
+            $permis = new $PermissionClassName($authorization);
         }else{
             $permis = new BasicPermission($authorization);
         }

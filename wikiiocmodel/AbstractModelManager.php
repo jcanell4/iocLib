@@ -47,7 +47,8 @@ abstract class AbstractModelManager {
         $obj = new $class($this->persistenceEngine);
         $obj->init($id, $projectType, $rev, $viewConfigName, $metadataSubset);
         if (is_callable([$obj, "getRoleData"])){
-            $ret = $obj->getRoleData();
+            $ret["roleData"] = $obj->getRoleData();
+            $ret["roleProperties"] = $obj->getRoleProperties();
         }
         return $ret;
     }
