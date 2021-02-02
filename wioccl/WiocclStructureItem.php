@@ -21,6 +21,9 @@ class WiocclStructureItem {
         $this->structure = &$structure;
 
         if (count($init)>0) {
+
+            $test = $init['type'] === 'readonly';
+
             $this->parent = $init['parent'];
             $this->children = $init['children'];
             $this->result = $init['result'];

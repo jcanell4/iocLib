@@ -180,7 +180,7 @@ class WiocclInstruction extends IocInstruction {
                 $item = $this->getClassForToken($currentToken, $nextToken);
                 $currentToken['instruction'] = $item;
                 $this->pushState($currentToken);
-                $result = $item->resolveOnClose($item->getContent($currentToken));
+                $result = $item->resolveOnClose($item->getContent($currentToken), $currentToken);
                 $this->popState();
                 break;
 
@@ -316,7 +316,12 @@ class WiocclInstruction extends IocInstruction {
 
         $this->item->attrs = $attrs;
 
-        $this->item->close = $tokenEnd['value'];
+        if (!isset($tokenEnd['extra']) || !$tokenEnd['extra']['ignoreStructureClosing']) {
+            $this->item->close = $tokenEnd['value'];
+        } else {
+            $works = true;
+        }
+
 
         // Codi per afegir la estructura
         //$this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $tokenEnd['tokenIndex']);

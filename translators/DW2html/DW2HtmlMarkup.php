@@ -1,14 +1,16 @@
 <?php
 require_once "DW2HtmlParser.php";
 
-class DW2HtmlMarkup extends DW2HtmlInstruction {
+class DW2HtmlMarkup extends DW2HtmlInstruction
+{
 
 
 //    public function open() {
 //        die('open');
 //    }
 
-    public function isClosing($token) {
+    public function isClosing($token)
+    {
 
 //        if ($token['action'] == 'close') {
 //            var_dump($token);
@@ -36,5 +38,29 @@ class DW2HtmlMarkup extends DW2HtmlInstruction {
         }
         // Aquests blocs sempre es tanquen quan es troba quelcom, per exemple un salt de línia
 
+    }
+
+
+    protected function getReplacement($position)
+    {
+        if ($this->currentToken['action'] != 'open') {
+            return parent::getReplacement($position);
+        }
+
+        $tag = parent::getReplacement($position);
+        $base = substr($tag, 0, strlen($tag) - 1);
+
+        // Afegim la referència si escau
+        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+
+
+        if ($refId > 0) {
+            $ref = ' data-wioccl-ref="' . $refId . '"';
+        } else {
+            $ref = '';
+        }
+
+
+        return $base . $ref . '>';
     }
 }

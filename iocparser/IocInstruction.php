@@ -189,7 +189,11 @@ class IocInstruction {
     protected function getClassForToken($token, $next) {
         $instance = new $token['class']($token['value'], $this->getArrays(), $this->getDataSource(), $this->resetables, $this);
         $instance->setTokens($token, $next);
-        $instance->setExtra($token['extra']);
+
+        if (isset($token['extra'])) {
+            $instance->setExtra($token['extra']);
+        }
+
         return $instance;
     }
 

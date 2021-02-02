@@ -224,7 +224,9 @@ class RawPageAction extends EditPageAction {
     }
 
     protected function translateToDW($text) {
-        return Hmtl2DWTranslator::translate($text, $this->params);
+        $extra = [];
+
+        return Hmtl2DWTranslator::translate($text, $this->params, $extra);
 
     }
 
