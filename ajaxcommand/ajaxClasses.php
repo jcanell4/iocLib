@@ -28,19 +28,6 @@ class ajaxCall {
         return $inst;
     }
 
-    private function __construct() {
-        /*
-         * Aquí se establece el valor por defecto del proyecto actual,
-         * sin embargo, es necesario establecer un mecanismo para la asignación
-         * dinámica de proyectos
-         */
-//        global $plugin_controller;
-//        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => 'defaultProject',
-//                                               AjaxKeys::PROJECT_SOURCE_TYPE => $_REQUEST[AjaxKeys::PROJECT_SOURCE_TYPE],
-//                                               AjaxKeys::PROJECT_OWNER       => $_REQUEST[AjaxKeys::PROJECT_OWNER]
-//                                            ]);
-    }
-
     public function initialize() {
         session_write_close();
         header('Content-Type: text/html; charset=utf-8');
@@ -112,10 +99,12 @@ class ajaxCall {
 
     function uploadParamsInPluginController(){
         global $plugin_controller;
-        $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
+        $plugin_controller->setCurrentProject([AjaxKeys::KEY_ID              => $this->request_params[RequestParameterKeys::KEY_ID],
+                                               AjaxKeys::PROJECT_TYPE        => $this->request_params[RequestParameterKeys::PROJECT_TYPE],
                                                AjaxKeys::PROJECT_SOURCE_TYPE => $this->request_params[RequestParameterKeys::PROJECT_SOURCE_TYPE],
                                                AjaxKeys::PROJECT_OWNER       => $this->request_params[RequestParameterKeys::PROJECT_OWNER],
-                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET]]);
+                                               AjaxKeys::METADATA_SUBSET     => $this->request_params[RequestParameterKeys::METADATA_SUBSET],
+                                               AjaxKeys::KEY_ACTION          => $this->request_params[RequestParameterKeys::KEY_ACTION]]);
     }
 
     /**
@@ -259,9 +248,7 @@ class ajaxCall {
 
     /**
      * Retorna un hash amb els paràmetres de $_GET, $_POST i $_FILE excepte el valor de la clau passada com argument.
-     *
      * @param string $without clau que evitem extreure
-     *
      * @return string[] hash amb els paràmetres
      */
     function getParams($without) {
@@ -389,6 +376,5 @@ class ajaxRest extends ajaxCall {
         }
         return $ret;
     }
-
 
 }

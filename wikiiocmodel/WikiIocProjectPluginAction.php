@@ -8,7 +8,8 @@ if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
 if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
 
 class WikiIocProjectPluginAction extends WikiIocPluginAction {
-    private $dirProjectType;
+
+    protected $dirProjectType;
     private $viewArray;
 
     public function __construct($projectType, $dirProjectType) {
@@ -19,6 +20,10 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
     }
 
     function addControlScripts(Doku_Event &$event, $param) {
+        $this->p_addControlScripts($event, $this->viewArray);
+    }
+
+    protected function p_addControlScripts(Doku_Event &$event, $wArray) {
         $changeWidgetPropertyFalse = "";
         $changeWidgetPropertyCondition = "";
         $VarsIsButtonVisible = "";
@@ -28,8 +33,8 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
         $counter = 0;
 
         //Lectura de los botones definidos en el fichero de control
-        foreach ($this->viewArray as $arrayButton) {
-            if($arrayButton['scripts']){
+        foreach ($wArray as $arrayButton) {
+            if ($arrayButton['scripts']) {
                 $counter++;
                 if ($arrayButton['scripts']['getFunctions']) {
                     //carga de los archivos de funciones de los botones
@@ -39,9 +44,9 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                     }
                 }
 
-                if(isset($arrayButton['id'])){
+                if (isset($arrayButton['id'])) {
                     $id = $arrayButton['id'];
-                }else{
+                }else {
                     $id = $arrayButton['parms']['DOM']['id'];
                 }
                 //Construcción de los valores de sustitución de los patrones para el template UpdateViewHandler
@@ -54,7 +59,12 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 if ($arrayButton['scripts']['updateHandler']['command_authorization']) {
                     $modelManager = AbstractModelManager::Instance($this->projectType);
                     $buttonAuthorization = $modelManager->getAuthorizationManager($arrayButton['scripts']['updateHandler']['command_authorization']);
-                    $aPermissions = $buttonAuthorization->getAllowedGroups();
+                    if(!empty($buttonAuthorization->getAllowedGroups())){
+                        $aPermissions =[];
+                        foreach ($buttonAuthorization->getAllowedGroups() as $value) {
+                            $aPermissions[] = "is$value";
+                        }
+                    }
                     $aRoles = $buttonAuthorization->getAllowedRoles();
                 }
 
@@ -100,8 +110,8 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t\t";
             }
         }
-        
-        if($counter>0){
+
+        if ($counter > 0) {
             $aReplacements["search"] = ["//%_changeWidgetPropertyFalse_%",
                                         "%_projectType_%",
                                         "//%_VarsIsButtonVisible_%",
@@ -123,22 +133,26 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
     }
 
     function addWikiIocButtons(Doku_Event &$event, $param) {
+        $this->p_addWikiIocButtons($event, $this->viewArray);
+    }
+
+    protected function p_addWikiIocButtons(Doku_Event &$event, $wArray) {
         //Lectura de los botones definidos en el fichero de control
         $configDataFunctions = array();
-        foreach ($this->viewArray as $arrayButton) {
+        foreach ($wArray as $arrayButton) {
             $button = array();
-            if(isset($arrayButton['class'])){
+            if (isset($arrayButton['class'])) {
                 $class = $arrayButton['class'];
                 if ($arrayButton['parms']['DOM']) $button['DOM'] = $arrayButton['parms']['DOM'];
                 if ($arrayButton['parms']['DJO']) $button['DJO'] = $arrayButton['parms']['DJO'];
                 if ($arrayButton['parms']['CSS']) $button['CSS'] = $arrayButton['parms']['CSS'];
                 if ($arrayButton['parms']['PRP']) $button['PRP'] = $arrayButton['parms']['PRP'];
-                $event->data->addWikiIocButton($class, $button);            
+                $event->data->addWikiIocButton($class, $button);
             } elseif(isset($arrayButton['toDelete']) || isset($arrayButton['toSet'])) {
                 $configDataFunctions[] = $this->addOverwritingFunctions($arrayButton);
             }
         }
-        if(count($configDataFunctions)>0){
+        if (count($configDataFunctions) > 0 ) {
             $aReplacements["search"] = ["%_projectType_%",
                                         "___JSON_BUTTON_ATTRIBUTES_DATA___"];
             $aReplacements["replace"] = [$this->projectType,
@@ -148,23 +162,23 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
             $event->data->addControlScript($arxiu, $aReplacements);
         }
     }
-    
-    private function addOverwritingFunctions($arrayButton) {
+
+    protected function addOverwritingFunctions($arrayButton) {
         $configDataFunctionsItem = array();
-        if(isset($arrayButton['id'])){
+        if (isset($arrayButton['id'])) {
             $configDataFunctionsItem["id"] = $arrayButton['id'];
-        }else{
+        }else {
             $configDataFunctionsItem["id"] = $arrayButton['parms']['DOM']['id'];
         }
 
-        if(isset($arrayButton['toSet'])){
+        if (isset($arrayButton['toSet'])) {
             $configDataFunctionsItem["toSet"] = $arrayButton['toSet'];
-        }elseif(isset($arrayButton['parms']['toSet'])){
+        }elseif(isset($arrayButton['parms']['toSet'])) {
              $configDataFunctionsItem["toSet"] = $arrayButton['parms']['toSet'];
         }
-        if(isset($arrayButton['toDelete'])){
+        if (isset($arrayButton['toDelete'])) {
             $configDataFunctionsItem["toDelete"] = $arrayButton['toDelete'];
-        }elseif(isset($arrayButton['parms']['toDelete'])){
+        }elseif(isset($arrayButton['parms']['toDelete'])) {
             $configDataFunctionsItem["toDelete"] = $arrayButton['parms']['toDelete'];
         }
         return $configDataFunctionsItem;

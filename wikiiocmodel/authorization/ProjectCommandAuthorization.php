@@ -11,8 +11,7 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
 
     public function __construct() {
         parent::__construct();
-//        $this->allowedGroups = ["admin"];
-        $this->allowedRoles = [Permission::ROL_RESPONSABLE];
+        $this->allowedRoles = [ProjectPermission::ROL_RESPONSABLE];
     }
 
     public function canRun($permis=AUTH_NONE, $type_exception="Command") {   //$permis => permís mínim a més de pertanyer als grups i als roles establerts
@@ -36,28 +35,17 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
         parent::setPermission($command);
         $this->permission->setAllRoleMembers($command->getKeyDataProject());
         $this->assignRoleFromUserToPermission();
-        //ALERTA Rafa, Cal adaptar aquestes assignacions per tal de fer-ho tot més genèric. 
-        //A línia 37 s'assignen tots els membres dels diferents roles d'un projecte amb independència 
-        // de si es coneixen el rols o no. A la línia 38 s'extreuen, també a cegues, els roles de l'usuari i
-        // s'assignen a $this->permission.
-        $this->permission->setAuthor($command->getKeyDataProject(Permission::ROL_AUTOR));
-        $this->permission->setResponsable($command->getKeyDataProject(Permission::ROL_RESPONSABLE));
-        //Ja no cal. S'assignen a la línia 38
-//        if ($this->isResponsable()) {
-//            $this->permission->setRol(Permission::ROL_RESPONSABLE);
-//        }
-//        if ($this->isAuthor()) {
-//            $this->permission->setRol(Permission::ROL_AUTOR);
-//        }
+        $this->permission->setAuthor($command->getKeyDataProject(ProjectPermission::ROL_AUTOR));
+        $this->permission->setResponsable($command->getKeyDataProject(ProjectPermission::ROL_RESPONSABLE));
     }
-    
+
     public function assignRoleFromUserToPermission(){
         $roles = $this->permission->getRoleMembers();
         foreach ($roles as $role => $members) {
             if($this->isRoleMember($role)){
                 $this->permission->setRol($role);
             }
-        }                
+        }
     }
 
     public function isRoleMember($role) {
@@ -67,9 +55,9 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
             $ret = (in_array($_SERVER['REMOTE_USER'], $members));
         }
         return $ret;
-        
+
     }
-    
+
     public function isAuthor() {
         global $_SERVER;
         $ret = FALSE;
