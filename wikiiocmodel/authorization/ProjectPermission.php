@@ -75,6 +75,14 @@ class ProjectPermission extends BasicPermission {
     public function setAllRoleMembers($roleMembers){
         foreach ($roleMembers as $role => $member) {
             $this->setRoleMembers($role, $member);
+            switch ($role){
+                case self::ROL_RESPONSABLE:
+                case self::ROL_AUTOR:
+                case self::ROL_SUPERVISOR:
+                    break;
+                default:
+                    $this->aRoles[$role] = count($this->aRoles);
+            }
         }
     }
     

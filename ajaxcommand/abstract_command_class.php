@@ -67,10 +67,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         global $plugin_controller;
 
         if ($this->params[AjaxKeys::PROJECT_TYPE]) {
-            $plugin_controller->setCurrentProject([AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
+            $plugin_controller->setCurrentProject([AjaxKeys::KEY_ID              => $this->params[AjaxKeys::KEY_ID],
+                                                   AjaxKeys::PROJECT_TYPE        => $this->params[AjaxKeys::PROJECT_TYPE],
                                                    AjaxKeys::PROJECT_SOURCE_TYPE => $this->params[AjaxKeys::PROJECT_SOURCE_TYPE],
                                                    AjaxKeys::PROJECT_OWNER       => $this->params[AjaxKeys::PROJECT_OWNER],
-                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET]
+                                                   AjaxKeys::METADATA_SUBSET     => $this->params[AjaxKeys::METADATA_SUBSET],
+                                                   AjaxKeys::KEY_ACTION          => $this->params[AjaxKeys::KEY_ACTION]
                                                 ]);
         }
 
@@ -488,12 +490,12 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         if ($responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]){
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[AjaxKeys::KEY_ID], AjaxKeys::KEY_FTPSEND_BUTTON, $responseData[AjaxKeys::KEY_ACTIVA_FTPSEND_BTN]);
         }
-        
+
         if ($responseData[ProjectKeys::KEY_EXTRA_STATE]) {
             $stateId = $responseData[ProjectKeys::KEY_EXTRA_STATE][ProjectKeys::KEY_EXTRA_STATE_ID];
             $stateValue = $responseData[ProjectKeys::KEY_EXTRA_STATE][ProjectKeys::KEY_EXTRA_STATE_VALUE];
             $ajaxCmdResponseGenerator->addExtraContentStateResponse($responseData[ProjectKeys::KEY_ID], $stateId, $stateValue);
-        }        
+        }
 
         if ($responseData['user_state']) {
             $ajaxCmdResponseGenerator->addUserState($responseData['user_state']);

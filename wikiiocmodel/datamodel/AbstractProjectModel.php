@@ -15,6 +15,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $rev;
     protected $projectType;
     protected $metaDataSubSet;
+    protected $actionCommand;
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -43,30 +44,32 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metadataSubset=Projectkeys::VAL_DEFAULTSUBSET) {
-        if(is_array($params)){
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL) {
+        if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
             $this->rev         = $params[ProjectKeys::KEY_REV];
             $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : ProjectKeys::VAL_DEFAULTSUBSET;
+            $this->actionCommand  = $params[ProjectKeys::KEY_ACTION];
             if ($params[ProjectKeys::VIEW_CONFIG_NAME]){
                 $this->viewConfigName = $params[ProjectKeys::VIEW_CONFIG_NAME];
             }
-        }else{
+        }else {
             $this->id = $params;
             $this->projectType = $projectType;
             $this->rev = $rev;
-            $this->metaDataSubSet = $metadataSubset;
+            $this->metaDataSubSet = $metaDataSubSet;
+            $this->actionCommand  = $actionCommand;
             $this->viewConfigName=empty($viewConfigName)?"defaultView":$viewConfigName;
         }
         $this->projectMetaDataQuery->init($this->id);
-        if($this->projectType){
+        if ($this->projectType) {
             $this->projectMetaDataQuery->setProjectType($this->projectType);
         }
-        if($this->metaDataSubSet){
+        if ($this->metaDataSubSet) {
             $this->projectMetaDataQuery->setProjectSubset($this->metaDataSubSet);
         }
-        if($this->rev){
+        if ($this->rev){
             $this->projectMetaDataQuery->setRevision($this->rev);
         }
     }
@@ -76,9 +79,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $attr[ProjectKeys::KEY_PROJECT_TYPE] = $this->getProjectType();
         $attr[ProjectKeys::KEY_REV] = $this->rev;
         $attr[ProjectKeys::KEY_METADATA_SUBSET] = $this->getMetaDataSubSet();
+        $attr[ProjectKeys::KEY_ACTION] = $this->actionCommand;
         return ($key) ? $attr[$key] : $attr;
     }
-    
+
     public function llistaDeEspaiDeNomsDeDocumentsDelProjecte() {
         $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
@@ -106,14 +110,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * pot contenir:
      *   - NULL => es desitja el primer document provinent de la llista de documents del projecte
      *   - la posició => la posicio indicada provinent de la llista de  de documents del projecte
-     *   - el nom del document 
+     *   - el nom del document
      *   - La dades d'uun projecte, doncs en alguns projectes, els noms de les plantilles s'inclouen en un camp ocult del projecte
-     * 
+     *
      *Retorna l'id (espai de noms) del document.
      */
     public function getContentDocumentId($posOrResponseDataOrDocName=NULL){
         if(is_numeric($posOrResponseDataOrDocName)){
-            return $this->llistaDeEspaiDeNomsDeDocumentsDelProjecte()[$posOrResponseDataOrDocName];           
+            return $this->llistaDeEspaiDeNomsDeDocumentsDelProjecte()[$posOrResponseDataOrDocName];
         }elseif(is_array($posOrResponseDataOrDocName)){
             return $this->getContentDocumentIdFromResponse($posOrResponseDataOrDocName);
         }
@@ -231,8 +235,21 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * a la clave $metaDataSubset si se passa por paràmetro o a su valor por
      * defecto si no se pasa.
      */
-    public function getCurrentDataProject($metaDataSubSet=FALSE) {
-        return $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
+    public function getCurrentDataProject($metaDataSubSet=FALSE, $calculate=TRUE) {
+        if ($calculate)
+            $data = $this->getDataProject(FALSE, FALSE, $metaDataSubSet);
+        else
+            $data = $this->projectMetaDataQuery->getDataProject($this->id, $this->projectType, $metaDataSubSet);
+        return $data;
+    }
+
+    /**
+     * Retorna un array con el contenido del archivo de control.json del tipo de proyecto especificado
+     * @param string $projectType Tipo de proyecto
+     * @param string $file Nombre del fichero .json de configuración
+     */
+    public function getProjectControls($projectType, $file="controls") {
+        return $this->projectMetaDataQuery->getMetaViewConfig($file, $projectType);
     }
 
     //Obté les dades d'una altre projecte directament del fitxer i es retornen sense cap tractament.
@@ -242,15 +259,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $values = $this->getPersistenceEngine()->createProjectMetaDataQuery($id, $projectType, $metaDataSubSet)->getDataProject();
         return $values;
     }
-    
+
     //Obtiene un array [key, value] con los datos del proyecto solicitado
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
         //Actualitzar a aquí els camps calculats
-        $values =  $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
+        $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
         $rev = $this->projectMetaDataQuery->getRevision();
         if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
-            $ret = $this->processAutoFieldsOnRead($values);
-            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);
+            $ret = $this->processAutoFieldsOnRead($values);  //[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
+            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);//[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
         }else{
             $ret = $values;
         }
@@ -321,14 +338,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if(is_array($this->getRoleProperties())&&!empty($this->getRoleProperties())){
            $params = $this->_generictBuildParamsToPersons($this->getRoleProperties(), $newDataProject, $oldDataProject);
         }else{
-           $params = $this->_defaultBuildParamsToPersons($newDataProject, $oldDataProject); 
+           $params = $this->_defaultBuildParamsToPersons($newDataProject, $oldDataProject);
         }
         return $params;
     }
-    
+
     private function _generictBuildParamsToPersons($dataRoles, $newDataProject, $oldDataProject=NULL) {
          $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
-         
+
          $persons = [];
          foreach ($dataRoles as $dataRole) {
              if (!empty($oldDataProject[$dataRole['role']]) || !empty($newDataProject[$dataRole['role']]['value'])) {
@@ -336,7 +353,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                                      'new' => $newDataProject[$dataRole['role']]['value'],
                                      'permis' => $dataRole['wiki_permission'],
                                      'drecera' => $dataRole['shortcut']];
-            }             
+            }
          }
          $params = [
              'id' => $this->id
@@ -347,7 +364,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
          ];
          return $params;
     }
-    
+
     private function _defaultBuildParamsToPersons($newDataProject, $oldDataProject=NULL) {
         $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
 
@@ -674,8 +691,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     }
 
-    public function getProjectType() {
-        return $this->projectType;
+    public function getProjectType($id=NULL) {
+        return ($id===NULL) ? $this->projectType : $this->projectMetaDataQuery->getProjectType($id);
     }
 
     public function getViewConfigName() {
@@ -834,6 +851,17 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function removeDraft() {
         $this->draftDataQuery->removeProjectDraft($this->id.$this->getMetaDataSubSet());
+    }
+
+    /**
+     * Obtiene un array con el contenido del archivo de control (formato json) especificado
+     * @param string $projectType
+     * @param string $jsonFile : fichero json requerido
+     * @param string $configKey : conjunto principal requerido
+     * @return Json con el array correspondiente a la clave $configKey
+     */
+    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=NULL, $configKey=NULL) {
+        return $this->projectMetaDataQuery->getMetaDataJsonFile($projectType, $jsonFile, $configKey);
     }
 
     /**
@@ -1050,8 +1078,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $plantilla;
 
     }
-    
-    private function _getTemplateContentDocumentId(){   
+
+    private function _getTemplateContentDocumentId(){
         $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
         $found=FALSE;
@@ -1236,10 +1264,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 }
             }
         }
-         
+
         return $ret;
     }
-    
+
     public function getRoleProperties(){
         if(!isset($this->roleProperties)){
             $this->roleProperties = array();
@@ -1254,10 +1282,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         return $this->roleProperties;
     }
-    
+
     public function getNeedGenerateAction() {
         return $this->needGenerateAction;
     }
-    
+
     public function forceFileComponentRenderization($isGenerated=NULL){}
 }

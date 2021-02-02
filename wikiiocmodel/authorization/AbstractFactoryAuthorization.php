@@ -10,29 +10,31 @@ abstract class AbstractFactoryAuthorization {
     protected $projectAuth; //ruta de las autorizaciones particular del proyecto
     protected $defaultAuth; //array de rutas por defecto de las autorizaciones
     protected $authCfg = array();
+    protected $namespace;
 
     protected function __construct($projectAuth=NULL) {
         $this->projectAuth = $projectAuth;
     }
 
-    public static function Instance($defaultAuth=NULL){
+    public static function Instance($defaultAuth=NULL, $namespace="") {
         static $inst = NULL;
         if ($inst === NULL) {
-            $inst = new FactoryAuthorization();
+            $class = "$namespace\FactoryAuthorization";
+            $inst = new $class();
             $inst->defaultAuth = $defaultAuth;
+            $inst->namespace = $namespace;
         }
         return $inst;
     }
 
     public function createAuthorizationManager($str_cmd) {
+        $fileAuthorization = NULL;
+        $pathAuthList[] =  $this->projectAuth;
+        $pathAuthList = array_merge($pathAuthList, $this->defaultAuth);
 
-        $fileAuthorization = $this->_createAuthorization($str_cmd, $this->projectAuth);
-
-        if ($fileAuthorization === NULL && $this->defaultAuth) {
-            foreach ($this->defaultAuth as $pathAuth) {
-                if ($fileAuthorization === NULL) {
-                    $fileAuthorization = $this->_createAuthorization($str_cmd, $pathAuth);
-                }
+        foreach ($pathAuthList as $pathAuth) {
+            if ($fileAuthorization === NULL) {
+                $fileAuthorization = $this->_createAuthorization($str_cmd, $pathAuth);
             }
         }
 
@@ -62,7 +64,8 @@ abstract class AbstractFactoryAuthorization {
 
         if (file_exists($file)) {
             include_once $file;
-            $permis = new Permission($authorization);
+            $PermissionClassName = $this->namespace."\Permission";
+            $permis = new $PermissionClassName($authorization);
         }else{
             $permis = new BasicPermission($authorization);
         }

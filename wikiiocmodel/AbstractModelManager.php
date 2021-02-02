@@ -22,7 +22,6 @@ abstract class AbstractModelManager {
     public static function Instance($projectType){
         if (!$projectType) {
             global $plugin_controller;
-//            $projectType = $plugin_controller->getCurrentProject();
             $projectType = $plugin_controller->getProjectType();
         }
         $inst = self::createModelManager($projectType);
@@ -32,9 +31,10 @@ abstract class AbstractModelManager {
     private static function createModelManager($projectType){
         global $plugin_controller;
         $dir = $plugin_controller->getProjectTypeDir($projectType);
-        $file = realpath("{$dir}DokuModelManager.php");
+        $file = realpath("{$dir}{$projectType}DokuModelManager.php");
         require_once $file;
-        return new DokuModelManager($projectType);
+        $dmm = "{$projectType}DokuModelManager";
+        return new $dmm($projectType);
     }
 
     public function getPersistenceEngine() {
@@ -47,7 +47,8 @@ abstract class AbstractModelManager {
         $obj = new $class($this->persistenceEngine);
         $obj->init($id, $projectType, $rev, $viewConfigName, $metadataSubset);
         if (is_callable([$obj, "getRoleData"])){
-            $ret = $obj->getRoleData();
+            $ret["roleData"] = $obj->getRoleData();
+            $ret["roleProperties"] = $obj->getRoleProperties();
         }
         return $ret;
     }
