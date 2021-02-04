@@ -1,10 +1,10 @@
 <?php
 /**
- * BasicSetProjectMetaDataAction: Desa els canvis fets al formulari que defineix el projecte
+ * BasicSetProjectAction: Desa els canvis fets al formulari que defineix el projecte
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicSetProjectMetaDataAction extends ProjectMetadataAction {
+class BasicSetProjectAction extends ProjectAction {
 
     /**
      * Envía los datos $metaData del proyecto al ProjectModel y obtiene la estructura y los valores del proyecto

@@ -4,7 +4,7 @@
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicProjectSendMoodleEventsAction extends ProjectMetadataAction{
+class BasicProjectSendMoodleEventsAction extends ProjectAction{
 
     protected function responseProcess() {
         

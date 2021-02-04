@@ -5,7 +5,7 @@
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicDuplicateProjectAction extends ProjectMetadataAction {
+class BasicDuplicateProjectAction extends ProjectAction {
 
     protected function runAction() {
         $model = $this->getModel();

@@ -1,7 +1,7 @@
 <?php
 if (!defined('DOKU_INC')) die();
 
-class BasicViewUpdatableProjectMetaDataAction extends BasicViewProjectMetaDataAction{
+class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
 
     protected function runAction() {
         $response = parent::runAction();

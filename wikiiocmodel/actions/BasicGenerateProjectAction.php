@@ -1,7 +1,7 @@
 <?php
 if (!defined("DOKU_INC")) die();
 
-class BasicGenerateProjectMetaDataAction extends ProjectMetadataAction {
+class BasicGenerateProjectAction extends ProjectAction {
 
     /**
      * Crea los archivos necesarios definidos en la estructura del proyecto

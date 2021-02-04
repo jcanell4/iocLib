@@ -1,11 +1,11 @@
 <?php
 /**
- * DraftProjectMetaDataAction: Gestiona l'esborrany del formulari de dades d'un projecte mentre s'està modificant
+ * DraftProjectAction: Gestiona l'esborrany del formulari de dades d'un projecte mentre s'està modificant
  * @culpable Rafael
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicDraftProjectMetaDataAction extends ProjectMetadataAction {
+class BasicDraftProjectAction extends ProjectAction {
 
     private $Do;
     private static $infoDuration = 15;
