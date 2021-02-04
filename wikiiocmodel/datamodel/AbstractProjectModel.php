@@ -125,8 +125,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     private function getContentDocumentIdFromResponse($responseData=NULL) {
-        if ($responseData && $responseData['projectMetaData']["fitxercontinguts"]['value']) {
-            $contentName = $responseData['projectMetaData']["fitxercontinguts"]['value'];
+        if ($responseData && $responseData[ProjectKeys::KEY_PROJECT_METADATA]["fitxercontinguts"]['value']) {
+            $contentName = $responseData[ProjectKeys::KEY_PROJECT_METADATA]["fitxercontinguts"]['value'];
         } else {
             $contentName = end(explode(":", $this->getTemplateContentDocumentId($responseData)));
         }
@@ -300,18 +300,18 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if ($this->rev) {
             $query[ProjectKeys::KEY_REV] = $this->rev;
         }
-        $ret['projectMetaData'] = $this->metaDataService->getMeta($query, FALSE)[0];
+        $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataService->getMeta($query, FALSE)[0];
 
         if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW){  //CANVIAR $viewConfigName a VALOR NUMÊRIC
             $struct = $this->projectMetaDataQuery->getMetaDataStructure();
-            if (!$ret['projectMetaData']) {
+            if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
                 //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
                 $typeDef = $struct['mainType']['typeDef'];
                 $keys = $struct['typesDefinition'][$typeDef]['keys'];
                 foreach ($keys as $k => $v) {
                     $metaData[$k] = ($v['default']) ? $v['default'] : "";
                 }
-                $ret['projectMetaData'] = $metaData;
+                $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
             }
             if ($struct['viewfiles'][0]) {
                 $this->viewConfigName = $struct['viewfiles'][0];
@@ -319,9 +319,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         $ret['projectViewData'] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
 
-        $ret['projectMetaData'] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret['projectMetaData']);
+        $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
-        $this->mergeFieldConfig($ret['projectMetaData'], $ret['projectViewData']['fields']);
+        $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret['projectViewData']['fields']);
         $this->mergeFieldNameToLayout($ret['projectViewData']['fields']);
 
         return $ret;
@@ -947,7 +947,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             try {
                  //3. Otorga, a cada 'person', permisos adecuados sobre el directorio de proyecto y añade shortcut si no se ha otorgado antes
                 if($this->getNeedGenerateAction()){
-                    $params = $this->buildParamsToPersons($ret['projectMetaData'], NULL);
+                    $params = $this->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
                     $this->modifyACLPageAndShortcutToPerson($params);
                 }
             }
@@ -1065,7 +1065,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $plantilla = $responseData["plantilla"];
 
             if ($plantilla === NULL) {
-                $plantilla = $responseData['projectMetaData']["plantilla"]['value'];
+                $plantilla = $responseData[ProjectKeys::KEY_PROJECT_METADATA]["plantilla"]['value'];
             }
         }
 

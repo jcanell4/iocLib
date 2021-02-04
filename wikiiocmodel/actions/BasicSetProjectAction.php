@@ -45,7 +45,7 @@ class BasicSetProjectAction extends ProjectAction {
             $response[ProjectKeys::KEY_GENERATED] = $model->isProjectGenerated();
 
             if ($response[ProjectKeys::KEY_GENERATED] || !$model->getNeedGenerateAction()) {
-                $params = $model->buildParamsToPersons($response['projectMetaData'], $oldPersonsDataProject);
+                $params = $model->buildParamsToPersons($response[ProjectKeys::KEY_PROJECT_METADATA], $oldPersonsDataProject);
                 $model->modifyACLPageAndShortcutToPerson($params);
                 $model->forceFileComponentRenderization();
             }

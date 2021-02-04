@@ -11,7 +11,7 @@ class BasicRenameProjectAction extends BasicViewProjectAction {
         $model = $this->getModel();
         $response = $model->getData();
 
-        $persons = $response['projectMetaData']['autor']['value'].",".$response['projectMetaData']['responsable']['value'];
+        $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
         $model->renameProject($this->params[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_NEWNAME], $persons);
 
         $this->setGlobalID($model->getId());

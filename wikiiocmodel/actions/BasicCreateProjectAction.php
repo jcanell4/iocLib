@@ -41,7 +41,7 @@ class BasicCreateProjectAction extends ProjectAction {
             //[JOSEP] Ara s'han canviat per tal aquells projectes que no necessitin generació puguin actaulitzar-se sense 
             // necessitat de generar-se.
             if(!$model->getNeedGenerateAction()){
-                $params = $model->buildParamsToPersons($ret['projectMetaData'], NULL);
+                $params = $model->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
                 $model->modifyACLPageAndShortcutToPerson($params);
             }
 
