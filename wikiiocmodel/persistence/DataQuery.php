@@ -672,13 +672,12 @@ abstract class DataQuery {
     private function getNsItems($ns) { //debería llamarse getFullNsProperties()
         $this->setBaseDir();
         $page = $this->datadir."/";
-        $camins = ($ns) ? explode(":", $ns) : NULL;
-        if ($camins)
-            $page .= implode("/", $camins);
         $ret[self::K_TYPE] = is_dir($page) ? "d" : (page_exists($ns) ? "f" : "");
-        $type = $ret[self::K_TYPE];
 
         if ($ns) {
+            $camins = explode(":", $ns);
+            $page .= implode("/", $camins);
+            $type = $ret[self::K_TYPE];
             $pathElement = $this->metaDataPath."/".str_replace(":", "/", $ns);
 
             while ($camins) {
@@ -719,6 +718,8 @@ abstract class DataQuery {
      * @return array con atributos del proyecto
      */
     private function getProjectProperties($pathElement, $currentDir, $nsElement, $dirName) {
+        global $plugin_controller;
+
         $ret[self::K_TYPE] = is_dir($currentDir) ? "d" : "f";
         $fh = opendir($currentDir);
 
@@ -730,7 +731,15 @@ abstract class DataQuery {
                     $ret[self::K_TYPE] = "p" . (("$pathElement/$dirName" === $currentDir) ? "" : $ret[self::K_TYPE]);
                     $ret[self::K_PROJECTTYPE] = $dirName;
                     $ret[self::K_NSPROJECT] = $nsElement;
-                    return $ret;
+                    break;
+                }
+            }
+        }
+        if ($ret[self::K_TYPE] === "p") {
+            $file = $plugin_controller->getProjectTypeDir($dirName)."metadata/config/nsTreeTypes.json";
+            if (is_file($file)) {
+                if (!empty($nsTreeTypes = file_get_contents($file))) {
+                    $ret[self::K_TYPE] = json_decode($nsTreeTypes, TRUE)['main'];
                 }
             }
         }
