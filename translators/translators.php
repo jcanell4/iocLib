@@ -339,7 +339,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $headerData = $matches[1];
         }
 
-        $text = preg_replace("/:###.*?~~.*?~~\n?###:/ms", "", $text, 1, $counter);
+        $text = preg_replace("/:###.*?~~.*?~~\n?###:\n/ms", "", $text, 1, $counter);
 
         //        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
         if ($counter > 0 || isset($params['generateStructure']) && $params['generateStructure']) {
