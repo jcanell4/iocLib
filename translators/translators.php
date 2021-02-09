@@ -321,7 +321,12 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 
         $text = $header . $text;
 
-        return Html2DWParser::getValue($text);
+        // Sempre s'afegeixen 2 salts de linia adicionals al final quan es desa
+        // perque els documents DW sempre tenen com a mínim un \n al final, i aquest és embolcallat
+        // com <p>\n</p>, això provoca el doble salt al final del document.
+        // Per solventar-lo fem un trim i afegim un únic salt de línia final.
+        return trim(Html2DWParser::getValue($text)) . "\n";
+        //return Html2DWParser::getValue($text);
     }
 }
 
