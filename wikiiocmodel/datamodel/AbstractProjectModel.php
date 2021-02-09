@@ -1086,11 +1086,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     private function _getTemplateContentDocumentId(){
         $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
-        $found=FALSE;
-        while (!$found){
+        foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
                 $templateName = substr($file, 0, -4);
-                $found=TRUE;
+                break;
             }
         }
         return $templateName;
