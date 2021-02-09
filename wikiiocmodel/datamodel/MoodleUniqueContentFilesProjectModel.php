@@ -6,6 +6,10 @@
 if (!defined('DOKU_INC')) die();
 
 abstract class MoodleUniqueContentFilesProjectModel extends MoodleProjectModel{
+    public function hasTemplates(){
+        return true;
+    }
+    
     public function createTemplateDocument($data=NULL){
         UniqueContentFileProjectModel::stCreateTemplateDocument($this, $data);
     }

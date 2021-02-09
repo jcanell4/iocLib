@@ -822,6 +822,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function validateFields($data=NULL){
         // A implementar a les subclasses, per defecte no es fa res
     }
+    
     public function getErrorFields($data=NULL) {
         return NULL;
     }
@@ -1058,9 +1059,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function getTemplateContentDocumentId($responseData=NULL){
 
-        if($responseData==NULL)
+        if($responseData==NULL){
             $plantilla = $this->_getTemplateContentDocumentId ();
-        if (is_string($responseData)) {
+        }else if (is_string($responseData)) {
            // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
             $plantilla = $responseData;
 
@@ -1085,11 +1086,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     private function _getTemplateContentDocumentId(){
         $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
-        $found=FALSE;
-        while (!$found){
+        foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
                 $templateName = substr($file, 0, -4);
-                $found=TRUE;
+                break;
             }
         }
         return $templateName;
@@ -1291,4 +1291,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function forceFileComponentRenderization($isGenerated=NULL){}
+    
+    public function hasTemplates(){
+        return false;
+    }
 }

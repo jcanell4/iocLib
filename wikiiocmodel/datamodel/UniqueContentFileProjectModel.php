@@ -13,7 +13,11 @@
  */
 abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
     public function createTemplateDocument($data=NULL){
-        StaticUniqueContentFileProjectModel::stCreateTemplateDocument($this, $data);
+        self::stCreateTemplateDocument($this, $data);
+    }
+    
+    public function hasTemplates(){
+        return true;
     }
     
     public static function stCreateTemplateDocument($obj, $data=NULL){

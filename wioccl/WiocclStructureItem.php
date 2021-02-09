@@ -70,6 +70,7 @@ class WiocclStructureItem {
 
         $text .= $children . $this->close;
 
+        Html2DWWioccl::$processedRefs[]= $this->id;
         return $text;
 
     }

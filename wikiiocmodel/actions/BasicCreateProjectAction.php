@@ -57,6 +57,11 @@ class BasicCreateProjectAction extends ProjectAction {
             $data = $model->getDataDocument($ns_shortcut);
             $ret[PageKeys::KEY_HTML_SC] = [PageKeys::KEY_HTML_SC => $data['structure']['html']];
         }
+        
+        if($this->getModel()->hasTemplates()){
+            $this->getModel()->createTemplateDocument($ret);
+        }
+        
         if (!$ret)
             throw new ProjectExistException($id);
         else

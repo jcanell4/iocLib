@@ -340,7 +340,7 @@ class WiocclInstruction extends IocInstruction {
 
 
         // Cerquem el primer element començant per la cua que no sigui ni un espai ni un salt de línia
-        preg_match('/(>.*)$/m', $tag, $match);
+        preg_match('/(>.*)$/ms', $tag, $match);
         $tail = $match[1];
 
 

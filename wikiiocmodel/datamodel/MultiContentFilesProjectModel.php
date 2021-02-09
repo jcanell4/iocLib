@@ -10,6 +10,12 @@ abstract class MultiContentFilesProjectModel extends AbstractProjectModel{
         self::stCreateTemplateDocument($obj, $data);
     }
     
+    public function hasTemplates(){
+        return true;
+    }
+    
+
+    
     public static function stCreateTemplateDocument($obj, $data=NULL){
         $pdir = $obj->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
