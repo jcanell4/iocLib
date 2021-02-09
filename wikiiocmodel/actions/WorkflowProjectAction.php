@@ -25,7 +25,7 @@ class WorkflowProjectAction extends ProjectAction {
         $newState = ($workflowJson['actions'][$actionCommand]['changeStateTo']) ? $workflowJson['actions'][$actionCommand]['changeStateTo'] : $currentState;
 
         if ($currentState !== $newState) {
-            $newMetaData['changeDate'] = date("d-m-Y");
+            $newMetaData['changeDate'] = date("Y-m-d");
             $newMetaData['oldState'] = $currentState;
             $newMetaData['newState'] = $newState;
             $newMetaData['changeAction'] = $actionCommand;
