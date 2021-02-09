@@ -1,12 +1,12 @@
 <?php
 /**
- * ProjectMetadataAction: Define los elementos comunes de las Actions de un proyecto
+ * ProjectAction: Define los elementos comunes de las Actions de un proyecto
  * @culpable Rafael Claver
  */
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 
-abstract class ProjectMetadataAction extends AbstractWikiAction {
+abstract class ProjectAction extends AbstractWikiAction {
 
     protected $persistenceEngine;
     protected $projectModel;

@@ -183,12 +183,21 @@ class IocCommon {
                                                 'urlBase' => "lib/exe/ioc_ajax.php?call=project",
                                                 'params' => [ResponseHandlerKeys::PROJECT_TYPE]
                                              ),
+                                      'p#w' => array (
+                                                'urlBase' => "lib/exe/ioc_ajax.php?call=project&do=workflow&action=view",
+                                                'params' => [ProjectKeys::PROJECT_TYPE]
+                                              ),
                                       'pf' => array (
                                                 'urlBase' => "lib/exe/ioc_ajax.php?call=page",
                                                 'params' => [ResponseHandlerKeys::PROJECT_OWNER,
                                                              ResponseHandlerKeys::PROJECT_SOURCE_TYPE]
                                               ),
                                       's' => array (
+                                                'urlBase' => "lib/exe/ioc_ajax.php?call=project",
+                                                'params' => [ProjectKeys::PROJECT_TYPE,
+                                                             ProjectKeys::KEY_METADATA_SUBSET]
+                                              ),
+                                      'sh' => array (
                                                 'urlBase' => "lib/exe/ioc_ajax.php?call=project",
                                                 'params' => [ProjectKeys::PROJECT_TYPE,
                                                              ProjectKeys::KEY_METADATA_SUBSET]

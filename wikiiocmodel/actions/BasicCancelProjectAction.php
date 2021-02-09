@@ -2,7 +2,7 @@
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
 
-class BasicCancelProjectMetaDataAction extends BasicViewProjectMetaDataAction implements ResourceUnlockerInterface {
+class BasicCancelProjectAction extends BasicViewProjectAction implements ResourceUnlockerInterface {
 
     protected function runAction() {
         $response = self::sharedRunAction($this);

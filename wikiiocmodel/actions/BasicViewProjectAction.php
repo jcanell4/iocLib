@@ -1,7 +1,7 @@
 <?php
 if (!defined("DOKU_INC")) die();
 
-class BasicViewProjectMetaDataAction extends ProjectMetadataAction {
+class BasicViewProjectAction extends ProjectAction {
 
     protected function setParams($params) {
         parent::setParams($params);

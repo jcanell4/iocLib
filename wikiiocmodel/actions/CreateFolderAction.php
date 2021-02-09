@@ -5,7 +5,7 @@
  */
 if (!defined('DOKU_INC')) die();
 
-class CreateFolderAction extends ProjectMetadataAction {
+class CreateFolderAction extends ProjectAction {
 
     protected function responseProcess() {
         $id = $this->params[ProjectKeys::KEY_ID];

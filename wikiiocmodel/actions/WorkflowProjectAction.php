@@ -1,7 +1,7 @@
 <?php
 if (!defined('DOKU_INC')) die();
 
-class WorkflowProjectMetaDataAction extends ProjectMetadataAction {
+class WorkflowProjectAction extends ProjectAction {
 
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
@@ -10,11 +10,9 @@ class WorkflowProjectMetaDataAction extends ProjectMetadataAction {
     }
 
     private function getActionName($action) {
-        $actions = [ProjectKeys::KEY_EDIT => "GetProjectMetaDataAction",
-                    ProjectKeys::KEY_IMPORT => "ImportProjectAction"
+        $actions = [ProjectKeys::KEY_EDIT => "GetProjectAction"
                    ];
-
-        $ret = ($actions[$action]) ? $actions[$action]: "{$action}Action";
+        $ret = ($actions[$action]) ? $actions[$action]: ucfirst($action)."ProjectAction";
         return $ret;
     }
 

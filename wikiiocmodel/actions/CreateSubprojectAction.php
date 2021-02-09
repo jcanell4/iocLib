@@ -1,7 +1,7 @@
 <?php
 if (!defined('DOKU_INC')) die();
 
-class CreateSubprojectMetaDataAction extends ProjectMetadataAction {
+class CreateSubprojectMetaDataAction extends ProjectAction {
 
     /**
      * Crea una estructura de directorios para el nuevo proyecto (tipo de proyecto)
@@ -30,7 +30,7 @@ class CreateSubprojectMetaDataAction extends ProjectMetadataAction {
             throw new UnknownProjectException($new_id, "No es permet la creació d'un projecte dins d'un subprojecte.");
         }
 
-        $action = $this->getModelManager()->getActionInstance("CreateProjectMetaDataAction");
+        $action = $this->getModelManager()->getActionInstance("CreateProjectAction");
         $ret = $action->get($this->params);
 
         return $ret;

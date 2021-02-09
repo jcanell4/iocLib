@@ -1,11 +1,11 @@
 <?php
 /**
- * DiffProjectMetaDataAction: Costrueix les dades dels 2 projecte-revisió que es volen comparar
+ * DiffProjectAction: Costrueix les dades dels 2 projecte-revisió que es volen comparar
  * @culpable Rafael
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicDiffProjectMetaDataAction extends ProjectMetadataAction {
+class BasicDiffProjectAction extends ProjectAction {
 
     private static $infoDuration = -1;
 

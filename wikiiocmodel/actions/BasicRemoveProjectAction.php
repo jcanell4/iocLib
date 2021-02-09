@@ -5,7 +5,7 @@
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicRemoveProjectAction extends BasicViewProjectMetaDataAction {
+class BasicRemoveProjectAction extends BasicViewProjectAction {
 
     protected function runAction() {
         $model = $this->getModel();

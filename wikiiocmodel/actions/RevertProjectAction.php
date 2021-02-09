@@ -5,7 +5,7 @@
  */
 if (!defined('DOKU_INC')) die();
 
-class RevertProjectMetaDataAction extends ProjectMetadataAction {
+class RevertProjectAction extends ProjectAction {
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);

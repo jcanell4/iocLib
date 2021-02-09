@@ -1,7 +1,7 @@
 <?php
 if (!defined('DOKU_INC')) die();
 
-class BasicCreateProjectMetaDataAction extends ProjectMetadataAction {
+class BasicCreateProjectAction extends ProjectAction {
 
     /**
      * Crea una estructura de directorios para el nuevo proyecto (tipo de proyecto)
