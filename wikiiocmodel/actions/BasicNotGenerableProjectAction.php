@@ -22,7 +22,7 @@ class BasicNotGenerableProjectAction extends BasicSetProjectAction {
         if($model->getNeedGenerateAction()){
             //Malgrat que la variable indiqui que necessita Generació, pel fet de pertanyer a aquesta classe,
             //cal froçar l'actualització sense haver-se generat
-            $params = $model->buildParamsToPersons($response['projectMetaData'], $response['old_persons']);
+            $params = $model->buildParamsToPersons($response[ProjectKeys::KEY_PROJECT_METADATA], $response['old_persons']);
             $model->modifyACLPageAndShortcutToPerson($params);
             $this->forceFileComponentRenderization();
         }

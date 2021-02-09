@@ -11,7 +11,7 @@ class BasicRemoveProjectAction extends BasicViewProjectAction {
         $model = $this->getModel();
         $response = $model->getData();
 
-        $persons = $response['projectMetaData']['autor']['value'].",".$response['projectMetaData']['responsable']['value'];
+        $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
         $model->removeProject($this->params[ProjectKeys::KEY_ID], $persons);
 
         //Lee la página shortcuts para enviarla al cliente obligándole a hacer un refresh del tab shortcuts

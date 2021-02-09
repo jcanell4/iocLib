@@ -13,7 +13,7 @@ class BasicDuplicateProjectAction extends ProjectAction {
         $newID = "{$this->params['new_path']}:{$this->params['new_project']}";
 
         $response = $model->getData();
-        $persons = $response['projectMetaData']['autor']['value'].",".$response['projectMetaData']['responsable']['value'];
+        $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
 
         $this->params[ProjectKeys::KEY_ID] = $newID;
         parent::setParams($this->params);
