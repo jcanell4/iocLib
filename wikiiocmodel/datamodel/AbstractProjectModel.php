@@ -822,6 +822,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function validateFields($data=NULL){
         // A implementar a les subclasses, per defecte no es fa res
     }
+    public function getErrorFields($data=NULL) {
+        return NULL;
+    }
 
     public function getDraft($peticio=NULL) {
         //un draft distinto por cada subset de un proyecto (mismo id para todo el proyecto)
