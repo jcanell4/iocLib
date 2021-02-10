@@ -35,8 +35,13 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
             foreach ($arrayStates as $arrayActions) {
                 foreach ($arrayActions as $action) {
                     if (isset($action['button'])) {
-                        $id = str_replace("Button", "", $action['button']['id']);
-                        $wArray[$id] = $action['button'];
+                        if (isset($action['button']['id'])) {
+                            $id = str_replace("Button", "", $action['button']['id']);
+                            $wArray[$id] = $action['button'];
+                        }elseif (isset($action['button']['parms']['DOM']['id'])) {
+                            $id = str_replace("Button", "", $action['button']['parms']['DOM']['id']);
+                            $wArray[$id] = $action['button'];
+                        }
                     }
                 }
             }
