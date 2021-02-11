@@ -51,8 +51,12 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 }
                 //Construcción de los valores de sustitución de los patrones para el template UpdateViewHandler
                 //changeWidgetProperty para todos los botones
-                $changeWidgetPropertyFalse .= "disp.initUpdateWidgetProperty('${id}', 'visible', false);\n\t\t\t";
-                $changeWidgetPropertyCondition .= "disp.changeWidgetProperty('${id}', 'visible', is${id}ButtonVisible);\n\t\t\t\t";
+                if (isset($arrayButton['overwrite'])) {
+                    $changeWidgetPropertyCondition .= "disp.changeWidgetProperty('${id}', 'visible', is${id}ButtonVisible);\n\t\t\t\t\t";
+                }else {
+                    $changeWidgetPropertyFalse .= "disp.initUpdateWidgetProperty('${id}', 'visible', false);\n\t\t\t";
+                    $changeWidgetPropertyCondition .= "disp.changeWidgetProperty('${id}', 'visible', is${id}ButtonVisible);\n\t\t\t\t\t";
+                }
                 $VarsIsButtonVisible .= "var is${id}ButtonVisible = true;\n\t\t\t\t\t";
 
                 //Obtener los permisos y roles por defecto del Authorization correspondiente
@@ -107,7 +111,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                     }
                     $condButtonVisible = substr($condButtonVisible, 0, -4) . ");";
                 }
-                $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t\t";
+                $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t";
             }
         }
 

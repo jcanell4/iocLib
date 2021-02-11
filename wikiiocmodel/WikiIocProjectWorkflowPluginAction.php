@@ -28,18 +28,28 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
         }
     }
 
-
     private function creaArrayButtons() {
         $wArray = array();
-        foreach ($this->workflowArray as $arrayStates) {
+        foreach ($this->workflowArray as $state => $arrayStates) {
             foreach ($arrayStates as $arrayActions) {
-                foreach ($arrayActions as $action) {
-                    if (isset($action['button'])) {
+                foreach ($arrayActions as $name => $action) {
+                    if (($shortcut = $action['shortcut'])) {
+                        $action = $this->workflowArray[$shortcut]['actions'][$name];
+                    }
+                    if ($action['button']) {
                         if (isset($action['button']['id'])) {
                             $id = str_replace("Button", "", $action['button']['id']);
-                            $wArray[$id] = $action['button'];
                         }elseif (isset($action['button']['parms']['DOM']['id'])) {
                             $id = str_replace("Button", "", $action['button']['parms']['DOM']['id']);
+                        }
+                        if ($id) {
+                            if (isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
+                                $action['button']['overwrite'] = TRUE;
+                            }
+                            $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
+                            $action['button']['scripts']['updateHandler']['rols'] = $action['permissions']['rols'];
+                            $estat = ($shortcut) ? $shortcut : $state;
+                            $action['button']['scripts']['updateHandler']['conditions']['page.workflowState'] = "'$estat'";
                             $wArray[$id] = $action['button'];
                         }
                     }
