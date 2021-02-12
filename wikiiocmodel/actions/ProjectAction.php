@@ -118,7 +118,7 @@ abstract class ProjectAction extends AbstractWikiAction {
             $response['isSubSet'] = TRUE;
         }
         $response[ProjectKeys::KEY_GENERATED] = $this->getModel()->isProjectGenerated();
-        $response['DATA_ERROR_LIST'] = $this->getModel()->getErrorFields($response[ProjectKeys::KEY_PROJECT_METADATA]);
+        $response[ProjectKeys::KEY_DATA_ERROR_LIST] = $this->getModel()->getErrorFields($response[ProjectKeys::KEY_PROJECT_METADATA]);
         $response[ProjectKeys::KEY_EXTRA_STATE] = [ProjectKeys::KEY_EXTRA_STATE_ID => "workflowState", ProjectKeys::KEY_EXTRA_STATE_VALUE => NULL];
     }
 
