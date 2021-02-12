@@ -43,7 +43,7 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
                             $id = str_replace("Button", "", $action['button']['parms']['DOM']['id']);
                         }
                         if ($id) {
-                            if (isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
+                            if (!isset($action['button']['class']) || isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
                                 $action['button']['overwrite'] = TRUE;
                             }
                             $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
