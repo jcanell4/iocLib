@@ -6,12 +6,11 @@ class WorkflowProjectAction extends ProjectAction {
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
         $projectMetaData = $action->get($this->params);
-        $response = $this->satateProcess();
-        $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $response);
+        $this->satateProcess($projectMetaData);
         return $projectMetaData;
     }
 
-    protected function satateProcess() {
+    protected function satateProcess(&$projectMetaData) {
         $model = $this->getModel();
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
@@ -19,7 +18,7 @@ class WorkflowProjectAction extends ProjectAction {
         $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
 
-        $metaDataManagement = $metaDataQuery->getDataProject();   //$metaDataManagement = ["workflow" => ["currentState" => "creating"]]
+        $metaDataManagement = $metaDataQuery->getDataProject();
         $currentState = $metaDataManagement['workflow']['currentState'];
         $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);  //$workflowJson contiene todo el array de workflow.json
         $newState = ($workflowJson['actions'][$actionCommand]['changeStateTo']) ? $workflowJson['actions'][$actionCommand]['changeStateTo'] : $currentState;
@@ -35,11 +34,9 @@ class WorkflowProjectAction extends ProjectAction {
             $metaDataManagement['workflow']['currentState'] = $newState;
 
             $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat");
-            $response = self::generateInfo("info", "El canvi d'estat a '{$newState}' ha finalitzat correctament.", $id);
-        }else {
-            $response = self::generateInfo("info", "No hi ha canvi d'estat.", $id);
+            $message = self::generateInfo("info", "El canvi d'estat a '{$newState}' ha finalitzat correctament.", $id);
+            $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
-        return $response;
     }
 
     protected function postResponseProcess(&$response) {

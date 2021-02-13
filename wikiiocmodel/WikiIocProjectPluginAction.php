@@ -50,7 +50,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                     $id = $arrayButton['parms']['DOM']['id'];
                 }
                 //Construcción de los valores de sustitución de los patrones para el template UpdateViewHandler
-                //changeWidgetProperty para todos los botones
+                //changeWidgetProperty sólo para los botones propios
                 if (!(!isset($arrayButton['class']) || isset($arrayButton['overwrite']))) {
                     $changeWidgetPropertyFalse .= "disp.initUpdateWidgetProperty('${id}', 'visible', false);\n\t\t\t";
                 }
