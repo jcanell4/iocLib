@@ -20,7 +20,7 @@ class WorkflowProjectAction extends ProjectAction {
 
         $metaDataManagement = $metaDataQuery->getDataProject();
         $currentState = $metaDataManagement['workflow']['currentState'];
-        $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);  //$workflowJson contiene todo el array de workflow.json
+        $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
         $newState = ($workflowJson['actions'][$actionCommand]['changeStateTo']) ? $workflowJson['actions'][$actionCommand]['changeStateTo'] : $currentState;
 
         if ($currentState !== $newState) {

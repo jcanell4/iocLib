@@ -290,6 +290,20 @@ class ProjectMetaDataQuery extends DataQuery {
         return ($configKey) ? $configArray[$configKey] : $configArray;
     }
 
+    /**
+     * Obtiene un array con el contenido la clave action del estado solicitado del archivo de control workflow.json
+     * @param string $estat
+     * @param string $action
+     * @return array correspondiente a la clave $action real o apuntada por el shortcut
+     */
+    public function getMetaDataActionWorkflowFile($estat, $action) {
+        $workflow = $this->getMetaDataJsonFile(FALSE, "workflow.json");
+        if (($shortcut = $workflow[$estat]['actions'][$action]['shortcut'])) {
+            $estat = $shortcut;
+        }
+        return $workflow[$estat]['actions'][$action];
+    }
+
     //["""overwrite"""] copia de MetaDataDaoConfig.php
     //Devuelve un array con el contenido, del subset actual, de la clave principal especificada del archivo configMain.json
     private function getMetaDataDefinition($configMainKey=NULL, $projectType=FALSE) {
