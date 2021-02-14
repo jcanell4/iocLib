@@ -6,11 +6,11 @@ class WorkflowProjectAction extends ProjectAction {
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
         $projectMetaData = $action->get($this->params);
-        $this->satateProcess($projectMetaData);
+        $this->stateProcess($projectMetaData);
         return $projectMetaData;
     }
 
-    protected function satateProcess(&$projectMetaData) {
+    protected function stateProcess(&$projectMetaData) {
         $model = $this->getModel();
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
