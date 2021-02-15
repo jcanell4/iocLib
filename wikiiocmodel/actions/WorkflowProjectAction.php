@@ -1,8 +1,12 @@
 <?php
 if (!defined('DOKU_INC')) die();
 
+//[JOSEP] TODO => RAFA Cal crea una classe anomenada BasicWorkflowProjectAction on se li ha de passar tot el codi d'aquesta. Aquest heretarà de BasicWorkflowProjectAction i no contindrà codi. 
+//Això és necessari per si algun dia necessitem crear una classe WorkflowProjectAction específica d'un projecte que substitueixi aquesta igual com fem amb els altres actions.
 class WorkflowProjectAction extends ProjectAction {
 
+    //[JOSEP] TODO => Rafa: En el fitxer workflow.json, cal poder associar una vista (nom) a alguns roles i/0 grups amb accés al projecte, per cada action, 
+    //                      Aquí es recollirà la vista asociada (si existeix) i s'assignarà al model.
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
         $projectMetaData = $action->get($this->params);
