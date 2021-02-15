@@ -414,7 +414,6 @@ class DW2HtmlTranslator extends AbstractTranslator {
         // i la estructura
 
 
-        // ALERTA! això és per fer el parser del document complet
         if ($isPartial) {
             // TODO: determinar si el $inline ha de ser true o false? <-- les traduccions parcials sempre son inline
             $inline = true;

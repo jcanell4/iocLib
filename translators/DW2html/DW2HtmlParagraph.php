@@ -6,6 +6,26 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocInstruction.php';
 class DW2HtmlParagraph extends DW2HtmlInstruction {
 
 
+    public function getReplacement($position)
+    {
+        // El primer element del structure stack és el root, en aquest no cal afegir la referència
+        if ($position == self::OPEN && count(WiocclParser::$structureStack) > 1) {
+
+            $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
+            $tag = parent::getReplacement($position);
+            // Eliminem el caràcter de tancament per afegir el id de referència. Donem per descomptat
+            // que el tancament és >
+            $tag = substr($tag, 0, strlen($tag)-1);
+            $tag .= ' data-wioccl-ref="' . $refId . '">';
+
+            return $tag;
+        } else {
+            return parent::getReplacement($position);
+        }
+
+
+    }
+
     public function isClosing($token) {
         // un doble salt de línia sempre tanca un paràgraf
 

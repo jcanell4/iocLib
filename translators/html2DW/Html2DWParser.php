@@ -339,7 +339,7 @@ class Html2DWParser extends IocParser {
         static::$structure = [];
 
         foreach ($structureData as $data) {
-            static::$structure[] = new WiocclStructureItem(static::$structure, $data);
+            static::$structure[$data['id']] = new WiocclStructureItem(static::$structure, $data);
         }
 
     }
