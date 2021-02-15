@@ -339,6 +339,10 @@ class Html2DWParser extends IocParser {
         static::$structure = [];
 
         foreach ($structureData as $data) {
+            if (!is_array($data)) {
+                // pot ser la propietat next que indica el ID del següent element a afegir
+                continue;
+            }
             static::$structure[$data['id']] = new WiocclStructureItem(static::$structure, $data);
         }
 
