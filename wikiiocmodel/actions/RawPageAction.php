@@ -185,7 +185,7 @@ class RawPageAction extends EditPageAction {
         preg_match($pattern, $text, $match);
         $form = $match[1];
 
-        $id = str_replace(":", "_", $this->params[PageKeys::KEY_ID]); //igualar al id del formulario
+        $id = $this->idToRequestId($this->params[PageKeys::KEY_ID]); //igualar al id del formulario
 
         $pattern = "/<form id=\"" . $form . "\"/";
         $replace = "/<form id=\"form_" . $id . "\"/";

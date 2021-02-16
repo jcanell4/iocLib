@@ -42,10 +42,6 @@ abstract class ProjectAction extends AbstractWikiAction {
         return $this->projectModel;
     }
 
-    protected function idToRequestId($requestId) {
-        return str_replace(":", "_", $requestId);
-    }
-
     //Añadir propiedades/restricciones del configMain para la creación de elementos dentro del proyecto
     protected function addResponseProperties(&$response) {
         $response[ProjectKeys::KEY_CREATE][ProjectKeys::KEY_MD_CT_SUBPROJECTS] = $this->projectModel->getMetaDataComponent($this->params[ProjectKeys::KEY_PROJECT_TYPE], ProjectKeys::KEY_MD_CT_SUBPROJECTS); //valores permitidos para el elemento 'create project': array | true (all) | false (none)
@@ -118,7 +114,7 @@ abstract class ProjectAction extends AbstractWikiAction {
             $response['isSubSet'] = TRUE;
         }
         $response[ProjectKeys::KEY_GENERATED] = $this->getModel()->isProjectGenerated();
-        $response['DATA_ERROR_LIST'] = $this->getModel()->getErrorFields($response[ProjectKeys::KEY_PROJECT_METADATA]);
+        $response[ProjectKeys::KEY_DATA_ERROR_LIST] = $this->getModel()->getErrorFields($response[ProjectKeys::KEY_PROJECT_METADATA]);
     }
 
     public function generateMessageInfoForSubSetProject($id, $subSet, $message) {
