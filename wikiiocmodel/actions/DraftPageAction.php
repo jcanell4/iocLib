@@ -49,7 +49,7 @@ class DraftPageAction extends PageAction {
             $draft['date'] = $this->params['date'];
             $this->getModel()->saveDraft($draft);
 
-            $this->response[PageKeys::KEY_ID] = str_replace(":", "_", $this->params[PageKeys::KEY_ID]);
+            $this->response[PageKeys::KEY_ID] = $this->idToRequestId($this->params[PageKeys::KEY_ID]);
 
             if($draft['type']==="full"){
                 $this->response['info'] = self::generateInfo('info', 'Desat esborrany complet', $this->response['id'], self::$infoDuration);
@@ -60,7 +60,7 @@ class DraftPageAction extends PageAction {
         }
         else if($this->params[PageKeys::KEY_DO]===PageKeys::DW_ACT_DRAFTDEL){
             $this->getModel()->removeDraft($this->params);
-            $this->response[PageKeys::KEY_ID] = str_replace(":", "_", $this->params[PageKeys::KEY_ID]);
+            $this->response[PageKeys::KEY_ID] = $this->idToRequestId($this->params[PageKeys::KEY_ID]);
         }
         else{
             throw new UnexpectedValueException("Unexpected value '".$this->params["do"]."', for parameter 'do'");

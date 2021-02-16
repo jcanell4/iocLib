@@ -42,10 +42,6 @@ abstract class ProjectAction extends AbstractWikiAction {
         return $this->projectModel;
     }
 
-    protected function idToRequestId($requestId) {
-        return str_replace(":", "_", $requestId);
-    }
-
     //Añadir propiedades/restricciones del configMain para la creación de elementos dentro del proyecto
     protected function addResponseProperties(&$response) {
         $response[ProjectKeys::KEY_CREATE][ProjectKeys::KEY_MD_CT_SUBPROJECTS] = $this->projectModel->getMetaDataComponent($this->params[ProjectKeys::KEY_PROJECT_TYPE], ProjectKeys::KEY_MD_CT_SUBPROJECTS); //valores permitidos para el elemento 'create project': array | true (all) | false (none)
