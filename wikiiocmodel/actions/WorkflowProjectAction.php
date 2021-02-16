@@ -45,6 +45,9 @@ class WorkflowProjectAction extends ProjectAction {
         $model = $this->getModel();
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params['projectType']);
         $metaDataManagement = $metaDataQuery->getDataProject();
+        if (!isset($response[ProjectKeys::KEY_ID])) {
+            $response[ProjectKeys::KEY_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID]);
+        }
         $response[ProjectKeys::KEY_EXTRA_STATE] = [ProjectKeys::KEY_EXTRA_STATE_ID => "workflowState", ProjectKeys::KEY_EXTRA_STATE_VALUE => $metaDataManagement['workflow']['currentState']];
     }
 
