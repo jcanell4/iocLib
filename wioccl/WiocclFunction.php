@@ -64,7 +64,11 @@ class WiocclFunction extends WiocclInstruction
         $this->init($result, $tokenEnd);
         $method = array($this, $this->functionName);
         if(is_callable($method)){
-            $result = call_user_func_array($method, $this->arguments);
+            try{
+                $result = call_user_func_array($method, $this->arguments);
+            } catch (Error $e){
+                $result = $e->getMessage();
+            }
         }else{
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
