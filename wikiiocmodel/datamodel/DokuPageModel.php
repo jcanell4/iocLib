@@ -556,7 +556,8 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $base_new_dir = explode(":", $new_name);
         $new_name = array_pop($base_new_dir);
         $base_new_dir = implode("/", $base_new_dir);
-
+        if (empty($base_new_dir)) $base_new_dir = $base_old_dir;
+        
         if (is_dir("$base_new_dir/$new_name")) {
             throw new Exception("Acció no permesa: el nom del directori ja existeix");
         }else {
