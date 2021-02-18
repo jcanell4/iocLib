@@ -13,6 +13,43 @@ class BasicWorkflowProjectAction extends ProjectAction {
         return $projectMetaData;
     }
 
+    protected function preResponseProcess() {
+        parent::preResponseProcess();
+
+        $model = $this->getModel();
+        $projectData = $this->getDataProject();
+        $projectRoles = ["responsable" => $projectData['responsable'],
+                         "autor" => $projectData['autor'],
+                         "revisor" => $projectData['revisor'],
+                         "validador" => $projectData['validador']];
+        $dp = $this->dataProject;       //[rol=>nombre]
+        $rp = $this->roleProperties;    //[rol=>propiedad]
+        $mdp = $model->dataProject;
+        $mrp = $model->roleProperties;
+
+        $id = $this->params[ProjectKeys::KEY_ID];
+        $subSet = "management";
+
+        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
+
+        $metaDataManagement = $metaDataQuery->getDataProject();
+        $currentState = $metaDataManagement['workflow']['currentState'];
+        $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
+        $views_rols = $workflowJson['actions'][$actionCommand]['views']['rols'];
+        foreach ($views_rols as $rol => $vista) {
+            if (in_array($rol, $projectRoles)) {
+                $view = $vista;
+                break;
+            }
+        }
+
+        $view = NULL;
+        if ($view) {
+            $this->getModel()->setViewConfigName($view);
+        }
+    }
+
     protected function stateProcess(&$projectMetaData) {
         $model = $this->getModel();
         $id = $this->params[ProjectKeys::KEY_ID];
@@ -46,12 +83,16 @@ class BasicWorkflowProjectAction extends ProjectAction {
         parent::postResponseProcess($response);
 
         $model = $this->getModel();
-        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params['projectType']);
+        $id = $this->params[ProjectKeys::KEY_ID];
+        $subSet = "management";
+
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
         $metaDataManagement = $metaDataQuery->getDataProject();
         if (!isset($response[ProjectKeys::KEY_ID])) {
-            $response[ProjectKeys::KEY_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID]);
+            $response[ProjectKeys::KEY_ID] = $this->idToRequestId($id);
         }
-        $response[ProjectKeys::KEY_EXTRA_STATE] = [ProjectKeys::KEY_EXTRA_STATE_ID => "workflowState", ProjectKeys::KEY_EXTRA_STATE_VALUE => $metaDataManagement['workflow']['currentState']];
+        $response[ProjectKeys::KEY_EXTRA_STATE] = [ProjectKeys::KEY_EXTRA_STATE_ID => "workflowState",
+                                                   ProjectKeys::KEY_EXTRA_STATE_VALUE => $metaDataManagement['workflow']['currentState']];
     }
 
     private function getActionName($action) {
