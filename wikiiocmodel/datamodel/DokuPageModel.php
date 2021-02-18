@@ -545,24 +545,27 @@ class DokuPageModel extends WikiRenderizableDataModel {
     /**
      * Canvia el nom del directori indicat a tot l'arbre de directoris de data i
      * les referències a l'antic nom de directori dins dels fitxers afectats
-     * @param string $ns : ns original del directori
+     * @param string $old_name : ns original del directori
      * @param string $new_name : nou nom pel directori
      */
-    public function renameFolder($ns, $new_name) {
-        $base_dir = explode(":", $ns);
-        $old_name = array_pop($base_dir);
-        $ns = implode(":", $base_dir).":$new_name";
-        $base_dir = implode("/", $base_dir);
+    public function renameFolder($old_name, $new_name) {
+        $old_dir = $old_name;
+        $base_old_dir = explode(":", $old_name);
+        $old_name = array_pop($base_old_dir);
+        $base_old_dir = implode("/", $base_old_dir);
+        $base_new_dir = explode(":", $new_name);
+        $new_name = array_pop($base_new_dir);
+        $base_new_dir = implode("/", $base_new_dir);
 
-        if (is_dir("$base_dir/$new_name")) {
+        if (is_dir("$base_new_dir/$new_name")) {
             throw new Exception("Acció no permesa: el nom del directori ja existeix");
         }else {
-            $this->pageDataQuery->renameDirNames($base_dir, $old_name, $new_name);
-            $this->pageDataQuery->renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-            $this->pageDataQuery->changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-            $this->pageDataQuery->addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name);
-            $this->pageDataQuery->changeOldPathInContentFiles($base_dir, $old_name, $new_name, $this->_arrayTerminators(), TRUE);
-            $this->pageDataQuery->changeOldPathInACLFile($base_dir, $old_name, $new_name);
+            $this->pageDataQuery->renameDirNames($base_old_dir, $old_name, $base_new_dir, $new_name);
+            $this->pageDataQuery->renameRenderGeneratedFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->addLogEntryInRevisionFiles($old_dir, $base_old_dir, $old_name, $base_new_dir, $new_name);
+            $this->pageDataQuery->changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->changeOldPathInACLFile($base_old_dir, $old_name, $base_new_dir, $new_name);
         }
     }
 

@@ -96,37 +96,39 @@ abstract class DataQuery {
 
     /**
      * Canvia el nom de tots els directoris demanats que es trobin a 'data/'
-     * @param string $base_dir : ruta wiki del directori que canvia de nom
+     * @param string $base_old_dir : ruta wiki del directori que canvia de nom
      * @param string $old_name : nom actual del directori
+     * @param string $base_new_dir : ruta wiki del nou directori
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function renameDirNames($base_dir, $old_name, $new_name) {
+    public function renameDirNames($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $paths = $this->_arrayDataFolders();
 
         foreach ($paths as $dir) {
             $basePath = WikiGlobalConfig::getConf($dir);
-            $oldPath = "$basePath/$base_dir/$old_name";
+            $oldPath = "$basePath/$base_old_dir/$old_name";
             if (file_exists($oldPath)) {
-                $newPath = "$basePath/$base_dir/$new_name";
+                $newPath = "$basePath/$base_new_dir/$new_name";
                 if (! rename($oldPath, $newPath) )
-                    throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/directori a $dir.");
+                    throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/carpeta a $dir.");
             }
         }
     }
 
     /**
      * Canvia el nom dels arxius que contenen (en el nom) l'antiga ruta del projecte o directori
-     * @param string $base_dir : directori wiki del projecte o directori
+     * @param string $base_old_dir : directori wiki del projecte o directori
      * @param string $old_name : nom actual del projecte o directori
+     * @param string $base_new_dir : directori wiki del projecte o directori
      * @param string $new_name : nou nom del projecte o directori (nom actual)
      * @param array|string $listfiles : llista d'arxius o extensió dels arxius (per defecte ".zip") generats pel render que cal renombrar
      * @throws Exception
      */
-    public function renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
-        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_dir/$new_name";
+    public function renameRenderGeneratedFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_new_dir/$new_name";
 
-        $ret = $this->_renameRenderGeneratedFiles($newPath, str_replace("/", "_", "$base_dir/$old_name"), $old_name, $new_name, $listfiles, $recursive);
+        $ret = $this->_renameRenderGeneratedFiles($newPath, str_replace("/", "_", "$base_old_dir/$old_name"), $old_name, $new_name, $listfiles, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom de l'arxiu $ret.");
         }
@@ -180,12 +182,13 @@ abstract class DataQuery {
 
     /**
      * Canvia el contingut dels arxius ".changes" i ".meta" que contenen la ruta del directori per la nova ruta
-     * @param string $base_dir : directori wiki
+     * @param string $base_old_dir : directori wiki origen
      * @param string $old_name : nom actual del directori
+     * @param string $base_new_dir : directori wiki nou
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $file_sufix=[], $recursive=FALSE) {
+    public function changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=[], $recursive=FALSE) {
         $paths = ['metadir',       /*meta*/
                   'mediametadir',  /*media_meta*/
                   'metaprojectdir' /*project_meta*/
@@ -196,11 +199,11 @@ abstract class DataQuery {
             array_pop($file_sufix);
             $suffix = "(".implode("|", $file_sufix).")";
         }
-        $base_name = str_replace("/", "_", $base_dir);
+        $base_name = str_replace("/", "_", $base_old_dir);
         $list_files = "\.(changes|meta)";
         $ret = TRUE;
         foreach ($paths as $dir) {
-            $newPath = WikiGlobalConfig::getConf($dir)."/$base_dir/$new_name";
+            $newPath = WikiGlobalConfig::getConf($dir)."/$base_new_dir/$new_name";
             $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, $list_files, $suffix, $recursive);
             if (is_string($ret)) break;
         }
@@ -212,24 +215,22 @@ abstract class DataQuery {
     /**
      * Afegir nova entrada als arxius .changes que indica que s'ha produït un canvi de nom de directori
      * @param string $ns
-     * @param string $base_dir : directori wiki que està canviant de nom
+     * @param string $base_old_dir : directori wiki que està canviant de nom
      * @param string $old_name : antic nom del directori
+     * @param string $base_new_dir : directori wiki que està canviant de nom
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name) {
+    public function addLogEntryInRevisionFiles($ns, $base_old_dir, $old_name, $base_new_dir, $new_name) {
         $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
-        $path = WikiGlobalConfig::getConf($paths[0])."/$base_dir/$new_name";
-        $attic = WikiGlobalConfig::getConf($paths[1])."/$base_dir/$new_name";
+        $path = WikiGlobalConfig::getConf($paths[0])."/$base_old_dir/$new_name";
+        $attic = WikiGlobalConfig::getConf($paths[1])."/$base_old_dir/$new_name";
         if (@scandir($path)) {
             $ret = $this->_addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name);
         }
         if (is_string($ret)) {
             throw new Exception("addLogEntryInRevisionFiles: Error mentre afegia nova entrada a l'arxiu .changes de $ret.");
         }
-//        $path = WikiGlobalConfig::getConf('mediametadir')."/$base_dir/$new_name";
-//        $attic = WikiGlobalConfig::getConf('mediaolddir')."/$base_dir/$new_name";
-//        $this->_addLogEntryInMediaRevisionFiles($ns, $path, $attic, $old_name, $new_name, ".changes");
     }
 
     private function _addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name) {
@@ -316,15 +317,16 @@ abstract class DataQuery {
 
     /**
      * Canvia el contingut dels arxius que contenen l'antiga ruta del projecte (normalment la ruta absoluta a les imatges)
-     * @param string $base_dir : directori wiki del projecte
+     * @param string $base_old_dir : directori wiki del projecte
      * @param string $old_name : nom actual del projecte
+     * @param string $base_new_dir : directori wiki del projecte
      * @param string $new_name : nou nom del projecte
      * @throws Exception
      */
-    public function changeOldPathInContentFiles($base_dir, $old_name, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
-        $newPath = WikiGlobalConfig::getConf('datadir')."/$base_dir/$new_name";
+    public function changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('datadir')."/$base_new_dir/$new_name";
         $suffix = (is_array($file_sufix)) ? "(".implode("|", $file_sufix).")" : FALSE;
-        $base_name = str_replace("/", "_", $base_dir);
+        $base_name = str_replace("/", "_", $base_old_dir);
         $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
@@ -372,11 +374,12 @@ abstract class DataQuery {
      * @param string $new_name : nou nom del projecte
      * @throws Exception
      */
-    public function changeOldPathInACLFile($base_dir, $old_name, $new_name) {
+    public function changeOldPathInACLFile($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $file = DOKU_CONF."acl.auth.php";
         if (($content = file_get_contents($file))) {
-            $ns = str_replace("/", ":", $base_dir);
-            $content = preg_replace("/$ns:$old_name:/m", "$ns:$new_name:", $content);
+            $old_ns = str_replace("/", ":", $base_old_dir);
+            $new_ns = str_replace("/", ":", $base_new_dir);
+            $content = preg_replace("/$old_ns:$old_name:/m", "$new_ns:$new_name:", $content);
             if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                 throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/directori a $file.");
         }
