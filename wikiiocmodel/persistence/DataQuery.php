@@ -118,17 +118,17 @@ abstract class DataQuery {
 
     /**
      * Canvia el nom dels arxius que contenen (en el nom) l'antiga ruta del projecte o directori
-     * @param string $base_old_dir : directori wiki original del projecte o directori
-     * @param string $old_name : nom actual del projecte o directori
-     * @param string $base_new_dir : nou directori
-     * @param string $new_name : nou nom del projecte o directori
+     * @param string $old_base_name : directori wiki original del projecte o directori
+     * @param string $new_base_name : ruta actual del projecte o directori
      * @param array|string $listfiles : llista d'arxius o extensió dels arxius (per defecte ".zip") generats pel render que cal renombrar
+     * @param boolean $recursive
      * @throws Exception
      */
-    public function renameRenderGeneratedFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
-        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_new_dir/$new_name";
-
-        $ret = $this->_renameRenderGeneratedFiles($newPath, str_replace("/", "_", "$base_old_dir/$old_name"), $old_name, $new_name, $listfiles, $recursive);
+    public function renameRenderGeneratedFiles($old_base_name, $new_base_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('mediadir')."/$new_base_name";
+        $old_base_name = str_replace("/", "_", $old_base_name);
+        $new_base_name = str_replace("/", "_", $new_base_name);
+        $ret = $this->_renameRenderGeneratedFiles($newPath, $old_base_name, $new_base_name, $listfiles, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom de l'arxiu $ret.");
         }
@@ -137,13 +137,12 @@ abstract class DataQuery {
     /**
      * Canvia el nombre de los archivos cuyo nombre contiene el antiguo nombre de directorio
      * @param string $path : ruta absoluta al directori 'data/media/.../new_name' dels arxius que hem de canviar de nom
-     * @param string $base_name : nom base dels arxius que han de canviar de nom
-     * @param string $old_name : nom del directori original
-     * @param string $new_name : nou nom del directori
+     * @param string $old_base_name : nom base dels arxius que han de canviar de nom
+     * @param string $new_base_name : nou nom del directori
      * @param array $listfiles lista de terminaciones de fichero
      * @return boolean|string TRUE si ha ido bien, "ruta del fichero" si se ha producido error al renombrar
      */
-    private function _renameRenderGeneratedFiles($path, $base_name, $old_name, $new_name, $listfiles, $recursive=FALSE) {
+    private function _renameRenderGeneratedFiles($path, $old_base_name, $new_base_name, $listfiles, $recursive=FALSE) {
         $ret = TRUE;
         $scan = @scandir($path);
         if ($scan) $scan = array_diff($scan, [".", ".."]);
@@ -151,22 +150,16 @@ abstract class DataQuery {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
                     if ($recursive) {
-                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $base_name, $old_name, $new_name, $listfiles, TRUE);
+                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $old_base_name, $new_base_name, $listfiles, TRUE);
                         if (is_string($ret)) break;
                     }
-                }elseif (preg_match("/^$base_name/", $file)) {
+                }elseif (preg_match("/^$old_base_name/", $file)) {
                     if (!empty($listfiles)) {
-                        for ($i=1; $i<count($listfiles); $i++) {
-                            $ext .= $listfiles[$i] ."|";
-                        }
-                        $ext = substr($ext, 0, -1);
-                        if ($listfiles[0] === "fullname") {
-                            $search = "/($ext)/";
-                        }else {
-                            $search = "/{$base_name}.*?($ext)/";
-                        }
+                        $type = array_shift($listfiles);
+                        $ext = implode("|", $listfiles);
+                        $search = ($type === "fullname") ? "/($ext)/" : "/{$old_base_name}(.*?)($ext)/";
                         if (preg_match($search, $file)) {
-                            $newfile = preg_replace("/(_*?){$old_name}([\.|_])/", "$1{$new_name}$2", $file);
+                            $newfile = preg_replace("{$search}", "{$new_base_name}$1$2", $file);
                             $ret = rename("$path/$file", "$path/$newfile");
                             if (!$ret) {
                                 $ret = "$path/$file";
@@ -188,15 +181,13 @@ abstract class DataQuery {
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=[], $recursive=FALSE) {
+    public function changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
         $paths = ['metadir',       /*meta*/
                   'mediametadir',  /*media_meta*/
                   'metaprojectdir' /*project_meta*/
                  ];
-        if (empty($file_sufix)) {
-            $suffix = FALSE;
-        }else {
-            array_pop($file_sufix);
+        if (($suffix = $file_sufix)) {
+            array_shift($file_sufix);
             $suffix = "(".implode("|", $file_sufix).")";
         }
         $ret = TRUE;
@@ -273,7 +264,6 @@ abstract class DataQuery {
 
     /**
      * Afegir nova entrada als arxius .changes que indica que s'ha produït un canvi de nom de directori
-     * @param string $ns : ruta wiki del directorio original
      * @param string $base_old_dir : directori wiki que està canviant de nom
      * @param string $old_name : antic nom del directori
      * @param string $base_new_dir : directori wiki que està canviant de nom
