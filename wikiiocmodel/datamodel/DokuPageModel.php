@@ -561,7 +561,7 @@ class DokuPageModel extends WikiRenderizableDataModel {
             throw new Exception("Acció no permesa: el nom del directori ja existeix");
         }else {
             $this->pageDataQuery->renameDirNames($base_old_dir, $old_name, $base_new_dir, $new_name);
-            $this->pageDataQuery->renameRenderGeneratedFiles("$base_old_dir/$old_name", $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
+            $this->pageDataQuery->renameRenderGeneratedFiles("$base_old_dir/$old_name", "$base_new_dir/$new_name", $this->_arrayTerminators(), TRUE);
             $this->pageDataQuery->changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
             $this->pageDataQuery->addLogEntryInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name);
             $this->pageDataQuery->changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);

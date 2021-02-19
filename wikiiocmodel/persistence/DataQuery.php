@@ -110,7 +110,9 @@ abstract class DataQuery {
             $oldPath = "$basePath/$base_old_dir/$old_name";
             if (file_exists($oldPath)) {
                 $newPath = "$basePath/$base_new_dir/$new_name";
-                if (! rename($oldPath, $newPath) )
+                if (! is_dir($newPath))
+                    mkdir($newPath, 0775, true);
+                if (! rename($oldPath, $newPath))
                     throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/carpeta a $dir.");
             }
         }
