@@ -549,7 +549,6 @@ class DokuPageModel extends WikiRenderizableDataModel {
      * @param string $new_name : nou nom pel directori
      */
     public function renameFolder($old_name, $new_name) {
-        $old_dir = $old_name;
         $base_old_dir = explode(":", $old_name);
         $old_name = array_pop($base_old_dir);
         $base_old_dir = implode("/", $base_old_dir);
@@ -564,7 +563,7 @@ class DokuPageModel extends WikiRenderizableDataModel {
             $this->pageDataQuery->renameDirNames($base_old_dir, $old_name, $base_new_dir, $new_name);
             $this->pageDataQuery->renameRenderGeneratedFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
             $this->pageDataQuery->changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
-            $this->pageDataQuery->addLogEntryInRevisionFiles($old_dir, $base_old_dir, $old_name, $base_new_dir, $new_name);
+            $this->pageDataQuery->addLogEntryInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name);
             $this->pageDataQuery->changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $this->_arrayTerminators(), TRUE);
             $this->pageDataQuery->changeOldPathInACLFile($base_old_dir, $old_name, $base_new_dir, $new_name);
         }
