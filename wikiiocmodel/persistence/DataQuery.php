@@ -195,7 +195,7 @@ abstract class DataQuery {
         $base_name = str_replace("/", "_", $base_old_dir);
         $newdir = "/$base_new_dir/$new_name";
         if ($base_new_dir !== $base_old_dir) {
-            //si las rutas fuesen iguales bastaría con cambiar el nombre del directorio sin incluir la ruta
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
         }
@@ -274,7 +274,7 @@ abstract class DataQuery {
         $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
         $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name";
         if ($base_new_dir !== $base_old_dir) {
-            //si las rutas fuesen iguales bastaría con cambiar el nombre del directorio sin incluir la ruta
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
         }
