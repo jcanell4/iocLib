@@ -202,8 +202,8 @@ abstract class DataQuery {
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
         }
         foreach ($paths as $dir) {
-            $path = WikiGlobalConfig::getConf($dir).$newdir;
-            $ret = $this->_changeOldPathInFiles($path, $base_name, $old_name, $new_name, $list_files, $suffix, $recursive);
+            $newPath = WikiGlobalConfig::getConf($dir).$newdir;
+            $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, $list_files, $suffix, $recursive);
             if (is_string($ret)) break;
         }
         if (is_string($ret)) {
@@ -221,9 +221,43 @@ abstract class DataQuery {
      */
     public function changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
         $newPath = WikiGlobalConfig::getConf('datadir')."/$base_new_dir/$new_name";
-        $suffix = (is_array($file_sufix)) ? "(".implode("|", $file_sufix).")" : FALSE;
+        if (($suffix = $file_sufix)) {
+            array_shift($file_sufix);
+            $suffix = "(".implode("|", $file_sufix).")";
+        }
         $base_name = str_replace("/", "_", $base_old_dir);
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+        }
         $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
+        if (is_string($ret)) {
+            throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
+        }
+    }
+
+    /**
+     * Canvia el contingut dels arxius de /wiki/user/ que contenen l'antiga ruta del projecte (normalment dreceres)
+     * @param string $base_old_dir : directori wiki del projecte
+     * @param string $old_name : nom actual del projecte
+     * @param string $base_new_dir : directori wiki del projecte
+     * @param string $new_name : nou nom del projecte
+     * @throws Exception
+     */
+    public function changeOldPathInUserFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
+        $userpage_ns = WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel');
+        $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
+        $userpage = WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')
+                                            . $_SERVER['REMOTE_USER'] . ":"
+                                            . WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel');
+        $base_name = str_replace("/", "_", $base_old_dir);
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+        }
+//        $ret = $this->_changeOldPathInFiles($userpage, $base_name, $old_name, $new_name, "\.txt$");
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
