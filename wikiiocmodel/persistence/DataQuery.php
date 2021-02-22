@@ -194,16 +194,18 @@ abstract class DataQuery {
         }
         $ret = TRUE;
         $list_files = "\.(changes|meta)";
-        $base_name = str_replace("/", "_", $base_old_dir);
         $newdir = "/$base_new_dir/$new_name";
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
         }
         foreach ($paths as $dir) {
             $newPath = WikiGlobalConfig::getConf($dir).$newdir;
-            $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, $list_files, $suffix, $recursive);
+            $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, $list_files, $suffix, $recursive);
             if (is_string($ret)) break;
         }
         if (is_string($ret)) {
@@ -225,13 +227,15 @@ abstract class DataQuery {
             array_shift($file_sufix);
             $suffix = "(".implode("|", $file_sufix).")";
         }
-        $base_name = str_replace("/", "_", $base_old_dir);
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
         }
-        $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
+        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
@@ -246,24 +250,25 @@ abstract class DataQuery {
      * @throws Exception
      */
     public function changeOldPathInUserFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
-        $userpage_ns = WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel');
-        $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
-        $userpage = WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')
-                                            . $_SERVER['REMOTE_USER'] . ":"
-                                            . WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel');
-        $base_name = str_replace("/", "_", $base_old_dir);
+        $userpage = preg_replace('/^:(.*)/', '$1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'))
+                    . $_SERVER['REMOTE_USER'] . ":"
+                    . WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel');
+        $userpage = str_replace(":", "/", $userpage);
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
         }
-//        $ret = $this->_changeOldPathInFiles($userpage, $base_name, $old_name, $new_name, "\.txt$");
+        $ret = $this->_changeOldPathInFiles($userpage, $base_old_name, $old_name, $new_name, "\.txt$");
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
     }
 
-    private function _changeOldPathInFiles($path, $base_name, $old_name, $new_name, $list_files, $suffix=FALSE, $recursive=FALSE) {
+    private function _changeOldPathInFiles($path, $base_old_name, $old_name, $new_name, $list_files, $suffix=FALSE, $recursive=FALSE) {
         $ret = TRUE;
         $scan = @scandir($path);
         $scan = array_diff($scan, [".", ".."]);
@@ -271,16 +276,23 @@ abstract class DataQuery {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
                     if ($recursive) {
-                        $ret = $this->_changeOldPathInFiles("$path/$file", $base_name, $old_name, $new_name, $list_files, $suffix, TRUE);
+                        $ret = $this->_changeOldPathInFiles("$path/$file", $base_old_name, $old_name, $new_name, $list_files, $suffix, TRUE);
                         if (is_string($ret)) break;
                     }
                 }elseif (preg_match("/$list_files/", $file)) {
                     if (($content = file_get_contents("$path/$file"))) {
                         $c = $c2 = 0;
                         $content = preg_replace("/(:)?\b$old_name((:|\t|\"))?/m", "$1{$new_name}$2", $content, -1, $c);
-                        if ($suffix) {
-                            if (preg_match("/{$base_name}_{$old_name}/", $content)) {
-                                $content = preg_replace("/({$base_name}_)($old_name)(_*?.*?)($suffix)/", "$1{$new_name}$3$4", $content, -1, $c2);
+                        if ($suffix && $base_old_name) {
+                            if (preg_match("/{$base_old_name}_{$old_name}/", $content)) {
+                                $content = preg_replace("/({$base_old_name}_)($old_name)(_*?.*?)($suffix)/", "$1{$new_name}$3$4", $content, -1, $c2);
+                                $c += $c2;
+                            }
+                        }elseif ($suffix) {
+                            $search_name = str_replace(":", "_", $old_name);
+                            $replace_name = str_replace(":", "_", $new_name);
+                            if (preg_match("/{$search_name}/", $content)) {
+                                $content = preg_replace("/({$search_name})(_*?.*?)($suffix)/", "{$replace_name}$2$3", $content, -1, $c2);
                                 $c += $c2;
                             }
                         }
@@ -308,14 +320,14 @@ abstract class DataQuery {
      */
     public function addLogEntryInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
-        $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name";
+        $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name"; $new_path = "$base_new_dir/$new_name";
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
             $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
         }
-        $path = WikiGlobalConfig::getConf($paths[0])."/$base_new_dir/$new_name";
-        $attic = WikiGlobalConfig::getConf($paths[1])."/$base_new_dir/$new_name";
+        $path = WikiGlobalConfig::getConf($paths[0])."/$new_path";
+        $attic = WikiGlobalConfig::getConf($paths[1])."/$new_path";
         if (@scandir($path)) {
             $ret = $this->_addLogEntryInRevisionFiles($wiki_name, $path, $attic, $old_name, $new_name);
         }
