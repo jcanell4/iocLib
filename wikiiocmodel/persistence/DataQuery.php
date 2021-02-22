@@ -235,7 +235,8 @@ abstract class DataQuery {
         }else {
             $base_old_name = str_replace("/", "_", $base_old_dir);
         }
-        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
+        $list_files = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel')."\.txt$";
+        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, $list_files, $suffix, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
@@ -250,10 +251,7 @@ abstract class DataQuery {
      * @throws Exception
      */
     public function changeOldPathInUserFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
-        $userpage = preg_replace('/^:(.*)/', '$1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'))
-                    . $_SERVER['REMOTE_USER'] . ":"
-                    . WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel');
-        $userpage = str_replace(":", "/", $userpage);
+        $userpage = WikiGlobalConfig::getConf('datadir').str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')).$_SERVER['REMOTE_USER'];
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
@@ -320,7 +318,8 @@ abstract class DataQuery {
      */
     public function addLogEntryInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
-        $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name"; $new_path = "$base_new_dir/$new_name";
+        $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name";
+        $new_path = "$base_new_dir/$new_name";
         if ($base_new_dir !== $base_old_dir) {
             //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
             $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
@@ -346,7 +345,7 @@ abstract class DataQuery {
                     $this->_addLogEntryInRevisionFiles("$ns:$file", "$path/$file", "$attic/$file", $old_name, $new_name);
                 }else {
                     $id = "$ns:".str_replace(".txt", "", $file);
-                    $summary = "Move|Rename Directory:".str_replace(["$new_name",":"], ["$old_name","."], $ns);
+                    $summary = "Move|Rename the old directory:".str_replace(["$new_name",":"], ["$old_name","."], $ns);
                     $pagelog = new PageChangeLog($id);
                     $oldRev = $pagelog->getRevisions(-1, 1);
                     if (!empty($oldRev)) {
