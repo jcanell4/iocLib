@@ -235,8 +235,7 @@ abstract class DataQuery {
         }else {
             $base_old_name = str_replace("/", "_", $base_old_dir);
         }
-        $list_files = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel')."\.txt$";
-        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, $list_files, $suffix, $recursive);
+        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
@@ -260,7 +259,8 @@ abstract class DataQuery {
         }else {
             $base_old_name = str_replace("/", "_", $base_old_dir);
         }
-        $ret = $this->_changeOldPathInFiles($userpage, $base_old_name, $old_name, $new_name, "\.txt$");
+        $list_files = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel')."\.txt$";
+        $ret = $this->_changeOldPathInFiles($userpage, $base_old_name, $old_name, $new_name, $list_files);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
