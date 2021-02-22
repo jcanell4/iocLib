@@ -17,35 +17,41 @@ class BasicWorkflowProjectAction extends ProjectAction {
         parent::preResponseProcess();
 
         $model = $this->getModel();
-        $projectData = $this->getDataProject();
-        $projectRoles = ["responsable" => $projectData['responsable'],
-                         "autor" => $projectData['autor'],
-                         "revisor" => $projectData['revisor'],
-                         "validador" => $projectData['validador']];
-        $dp = $this->dataProject;       //[rol=>nombre]
-        $rp = $this->roleProperties;    //[rol=>propiedad]
-        $mdp = $model->dataProject;
-        $mrp = $model->roleProperties;
 
-        $id = $this->params[ProjectKeys::KEY_ID];
-        $subSet = "management";
+        $user_roles = (is_array($this->params['roles'])) ? $this->params['roles'] : [$this->params['roles']];
+        $user_groups = $this->params['groups'];
 
+//        $projectData = $model->getProjectMetaDataQuery()->getDataProject();
+//        $projectRoles = ["responsable" => $projectData['responsable'],
+//                         "autor" => $projectData['autor'],
+//                         "revisor" => $projectData['revisor'],
+//                         "validador" => $projectData['validador']];
+
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params['projectType']);
+        $currentState = $metaDataQuery->getDataProject()['workflow']['currentState'];
         $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
-        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
+        $action = $model->getMetaDataActionWorkflowFile($currentState, $actionCommand);
 
-        $metaDataManagement = $metaDataQuery->getDataProject();
-        $currentState = $metaDataManagement['workflow']['currentState'];
-        $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
-        $views_rols = $workflowJson['actions'][$actionCommand]['views']['rols'];
-        foreach ($views_rols as $rol => $vista) {
-            if (in_array($rol, $projectRoles)) {
+        //busca en el apartado views si se ha especificado el rol del usuario actual
+        $views_rols = $action['views']['rols'];
+        foreach ($views_rols as $r => $vista) {
+            if (in_array($r, $user_roles)) {
                 $view = $vista;
                 break;
             }
         }
-
-        $view = NULL;
-        if ($view) {
+        if (!$view) {
+           //busca en el apartado views si se ha especificado el grupo del usuario actual
+            $views_group = $action['views']['groups'];
+            foreach ($views_group as $g => $vista) {
+                if (in_array($g, $user_groups)) {
+                    $view = $vista;
+                    break;
+                }
+            }
+        }
+        $file = $model->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/config/{$view}.json";
+        if ($view && is_file($file)) {
             $this->getModel()->setViewConfigName($view);
         }
     }
