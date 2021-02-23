@@ -560,7 +560,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $base_old_dir = implode("/", $base_old_dir);
 
         $this->projectMetaDataQuery->renameDirNames($base_old_dir, $old_name, $base_old_dir, $new_name);
-        $this->projectMetaDataQuery->renameRenderGeneratedFiles($base_old_dir, $old_name, $base_old_dir, $new_name, $this->listGeneratedFilesByRender());
+        $this->projectMetaDataQuery->renameRenderGeneratedFiles("$base_old_dir/$old_name", "$base_old_dir/$new_name", $this->listGeneratedFilesByRender());
         $this->projectMetaDataQuery->changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_old_dir, $new_name);
         $this->projectMetaDataQuery->changeOldPathInContentFiles($base_old_dir, $old_name, $base_old_dir, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);

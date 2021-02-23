@@ -110,7 +110,7 @@ abstract class DataQuery {
             $oldPath = "$basePath/$base_old_dir/$old_name";
             if (file_exists($oldPath)) {
                 $newPath = "$basePath/$base_new_dir/$new_name";
-                if (! is_dir($newPath))
+                if ($base_old_dir !== $base_new_dir && !is_dir($newPath))
                     mkdir($newPath, 0775, true);
                 if (! rename($oldPath, $newPath))
                     throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/carpeta a $dir.");
@@ -146,8 +146,8 @@ abstract class DataQuery {
      */
     private function _renameRenderGeneratedFiles($path, $old_base_name, $new_base_name, $listfiles, $recursive=FALSE) {
         $ret = TRUE;
-        $scan = @scandir($path);
-        if ($scan) $scan = array_diff($scan, [".", ".."]);
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
@@ -268,8 +268,8 @@ abstract class DataQuery {
 
     private function _changeOldPathInFiles($path, $base_old_name, $old_name, $new_name, $list_files, $suffix=FALSE, $recursive=FALSE) {
         $ret = TRUE;
-        $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
@@ -337,8 +337,8 @@ abstract class DataQuery {
 
     private function _addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name) {
         $ret = "";
-        $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
