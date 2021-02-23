@@ -3,9 +3,6 @@ if (!defined('DOKU_INC')) die();
 
 class BasicWorkflowProjectAction extends ProjectAction {
 
-    //[JOSEP] TODO => Rafa: En el fitxer workflow.json, cal poder associar una vista (nom) a alguns roles i/0 grups
-    //                      amb accés al projecte, per cada action,
-    //                      Aquí es recollirà la vista asociada (si existeix) i s'assignarà al model.
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
         $projectMetaData = $action->get($this->params);
@@ -20,12 +17,6 @@ class BasicWorkflowProjectAction extends ProjectAction {
 
         $user_roles = (is_array($this->params['roles'])) ? $this->params['roles'] : [$this->params['roles']];
         $user_groups = $this->params['groups'];
-
-//        $projectData = $model->getProjectMetaDataQuery()->getDataProject();
-//        $projectRoles = ["responsable" => $projectData['responsable'],
-//                         "autor" => $projectData['autor'],
-//                         "revisor" => $projectData['revisor'],
-//                         "validador" => $projectData['validador']];
 
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params['projectType']);
         $currentState = $metaDataQuery->getDataProject()['workflow']['currentState'];
