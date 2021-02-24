@@ -794,6 +794,7 @@ class ProjectMetaDataQuery extends DataQuery {
         $path_dreceres = WikiGlobalConfig::getConf('datadir') . str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'));
         $nom_dreceres = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel') . ".txt";
         $persons = explode(",", $persons);
+        array_unique($persons);
         foreach ($persons as $user) {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
