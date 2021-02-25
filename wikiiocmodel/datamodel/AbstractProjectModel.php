@@ -869,6 +869,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     /**
+     * Obtiene un array con el contenido la clave action del estado solicitado del archivo de control workflow.json
+     * @param string $estat
+     * @param string $action
+     * @return array correspondiente a la clave $action real o apuntada por el shortcut
+     */
+    public function getMetaDataActionWorkflowFile($estat, $action) {
+        return $this->projectMetaDataQuery->getMetaDataActionWorkflowFile($estat, $action);
+    }
+
+    /**
      * Devuelve un array con la estructura definida en el archivo configMain.json
      */
     public function getMetaDataDefKeys() {

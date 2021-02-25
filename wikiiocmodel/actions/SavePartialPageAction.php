@@ -41,7 +41,7 @@ class SavePartialPageAction extends SavePageAction{
             if ($this->params[pageKeys::KEY_CANCEL]) {
 
                 $response['cancel_params'] = [
-                    'id' => str_replace(":", "_", $this->params[PageKeys::KEY_ID]),
+                    'id' => $this->idToRequestId($this->params[PageKeys::KEY_ID]),
                     'dataToSend' => ['discard_changes' => true],
                     'event' => 'cancel_partial',
                     'chunk' => $this->params[PageKeys::KEY_SECTION_ID]

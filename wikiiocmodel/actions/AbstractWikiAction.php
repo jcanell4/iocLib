@@ -85,6 +85,10 @@ abstract class AbstractWikiAction {
         }
     }
 
+    protected function idToRequestId($requestId) {
+        return str_replace(":", "_", $requestId);
+    }
+
     protected function preResponseProcess() {
     }
 
