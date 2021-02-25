@@ -85,8 +85,27 @@ class DW2HtmlInstruction extends IocInstruction {
 //
 
         // Si és un salt de línia s'ha de tornar a afegir, i s'ha de fer abans de tancar el token anterior
+
+        // Això provoca salts adicionals, revisar si ara funciona
+
+        // Sense això no funciona, però amb això s'afegeix un salt de línia adicional davant de
+
+        // TEST: Afegir spans adicionals al content
+        $topIndex = count(WiocclParser::$structureStack)-1;
+        if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+            $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+        } else {
+            $refId = -1;
+        }
+
+
         if ($currentToken['raw'] == "\n" ) {
-            $result .= $currentToken['raw'];
+
+            if ($refId !== -1) {
+                $result .= '<span data-wioccl-ref="' . $refId . '">' .  $currentToken['raw'] . '</span>';
+            } else {
+                $result .= $currentToken['raw'];
+            }
         }
 
 
@@ -170,10 +189,11 @@ class DW2HtmlInstruction extends IocInstruction {
 //                    $result .= $item->getContent($currentToken);
 
                     // TEST: Afegir spans adicionals al content
-                    $topIndex = count(WiocclParser::$structureStack)-1;
+//                    $topIndex = count(WiocclParser::$structureStack)-1;
 
                     // El element amb id === 0 és el root, no s'afegeix
-                    if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+//                    if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+                    if ($refId !== -1) {
                         $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
                         $result .= '<span data-wioccl-ref="'. $refId.'">'. $item->getContent($currentToken) . '</span>';
                     } else {

@@ -78,11 +78,7 @@ class Html2DWParser extends IocParser {
             'state' => 'space',
         ],
 
-//        "\n?<\/p>" => [
-//            'state' => 'close_p',
-//        ],
-
-        "<\/p>" => [
+        "\n?<\/p>" => [
             'state' => 'close_p',
         ],
 
@@ -228,18 +224,16 @@ class Html2DWParser extends IocParser {
 
         '<a ?(.*?)>.*?<\/a>' => ['state' => 'link', 'type' => 'a', 'class' => 'Html2DWLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["[[", "]]"], 'regex' => TRUE]],
 
-/*        '<p( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],*/
         '^<p( .*?)?>' => ['state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],
 
 
-        "<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
-//        "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        "\n?<\/p>" => ['state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
 
-        // ALERTA: aquest ha d'anar abans que el <b perque es confonen
+        // ALERTA: aquest ha d'anar abans que el <b perque es barrejan
         '\n?<br( \/)?>' => ['state' => 'br', 'type' => 'br', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
 
 

@@ -124,6 +124,7 @@ class WiocclParser extends IocParser
         ':###' => ['state' => 'open_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'self-contained', 'extra' => ['replacement'=>'[readonly-open]', 'ignoreStructureClosing' => true]],
         '###:' => ['state' => 'close_readonly', 'type' => 'readonly', 'class' => 'WiocclSimpleReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => '[readonly-close]', 'ignoreStructureClosing' => true]], // versió per fer proves que no s'atura si l'ordre a l'stack és incorrecte
 
+
         '<WIOCCL:FOR' => ['state' => 'open_for', 'type' => 'for', 'class' => 'WiocclFor', 'action' => 'open'],
         '</WIOCCL:FOR>' => ['state' => 'close_for', 'type' => 'for', 'action' => 'close'],
         '<WIOCCL:FOREACH' => ['state' => 'open_foreach', 'type' => 'foreach', 'class' => 'WiocclForEach', 'action' => 'open'],

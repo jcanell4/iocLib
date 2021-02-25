@@ -253,7 +253,23 @@ class WiocclInstruction extends IocInstruction {
 
         //$item->type = $type;
         // No hi ha etiquetas, el resultat és el contingut sense modificar
+
+
+        // ALERTA[Xavi] el parser dw2html interpreta els \n com a generic close
+        // i els \n+ com paragraph, mentre que el content sempre acaba sense salt,
+        // en canvi el wioccl captura els \n com a part del contingut.
+
+        // TODO: Eliminar, això no soluciona el problema i a més a més trenca moltes coses
+//        if ($type === 'content' && substr($result, -1) ==="\n") {
+//            // COMPTE! això dona problemas amb múltiples casos, només el token 82
+//            // ha d'aplicar aquest comportament, quina és la diferencia? que es troba dintre d'un bloc wioccl?
+//            $item->open = rtrim($result);
+//        } else {
+//            $item->open = $result;
+//        }
+
         $item->open = $result;
+
 
         $class::closeItem();
 

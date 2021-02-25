@@ -38,7 +38,7 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
     public function isClosing($token) {
         // un doble salt de línia sempre tanca un paràgraf
 
-        // Afegit el salt de línia simple, si no
+        // Afegit el salt de línia simple
         if ((isset($token['extra']) && $token['extra']['block'] === TRUE && $token['action'] == 'open')
             || $token['raw'] === "\n\n" || $token['raw'] === "\n") {
 
