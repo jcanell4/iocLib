@@ -11,17 +11,19 @@ class ViewMediaAction extends MediaAction {
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
-        $this->modelAdapter = $this->params['modelAdapter'];
+        if ($modelManager) {
+            $this->modelAdapter = $modelManager->getModelAdapterManager();
+        }
     }
 
     protected function responseProcess() {
         global $lang, $NS, $ACT, $JSINFO;
 
-        $nou = trigger_event('IOC_WF_INTER', $ACT);
+        trigger_event('IOC_WF_INTER', $ACT);
         $response = array(
-            "content" => $this->modelAdapter->doMediaManagerPreProcess(),  //[ALERTA Josep] Pot venir amb un fragment de HTML i caldria veure què es fa amb ell.
-            "id" => "media",
-            "title" => "media",
+            "content" => $this->modelAdapter->doMediaManagerPreProcess(),
+            "id" => MediaKeys::KEY_MEDIA,
+            "title" => MediaKeys::KEY_MEDIA,
             "ns" => $NS,
             "imageTitle" => $lang['img_manager'],
             "image" => $this->params[MediaKeys::KEY_IMAGE],
@@ -29,14 +31,15 @@ class ViewMediaAction extends MediaAction {
             "modifyImageLabel" => $lang['img_manager'],
             "closeDialogLabel" => $lang['img_backto']
         );
-        $JSINFO = array('id' => "media", 'namespace' => $NS);
+        $JSINFO = [MediaKeys::KEY_ID => MediaKeys::KEY_MEDIA,
+                   'namespace' => $NS];
         return $response;
     }
 
     protected function startProcess() {
         parent::startProcess();
 
-        $error = $this->startMediaManager(PageKeys::DW_ACT_MEDIA_MANAGER, $this->params[MediaKeys::KEY_IMAGE], $this->params[MediaKeys::KEY_FROM_ID], $this->params[MediaKeys::KEY_REV]);
+        $error = $this->startMediaManager(MediaKeys::KEY_MEDIA, $this->params[MediaKeys::KEY_IMAGE], $this->params[MediaKeys::KEY_FROM_ID], $this->params[MediaKeys::KEY_REV]);
         if ($error == 401) {
             throw new HttpErrorCodeException("Access denied", $error);
         } else if ($error == 404) {
@@ -44,11 +47,9 @@ class ViewMediaAction extends MediaAction {
         }
     }
 
-    protected function runProcess() {
-    }
+    protected function initModel() {}
 
-    protected function initModel() {
-    }
+    protected function runProcess() {}
 
     private function startMediaManager($pdo, $pImage=NULL, $pFromId=NULL, $prev=NULL) {
         global $ID, $AUTH, $vector_action, $IMG, $ERROR, $SRC, $REV;
@@ -56,8 +57,8 @@ class ViewMediaAction extends MediaAction {
 
         $this->params['action'] = $pdo;
 
-        if ($pdo === PageKeys::DW_ACT_MEDIA_MANAGER) {
-            $vector_action = $GET["vecdo"] = $this->params['vector_action'] = "media";
+        if ($pdo === MediaKeys::KEY_MEDIA) {
+            $vector_action = $GET["vecdo"] = $this->params['vector_action'] = MediaKeys::KEY_MEDIA;
         }
         if ($pImage) {
             $IMG = $this->params[MediaKeys::KEY_IMAGE] = $pImage;
@@ -85,7 +86,6 @@ class ViewMediaAction extends MediaAction {
 
         if ($ret === 0) {
             WikiIocInfoManager::loadMediaInfo();
-            $this->startUpLang();
             //detect revision
             if ($this->params[MediaKeys::KEY_REV] < 1) {
                 $REV = $this->params[MediaKeys::KEY_REV] = (int)WikiIocInfoManager::getInfo("lastmod");
