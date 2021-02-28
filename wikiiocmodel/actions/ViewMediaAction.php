@@ -55,7 +55,7 @@ class ViewMediaAction extends MediaAction {
         global $ID, $AUTH, $vector_action, $IMG, $ERROR, $SRC, $REV;
         $ret = $ERROR = 0;
 
-        $this->params['action'] = $pdo;
+        $this->params[MediaKeys::KEY_ACTION] = $pdo;
 
         if ($pdo === MediaKeys::KEY_MEDIA) {
             $vector_action = $GET["vecdo"] = $this->params['vector_action'] = MediaKeys::KEY_MEDIA;
@@ -90,7 +90,7 @@ class ViewMediaAction extends MediaAction {
             if ($this->params[MediaKeys::KEY_REV] < 1) {
                 $REV = $this->params[MediaKeys::KEY_REV] = (int)WikiIocInfoManager::getInfo("lastmod");
             }else {
-                $REV = $this->params[MediaKeys::KEY_REV] = (int)WikiIocInfoManager::getInfo("rev"); //$INFO comes from the DokuWiki core
+                $REV = $this->params[MediaKeys::KEY_REV] = (int)WikiIocInfoManager::getInfo(MediaKeys::KEY_REV);
             }
             $this->triggerStartEvents();
         }
