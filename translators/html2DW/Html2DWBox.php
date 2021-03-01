@@ -34,7 +34,7 @@ class Html2DWBox extends Html2DWMarkup {
         $content = $this->parseContent($matches[3][0]);
 
 
-        $post = ":::\n";
+        $post = ":::";
 
         if (substr($content, -1,1) !== "\n") {
             $post = "\n" . $post;
