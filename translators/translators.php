@@ -303,8 +303,13 @@ abstract class AbstractTranslator {
 
 class Hmtl2DWTranslator extends AbstractTranslator {
 
+
     public static function translate($text, $params, &$extra) {
-//        return Html2DWParser::parse($text);
+
+        // no es pot ficar en el constructor perquè aquesta funció és estàtica
+        Logger::init(1, "HTML2DW-Debug.log");
+
+        Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
 
         $header = '';
         if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {
@@ -325,7 +330,11 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         // perque els documents DW sempre tenen com a mínim un \n al final, i aquest és embolcallat
         // com <p>\n</p>, això provoca el doble salt al final del document.
         // Per solventar-lo fem un trim i afegim un únic salt de línia final.
-        return trim(Html2DWParser::getValue($text)) . "\n";
+        $result = trim(Html2DWParser::getValue($text)) . "\n";
+
+        Logger::debug("### DW START ###\n" . $result . "### DW END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+
+        return $result;
         //return Html2DWParser::getValue($text);
     }
 }
@@ -335,9 +344,14 @@ class DW2HtmlTranslator extends AbstractTranslator {
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
     const DEBUG_STRUCTURE = false;
 
+
     public static function translate($text, $params, &$extra, $isPartial = false) {
         global $plugin_controller;
 
+        // no es pot ficar en el constructor perquè aquesta funció és estàtica
+        Logger::init(1, "DW2HTML-Debug.log");
+
+        Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
 
         $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
@@ -380,6 +394,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
                 $text = WiocclParser::getValue($text, [], $dataSource);
             }
 
+            Logger::debug("### DW AFTER WIOCCL PARSE START ###\n" . $text . "### DW AFTER WIOCCL PARSE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
 
             WiocclParser::$generateStructure = false;
 
@@ -405,23 +420,18 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $dataSource = [];
         }
 
-        // TODO: Al DW2HtmlParser és on s'ha de fer el parser del wioccl, agafant el valor de l'atribut:
-        // i cridant a: $result .=  WiocclParser::getValue($content, [], $this->dataSource);
-        // també s'han de processar els :### i ###:
-
-
-        // TODO: en aquest punt tenim las metadades que es reconstrueixen afegint-les entre ':###\n' i '/n###:\n'
-        // i la estructura
-
-
         if ($isPartial) {
             // TODO: determinar si el $inline ha de ser true o false? <-- les traduccions parcials sempre son inline
             $inline = true;
-            return DW2HtmlInstruction::parseContent2($text, $inline);
+            $result = DW2HtmlInstruction::parseContent2($text, $inline);
         } else {
-            return DW2HtmlParser::getValue($text, [], $dataSource);
+            $result = DW2HtmlParser::getValue($text, [], $dataSource);
         }
 
+        Logger::debug("### HTML START ###\n" . $result . "### HTML END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+
+
+        return $result;
 
     }
 

@@ -52,7 +52,7 @@ class Html2DWBox extends Html2DWMarkup {
 
         foreach ($tags as $tag) {
 
-            $pattern = "/<" . $tag . ".*?data-dw-field=\"(.*?)\".*?<\/" . $tag . "> (.*?)<\/?br(?: \/)?>/ms";
+            $pattern = "/<" . $tag . ".*?data-dw-field=\"(.*?)\".*?<\/" . $tag . "> (.*?)(?:<\/?br(?: \/)?>|\n)/ms";
 
             preg_match_all($pattern, $text, $matches);
 
