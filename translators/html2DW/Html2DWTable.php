@@ -25,7 +25,7 @@ class Html2DWTable extends Html2DWMarkup {
 
 
         // extraiem les files
-        $rowPattern = '/<tr>(.*?)<\/tr>/ms';
+        $rowPattern = '/<tr>(.*?)<\/tr>|<span data-wioccl-ref.*?<\/span>/ms';
         preg_match_all($rowPattern, $tableHtml, $rowMatches);
 //        var_dump($rowMatches);
         $rows = $rowMatches[0];
@@ -35,112 +35,110 @@ class Html2DWTable extends Html2DWMarkup {
 
         // recorrem les files extraiem les cel·les
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
-            $cellPattern = '/<(?:td|th).*?>(.*?)<\/(?:td|th)>/ms';
-            preg_match_all($cellPattern, $rows[$rowIndex], $colMatches);
+
+            if (substr( $rows[$rowIndex], 0, 3 ) == '<tr') {
+                // es tracta d'una fila
+                $cellPattern = '/<(?:td|th).*?>(.*?)<\/(?:td|th)>/ms';
+                preg_match_all($cellPattern, $rows[$rowIndex], $colMatches);
 
 
-            $colIndex = 0;
-            $cellNumber = count($colMatches[1]);
+                $colIndex = 0;
+                $cellNumber = count($colMatches[1]);
 
 
-            for ($i = 0; $i < $cellNumber; $i++) {
-                $cell = [];
+                for ($i = 0; $i < $cellNumber; $i++) {
+                    $cell = [];
 
 
-                // ALERTA! La posició no correspón a la posició a la taula, s'ha de desplaçar pels row spans
-                //      Si tromem un rowspan marquem les posicions necessaries
-                //      Si es troba ja ocupada la cel·la en desplacem cap a la dreta
+                    // ALERTA! La posició no correspón a la posició a la taula, s'ha de desplaçar pels row spans
+                    //      Si tromem un rowspan marquem les posicions necessaries
+                    //      Si es troba ja ocupada la cel·la en desplacem cap a la dreta
 
 //                var_dump($colMatches);
-                // extreure tipus TD o TH
-                if (substr($colMatches[0][$i], -5, 5) == '</td>') {
-                    $cell['tag'] = 'td';
-                } else {
-                    $cell['tag'] = 'th';
-                }
-
-                // extreure l'alineació
-                $alignPattern = '/class="(.*?)align.*?"/';
-                if (preg_match($alignPattern, $colMatches[0][$i], $match)) {
-                    // afegim files buides a la dreta fins colspan-1
-                    $cell['align'] = $match[1];
-                }
-
-
-//
-                $class = static::$parserClass;
-                $isInnerPrevious = $class::isInner();
-                $class::setInner(true);
-
-                $cell['content'] = $class::getValue($colMatches[1][$i]);
-
-                $class::setInner($isInnerPrevious);
-
-
-                // Això ho fem per avançar el cursor sobre les cel·les que ja s'han establert per un rowspan a una fila anterior
-                while (isset($table[$colIndex][$rowIndex])) {
-                    $colIndex++;
-                }
-
-
-                $table[$colIndex][$rowIndex] = $cell;
-
-
-                $colspan = 0;
-
-                // extreure colspan
-                $colspanPattern = '/colspan="(.*?)"/';
-                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
-                    // afegim files buides a la dreta fins colspan-1
-
-                    $colspan = $match[1];
-
-                    $auxColIndex = $colIndex;
-                    for ($j = 1; $j < $colspan; $j++) {
-                        ++$auxColIndex;
-                        $table[$auxColIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
+                    // extreure tipus TD o TH
+                    if (substr($colMatches[0][$i], -5, 5) == '</td>') {
+                        $cell['tag'] = 'td';
+                    } else {
+                        $cell['tag'] = 'th';
                     }
-                }
 
-                // extreure rowspan
-                $colspanPattern = '/rowspan="(.*?)"/';
+                    // extreure l'alineació
+                    $alignPattern = '/class="(.*?)align.*?"/';
+                    if (preg_match($alignPattern, $colMatches[0][$i], $match)) {
+                        // afegim files buides a la dreta fins colspan-1
+                        $cell['align'] = $match[1];
+                    }
 
-//                if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
-//                    // afegim files amb ::: cap a sota fins a rowspan
-//                    $rowspan = $match[1];
-//
-//                    for ($j = 1; $j < $rowspan; $j++) {
-//                        $table[$colIndex][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
-//                    }
-//                }
+                    $class = static::$parserClass;
+                    $isInnerPrevious = $class::isInner();
+                    $class::setInner(true);
 
+                    $cell['content'] = $class::getValue($colMatches[1][$i]);
+
+                    $class::setInner($isInnerPrevious);
+
+
+                    // Això ho fem per avançar el cursor sobre les cel·les que ja s'han establert per un rowspan a una fila anterior
+                    while (isset($table[$colIndex][$rowIndex])) {
+                        $colIndex++;
+                    }
+
+
+                    $table[$colIndex][$rowIndex] = $cell;
+
+
+                    $colspan = 0;
+
+                    // extreure colspan
+                    $colspanPattern = '/colspan="(.*?)"/';
+                    if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
+                        // afegim files buides a la dreta fins colspan-1
+
+                        $colspan = $match[1];
+
+                        $auxColIndex = $colIndex;
+                        for ($j = 1; $j < $colspan; $j++) {
+                            ++$auxColIndex;
+                            $table[$auxColIndex][$rowIndex] = ['tag' => $cell['tag'], 'content' => ''];
+                        }
+                    }
+
+                    // extreure rowspan
+                    $colspanPattern = '/rowspan="(.*?)"/';
 
                     //  Cal recorrer el colspan pels casos en que hi ha més d'una columna
 
                     for ($k=0; $k< ($colspan? $colspan : 1); $k++) {
 
-                    if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
-                        // afegim files amb ::: cap a sota fins a rowspan-1
-                        $rowspan = $match[1];
+                        if (preg_match($colspanPattern, $colMatches[0][$i], $match)) {
+                            // afegim files amb ::: cap a sota fins a rowspan-1
+                            $rowspan = $match[1];
 
-                        for ($j = 1; $j < $rowspan; $j++) {
-                            $table[$colIndex + $k][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+                            for ($j = 1; $j < $rowspan; $j++) {
+                                $table[$colIndex + $k][$rowIndex + $j] = ['tag' => $cell['tag'], 'content' => ' ::: '];
+                            }
                         }
                     }
+
+                    $colIndex++;
+
                 }
 
+            } else {
+                // es tracta d'un wioccl
+                $wiocclPattern = '/<span data-wioccl-ref.*?>(.*)<\/span>/ms';
 
-                $colIndex++;
+                 preg_match($wiocclPattern, $rows[$rowIndex], $wiocclMatches);
 
+                $table[0][$rowIndex] = [
+                    "wioccl" => $wiocclMatches[0]
+                ];
             }
-
 
         }
 
 
         --static::$instancesCounter;
-
-//        var_dump($table);
 
         return $this->makeTable($table);
     }
@@ -158,6 +156,14 @@ class Html2DWTable extends Html2DWMarkup {
         for ($row = 0; $row < count($tableData[0]); $row++) {
 
             for ($col = 0; $col < count($tableData); $col++) {
+
+                if ($col===0 && $tableData[$col][$row]['wioccl']) {
+                    $class = static::$parserClass;
+                    $content .= $class::getValue($tableData[$col][$row]['wioccl']);
+                    $lastCellTag = "";
+                    break;
+                }
+
                 if ($tableData[$col][$row]['tag'] === 'th') {
                     $content .= '^';
                 } else {
@@ -188,13 +194,13 @@ class Html2DWTable extends Html2DWMarkup {
 
                 // Aquést últim es irellevant, només es te en compte el primer simbol de cad cel·la
                 if ($tableData[$col][$row]['tag'] === 'th') {
-                    $lastCellTag = '^';
+                    $lastCellTag = "^\n";
                 } else {
-                    $lastCellTag = '|';
+                    $lastCellTag = "|\n";
                 }
             }
 
-            $content .= $lastCellTag . "\n";
+            $content .= $lastCellTag;
 
         }
 
