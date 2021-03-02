@@ -28,7 +28,7 @@ class DW2HtmlParser extends IocParser {
         "/\\\\\\\\\n/ms" => '<br />',
         // Alerta, encara que sembla el mateix un espai es ASCII 32 i l'altre es ASCII 160
         "/^[  ]+\n/ms" => "\n",
-        "/\*\*\*/" => "* **" // sempre s'ha de posar un espai entre el * de llista i el ** de negretes perquè sempre es farà primer la captura de **
+        "/\*{3}/ms" => '* **'
     ];
 
     public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>"], 'regex' => TRUE, 'block' => TRUE]];
@@ -103,6 +103,9 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
+        "(?: {2})+[\*-](.*?)\n" => [
+            'state' => 'list-item'
+        ],
 
         "\*\*" => [
             'state' => 'bold'
@@ -126,9 +129,6 @@ class DW2HtmlParser extends IocParser {
         ],
 
 
-        "(?: {2})+[\*-](.*?)\n" => [
-            'state' => 'list-item'
-        ],
 
         "<note>(.*?)<\/note>" => [
             'state' => 'note'
@@ -221,6 +221,8 @@ class DW2HtmlParser extends IocParser {
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
+        " {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
+        " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
 
@@ -230,20 +232,10 @@ class DW2HtmlParser extends IocParser {
         // Aquest és monospace (inline)
         "^''(.*?)''$" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<code>", "</code>"], 'regex' => TRUE/*, 'replace' => TRUE*/]],
 
-
-        " {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
-
-        " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
-
-
         ':table:(.*?):' => ['state' => 'link-special', 'type' => 'table', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'table']],
         ':figure:(.*?):' => ['state' => 'link-special', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
-
         "<note>(.*?)<\/note>" => ['state' => 'note', 'type' => 'note', 'class' => 'DW2HtmlNote', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
-
-
-
 
         // ALERTA[Xavi]: per ara ignorem els Readonly, el funcionament ha de ser similar als refs, afegint algun atribut
         // que bloquegi a tots els elements entre l'apertura i el tancament, serà necessari fer servir un stack

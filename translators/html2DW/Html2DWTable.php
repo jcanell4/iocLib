@@ -178,15 +178,28 @@ class Html2DWTable extends Html2DWMarkup {
                     $value = preg_replace("/\n+/", "\\\\\\ ", $value);
                 }
 
+                // ALERTA: fem un trim per la esquerra i la dreta per assegurar que el nombre d'espais és correcte
+                // perquè l'editor ACE pot afegir espais adicionals quan formateja la visualització
+
                 $align = $tableData[$col][$row]['align'];
-                if (($align === 'center' || $align === 'left') && substr($value, 0, 2) !== '  ') {
+                if ($align === 'center' || $align === 'left') {
                     // s'han d'afegir els caràcters d'alineació
-                    $value = '  ' . $value;
+                    $value = '  ' . ltrim($value);
                 }
 
-                if (($align === 'center' || $align === 'right') && substr($value, -2, 2) !== '  ') {
+                if ($align === 'center' || $align === 'right') {
                     // s'han d'afegir els caràcters d'alineació
-                    $value .= '  ';
+
+                    // ALERTA[Xavi]: si hi ha un <wioccl::if que s'obre i es tanca al final del $value la alineació
+                    // s'ha de ficar abans del wioccl::if
+                    $innerWiocclIfPattern = '/(.*?)(<WIOCCL:IF condition=".*?">\^.*<\/WIOCCL:IF>)$/ms';
+
+                    if (preg_match_all ( $innerWiocclIfPattern , $value , $wiocclMatches)) {
+                        $value = rtrim($wiocclMatches[1][0]) . '  ' .$wiocclMatches[2][0];
+                    } else {
+                        $value = rtrim($value) . '  ';
+                    }
+
                 }
 
 
