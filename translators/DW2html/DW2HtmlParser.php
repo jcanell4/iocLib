@@ -28,6 +28,7 @@ class DW2HtmlParser extends IocParser {
         "/\\\\\\\\\n/ms" => '<br />',
         // Alerta, encara que sembla el mateix un espai es ASCII 32 i l'altre es ASCII 160
         "/^[  ]+\n/ms" => "\n",
+        "/\*\*\*/" => "* **" // sempre s'ha de posar un espai entre el * de llista i el ** de negretes perquè sempre es farà primer la captura de **
     ];
 
     public static $defaultContainer = ['state' => 'paragraph', 'type' => 'p', 'class' => 'DW2HtmlParagraph', 'action' => 'open', 'extra' => ['replacement' => ["<p>", "</p>"], 'regex' => TRUE, 'block' => TRUE]];
