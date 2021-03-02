@@ -281,7 +281,7 @@ class AjaxCmdResponseGenerator {
      * @param string $title
      * @param string $content
      */
-    public function addMediaDetails($difftype, $mediado, $mediaDetailsAction, $id, $ns, $title, $content)
+    public function addMediaDetails($difftype, $mediado, $mediaDetailsAction, $id, $ns, $title, $content, $rev=0)
     {
         $contentData = array(
             'id' => $id,
@@ -290,7 +290,8 @@ class AjaxCmdResponseGenerator {
             'content' => $content,
             'mediaDetailsAction' => $mediaDetailsAction,
             'mediado' => $mediado,
-            'difftype' => $difftype
+            'difftype' => $difftype,
+            'rev' => $rev
         );
 
         $this->response->add(
