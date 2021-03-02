@@ -9,7 +9,7 @@ class RenameFolderAction extends PageAction {
 
     protected function runProcess() {
         $model = $this->getModel();
-        $model->renameFolder($this->params[PageKeys::KEY_OLD_NAME], $this->params[PageKeys::KEY_NEW_NAME]);
+        $model->renameFolder($this->params[PageKeys::KEY_OLD_FOLDER_NAME], $this->params[PageKeys::KEY_NEW_FOLDER_NAME]);
         return NULL;
     }
 

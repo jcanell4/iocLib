@@ -96,37 +96,41 @@ abstract class DataQuery {
 
     /**
      * Canvia el nom de tots els directoris demanats que es trobin a 'data/'
-     * @param string $base_dir : ruta wiki del directori que canvia de nom
+     * @param string $base_old_dir : ruta wiki del directori que canvia de nom
      * @param string $old_name : nom actual del directori
+     * @param string $base_new_dir : ruta wiki del nou directori
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function renameDirNames($base_dir, $old_name, $new_name) {
+    public function renameDirNames($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $paths = $this->_arrayDataFolders();
 
         foreach ($paths as $dir) {
             $basePath = WikiGlobalConfig::getConf($dir);
-            $oldPath = "$basePath/$base_dir/$old_name";
+            $oldPath = "$basePath/$base_old_dir/$old_name";
             if (file_exists($oldPath)) {
-                $newPath = "$basePath/$base_dir/$new_name";
-                if (! rename($oldPath, $newPath) )
-                    throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/directori a $dir.");
+                $newPath = "$basePath/$base_new_dir/$new_name";
+                if ($base_old_dir !== $base_new_dir && !is_dir($newPath))
+                    mkdir($newPath, 0775, true);
+                if (! rename($oldPath, $newPath))
+                    throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/carpeta a $dir.");
             }
         }
     }
 
     /**
      * Canvia el nom dels arxius que contenen (en el nom) l'antiga ruta del projecte o directori
-     * @param string $base_dir : directori wiki del projecte o directori
-     * @param string $old_name : nom actual del projecte o directori
-     * @param string $new_name : nou nom del projecte o directori (nom actual)
+     * @param string $old_base_name : directori wiki original del projecte o directori
+     * @param string $new_base_name : ruta actual del projecte o directori
      * @param array|string $listfiles : llista d'arxius o extensió dels arxius (per defecte ".zip") generats pel render que cal renombrar
+     * @param boolean $recursive
      * @throws Exception
      */
-    public function renameRenderGeneratedFiles($base_dir, $old_name, $new_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
-        $newPath = WikiGlobalConfig::getConf('mediadir')."/$base_dir/$new_name";
-
-        $ret = $this->_renameRenderGeneratedFiles($newPath, str_replace("/", "_", "$base_dir/$old_name"), $old_name, $new_name, $listfiles, $recursive);
+    public function renameRenderGeneratedFiles($old_base_name, $new_base_name, $listfiles=["extension","\.zip"], $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('mediadir')."/$new_base_name";
+        $old_base_name = str_replace("/", "_", $old_base_name);
+        $new_base_name = str_replace("/", "_", $new_base_name);
+        $ret = $this->_renameRenderGeneratedFiles($newPath, $old_base_name, $new_base_name, $listfiles, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom de l'arxiu $ret.");
         }
@@ -134,37 +138,30 @@ abstract class DataQuery {
 
     /**
      * Canvia el nombre de los archivos cuyo nombre contiene el antiguo nombre de directorio
-     * @param string $path : ruta sencera del sistema al directori 'data/media' de la wiki
-     * @param string $base_name : nom base dels arxius
-     * @param string $old_name : nom actual del directori
-     * @param string $new_name : nou nom del directori
+     * @param string $path : ruta absoluta al directori 'data/media/.../new_name' dels arxius que hem de canviar de nom
+     * @param string $old_base_name : nom base dels arxius que han de canviar de nom
+     * @param string $new_base_name : nou nom del directori
      * @param array $listfiles lista de terminaciones de fichero
      * @return boolean|string TRUE si ha ido bien, "ruta del fichero" si se ha producido error al renombrar
      */
-    private function _renameRenderGeneratedFiles($path, $base_name, $old_name, $new_name, $listfiles, $recursive=FALSE) {
+    private function _renameRenderGeneratedFiles($path, $old_base_name, $new_base_name, $listfiles, $recursive=FALSE) {
         $ret = TRUE;
-        $scan = @scandir($path);
-        if ($scan) $scan = array_diff($scan, [".", ".."]);
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
                     if ($recursive) {
-                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $base_name, $old_name, $new_name, $listfiles, TRUE);
+                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $old_base_name, $new_base_name, $listfiles, TRUE);
                         if (is_string($ret)) break;
                     }
-                }elseif (preg_match("/^$base_name/", $file)) {
+                }elseif (preg_match("/^$old_base_name/", $file)) {
                     if (!empty($listfiles)) {
-                        for ($i=1; $i<count($listfiles); $i++) {
-                            $ext .= $listfiles[$i] ."|";
-                        }
-                        $ext = substr($ext, 0, -1);
-                        if ($listfiles[0] === "fullname") {
-                            $search = "/($ext)/";
-                        }else {
-                            $search = "/{$base_name}.*?($ext)/";
-                        }
+                        $type = array_shift($listfiles);
+                        $ext = implode("|", $listfiles);
+                        $search = ($type === "fullname") ? "/($ext)/" : "/{$old_base_name}(.*?)($ext)/";
                         if (preg_match($search, $file)) {
-                            $newfile = preg_replace("/(_*?){$old_name}([\.|_])/", "$1{$new_name}$2", $file);
+                            $newfile = preg_replace("{$search}", "{$new_base_name}$1$2", $file);
                             $ret = rename("$path/$file", "$path/$newfile");
                             if (!$ret) {
                                 $ret = "$path/$file";
@@ -180,28 +177,35 @@ abstract class DataQuery {
 
     /**
      * Canvia el contingut dels arxius ".changes" i ".meta" que contenen la ruta del directori per la nova ruta
-     * @param string $base_dir : directori wiki
+     * @param string $base_old_dir : directori wiki origen
      * @param string $old_name : nom actual del directori
+     * @param string $base_new_dir : directori wiki nou
      * @param string $new_name : nou nom del directori
      * @throws Exception
      */
-    public function changeOldPathInRevisionFiles($base_dir, $old_name, $new_name, $file_sufix=[], $recursive=FALSE) {
+    public function changeOldPathInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
         $paths = ['metadir',       /*meta*/
                   'mediametadir',  /*media_meta*/
                   'metaprojectdir' /*project_meta*/
                  ];
-        if (empty($file_sufix)) {
-            $suffix = FALSE;
-        }else {
-            array_pop($file_sufix);
+        if (($suffix = $file_sufix)) {
+            array_shift($file_sufix);
             $suffix = "(".implode("|", $file_sufix).")";
         }
-        $base_name = str_replace("/", "_", $base_dir);
-        $list_files = "\.(changes|meta)";
         $ret = TRUE;
+        $list_files = "\.(changes|meta)";
+        $newdir = "/$base_new_dir/$new_name";
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
+        }
         foreach ($paths as $dir) {
-            $newPath = WikiGlobalConfig::getConf($dir)."/$base_dir/$new_name";
-            $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, $list_files, $suffix, $recursive);
+            $newPath = WikiGlobalConfig::getConf($dir).$newdir;
+            $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, $list_files, $suffix, $recursive);
             if (is_string($ret)) break;
         }
         if (is_string($ret)) {
@@ -210,145 +214,83 @@ abstract class DataQuery {
     }
 
     /**
-     * Afegir nova entrada als arxius .changes que indica que s'ha produït un canvi de nom de directori
-     * @param string $ns
-     * @param string $base_dir : directori wiki que està canviant de nom
-     * @param string $old_name : antic nom del directori
-     * @param string $new_name : nou nom del directori
-     * @throws Exception
-     */
-    public function addLogEntryInRevisionFiles($ns, $base_dir, $old_name, $new_name) {
-        $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
-        $path = WikiGlobalConfig::getConf($paths[0])."/$base_dir/$new_name";
-        $attic = WikiGlobalConfig::getConf($paths[1])."/$base_dir/$new_name";
-        if (@scandir($path)) {
-            $ret = $this->_addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name);
-        }
-        if (is_string($ret)) {
-            throw new Exception("addLogEntryInRevisionFiles: Error mentre afegia nova entrada a l'arxiu .changes de $ret.");
-        }
-//        $path = WikiGlobalConfig::getConf('mediametadir')."/$base_dir/$new_name";
-//        $attic = WikiGlobalConfig::getConf('mediaolddir')."/$base_dir/$new_name";
-//        $this->_addLogEntryInMediaRevisionFiles($ns, $path, $attic, $old_name, $new_name, ".changes");
-    }
-
-    private function _addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name) {
-        $ret = "";
-        $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
-        if ($scan) {
-            foreach ($scan as $file) {
-                if (is_dir("$path/$file")) {
-                    $this->_addLogEntryInRevisionFiles("$ns:$file", "$path/$file", "$attic/$file", $old_name, $new_name);
-                }else {
-                    $id = "$ns:".str_replace(".txt", "", $file);
-                    $summary = "rename old_directory=".str_replace(["$new_name",":"], ["$old_name","."], $ns);
-                    $pagelog = new PageChangeLog($id);
-                    $oldRev = $pagelog->getRevisions(-1, 1);
-                    if (!empty($oldRev)) {
-                        $oldRev = $oldRev[0];
-                        $last_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${oldRev}$2.gz", $file);
-                    }
-                    if (!empty($oldRev) && file("$attic/$last_rev_name")) {
-                        $time_rev = time();
-                        $new_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${time_rev}$2.gz", $file);
-                        $ret = system("cd $attic; ln -s $last_rev_name $new_rev_name"); //crea enlace simbólico
-                        if ($ret === "") {
-                            addLogEntry($time_rev, $id, DOKU_CHANGE_TYPE_MINOR_EDIT, $summary);
-                        }else {
-                            $ret = "$path/$file";
-                            break;
-                        }
-                    }else {
-                        //generació forçada d'una revisió
-                        $text = file_get_contents("$path/$file")."\n"; //els fitxers han de tenir algún canvi
-                        saveWikiText($id, $text, $summary, TRUE);      //sinó no es fa res
-                    }
-                }
-            }
-        }
-        return ($ret === "");
-    }
-
-    /*
-    private function _addLogEntryInMediaRevisionFiles($ns, $path, $attic, $old_name, $new_name, $type) {
-        global $conf;
-        $ret = "";
-        $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
-        if ($scan) {
-            foreach ($scan as $file) {
-                if (is_dir("$path/$file")) {
-                    $this->_addLogEntryInMediaRevisionFiles("$ns:$file", "$path/$file", "$attic/$file", $old_name, $new_name, $type);
-                }elseif (substr($file, -8) === $type) {
-                    $id = "$ns:".str_replace($type, "", $file);
-                    $summary = str_replace($new_name, $old_name, $ns);
-                    $medialog = new MediaChangeLog($id);
-                    $oldRev = $medialog->getRevisions(-1, 1);
-                    $oldRev = (int) (empty($oldRev) ? 0 : $oldRev[0]);
-                    $last_rev_name = preg_replace("/^(.*)(\..*)(".$type.")$/, $1.{$oldRev}$2", $file);
-                    $time_rev = time();
-                    $new_rev_name = preg_replace("/^(.*)(\..*)(".$type.")$/", "$1.${time_rev}$2", $file);
-                    $ret = system("cd $attic; ln -s $last_rev_name $new_rev_name"); //crea enlace simbólico
-                    if ($ret === "") {
-                        $logline = array(
-                                'date'  => $time_rev,
-                                'ip'    => clientIP(true),
-                                'type'  => DOKU_CHANGE_TYPE_MINOR_EDIT,
-                                'id'    => $id,
-                                'user'  => $_SERVER['REMOTE_USER'],
-                                'sum'   => "rename old_directory=$summary",
-                                'extra' => ''
-                                );
-                        $logline = implode("\t", $logline)."\n";
-                        io_saveFile(metaFN($id, '.changes'), $logline, true); //page changelog
-                        io_saveFile($conf['changelog'], $logline, true);      //global changelog cache
-                     }else {
-                        $ret = "$path/$file";
-                        break;
-                    }
-                }
-            }
-        }
-        return ($ret === "");
-    }
-    */
-
-    /**
      * Canvia el contingut dels arxius que contenen l'antiga ruta del projecte (normalment la ruta absoluta a les imatges)
-     * @param string $base_dir : directori wiki del projecte
+     * @param string $base_old_dir : directori wiki del projecte
      * @param string $old_name : nom actual del projecte
+     * @param string $base_new_dir : directori wiki del projecte
      * @param string $new_name : nou nom del projecte
      * @throws Exception
      */
-    public function changeOldPathInContentFiles($base_dir, $old_name, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
-        $newPath = WikiGlobalConfig::getConf('datadir')."/$base_dir/$new_name";
-        $suffix = (is_array($file_sufix)) ? "(".implode("|", $file_sufix).")" : FALSE;
-        $base_name = str_replace("/", "_", $base_dir);
-        $ret = $this->_changeOldPathInFiles($newPath, $base_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
+    public function changeOldPathInContentFiles($base_old_dir, $old_name, $base_new_dir, $new_name, $file_sufix=FALSE, $recursive=FALSE) {
+        $newPath = WikiGlobalConfig::getConf('datadir')."/$base_new_dir/$new_name";
+        if (($suffix = $file_sufix)) {
+            array_shift($file_sufix);
+            $suffix = "(".implode("|", $file_sufix).")";
+        }
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
+        }
+        $ret = $this->_changeOldPathInFiles($newPath, $base_old_name, $old_name, $new_name, "\.txt$", $suffix, $recursive);
         if (is_string($ret)) {
             throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
         }
     }
 
-    private function _changeOldPathInFiles($path, $base_name, $old_name, $new_name, $list_files, $suffix=FALSE, $recursive=FALSE) {
+    /**
+     * Canvia el contingut dels arxius de /wiki/user/ que contenen l'antiga ruta del projecte (normalment dreceres)
+     * @param string $base_old_dir : directori wiki del projecte
+     * @param string $old_name : nom actual del projecte
+     * @param string $base_new_dir : directori wiki del projecte
+     * @param string $new_name : nou nom del projecte
+     * @throws Exception
+     */
+    public function changeOldPathInUserFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
+        $userpage = WikiGlobalConfig::getConf('datadir').str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')).$_SERVER['REMOTE_USER'];
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+            $base_old_name = FALSE;
+        }else {
+            $base_old_name = str_replace("/", "_", $base_old_dir);
+        }
+        $list_files = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel')."\.txt$";
+        $ret = $this->_changeOldPathInFiles($userpage, $base_old_name, $old_name, $new_name, $list_files);
+        if (is_string($ret)) {
+            throw new Exception("renameProjectOrDirectory: Error mentre canviava el contingut d'algun axiu a $ret.");
+        }
+    }
+
+    private function _changeOldPathInFiles($path, $base_old_name, $old_name, $new_name, $list_files, $suffix=FALSE, $recursive=FALSE) {
         $ret = TRUE;
-        $scan = @scandir($path);
-        $scan = array_diff($scan, [".", ".."]);
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
                     if ($recursive) {
-                        $ret = $this->_changeOldPathInFiles("$path/$file", $base_name, $old_name, $new_name, $list_files, $suffix, TRUE);
+                        $ret = $this->_changeOldPathInFiles("$path/$file", $base_old_name, $old_name, $new_name, $list_files, $suffix, TRUE);
                         if (is_string($ret)) break;
                     }
                 }elseif (preg_match("/$list_files/", $file)) {
                     if (($content = file_get_contents("$path/$file"))) {
                         $c = $c2 = 0;
                         $content = preg_replace("/(:)?\b$old_name((:|\t|\"))?/m", "$1{$new_name}$2", $content, -1, $c);
-                        if ($suffix) {
-                            if (preg_match("/{$base_name}_{$old_name}/", $content)) {
-                                $content = preg_replace("/({$base_name}_)($old_name)(_*?.*?)($suffix)/", "$1{$new_name}$3$4", $content, -1, $c2);
+                        if ($suffix && $base_old_name) {
+                            if (preg_match("/{$base_old_name}_{$old_name}/", $content)) {
+                                $content = preg_replace("/({$base_old_name}_)($old_name)(_*?.*?)($suffix)/", "$1{$new_name}$3$4", $content, -1, $c2);
+                                $c += $c2;
+                            }
+                        }elseif ($suffix) {
+                            $search_name = str_replace(":", "_", $old_name);
+                            $replace_name = str_replace(":", "_", $new_name);
+                            if (preg_match("/{$search_name}/", $content)) {
+                                $content = preg_replace("/({$search_name})(_*?.*?)($suffix)/", "{$replace_name}$2$3", $content, -1, $c2);
                                 $c += $c2;
                             }
                         }
@@ -367,16 +309,82 @@ abstract class DataQuery {
     }
 
     /**
+     * Afegir nova entrada als arxius .changes que indica que s'ha produït un canvi de nom de directori
+     * @param string $base_old_dir : directori wiki que està canviant de nom
+     * @param string $old_name : antic nom del directori
+     * @param string $base_new_dir : directori wiki que està canviant de nom
+     * @param string $new_name : nou nom del directori
+     * @throws Exception
+     */
+    public function addLogEntryInRevisionFiles($base_old_dir, $old_name, $base_new_dir, $new_name) {
+        $paths = ['datadir' /*pages*/, 'olddir' /*attic*/];
+        $wiki_name = str_replace("/", ":", $base_new_dir).":$new_name";
+        $new_path = "$base_new_dir/$new_name";
+        if ($base_new_dir !== $base_old_dir) {
+            //cuando las rutas son iguales basta con cambiar el nombre del directorio sin incluir la ruta
+            $old_name = str_replace("/", ":", $base_old_dir) . ":$old_name";
+            $new_name = str_replace("/", ":", $base_new_dir) . ":$new_name";
+        }
+        $path = WikiGlobalConfig::getConf($paths[0])."/$new_path";
+        $attic = WikiGlobalConfig::getConf($paths[1])."/$new_path";
+        if (@scandir($path)) {
+            $ret = $this->_addLogEntryInRevisionFiles($wiki_name, $path, $attic, $old_name, $new_name);
+        }
+        if (is_string($ret)) {
+            throw new Exception("addLogEntryInRevisionFiles: Error mentre afegia nova entrada a l'arxiu .changes de $ret.");
+        }
+    }
+
+    private function _addLogEntryInRevisionFiles($ns, $path, $attic, $old_name, $new_name) {
+        $ret = "";
+        if (($scan = @scandir($path)))
+            $scan = array_diff($scan, [".", ".."]);
+        if ($scan) {
+            foreach ($scan as $file) {
+                if (is_dir("$path/$file")) {
+                    $this->_addLogEntryInRevisionFiles("$ns:$file", "$path/$file", "$attic/$file", $old_name, $new_name);
+                }else {
+                    $id = "$ns:".str_replace(".txt", "", $file);
+                    $summary = "Move|Rename the old directory:".str_replace(["$new_name",":"], ["$old_name","."], $ns);
+                    $pagelog = new PageChangeLog($id);
+                    $oldRev = $pagelog->getRevisions(-1, 1);
+                    if (!empty($oldRev)) {
+                        $oldRev = $oldRev[0];
+                        $last_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${oldRev}$2.gz", $file);
+                    }
+                    if (!empty($oldRev) && file("$attic/$last_rev_name")) {
+                        $time_rev = time();
+                        $new_rev_name = preg_replace("/^(.*)(\..*)$/", "$1.${time_rev}$2.gz", $file);
+                        $ret = system("cd $attic; ln -s $last_rev_name $new_rev_name"); //crea enlace simbólico
+                        if ($ret === "") {
+                            addLogEntry($time_rev, $id, DOKU_CHANGE_TYPE_MINOR_EDIT, $summary);
+                        }else {
+                            $ret = "$path/$file";
+                            break;
+                        }
+                    }else {
+                        //generació forçada d'una revisió
+                        $text = file_get_contents("$path/$file")."\n"; //els fitxers han de tenir algún canvi per forçar la revisió
+                        saveWikiText($id, $text, $summary, TRUE);
+                    }
+                }
+            }
+        }
+        return ($ret === "");
+    }
+
+    /**
      * Canvia el contingut de l'arxiu ACL que pot contenir la ruta antiga del projecte
      * @param string $old_name : nom actual del projecte
      * @param string $new_name : nou nom del projecte
      * @throws Exception
      */
-    public function changeOldPathInACLFile($base_dir, $old_name, $new_name) {
+    public function changeOldPathInACLFile($base_old_dir, $old_name, $base_new_dir, $new_name) {
         $file = DOKU_CONF."acl.auth.php";
         if (($content = file_get_contents($file))) {
-            $ns = str_replace("/", ":", $base_dir);
-            $content = preg_replace("/$ns:$old_name:/m", "$ns:$new_name:", $content);
+            $old_ns = str_replace("/", ":", $base_old_dir);
+            $new_ns = str_replace("/", ":", $base_new_dir);
+            $content = preg_replace("/$old_ns:$old_name:/m", "$new_ns:$new_name:", $content);
             if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                 throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom del projecte/directori a $file.");
         }

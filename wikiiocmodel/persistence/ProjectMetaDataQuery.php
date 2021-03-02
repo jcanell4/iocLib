@@ -794,6 +794,7 @@ class ProjectMetaDataQuery extends DataQuery {
         $path_dreceres = WikiGlobalConfig::getConf('datadir') . str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'));
         $nom_dreceres = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel') . ".txt";
         $persons = explode(",", $persons);
+        array_unique($persons);
         foreach ($persons as $user) {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
@@ -1006,9 +1007,10 @@ class ProjectMetaDataQuery extends DataQuery {
             if (preg_match($search, $content, $stmp) === 1) {
                 $insert = $stmp[1]."$2"."\n{$new_dir}:{$new_name}$2";
                 $content = preg_replace($search, $insert, $content);
+                if (file_put_contents($file, $content, LOCK_EX) === FALSE) {
+                    throw new Exception("duplicateProject: Error mentre canviava el nom del projecte/directori a $file.");
+                }
             }
-            if (file_put_contents($file, $content, LOCK_EX) === FALSE)
-                throw new Exception("duplicateProject: Error mentre canviava el nom del projecte/directori a $file.");
         }
     }
 

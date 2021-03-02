@@ -19,6 +19,7 @@ class ProjectPermission extends BasicPermission {
     protected $author = [];
     protected $rol = [];
     protected $roleMembers = [];
+    protected $isRoleChanged;
 
     protected $aRoles = [self::ROL_RESPONSABLE => self::ROL_RESPONSABLE_ORDER,
                          self::ROL_AUTOR       => self::ROL_AUTOR_ORDER,
@@ -71,7 +72,11 @@ class ProjectPermission extends BasicPermission {
             $this->author = preg_split("/[\s,]+/", $author);
         }
     }
-    
+
+    public function setRoleChanged($isRoleChanged) {
+        $this->isRoleChanged = $isRoleChanged;
+    }
+
     public function setAllRoleMembers($roleMembers){
         foreach ($roleMembers as $role => $member) {
             $this->setRoleMembers($role, $member);
@@ -124,6 +129,10 @@ class ProjectPermission extends BasicPermission {
         if (!empty($this->rol)) {
             sort($this->rol, SORT_NUMERIC);
         }
+    }
+
+    public function isRoleChanged() {
+        return $this->isRoleChanged;
     }
 
 }
