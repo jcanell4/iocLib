@@ -318,10 +318,7 @@ class WiocclInstruction extends IocInstruction {
 
         if (!isset($tokenEnd['extra']) || !$tokenEnd['extra']['ignoreStructureClosing']) {
             $this->item->close = $tokenEnd['value'];
-        } else {
-            $works = true;
         }
-
 
         // Codi per afegir la estructura
         //$this->rebuildRawValue($this->item, $this->currentToken['tokenIndex'], $tokenEnd['tokenIndex']);

@@ -130,7 +130,10 @@ class DW2HtmlInstruction extends IocInstruction {
         switch ($action) {
             case 'content':
 
-                if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
+                // PROBLEMA: si $inline == true no s'afegeixen els paragraphs a la edicio parcial
+                // pendent de determinar en quin cas era necessari
+                // if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
+            if ((!$top || $top['state'] == 'newcontent')) {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -139,6 +142,7 @@ class DW2HtmlInstruction extends IocInstruction {
 
                     // TEST: Afegir spans adicionals al content
 //                    $result .= '<span data-test="**">' . $container->open() .'</span>';
+
                     $result .= $container->open();
 
 //                    die ("no hi ha top");
