@@ -20,9 +20,7 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenPatterns = [
 
-        '<span data-wioccl-ref="\d+" data-wioccl-state="open"><\/span>' => [
-            'state' => 'wioccl'
-        ],
+
 
         "<newcontent>.*?<\/newcontent>" => [
             'state' => 'newcontent',
@@ -48,6 +46,15 @@ class Html2DWParser extends IocParser {
         ],
 
 
+        '<table.*=?>.*?<\/table>' => [
+            'state' => 'table',
+        ],
+
+        // ALERTA! Es trobava al principi, mogut perquè si no no captura el wioccl de les files de les taules
+        '<span data-wioccl-ref="\d+" data-wioccl-state="open"><\/span>' => [
+            'state' => 'wioccl'
+        ],
+
         '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [
             /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
             'state' => 'box-text',
@@ -62,9 +69,6 @@ class Html2DWParser extends IocParser {
             'state' => 'block',
         ],
 
-        '<table.*=?>.*?<\/table>' => [
-            'state' => 'table',
-        ],
 
         '<span class="ioc-comment-block".*?<span data-delete-block.*?<\/span>' => [
             'state' => 'note',
@@ -194,7 +198,6 @@ class Html2DWParser extends IocParser {
 
     protected static $tokenKey = [
 
-        '<span data-wioccl-ref="(\d+)" data-wioccl-state="open"><\/span>' => ['state' => 'wioccl', 'type' => 'wioccl', 'class' => 'Html2DWWioccl', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         "<newcontent>(.*?)<\/newcontent>" => ['state' => 'newcontent', 'type' => 'newcontent', 'class' => 'Html2DWNewContent', 'action' => 'self-contained', 'extra' => ['replacement' => ["<newcontent>", "</newcontent>"], 'regex' => TRUE]],
 
@@ -205,6 +208,11 @@ class Html2DWParser extends IocParser {
         '<div class="iocgif"><img.*?><\/div>' => ['state' => 'gif', 'type' => 'gif', 'class' => 'Html2DWImageGIF', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="(?:ioctable|iocfigure).*?" data-dw-box="(.*?)".*?>\n?<div.*?iocinfo.*?>(.*?)<\/div>\n?(.*?)<\/div>' => ['state' => 'box', 'type' => 'box', 'class' => 'Html2DWBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        // ALERTA! es trobava adalt
+        '<span data-wioccl-ref="(\d+)" data-wioccl-state="open"><\/span>' => ['state' => 'wioccl', 'type' => 'wioccl', 'class' => 'Html2DWWioccl', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div(?: class="")?(?: contenteditable="false")? data-dw-block="sound".*?>.*?<\/div>' => ['state' => 'sound', 'type' => 'sound', 'class' => 'Html2DWSound', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -217,7 +225,6 @@ class Html2DWParser extends IocParser {
 /*        '<div class="ioc-quiz".*?><\/table><\/div><\/div><\/div>' => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'Html2DWQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],*/
 
 
-        '<table.*=?>(.*?)<\/table>' => ['state' => 'table', 'type' => 'table', 'class' => 'Html2DWTable', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<span class="ioc-comment-block".*?>(.*?)<span data-delete-block.*?<\/span>' => ['state' => 'note', 'type' => 'note', 'class' => 'Html2DWNote', 'action' => 'self-contained', 'extra' => ['replacement' => ["<note>", "</note>"], 'regex' => TRUE]],
 
@@ -339,7 +346,11 @@ class Html2DWParser extends IocParser {
         static::$structure = [];
 
         foreach ($structureData as $data) {
-            static::$structure[] = new WiocclStructureItem(static::$structure, $data);
+            if (!is_array($data)) {
+                // pot ser la propietat next que indica el ID del següent element a afegir
+                continue;
+            }
+            static::$structure[$data['id']] = new WiocclStructureItem(static::$structure, $data);
         }
 
     }

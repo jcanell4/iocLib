@@ -37,8 +37,6 @@ class WiocclAction  extends AbstractWikiAction {
 
             case 'html':
                 // El extra s'omple al translator i contindrá la estructura
-                // TODO: cal enviar la la nova estructura generada
-                // TODO: al translator s'ha d'enviar el rootRef i fer'ho servir
                 // ALERTA! també cal enviar el length de la estructura per afegir els nous nodes a partir d'aquesta
 
                 $structure = [];
