@@ -40,9 +40,7 @@ class ViewMediaAction extends MediaAction {
         parent::startProcess();
 
         $error = $this->startMediaManager(MediaKeys::KEY_MEDIA, $this->params[MediaKeys::KEY_IMAGE], $this->params[MediaKeys::KEY_FROM_ID], $this->params[MediaKeys::KEY_REV]);
-        if ($error == 401) {
-            throw new HttpErrorCodeException("Access denied", $error);
-        } else if ($error == 404) {
+        if ($error == 404) {
             throw new HttpErrorCodeException("Resource " . $this->params[MediaKeys::KEY_IMAGE] . " not found.", $error);
         }
     }
@@ -72,15 +70,9 @@ class ViewMediaAction extends MediaAction {
         // check image permissions
         if ($pImage) {
             $AUTH = auth_quickaclcheck($pImage);
-            if ($AUTH >= AUTH_READ) {
-                // check if image exists
-                $SRC = mediaFN($pImage);
-                if (!file_exists($SRC)) {
-                    $ret = $ERROR = 404;
-                }
-            } else {
-                // no auth
-                $ret = $ERROR = 401;
+            $SRC = mediaFN($pImage);
+            if (!file_exists($SRC)) {
+                $ret = $ERROR = 404;
             }
         }
 

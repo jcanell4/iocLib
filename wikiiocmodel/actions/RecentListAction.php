@@ -139,7 +139,7 @@ class RecentListAction extends DokuAction{
                 if ($diff) {
                     $dataCall = 'mediadetails';
                     $href = media_managerURL(array('tab_details' => 'history',
-                        'mediado' => 'diff', 'image' => $recent['id'], 'ns' => getNS($recent['id'])), '&');
+                        MediaKeys::KEY_MEDIA_DO => 'diff', 'image' => $recent['id'], 'ns' => getNS($recent['id'])), '&');
                 }
             } else {
                 $dataCall = 'diff';
