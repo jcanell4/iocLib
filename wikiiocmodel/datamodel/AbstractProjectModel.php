@@ -714,6 +714,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     /**
+     * Guarda los datos en el momento de la cración
+     * @param array $toSet (s'ha generat a l'Action corresponent)
+     */
+    public function createData($toSet) {
+        $this->setData($toSet);
+    }
+
+    /**
      * Guarda los datos del proyecto
      * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
      */
