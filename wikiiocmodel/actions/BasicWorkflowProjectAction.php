@@ -70,7 +70,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
             $metaDataManagement['stateHistory'][] = $newMetaData;
             $metaDataManagement['workflow']['currentState'] = $newState;
 
-            $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat");
+            $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
             $message = self::generateInfo("info", "El canvi d'estat a '{$newState}' ha finalitzat correctament.", $id);
             $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
