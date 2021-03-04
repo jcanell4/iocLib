@@ -18,7 +18,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $user_roles = (is_array($this->params['roles'])) ? $this->params['roles'] : [$this->params['roles']];
         $user_groups = $this->params['groups'];
 
-        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params['projectType']);
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($this->params[ProjectKeys::KEY_ID], "management", $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
         $currentState = $metaDataQuery->getDataProject()['workflow']['currentState'];
         $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $action = $model->getMetaDataActionWorkflowFile($currentState, $actionCommand);
@@ -53,7 +53,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $subSet = "management";
 
         $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
-        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
 
         $metaDataManagement = $metaDataQuery->getDataProject();
         $currentState = $metaDataManagement['workflow']['currentState'];
@@ -83,7 +83,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
 
-        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params['projectType']);
+        $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
         $metaDataManagement = $metaDataQuery->getDataProject();
         if (!isset($response[ProjectKeys::KEY_ID])) {
             $response[ProjectKeys::KEY_ID] = $this->idToRequestId($id);
@@ -93,7 +93,8 @@ class BasicWorkflowProjectAction extends ProjectAction {
     }
 
     private function getActionName($action) {
-        $actions = [ProjectKeys::KEY_EDIT => "GetProjectAction"
+        $actions = [ProjectKeys::KEY_EDIT => "GetProjectAction",
+                    ProjectKeys::KEY_SAVE => "SetProjectAction"
                    ];
         $ret = ($actions[$action]) ? $actions[$action]: ucfirst($action)."ProjectAction";
         return $ret;

@@ -46,6 +46,11 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
                             if (!isset($action['button']['class']) || isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
                                 $action['button']['overwrite'] = TRUE;
                             }
+                            foreach ($action['permissions']['groups'] as $k => $value) {
+                                if (!preg_match("/^is.*/", $value)) {
+                                    $action['permissions']['groups'][$k] = "is$value";
+                                }
+                            }
                             $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
                             $action['button']['scripts']['updateHandler']['rols'] = $action['permissions']['rols'];
                             $estat = ($shortcut) ? $shortcut : $state;

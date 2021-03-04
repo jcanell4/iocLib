@@ -1048,8 +1048,8 @@ class AjaxCmdResponseGenerator {
     public function addEditProject($id, $ns, $title, $form, $values, $autosaveTimer=NULL, $timer=NULL, $extra=[],
                                    $responseType = JSonGenerator::PROJECT_EDIT_TYPE) {
         global $plugin_controller;
-        if (!$extra['projectType'])
-            $extra['projectType'] = $plugin_controller->getCurrentProject();
+        if (!$extra[ProjectKeys::KEY_PROJECT_TYPE])
+            $extra[ProjectKeys::KEY_PROJECT_TYPE] = $plugin_controller->getCurrentProject();
 
         $contentData['id'] = $id;
         $contentData['ns'] = $ns;
@@ -1075,8 +1075,8 @@ class AjaxCmdResponseGenerator {
      */
     public function addViewProject($id, $ns, $title, $form, $values, $extra=[]) {
         global $plugin_controller;
-        if (!$extra['projectType'])
-            $extra['projectType'] = $plugin_controller->getCurrentProject();
+        if (!$extra[ProjectKeys::KEY_PROJECT_TYPE])
+            $extra[ProjectKeys::KEY_PROJECT_TYPE] = $plugin_controller->getCurrentProject();
 
         $contentData = [
             'id' => $id,
@@ -1097,8 +1097,8 @@ class AjaxCmdResponseGenerator {
 
     public function addRequireProject($id, $ns, $title, $content, $originalContent, $action, $timer, $dialog=NULL, $extra=[]) {
         global $plugin_controller;
-        if (!$extra['projectType'])
-            $extra['projectType'] = $plugin_controller->getCurrentProject();
+        if (!$extra[ProjectKeys::KEY_PROJECT_TYPE])
+            $extra[ProjectKeys::KEY_PROJECT_TYPE] = $plugin_controller->getCurrentProject();
 
         $contentData = [
             'id' => $id,
