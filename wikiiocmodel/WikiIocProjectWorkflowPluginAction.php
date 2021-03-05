@@ -15,16 +15,20 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
     }
 
     function addControlScripts(Doku_Event &$event, $param) {
-        $wArray = $this->creaArrayButtons();
-        if (!empty($wArray)) {
-            $this->p_addControlScripts($event, $wArray);
+        if ($this->workflowArray) {
+            $wArray = $this->creaArrayButtons();
+            if (!empty($wArray)) {
+                $this->p_addControlScripts($event, $wArray);
+            }
         }
     }
 
     function addWikiIocButtons(Doku_Event &$event, $param) {
-        $wArray = $this->creaArrayButtons();
-        if (!empty($wArray)) {
-            $this->p_addWikiIocButtons($event, $wArray);
+        if ($this->workflowArray) {
+            $wArray = $this->creaArrayButtons();
+            if (!empty($wArray)) {
+                $this->p_addWikiIocButtons($event, $wArray);
+            }
         }
     }
 
