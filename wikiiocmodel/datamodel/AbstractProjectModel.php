@@ -335,8 +335,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return array con los datos necesarios
      */
     public function buildParamsToPersons($newDataProject, $oldDataProject=NULL) {
-        if(is_array($this->getRoleProperties())&&!empty($this->getRoleProperties())){
-           $params = $this->_generictBuildParamsToPersons($this->getRoleProperties(), $newDataProject, $oldDataProject);
+        $roleProperties = $this->getRoleProperties();
+        if (!empty($roleProperties) && is_array($roleProperties)){
+           $params = $this->_generictBuildParamsToPersons($roleProperties, $newDataProject, $oldDataProject);
         }else{
            $params = $this->_defaultBuildParamsToPersons($newDataProject, $oldDataProject);
         }
@@ -830,7 +831,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function validateFields($data=NULL){
         // A implementar a les subclasses, per defecte no es fa res
     }
-    
+
     public function getErrorFields($data=NULL) {
         return NULL;
     }
@@ -1309,7 +1310,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function forceFileComponentRenderization($isGenerated=NULL){}
-    
+
     public function hasTemplates(){
         return false;
     }
