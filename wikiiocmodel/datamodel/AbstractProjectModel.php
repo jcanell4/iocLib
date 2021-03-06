@@ -16,6 +16,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $projectType;
     protected $metaDataSubSet;
     protected $actionCommand;
+    protected $externalCallMethods;
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -34,6 +35,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
         $this->viewConfigName = "defaultView";
         $this->neeeGenerateAction=TRUE;
+        $this->externalCallMethods = [];
+    }
+    
+    public function callMethod($methodName, $params){
+        if(is_callable(array($this, $this->externalCallMethods[$methodName]))){
+            return $this->{$this->externalCallMethods[$methodName]}($params);
+        }else{
+            throw new Exception("NETHOD_NOT_FOUND");
+        }
     }
 
     public function getId(){

@@ -595,6 +595,25 @@ class AjaxCmdResponseGenerator {
                 $resp)
         );
     }
+    
+    public function addTypedValueResponse($type, $value, $info =""){
+        switch ($type){
+            case "code":
+                $this->addCodeTypeResponse($value, $info);
+                break;
+            case "simple":
+                $this->addSimpleTypeResponse($value);
+                break;
+            case "array":
+                $this->addArrayTypeResponse($value);
+                break;
+            case "object":
+                $this->addObjectTypeResponse($value);
+                break;
+            default :
+                throw new Exception("INVALID_TYPE_VALUE_TO_RETURN");
+        }
+    }
 
     /**
      * Afegeix una resposta de tipus CODE_TYPE_RESPONSE al generador de respostes.
