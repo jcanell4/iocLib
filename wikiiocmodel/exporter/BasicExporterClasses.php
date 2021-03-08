@@ -120,8 +120,12 @@ abstract class renderComposite extends AbstractRenderer {
     }
     public function getTypedefKeyField($field) { //@return array : objeto key solicitado (del configMain.json)
         $ret = $this->getTypeDef('keys')[$field];
-        while ($typeDef = $this->getTypesDefinition($ret["type"])) {
-            $ret = array_merge($ret, $typeDef);
+        if ($ret) {
+            while ($typeDef = $this->getTypesDefinition($ret["type"])) {
+                $ret = array_merge($ret, $typeDef);
+            }
+        }else {
+            throw new Exception("ERROR: function getTypedefKeyField(): el camp $field no existeix");
         }
         return $ret;
     }
