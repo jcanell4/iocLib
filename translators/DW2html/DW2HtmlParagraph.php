@@ -11,12 +11,6 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
 
         return parent::getReplacement($position);
 
-        // ALERTA! Descartat perquè els paràgrafs només poden penjar de l'arrel i per consegüent
-        // mai han de portar $refId, cal tenir en compte que s'ha de gestionar al frontend si el paràgraf
-        // ha quedat buit quan s'han eliminat els nodes wioccl
-
-
-
         // El primer element del structure stack és el root, en aquest no cal afegir la referència
         if ($position == self::OPEN && count(WiocclParser::$structureStack) > 1) {
 
