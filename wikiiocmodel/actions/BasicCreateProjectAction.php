@@ -27,7 +27,7 @@ class BasicCreateProjectAction extends ProjectAction {
                 ProjectKeys::KEY_METADATA_VALUE => json_encode($metaDataValues)
             ];
 
-            $model->setData($metaData);    //crea la estructura y el contenido en 'mdprojects/'
+            $model->createData($metaData); //crea la estructura y el contenido en 'mdprojects/'
             $model->createDataDir($id);    //crea el directori del projecte a 'data/pages/'
             $v_conf = $model->getMetaDataAnyAttr("versions");
             if ($v_conf){

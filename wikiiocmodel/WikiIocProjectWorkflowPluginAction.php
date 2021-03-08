@@ -15,16 +15,20 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
     }
 
     function addControlScripts(Doku_Event &$event, $param) {
-        $wArray = $this->creaArrayButtons();
-        if (!empty($wArray)) {
-            $this->p_addControlScripts($event, $wArray);
+        if ($this->workflowArray) {
+            $wArray = $this->creaArrayButtons();
+            if (!empty($wArray)) {
+                $this->p_addControlScripts($event, $wArray);
+            }
         }
     }
 
     function addWikiIocButtons(Doku_Event &$event, $param) {
-        $wArray = $this->creaArrayButtons();
-        if (!empty($wArray)) {
-            $this->p_addWikiIocButtons($event, $wArray);
+        if ($this->workflowArray) {
+            $wArray = $this->creaArrayButtons();
+            if (!empty($wArray)) {
+                $this->p_addWikiIocButtons($event, $wArray);
+            }
         }
     }
 
@@ -45,6 +49,11 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
                         if ($id) {
                             if (!isset($action['button']['class']) || isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
                                 $action['button']['overwrite'] = TRUE;
+                            }
+                            foreach ($action['permissions']['groups'] as $k => $value) {
+                                if (!preg_match("/^is.*/", $value)) {
+                                    $action['permissions']['groups'][$k] = "is$value";
+                                }
                             }
                             $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
                             $action['button']['scripts']['updateHandler']['rols'] = $action['permissions']['rols'];

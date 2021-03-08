@@ -16,6 +16,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $projectType;
     protected $metaDataSubSet;
     protected $actionCommand;
+    protected $externalCallMethods;
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -34,6 +35,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
         $this->viewConfigName = "defaultView";
         $this->neeeGenerateAction=TRUE;
+        $this->externalCallMethods = [];
+    }
+    
+    public function callMethod($methodName, $params){
+        if(is_callable(array($this, $this->externalCallMethods[$methodName]))){
+            return $this->{$this->externalCallMethods[$methodName]}($params);
+        }else{
+            throw new Exception("NETHOD_NOT_FOUND");
+        }
     }
 
     public function getId(){
@@ -335,8 +345,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return array con los datos necesarios
      */
     public function buildParamsToPersons($newDataProject, $oldDataProject=NULL) {
-        if(is_array($this->getRoleProperties())&&!empty($this->getRoleProperties())){
-           $params = $this->_generictBuildParamsToPersons($this->getRoleProperties(), $newDataProject, $oldDataProject);
+        $roleProperties = $this->getRoleProperties();
+        if (!empty($roleProperties) && is_array($roleProperties)){
+           $params = $this->_generictBuildParamsToPersons($roleProperties, $newDataProject, $oldDataProject);
         }else{
            $params = $this->_defaultBuildParamsToPersons($newDataProject, $oldDataProject);
         }
@@ -714,6 +725,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     /**
+     * Guarda los datos en el momento de la cración
+     * @param array $toSet (s'ha generat a l'Action corresponent)
+     */
+    public function createData($toSet) {
+        $this->setData($toSet);
+    }
+
+    /**
      * Guarda los datos del proyecto
      * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
      */
@@ -822,7 +841,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function validateFields($data=NULL){
         // A implementar a les subclasses, per defecte no es fa res
     }
-    
+
     public function getErrorFields($data=NULL) {
         return NULL;
     }
@@ -1301,7 +1320,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function forceFileComponentRenderization($isGenerated=NULL){}
-    
+
     public function hasTemplates(){
         return false;
     }

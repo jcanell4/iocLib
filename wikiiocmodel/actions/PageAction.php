@@ -12,8 +12,6 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
     protected $resourceLocker;
     protected $persistenceEngine;
 
-    const REVISION_SUFFIX= '-rev-';
-
     public function init($modelManager=NULL) {
         parent::init($modelManager);
         $this->persistenceEngine = $modelManager->getPersistenceEngine();
@@ -164,8 +162,8 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
     protected function addRevisionSuffixIdToArray(&$elements) {
         for ($i=0, $len = count($elements); $i<$len; $i++) {
 
-            if ($elements[$i]['id'] && substr($elements[$i]['id'], -5) != self::REVISION_SUFFIX) {
-                $elements[$i]['id'] .= self::REVISION_SUFFIX;
+            if ($elements[$i]['id'] && substr($elements[$i]['id'], -5) != PageKeys::REVISION_SUFFIX) {
+                $elements[$i]['id'] .= PageKeys::REVISION_SUFFIX;
             }
         }
     }
