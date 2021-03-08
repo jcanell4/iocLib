@@ -10,6 +10,10 @@ class WiocclParser extends IocParser
         '/:###/', '/###:/'
     ];
 
+    public static $forceReplacements = [
+//        "/\*{3}/ms" => '* **' // sembla que no és necessari fer el canvi aquí
+    ];
+
     protected static $tokenPatterns = [
         ':###' => [
             'state' => 'open_readonly',
@@ -163,6 +167,11 @@ class WiocclParser extends IocParser
 
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables=NULL, $generateRoot = TRUE)
     {
+
+        // canvis necessaris
+        foreach (static::$forceReplacements as $pattern => $replacementValue) {
+            $text = preg_replace($pattern, $replacementValue, $text);
+        }
 
         // Quan generem la estructura no s'elimina cap element
         if (!static::$generateStructure) {

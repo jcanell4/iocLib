@@ -15,9 +15,6 @@ class Html2DWParser extends IocParser {
         "/<span data-wioccl-state=\"close\"><\/span>/"
     ];
 
-    public static $forceReplacements = [
-    ];
-
     protected static $tokenPatterns = [
 
 

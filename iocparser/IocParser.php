@@ -8,6 +8,8 @@ class IocParser {
 
     protected static $tokenPatterns = [];
 
+    public static $forceReplacements = [];
+
     // Aquests tipus de bloc no es tanquen automàticament
     protected static $excludedClosingTags = [];
 

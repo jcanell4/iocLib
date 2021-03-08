@@ -408,6 +408,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
             // dins es genera un json per comprovar els resultats de la estructura
 
+            Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
 
             $extra['wioccl_structure']['structure']['next'] = strval(array_key_last($extra['wioccl_structure']['structure']) + 1);
 
