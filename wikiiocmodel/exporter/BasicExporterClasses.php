@@ -148,17 +148,19 @@ class BasicRenderObject extends renderComposite {
         self::$deepLevel++;
         $this->data = $data;
         $campos = $this->getRenderFields();
-        foreach ($campos as $keyField) {
-            $typedefKeyField = $this->getTypedefKeyField($keyField);
-            $renderKeyField = $this->getRenderKeyField($keyField);
-            $render = $this->createRender($typedefKeyField, $renderKeyField);
+        if ($campos) {
+            foreach ($campos as $keyField) {
+                $typedefKeyField = $this->getTypedefKeyField($keyField);
+                $renderKeyField = $this->getRenderKeyField($keyField);
+                $render = $this->createRender($typedefKeyField, $renderKeyField);
 
-            $dataField = $this->getDataField($keyField);
-            $render->init($keyField, $renderKeyField['render']['styletype']);
+                $dataField = $this->getDataField($keyField);
+                $render->init($keyField, $renderKeyField['render']['styletype']);
 
-            $this->_createSessionStyle($renderKeyField['render']);
-            $arrayDeDatosParaLaPlantilla[$keyField] = $render->process($dataField);
-            $this->_destroySessionStyle();
+                $this->_createSessionStyle($renderKeyField['render']);
+                $arrayDeDatosParaLaPlantilla[$keyField] = $render->process($dataField);
+                $this->_destroySessionStyle();
+            }
         }
         $extres = $this->getRenderExtraFields();
         if ($extres) {
