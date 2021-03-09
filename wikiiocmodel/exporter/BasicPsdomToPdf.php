@@ -1307,10 +1307,10 @@ class BasicPdfRenderer {
             case SpecialBlockNodeDoc::HIDDENCONTAINER_TYPE:
                 $ret = '<span style="color:gray; font-size:80%;">' . $this->getStructuredContent($content) . '</span>';
                 break;
-            case LeafNodeDoc::EXTRA_WIDTH_TYPE:
+            case LeafNodeDoc::EXTRA_WIDTH_TYPE:  //no debería llegar aquí para ser tratado
                 $this->iocTcPdf->AddPage("LANDSCAPE");
                 break;
-            case LeafNodeDoc::NORMAL_WIDTH_TYPE:
+            case LeafNodeDoc::NORMAL_WIDTH_TYPE:  //no debería llegar aquí para ser tratado
                 $this->iocTcPdf->AddPage("PORTRAIT");
                 break;
 
@@ -1411,7 +1411,6 @@ class BasicPdfRenderer {
                         $ret .= "<div style=\"$bc$borderstyle\">";
                         $ret .= "<p $p_style><strong>$title</strong></p>";
                         $ret .= self::getStructuredContent($content);
-//                        $ret .= "</div></div>";
                         $ret .= "</div>";
                         break;
                     case IocElemNodeDoc::IOC_ELEM_TYPE_QUOTE:
