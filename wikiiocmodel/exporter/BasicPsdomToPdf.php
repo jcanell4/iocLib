@@ -862,9 +862,13 @@ class BasicPdfRenderer {
     }
 
     protected function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
-//        $iocTcPdf->SetFont('helvetica', '', 10);
+        $ret = "";
         if ($content['type'] === FigureFrame::FRAME_TYPE_FIGURE) {
             $ret = $this->getFrameContent($content, $iocTcPdf);
+        }elseif ($content['type'] === LeafNodeDoc::NORMAL_WIDTH_TYPE) {
+            $this->iocTcPdf->AddPage("PORTRAIT");
+        }elseif ($content['type'] === LeafNodeDoc::EXTRA_WIDTH_TYPE) {
+            $this->iocTcPdf->AddPage("LANDSCAPE");
         }else {
             $ret = $this->getContent($content);
         }
@@ -1302,6 +1306,12 @@ class BasicPdfRenderer {
                 break;
             case SpecialBlockNodeDoc::HIDDENCONTAINER_TYPE:
                 $ret = '<span style="color:gray; font-size:80%;">' . $this->getStructuredContent($content) . '</span>';
+                break;
+            case LeafNodeDoc::EXTRA_WIDTH_TYPE:
+                $this->iocTcPdf->AddPage("LANDSCAPE");
+                break;
+            case LeafNodeDoc::NORMAL_WIDTH_TYPE:
+                $this->iocTcPdf->AddPage("PORTRAIT");
                 break;
 
             case LatexMathNodeDoc::LATEX_MATH_TYPE:
