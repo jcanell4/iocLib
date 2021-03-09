@@ -67,12 +67,19 @@ class WiocclStructureItem
         // ALERTA! no es poden fer servir % dintre dels atributs perquè és el simbol que s'utilitza per fer els reemplaços
         // TODO: Considerar afegir un escaped % per aquest cas
         // En el cas del content no es fa mai la substitució, així que es pot fer servir el %.
-        if ($this->type == "content") {
-            $text = $this->open;
-        } else {
-            $text = sprintf($this->open, $this->attrs);
-        }
+        // ALERTA! Només el %s s'ha de conservar, així que podem fer la conversió en dos passos:
+        //      tots els %s per &formatpercent;
+        //      tots els % per &percent;
+        //      els &formatpercent; per %s
+        //      sprintf
+        //      replace dels &percent; que quedin
 
+        $text = str_replace('%s', '&formatpercent;', $this->open);
+        $text = str_replace('%', '&percent;', $text);
+        $text = str_replace('&formatpercent;', '%s', $text);
+
+        $text = sprintf($text, $this->attrs);
+        $text = str_replace('&percent;', '%', $text);
 
         $children = '';
 
