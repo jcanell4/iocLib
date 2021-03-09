@@ -1,6 +1,7 @@
 <?php
 
-class WiocclStructureItem {
+class WiocclStructureItem
+{
     public $parent = null;
     public $children = [];
     public $result = ''; // TODO: eliminar el resultat
@@ -17,10 +18,11 @@ class WiocclStructureItem {
 
     protected $structure;
 
-    public function __construct(&$structure, $init = []){
+    public function __construct(&$structure, $init = [])
+    {
         $this->structure = &$structure;
 
-        if (count($init)>0) {
+        if (count($init) > 0) {
 
             $test = $init['type'] === 'readonly';
 
@@ -38,7 +40,8 @@ class WiocclStructureItem {
         }
     }
 
-    public function getChildren() {
+    public function getChildren()
+    {
         $children = [];
 
         foreach ($this->children as $id) {
@@ -48,19 +51,28 @@ class WiocclStructureItem {
         return $children;
     }
 
-    public function getParent() {
+    public function getParent()
+    {
         return $this->structure[$this->parent];
     }
 
-    public function toWioccl() {
+    public function toWioccl()
+    {
 
         // si es un clon o el parent es null no es renderitza ($this->parent == null identifica al root, també podria ser $this->id == 0
         if ($this->isClone || $this->parent == null) {
             return '';
         }
 
+        // ALERTA! no es poden fer servir % dintre dels atributs perquè és el simbol que s'utilitza per fer els reemplaços
+        // TODO: Considerar afegir un escaped % per aquest cas
+        // En el cas del content no es fa mai la substitució, així que es pot fer servir el %.
+        if ($this->type == "content") {
+            $text = $this->open;
+        } else {
+            $text = sprintf($this->open, $this->attrs);
+        }
 
-        $text = sprintf($this->open, $this->attrs);
 
         $children = '';
 
@@ -70,7 +82,7 @@ class WiocclStructureItem {
 
         $text .= $children . $this->close;
 
-        Html2DWWioccl::$processedRefs[]= $this->id;
+        Html2DWWioccl::$processedRefs[] = $this->id;
         return $text;
 
     }

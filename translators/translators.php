@@ -309,7 +309,9 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
         Logger::init(1, "HTML2DW-Debug.log");
 
-        Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($params['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+
+        Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
 
         $header = '';
         if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {

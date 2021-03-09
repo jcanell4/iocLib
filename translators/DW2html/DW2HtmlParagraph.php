@@ -9,7 +9,10 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
     public function getReplacement($position)
     {
 
-        return parent::getReplacement($position);
+        // ALERTA! els paràgrafs buits també han d'anar referenciats, però hi ha alguns casos en que això provoca
+        // algun salt adicional
+
+       // return parent::getReplacement($position);
 
         // El primer element del structure stack és el root, en aquest no cal afegir la referència
         if ($position == self::OPEN && count(WiocclParser::$structureStack) > 1) {
