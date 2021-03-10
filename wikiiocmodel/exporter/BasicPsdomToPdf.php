@@ -1476,7 +1476,9 @@ class BasicPdfRenderer {
                 $ret = '<table cellpadding="5" nobr="true">'.$this->getStructuredContent($content)."</table>";
                 break;
             case StructuredNodeDoc::TABLEROW_TYPE:
-                $ret = "<tr>".$this->getStructuredContent($content)."</tr>";
+                if ($content['openHead']) $ret .= "<thead>";
+                if ($content['closeHead']) $ret .= "</thead>";
+                $ret .= "<tr>".$this->getStructuredContent($content)."</tr>";
                 $this->nColInRow = 0;
                 break;
             case CellNodeDoc::TABLEHEADER_TYPE:
