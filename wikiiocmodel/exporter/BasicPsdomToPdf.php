@@ -1473,7 +1473,7 @@ class BasicPdfRenderer {
                 $ret .= "</div>";
                 break;
             case TableNodeDoc::TABLE_TYPE:
-                $ret = '<table cellpadding="5" nobr="true">'.$this->getStructuredContent($content)."</table>";
+                $ret = '<table cellpadding="5">'.$this->getStructuredContent($content)."</table>";
                 break;
             case StructuredNodeDoc::TABLEROW_TYPE:
                 if ($content['openHead']) $ret .= "<thead>";
@@ -1493,8 +1493,9 @@ class BasicPdfRenderer {
                 $style = $content["hasBorder"] ? ' style="border:1px solid black; border-collapse:collapse; '.$align.'"' : " style=\"$align\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
-                $width =  ($this->tablewidths[$this->nColInRow++]) ? ' with="'.$this->tablewidths[$this->nColInRow++].'%"' : "";
+                $width = ($this->tablewidths[$this->nColInRow]) ? ' FALLO_width="'.$this->tablewidths[$this->nColInRow].'%"' : "";
                 $ret = "<td$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</td>";
+                $this->nColInRow++;
                 break;
             case TextNodeDoc::HTML_TEXT_TYPE:
                 $ret = $this->getTextContent($content);
