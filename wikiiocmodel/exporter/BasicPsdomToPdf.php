@@ -1474,6 +1474,7 @@ class BasicPdfRenderer {
                 break;
             case TableNodeDoc::TABLE_TYPE:
                 $ret = '<table cellpadding="5">'.$this->getStructuredContent($content)."</table>";
+                file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/docs/kk_2.html", "$ret \n\n\n", FILE_APPEND);
                 break;
             case StructuredNodeDoc::TABLEROW_TYPE:
                 if ($content['openHead']) $ret .= "<thead>";
@@ -1493,7 +1494,8 @@ class BasicPdfRenderer {
                 $style = $content["hasBorder"] ? ' style="border:1px solid black; border-collapse:collapse; '.$align.'"' : " style=\"$align\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
-                $width = ($this->tablewidths[$this->nColInRow]) ? ' FALLO_width="'.$this->tablewidths[$this->nColInRow].'%"' : "";
+                $width = ($this->tablewidths[$this->nColInRow]) ? ' width="'.$this->tablewidths[$this->nColInRow].'%"' : "";
+                //$width = "";
                 $ret = "<td$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</td>";
                 $this->nColInRow++;
                 break;
