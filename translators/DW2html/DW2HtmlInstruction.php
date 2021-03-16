@@ -99,14 +99,7 @@ class DW2HtmlInstruction extends IocInstruction {
         }
 
 
-        if ($currentToken['raw'] == "\n" ) {
 
-            if ($refId !== -1) {
-                $result .= '<span data-wioccl-ref="' . $refId . '">' .  $currentToken['raw'] . '</span>';
-            } else if (!$top || ($top && $top['state'] !== 'paragraph')) {
-                $result .= $currentToken['raw'];
-            }
-        }
 
 
 
@@ -292,8 +285,19 @@ class DW2HtmlInstruction extends IocInstruction {
         }
 
 
-        // ALERTA: Això es necesari perque \n és un token de tancament però cal conservar-lo
 
+
+        // ALERTA: Això es necesari perque \n és un token de tancament però cal conservar-lo
+        if ($currentToken['raw'] == "\n" ) {
+
+            if ($refId !== -1) {
+                $result .= '<span data-wioccl-ref="' . $refId . '">' . $currentToken['raw'] . '</span>';
+            } else {
+                // això no sembla correcte, hi ha \n dintre de paràgraphs que cal respectar
+//            } else if (!$top || ($top && $top['state'] !== 'paragraph')) {
+                $result .= $currentToken['raw'];
+            }
+        }
         return $result;
     }
 
