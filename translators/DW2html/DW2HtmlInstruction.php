@@ -103,7 +103,7 @@ class DW2HtmlInstruction extends IocInstruction {
 
             if ($refId !== -1) {
                 $result .= '<span data-wioccl-ref="' . $refId . '">' .  $currentToken['raw'] . '</span>';
-            } else {
+            } else if (!$top || ($top && $top['state'] !== 'paragraph')) {
                 $result .= $currentToken['raw'];
             }
         }
@@ -298,6 +298,8 @@ class DW2HtmlInstruction extends IocInstruction {
     }
 
     public function parseTokens($tokens, &$tokenIndex = 0) {
+
+        Logger::debug("\n### DW2HTML TOKENS START ###\n" . json_encode($tokens) . "\n### DW2HTML TOKENS END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
 
         $result = '';
 
