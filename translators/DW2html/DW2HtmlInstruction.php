@@ -288,7 +288,9 @@ class DW2HtmlInstruction extends IocInstruction {
 
 
         // ALERTA: Això es necesari perque \n és un token de tancament però cal conservar-lo
-        if ($currentToken['raw'] == "\n" ) {
+
+        // Afegim una excepció per <\ul> perquè si nó és duplica el salt de línia
+        if ($currentToken['raw'] == "\n" && substr($result, -5) !== '</ul>' && substr($result, -5) !== '</ol>') {
 
             if ($refId !== -1) {
                 $result .= '<span data-wioccl-ref="' . $refId . '">' . $currentToken['raw'] . '</span>';
