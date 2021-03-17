@@ -1478,7 +1478,6 @@ class BasicPdfRenderer {
                 break;
             case TableNodeDoc::TABLE_TYPE:
                 $ret = '<table cellpadding="5">'.$this->getStructuredContent($content)."</table>";
-                file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/docs/kk_2.html", "$ret \n\n\n", FILE_APPEND);
                 $this->aSpan = array();
                 $this->nRow = 0;
                 break;
