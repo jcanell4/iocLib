@@ -94,16 +94,18 @@ class ProjectMetaDataQuery extends DataQuery {
             $id = ($external_id===NULL) ? $this->getProjectId() : $external_id;
             $dir = WikiGlobalConfig::getConf('mdprojects')."/".str_replace(":", "/", $id)."/";
             $ext = WikiGlobalConfig::getConf('mdextension');
-            $dirList = scandir($dir) ;
-            $found = false;
-            for ($i=0; !$found && $i<count($dirList); $i++){
-                if (is_dir($dir.$dirList[$i])){
-                    if (preg_grep("/.*\.$ext/", scandir($dir.$dirList[$i]))){
-                        $ret = $dirList[$i];
-                        if ($external_id===NULL) {
-                            $this->projectType = $dirList[$i];
+            if (is_dir($dir)) {
+                $dirList = scandir($dir) ;
+                $found = false;
+                for ($i=0; !$found && $i<count($dirList); $i++){
+                    if (is_dir($dir.$dirList[$i])){
+                        if (preg_grep("/.*\.$ext/", scandir($dir.$dirList[$i]))){
+                            $ret = $dirList[$i];
+                            if ($external_id===NULL) {
+                                $this->projectType = $dirList[$i];
+                            }
+                            $found = true;
                         }
-                        $found = true;
                     }
                 }
             }
