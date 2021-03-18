@@ -282,13 +282,28 @@ class WiocclFunction extends WiocclInstruction
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    protected function SEARCH_ROW($toSearch, $array, $column, $default=false){
+        $key = $this->SEARCH_KEY($toSearch, $array, $column);
+        if($key===false || $key==="false"){
+            if($default===false){
+                $ret = $default;
+            }else{
+                $ret = "null";
+            }
+        }else{
+            $ret = $array[$key];
+        }
+        return self::_normalizeValue($ret);
+    }
+            
+    // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
     //[JOSEP]TODO: Cal canviar el nom de la funció per SEARCH_ROW per precisar millor la seva funcionalitat. 
     // Per fer el canvi caldrà crear un nou procediment upgrade en tots els projectes.
-    protected function SEARCH_VALUE($toSearch, $array, $column=NULL)
-    {
-        $key = $this->SEARCH_KEY($toSearch, $array, $column);
-        $ret = $key ===false?"null":$array[$key];
-        return self::_normalizeValue($ret);
+    /*
+     * @Deprecated use SEARCH_ROW.
+     */
+    protected function SEARCH_VALUE($toSearch, $array, $column){
+        return $this->SEARCH_ROW($toSearch, $array, $column);
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -614,16 +629,26 @@ class WiocclFunction extends WiocclInstruction
         return (strpos($string, $subs)!==FALSE)?"true":"false";
     }
 
-    protected function EXPLODE($delimiter=NULL, $string=NULL, $limit=false){
+    protected function EXPLODE($delimiter=NULL, $string=NULL, $limit=false, $trim=false){
         if(!is_string($delimiter)||!is_string($string)){
             return "[ERROR! paràmetres incorrectes EXPLODE($delimiter, $string, $limit)]"; //TODO: internacionalitzar
         }
 
-        if(!$limit){
+        if(!$limit || $limit==="ALL"){
             $limit = PHP_INT_MAX;
         }
         $ret = explode($delimiter, $string, $limit);
-        return self::_normalizeValue($ret);
+        if($trim){
+            for ($i=0; $i<count($ret);$i++) {
+                if(is_string($trim)){
+                    $ret[$i]= trim($ret[$i], $trim);
+                }else{
+                    $ret[$i]= trim($ret[$i]);
+                }
+            }
+        }
+        $ret = self::_normalizeValue($ret);
+        return $ret;
     }
 
     protected function STR_TRIM($text=NULL, $mask=NULL) {
