@@ -34,7 +34,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
         $this->viewConfigName = "defaultView";
-        $this->neeeGenerateAction=TRUE;
+        $this->needGenerateAction=TRUE;
         $this->externalCallMethods = [];
     }
     
@@ -358,10 +358,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
          $userpage_ns = preg_replace('/^:(.*)/', '\1', WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel')); //elimina el ':' del principio
 
          $persons = [];
-         foreach ($dataRoles as $dataRole) {
-             if (!empty($oldDataProject[$dataRole['role']]) || !empty($newDataProject[$dataRole['role']]['value'])) {
-                $persons[$dataRole['role']] = ['old' => $oldDataProject[$dataRole['role']],
-                                     'new' => $newDataProject[$dataRole['role']]['value'],
+         foreach ($dataRoles as $role => $dataRole) {
+             if (!empty($oldDataProject[$role]) || !empty($newDataProject[$role]['value'])) {
+                $persons[$role] = ['old' => $oldDataProject[$role],
+                                     'new' => $newDataProject[$role]['value'],
                                      'permis' => $dataRole['wiki_permission'],
                                      'drecera' => $dataRole['shortcut']];
             }

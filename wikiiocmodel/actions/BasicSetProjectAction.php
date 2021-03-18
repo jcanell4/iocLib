@@ -5,6 +5,15 @@
 if (!defined("DOKU_INC")) die();
 
 class BasicSetProjectAction extends ProjectAction {
+     private $excludeKeys = ['id','do','sectok','projectType','ns','submit', 'cancel','close','keep_draft','no_response','extraProject','metaDataSubSet'];
+     
+     public function addExcludeKeys($keys=NULL){
+         if(is_array($keys)){
+             $this->excludeKeys = array_merge($this->excludeKeys, $keys);
+         }elseif(is_string($keys)){
+             $this->excludeKeys[]=$keys;
+         }
+     }
 
     /**
      * Envía los datos $metaData del proyecto al ProjectModel y obtiene la estructura y los valores del proyecto
@@ -73,9 +82,8 @@ class BasicSetProjectAction extends ProjectAction {
 
     private function netejaKeysFormulari($array) {
         $cleanArray = [];
-        $excludeKeys = ['id','do','sectok','projectType','ns','submit', 'cancel','close','keep_draft','no_response','extraProject','metaDataSubSet'];
         foreach ($array as $key => $value) {
-            if (!in_array($key, $excludeKeys)) {
+            if (!in_array($key, $this->excludeKeys)) {
                 $cleanArray[$key] = $value;
             }
         }

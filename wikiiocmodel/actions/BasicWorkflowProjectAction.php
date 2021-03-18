@@ -5,6 +5,9 @@ class BasicWorkflowProjectAction extends ProjectAction {
 
     public function responseProcess() {
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
+        if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_SAVE){
+            $action->addExcludeKeys(["action", "roles", "groups"]);
+        }
         $projectMetaData = $action->get($this->params);
         $this->stateProcess($projectMetaData);
         return $projectMetaData;
@@ -79,7 +82,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
     }
 
     protected function postResponseProcess(&$response) {
-        parent::postResponseProcess($response);
+//        parent::postResponseProcess($response);
 
         $model = $this->getModel();
         $id = $this->params[ProjectKeys::KEY_ID];

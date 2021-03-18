@@ -105,7 +105,23 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 if ($arrayButton['scripts']['updateHandler']['conditions']) {
                     $condButtonVisible = "is${id}ButtonVisible = is${id}ButtonVisible && (";
                     foreach ($arrayButton['scripts']['updateHandler']['conditions'] as $key => $value) {
-                        $condButtonVisible .= "$key==$value && ";
+                        $values = explode("|", $value);
+                        if(count($values)>1){
+                            $startStr = "(";
+                            $glue = "|| ";
+                            $endStr = ")";
+                        }else{
+                            $startStr = $glue = $endStr = "";
+                        }
+                        $condButtonVisible .= "$startStr";
+                        foreach ($values as $item) {
+                            $condButtonVisible .= "$key==$item$glue";                        
+                        }
+                        if(!empty($glue)){
+                            $condButtonVisible = substr($condButtonVisible, 0, -3);
+                        }
+                        $condButtonVisible .= "$endStr && ";
+                        
                     }
                     $condButtonVisible = substr($condButtonVisible, 0, -4) . ");";
                 }
