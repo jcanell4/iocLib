@@ -114,7 +114,7 @@ class RawPageAction extends EditPageAction {
         // ALERTA: Control d'edició per revisions
         if ($response['rev']) {
             // ALERTA[Xavi] Les revisións no bloquejan el document. Per altra banda afegeixen un suffix al id per diferenciar-se del document original
-            $response['id'] .= PageAction::REVISION_SUFFIX;
+            $response['id'] .= PageKeys::REVISION_SUFFIX;
         } else {
             $mess = $this->generateLockInfo($this->lockState(), $this->params[PageKeys::KEY_ID]);
             $response['info'] = self::addInfoToInfo($response['info'], $mess);
@@ -217,7 +217,7 @@ class RawPageAction extends EditPageAction {
 
         if ($license) $info = [$license];
         $info[] = preg_replace("/<\/*p>/", "", trim($info_m));
-        $responseId = $this->params[PageKeys::KEY_ID] . (($this->params[PageKeys::KEY_REV]) ? PageAction::REVISION_SUFFIX : "");
+        $responseId = $this->params[PageKeys::KEY_ID] . (($this->params[PageKeys::KEY_REV]) ? PageKeys::REVISION_SUFFIX : "");
         $response['info'] = self::generateInfo('info', $info, $responseId);
 
         return $response;

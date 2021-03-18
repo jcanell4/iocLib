@@ -54,7 +54,7 @@ class SavePageAction extends RawPageAction {
     protected function responseProcess() {
         global $TEXT, $ID;
 
-        $suffix = $this->params[PageKeys::KEY_REV] ? PageAction::REVISION_SUFFIX : '';
+        $suffix = $this->params[PageKeys::KEY_REV] ? PageKeys::REVISION_SUFFIX : '';
         $response['code'] = $this->code;
 
         if ($this->deleted) {
