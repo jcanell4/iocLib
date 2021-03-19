@@ -27,20 +27,22 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $action = $model->getMetaDataActionWorkflowFile($currentState, $actionCommand);
 
         //busca en el apartado views si se ha especificado el rol del usuario actual
-        $views_rols = $action['views']['rols'];
-        foreach ($views_rols as $r => $vista) {
-            if (in_array($r, $user_roles)) {
-                $view = $vista;
-                break;
+        if (($views_rols = $action['views']['rols'])) {
+            foreach ($views_rols as $r => $vista) {
+                if (in_array($r, $user_roles)) {
+                    $view = $vista;
+                    break;
+                }
             }
         }
         if (!$view) {
            //busca en el apartado views si se ha especificado el grupo del usuario actual
-            $views_group = $action['views']['groups'];
-            foreach ($views_group as $g => $vista) {
-                if (in_array($g, $user_groups)) {
-                    $view = $vista;
-                    break;
+            if (($views_group = $action['views']['groups'])) {
+                foreach ($views_group as $g => $vista) {
+                    if (in_array($g, $user_groups)) {
+                        $view = $vista;
+                        break;
+                    }
                 }
             }
         }
