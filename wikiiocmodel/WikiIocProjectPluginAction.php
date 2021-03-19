@@ -128,10 +128,13 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t";
             }
         }
+        $workflowState = $arrayButton['scripts']['updateHandler']['conditions']['page.workflowState'];
+        $workflowState = ($workflowState) ? $workflowState : "''";
 
         if ($counter > 0) {
             $aReplacements["search"] = ["//%_changeWidgetPropertyFalse_%",
                                         "%_projectType_%",
+                                        "%_workflowState_%",
                                         "//%_VarsIsButtonVisible_%",
                                         "//%_permissionButtonVisible_%",
                                         "//%_rolesButtonVisible_%",
@@ -139,6 +142,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                                         "//%_changeWidgetPropertyCondition_%"];
             $aReplacements["replace"] = [$changeWidgetPropertyFalse,
                                          $this->projectType,
+                                         $workflowState,
                                          $VarsIsButtonVisible,
                                          $permissionsButtonVisible,
                                          $rolesButtonVisible,
