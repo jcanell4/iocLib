@@ -57,8 +57,8 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
                             }
                             $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
                             $action['button']['scripts']['updateHandler']['rols'] = $action['permissions']['rols'];
-                            $estat = ($shortcut) ? $shortcut : $state;
-                            $action['button']['scripts']['updateHandler']['conditions']['page.workflowState'] = "'$estat'";
+//                            $estat = ($shortcut) ? $shortcut : $state;
+                            $action['button']['scripts']['updateHandler']['conditions']['page.workflowState'] = "'$state'";
                             $wArray[$id] = $action['button'];
                         }
                     }

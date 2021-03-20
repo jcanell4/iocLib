@@ -8,13 +8,30 @@ class BasicWorkflowProjectAction extends ProjectAction {
         if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_SAVE){
             $action->addExcludeKeys(["action", "roles", "groups"]);
         }
-        $projectMetaData = $action->get($this->params);
-        $this->stateProcess($projectMetaData);
-        return $projectMetaData;
+        $response = $action->get($this->params);
+        $response["alternativeResponseHandler"] = $this->getAlternativeResponseHandler();
+        $this->stateProcess($response);
+        return $response;
+    }
+    
+    private function getAlternativeResponseHandler(){
+        $ret=NULL;
+        $name = ucfirst($this->params[ProjectKeys::KEY_ACTION]);
+        $prDir = $this->getModel()->getProjectMetaDataQuery()->getProjectTypeDir();
+        $tplName = WikiGlobalConfig::tplIncName();
+        $path = "{$prDir}command/responseHandler/$tplName/{$name}ResponseHandler.php";
+        if(file_exists($path)){
+            $rhname =  "{$name}ResponseHandler";
+            require_once($path);
+            $ret = new $rhname($name);
+        }
+        return $ret;
     }
 
+
+
     protected function preResponseProcess() {
-        parent::preResponseProcess();
+//        parent::preResponseProcess();
 
         $model = $this->getModel();
 
@@ -60,8 +77,8 @@ class BasicWorkflowProjectAction extends ProjectAction {
 
         $metaDataManagement = $metaDataQuery->getDataProject();
         $currentState = $metaDataManagement['workflow']['currentState'];
-        $workflowJson = $model->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
-        $newState = ($workflowJson['actions'][$actionCommand]['changeStateTo']) ? $workflowJson['actions'][$actionCommand]['changeStateTo'] : $currentState;
+        $workflowJson = $this->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
+        $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
 
         if ($currentState !== $newState) {
             $newMetaData['changeDate'] = date("Y-m-d");
@@ -79,6 +96,15 @@ class BasicWorkflowProjectAction extends ProjectAction {
         }
         $message = self::generateInfo("info", "L'estat actual és '{$newState}'.", $id);
         $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
+    }
+    
+    protected function getCurrentWorkflowActionAttributes($currentState, $actionCommand){
+        $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
+        if(isset($workflowJson['actions'][$actionCommand]["shortcut"])){
+            $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $workflowJson['actions'][$actionCommand]["shortcut"]);
+        }        
+        return $workflowJson['actions'][$actionCommand];
+
     }
 
     protected function postResponseProcess(&$response) {
