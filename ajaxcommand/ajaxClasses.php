@@ -159,18 +159,19 @@ class ajaxCall {
             }else{
                 foreach ($pluginList as $plugin) {
                     $p = explode("_", $plugin, 3);
+                    $tplName = WikiGlobalConfig::tplIncName();
                     if ($p[1] == "projects") { //fa referencia a un projecte dins del plugin
                         $c = explode("_", $p[2], 2);
                         if (count($c) === 2) {  //es un fichero del directorio 'command'
                             $file = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command/{$c[1]}.php";
                             $noms = array($c[1], "{$c[0]}_{$c[1]}", "{$p[0]}_{$c[0]}_{$c[1]}", "{$p[0]}_{$p[1]}_{$c[0]}_{$c[1]}");
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}_{$c[0]}_{$c[1]}";
-                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command/responseHandler/";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command/responseHandler/$tplName/";
                         }else {
                             $file = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/command.php";
                             $noms = array($c[0], "{$p[0]}_{$c[0]}", "{$p[0]}_{$p[1]}_{$c[0]}");
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}_{$c[0]}";
-                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/responseHandler/";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/{$p[1]}/{$c[0]}/responseHandler/$tplName/";
                         }
                     }else {
                         $p = explode("_", $plugin, 2);
@@ -178,12 +179,12 @@ class ajaxCall {
                             $file = "$DOKU_PLUGINS{$p[0]}/command/{$p[1]}.php";
                             $noms = array($p[1], "{$p[0]}_{$p[1]}");
                             $commandClass = "command_plugin_{$p[0]}_{$p[1]}";
-                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/command/responseHandler/";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/command/responseHandler/$tplName/";
                         }else {
                             $file = "$DOKU_PLUGINS{$p[0]}/command.php";
                             $noms = array($p[0]);
                             $commandClass = "command_plugin_{$p[0]}";
-                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/responseHandler/";
+                            $this->respHandlerdDir = "$DOKU_PLUGINS{$p[0]}/responseHandler/$tplName/";
                         }
                     }
                     if (in_array($this->call, $noms)) {
