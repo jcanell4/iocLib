@@ -127,9 +127,9 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 }
                 $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t";
             }
+            $workflowState = $arrayButton['scripts']['updateHandler']['processCondition']['page.workflowState'];
+            $workflowState = ($workflowState) ? $workflowState : "";
         }
-        $workflowState = $arrayButton['scripts']['updateHandler']['processCondition']['page.workflowState'];
-        $workflowState = ($workflowState) ? $workflowState : "";
 
         if ($counter > 0) {
             $aReplacements["search"] = ["//%_changeWidgetPropertyFalse_%",
@@ -172,12 +172,16 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 $event->data->addWikiIocButton($class, $button);
             } elseif(isset($arrayButton['toDelete']) || isset($arrayButton['toSet'])) {
                 $configDataFunctions[] = $this->addOverwritingFunctions($arrayButton);
+                $workflowState = $arrayButton['scripts']['updateHandler']['processCondition']['page.workflowState'];
+                $workflowState = ($workflowState) ? $workflowState : "";
             }
         }
         if (count($configDataFunctions) > 0 ) {
             $aReplacements["search"] = ["%_projectType_%",
+                                        "%_workflowState_%",
                                         "___JSON_BUTTON_ATTRIBUTES_DATA___"];
             $aReplacements["replace"] = [$this->projectType,
+                                         $workflowState,
                                          json_encode($configDataFunctions)];
 
             $arxiu =  WIKI_IOC_MODEL."metadata/templates/templateUpdateButtonAttributes.js";
