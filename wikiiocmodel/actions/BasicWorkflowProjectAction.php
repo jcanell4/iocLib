@@ -79,7 +79,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
             $message = self::generateInfo("info", "El canvi d'estat a '{$newState}' ha finalitzat correctament.", $id);
             $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
-        $message = self::generateInfo("info", "L'estat actual és '{$newState}'.", $id);
+        $message = self::generateInfo("info", "L'estat actual és |{$newState}|.", $id);
         $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
     }
 
