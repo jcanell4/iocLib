@@ -20,10 +20,10 @@ class _WiocclLoop
 
         $result = '';
 
-        if($this->looperInstruction->getFrom() > $this->looperInstruction->getTo()){
+        $to = $this->looperInstruction->getTo();
+        if($this->looperInstruction->getFrom() > $to){
 
-
-            if ($this->looperInstruction->getFrom() != $this->looperInstruction->getStep()) {
+            if ($to !== -1 && $this->looperInstruction->getFrom() != $this->looperInstruction->getStep()) {
                 WiocclParser::$cloning = true;
             }
 
