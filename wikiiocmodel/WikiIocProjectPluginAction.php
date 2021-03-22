@@ -128,8 +128,8 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 $conditionsButtonVisible .= $condButtonVisible . "\n\t\t\t\t\t";
             }
         }
-        $workflowState = $arrayButton['scripts']['updateHandler']['conditions']['page.workflowState'];
-        $workflowState = ($workflowState) ? $workflowState : "''";
+        $workflowState = $arrayButton['scripts']['updateHandler']['processCondition']['page.workflowState'];
+        $workflowState = ($workflowState) ? $workflowState : "";
 
         if ($counter > 0) {
             $aReplacements["search"] = ["//%_changeWidgetPropertyFalse_%",

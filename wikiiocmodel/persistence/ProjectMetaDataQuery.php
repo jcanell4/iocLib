@@ -608,6 +608,9 @@ class ProjectMetaDataQuery extends DataQuery {
             $prev_date = filemtime($projectFilePathName);
         }
 
+        if(is_array($metaDataValue)){
+            $metaDataValue = json_encode($metaDataValue);
+        }
         $contentFile = $this->_cleanContent("{\"$metaDataSubSet\":$metaDataValue}");
         $resourceCreated = io_saveFile($projectFilePathName, $contentFile);
         if ($resourceCreated) {
