@@ -56,7 +56,7 @@ abstract class AbstractWikiAction {
     public static function generateInfo($type, $message, $id='', $duration=-1, $subSet=NULL) {
         return IocCommon::generateInfo($type, $message, $id, $duration, $subSet);
     }
-
+    
     protected static function addInfoToInfo( $infoA, $infoB ) {
         return IocCommon::addInfoToInfo($infoA, $infoB);
     }

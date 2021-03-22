@@ -22,7 +22,7 @@ class HtmlRevisionPageAction extends HtmlPageAction {
         $revisionInfo = WikiIocLangManager::getXhtml('showrev');
 
         // ALERTA[Xavi] Canvis per fer servir una pestanya per revisions
-        $response['structure']['id'] .= PageAction::REVISION_SUFFIX;
+        $response['structure']['id'] .= PageKeys::REVISION_SUFFIX;
         // ALERTA[Xavi] Fi Canvis
 
         $response['structure']['html'] = str_replace($revisionInfo, '', $response['structure']['html']);

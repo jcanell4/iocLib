@@ -11,7 +11,7 @@ abstract class ProjectAction extends AbstractWikiAction {
     protected $persistenceEngine;
     protected $projectModel;
     protected $resourceLocker;
-
+    
     public function getActionInstance($actionName) {
         $action = parent::getActionInstance($actionName);
         $action->persistenceEngine = $this->persistenceEngine;
@@ -93,7 +93,7 @@ abstract class ProjectAction extends AbstractWikiAction {
             throw new Exception ("La versió de tipus $type del projecte és major que la versió corresponent definida al tipus de projecte: $ver_project > $ver_config");
         }
 
-        if ($ver_project !== $ver_config) {
+        if ($ver_project != $ver_config) {
             $upgader = new UpgradeManager($this->projectModel, $this->params[ProjectKeys::KEY_PROJECT_TYPE], $this->params[ProjectKeys::KEY_METADATA_SUBSET], $ver_project, $ver_config, $type);
             $new_ver = $upgader->process($ver_project, $ver_config, $type, $key);
             if ($key) {

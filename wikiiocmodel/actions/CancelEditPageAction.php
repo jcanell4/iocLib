@@ -51,7 +51,7 @@ class CancelEditPageAction extends RenderedPageAction {
         }
 
         if (isset($this->params[PageKeys::KEY_REV])) {
-            $response['structure']['id'] .= PageAction::REVISION_SUFFIX;
+            $response['structure']['id'] .= PageKeys::REVISION_SUFFIX;
             // Corregim els ids de les metas per indicar que és una revisió
             $this->addRevisionSuffixIdToArray($response['meta']);
         }
