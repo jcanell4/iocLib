@@ -14,7 +14,7 @@ class ResultsVerificationError {
                 $ret.= '<p>'.$errors.'</p>';
             }else if($key == "ERROR"){
                 foreach ($errors as $error) {
-                    $ret.= '<p class="resultatErroni"><a class="interwiki" href="#'.$error['field'].'">'.$error['field'].'</a> ';
+                    $ret.= '<p class="resultatErroni"><a class="interwiki" href="#'.$error['field'].'" data-error-target="'. $error['field'].'">'.$error['field'].'</a> ';
                     $ret.= '<span>'.$error['message'].'</span></p>';
                     
                 }

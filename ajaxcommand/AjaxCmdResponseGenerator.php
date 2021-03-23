@@ -713,16 +713,17 @@ class AjaxCmdResponseGenerator {
      * @param string $id
      * @param string[] $meta hash amb les metadades
      */
-    public function addExtraMetadata($id, $meta, $tit = NULL, $cont = NULL)
+    public function addExtraMetadata($id, $meta, $tit = NULL, $cont = NULL, $type = NULL)
     {
         if ($tit) {
             $aMeta = array("id" => $meta, 'title' => $tit, 'content' => $cont, "docId" => $id);
         } else {
             $aMeta = $meta;
         }
+
         $this->response->add(
             new JSonGeneratorImpl(
-                JSonGenerator::EXTRA_META_INFO,
+                $type ? $type : JSonGenerator::EXTRA_META_INFO,
                 array(
                     "id" => $id,
                     "meta" => $aMeta,
