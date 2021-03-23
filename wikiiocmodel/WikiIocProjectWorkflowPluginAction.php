@@ -41,28 +41,33 @@ class WikiIocProjectWorkflowPluginAction extends WikiIocProjectPluginAction {
         foreach ($arrayStates as $arrayActions) {
             foreach ($arrayActions as $name => $action) {
                 if (($shortcut = $action['shortcut'])) {
-                    $action = $this->workflowArray[$shortcut]['actions'][$name];
+                    $sh_action = $this->workflowArray[$shortcut]['actions'][$name];
+                    $button = ($action['button']) ? $action['button'] : $sh_action['button'];
+                    $permissions = ($action['permissions']) ? $action['permissions'] : $sh_action['permissions'];
+                }else {
+                    $button = $action['button'];
+                    $permissions = $action['permissions'];
                 }
-                if ($action['button']) {
-                    if (isset($action['button']['id'])) {
-                        $id = str_replace("Button", "", $action['button']['id']);
-                    }elseif (isset($action['button']['parms']['DOM']['id'])) {
-                        $id = str_replace("Button", "", $action['button']['parms']['DOM']['id']);
+                if ($button) {
+                    if (isset($button['id'])) {
+                        $id = str_replace("Button", "", $button['id']);
+                    }elseif (isset($button['parms']['DOM']['id'])) {
+                        $id = str_replace("Button", "", $button['parms']['DOM']['id']);
                     }
                     if ($id) {
-                        if (!isset($action['button']['class']) || isset($action['button']['toSet']) || isset($action['button']['toDelete'])) {
-                            $action['button']['overwrite'] = TRUE;
+                        if (!isset($button['class']) || isset($button['toSet']) || isset($button['toDelete'])) {
+                            $button['overwrite'] = TRUE;
                         }
-                        foreach ($action['permissions']['groups'] as $k => $value) {
+                        foreach ($permissions['groups'] as $k => $value) {
                             if (!preg_match("/^is.*/", $value)) {
-                                $action['permissions']['groups'][$k] = "is$value";
+                                $permissions['groups'][$k] = "is$value";
                             }
                         }
-                        $action['button']['scripts']['updateHandler']['permissions'] = $action['permissions']['groups'];
-                        $action['button']['scripts']['updateHandler']['rols'] = $action['permissions']['rols'];
-                        //$action['button']['scripts']['updateHandler']['conditions']['page.workflowState'] = "'$state'";  //NO eliminar. Serveix d'exemple
-                        $action['button']['scripts']['updateHandler']['processCondition']['page.workflowState'] = "$state";
-                        $wArray["$state$id"] = $action['button'];
+                        $button['scripts']['updateHandler']['permissions'] = $permissions['groups'];
+                        $button['scripts']['updateHandler']['rols'] = $permissions['rols'];
+                        //$button['scripts']['updateHandler']['conditions']['page.workflowState'] = "'$state'";  //NO eliminar. Serveix d'exemple
+                        $button['scripts']['updateHandler']['processCondition']['page.workflowState'] = "$state";
+                        $wArray["$state$id"] = $button;
                     }
                 }
             }
