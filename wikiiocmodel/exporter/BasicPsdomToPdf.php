@@ -686,6 +686,7 @@ class BasicPdfRenderer {
     protected $nColInRow = 0;
     protected $aSpan = array();
     protected $nRow = 0;
+    protected $isTableHeader;
     protected $figureCounter = 0;
     protected $figureReferences = array();
     protected $headerNum = array(0,0,0,0,0,0);
@@ -1489,6 +1490,7 @@ class BasicPdfRenderer {
                 $this->nRow++;
                 break;
             case CellNodeDoc::TABLEHEADER_TYPE:
+                $this->isTableHeader = true;
                 $align = $content["align"] ? "text-align:{$content["align"]};" : "text-align:center;";
                 $style = $content["hasBorder"] ? ' style="border:1px solid black; border-collapse:collapse; '.$align.' font-weight:bold; background-color:#F0F0F0;"' : ' style="'.$align.' font-weight:bold; background-color:#F0F0F0;"';
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
@@ -1499,6 +1501,11 @@ class BasicPdfRenderer {
                 $ret = "<th$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</th>";
                 break;
             case CellNodeDoc::TABLECELL_TYPE:
+                if ($this->isTableHeader) {
+                    $this->isTableHeader = false;
+                    $this->aSpan = array();
+                    $this->nRow = 0;
+                }
                 $align = $content["align"] ? "text-align:{$content["align"]};" : "text-align:center;";
                 $style = $content["hasBorder"] ? ' style="border:1px solid black; border-collapse:collapse; '.$align.'"' : " style=\"$align\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
@@ -1646,14 +1653,14 @@ class BasicPdfRenderer {
         if ($this->nRow > 0) {
             for ($r = 0; $r < $this->nRow; $r++) {
                 for ($c = $ncol; $c < $ncol+$this->aSpan[$r][$ncol]['colspan']; $c++) {
-                    if ($this->aSpan[$r][$c]['rowspan'] > 1) {
+                    if (isset($this->aSpan[$r][$c]) && $this->aSpan[$r][$c]['rowspan'] > 1) {
                         $this->aSpan[$r][$c]['rowspan'] -= 1;
-                        $this->nColInRow += $this->aSpan[$r][$c]['colspan'];
-                        $c += $this->aSpan[$r][$c]['colspan'];
+                        $ncol += $this->aSpan[$r][$c]['colspan'];
+                        $colspan = $this->aSpan[$r][$c]['colspan'];
                     }
                 }
-                $ncol = $this->nColInRow;
             }
+            $this->nColInRow = $ncol;
         }
         //Ajustando el ancho de la columna en función de los colspan
         if ($this->tablewidths[$ncol]) {
