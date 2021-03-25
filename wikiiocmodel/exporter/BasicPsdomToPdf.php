@@ -867,7 +867,6 @@ class BasicPdfRenderer {
     }
 
     protected function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
-        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_nodes.txt", "INICI NODE\n".print_r($content,true)."\n", FILE_APPEND);
         $ret = "";
         if ($content['type'] === FigureFrame::FRAME_TYPE_FIGURE) {
             $ret = $this->getFrameContent($content, $iocTcPdf);
@@ -885,7 +884,6 @@ class BasicPdfRenderer {
                 || $content["type"] == StructuredNodeDoc::PARAGRAPH_TYPE) {
             $iocTcPdf->Ln(3);
         }
-        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_nodes.txt", "FINAL NODE\n\n\n", FILE_APPEND);
     }
 
     protected function getFrameContent($content, IocTcPdf &$iocTcPdf) {
@@ -974,7 +972,6 @@ class BasicPdfRenderer {
         if ($c > 0) {
             $content = str_replace($aSearch, $aReplace, $content);
         }
-        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_total.html", $content);
 //        $iocTcPdf->writeHTML($content, $ln, $fill, $reseth, $cell, $align);
         $margins = $iocTcPdf->getMargins();
         $cellMargins = $iocTcPdf->getCellMargins();
@@ -1483,7 +1480,6 @@ class BasicPdfRenderer {
                 break;
             case TableNodeDoc::TABLE_TYPE:
                 $ret = '<table cellpadding="5">'.$this->getStructuredContent($content)."</table>";
-                file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_tables.html", "$ret\n<br>\n<br>\n<br>\n", FILE_APPEND);
                 $this->aSpan = array();
                 $this->nRow = 0;
                 break;
