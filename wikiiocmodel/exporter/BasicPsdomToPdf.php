@@ -867,6 +867,7 @@ class BasicPdfRenderer {
     }
 
     protected function renderContent($content, IocTcPdf &$iocTcPdf, $pre="", $post="") {
+        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_nodes.txt", "INICI NODE\n".print_r($content,true)."\n", FILE_APPEND);
         $ret = "";
         if ($content['type'] === FigureFrame::FRAME_TYPE_FIGURE) {
             $ret = $this->getFrameContent($content, $iocTcPdf);
@@ -884,6 +885,7 @@ class BasicPdfRenderer {
                 || $content["type"] == StructuredNodeDoc::PARAGRAPH_TYPE) {
             $iocTcPdf->Ln(3);
         }
+        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_nodes.txt", "FINAL NODE\n\n\n", FILE_APPEND);
     }
 
     protected function getFrameContent($content, IocTcPdf &$iocTcPdf) {
@@ -972,6 +974,7 @@ class BasicPdfRenderer {
         if ($c > 0) {
             $content = str_replace($aSearch, $aReplace, $content);
         }
+        file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_total.html", $content);
 //        $iocTcPdf->writeHTML($content, $ln, $fill, $reseth, $cell, $align);
         $margins = $iocTcPdf->getMargins();
         $cellMargins = $iocTcPdf->getCellMargins();
@@ -1457,6 +1460,7 @@ class BasicPdfRenderer {
                 break;
             case TableFrame::TABLEFRAME_TYPE_TABLE:
             case TableFrame::TABLEFRAME_TYPE_ACCOUNTING:
+                $this->tablewidths = array();
                 if ($content['widths']) {
                     $e = explode(',', $content['widths']);
                     $t = 0;
@@ -1479,6 +1483,7 @@ class BasicPdfRenderer {
                 break;
             case TableNodeDoc::TABLE_TYPE:
                 $ret = '<table cellpadding="5">'.$this->getStructuredContent($content)."</table>";
+                file_put_contents("/home/rafael/nb-projectes/wiki18/data/pages/fp/kk_tables.html", "$ret\n<br>\n<br>\n<br>\n", FILE_APPEND);
                 $this->aSpan = array();
                 $this->nRow = 0;
                 break;
@@ -1496,7 +1501,7 @@ class BasicPdfRenderer {
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
                 $width = $this->cellWhidth($content["colspan"]);
-                $this->aSpan[$this->nRow][$this->nColInRow] = ['rowspan'=>$content["rowspan"], 'colspan'=>$content["colspan"]];
+                $this->aSpan[$this->nColInRow] = ['rowspan'=>$content["rowspan"], 'colspan'=>$content["colspan"]];
                 $this->nColInRow += $content["colspan"];
                 $ret = "<th$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</th>";
                 break;
@@ -1511,7 +1516,7 @@ class BasicPdfRenderer {
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
                 $width = $this->cellWhidth($content["colspan"]);
-                $this->aSpan[$this->nRow][$this->nColInRow] = ['rowspan'=>$content["rowspan"], 'colspan'=>$content["colspan"]];
+                $this->aSpan[$this->nColInRow] = ['rowspan'=>$content["rowspan"], 'colspan'=>$content["colspan"]];
                 $this->nColInRow += $content["colspan"];
                 $ret = "<td$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</td>";
                 break;
@@ -1648,22 +1653,21 @@ class BasicPdfRenderer {
 
     private function cellWhidth($colspan) {
         $width = "";
-        $ncol = $this->nColInRow;
-        //Ajustando el índice de la columna actual en función de los rowspan
-        if ($this->nRow > 0) {
-            for ($r = 0; $r < $this->nRow; $r++) {
-                for ($c = $ncol; $c < $ncol+$this->aSpan[$r][$ncol]['colspan']; $c++) {
-                    if (isset($this->aSpan[$r][$c]) && $this->aSpan[$r][$c]['rowspan'] > 1) {
-                        $this->aSpan[$r][$c]['rowspan'] -= 1;
-                        $ncol += $this->aSpan[$r][$c]['colspan'];
-                        $colspan = $this->aSpan[$r][$c]['colspan'];
+        if (!empty($this->tablewidths)) {
+            $ncol = $this->nColInRow;
+            //Ajustando el índice de la columna actual en función de los rowspan
+            if ($this->nRow > 0) {
+                for ($c = $ncol; $c < $ncol+$this->aSpan[$ncol]['colspan']; $c++) {
+                    if (isset($this->aSpan[$c]) && $this->aSpan[$c]['rowspan'] > 1) {
+                        $this->aSpan[$c]['rowspan'] -= 1;
+                        $colspan = $this->aSpan[$c]['colspan'];
+                        $ncol += $colspan;
                     }
                 }
+                $this->nColInRow = $ncol;
             }
-            $this->nColInRow = $ncol;
-        }
-        //Ajustando el ancho de la columna en función de los colspan
-        if ($this->tablewidths[$ncol]) {
+
+            //Ajustando el ancho de la columna en función de los colspan
             $w = 0;
             for ($col = $ncol; $col < $ncol+$colspan; $col++) {
                 $w += $this->tablewidths[$col];
