@@ -1665,10 +1665,12 @@ class BasicPdfRenderer {
 
             //Ajustando el ancho de la columna en función de los colspan
             $w = 0;
-            for ($col = $ncol; $col < $ncol+$colspan; $col++) {
-                $w += $this->tablewidths[$col];
+            if ($this->tablewidths[$ncol]) {
+                for ($col = $ncol; $col < $ncol+$colspan; $col++) {
+                    $w += $this->tablewidths[$col];
+                }
+                $width = ' width="'.$w.'%"';
             }
-            $width = ' width="'.$w.'%"';
         }
         return $width;
     }
