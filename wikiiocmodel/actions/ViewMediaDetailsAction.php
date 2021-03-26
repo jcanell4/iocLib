@@ -25,7 +25,7 @@ class ViewMediaDetailsAction extends MediaAction {
         }else if ($MSG[0] && $MSG[0]['lvl'] == 'error') {
             throw new HttpErrorCodeException($MSG[0]['msg'], 404);
         }
-        $JSINFO = array(MediaKeys::KEY_ID => $image, 'namespace' => $NS);
+        $JSINFO = array(MediaKeys::KEY_ID => $image, MediaKeys::KEY_NAMESPACE => $NS);
 
         $image = ($mdpp['newImage']) ? $mdpp['newImage'] : $this->params[MediaKeys::KEY_IMAGE];
         $response = array(

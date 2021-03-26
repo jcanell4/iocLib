@@ -21,7 +21,7 @@ class ViewMediaAction extends MediaAction {
 
         trigger_event('IOC_WF_INTER', $ACT);
         $response = array(
-            "content" => $this->modelAdapter->doMediaManagerPreProcess(),
+            "content" => $this->doMediaManagerPreProcess(),
             "id" => MediaKeys::KEY_MEDIA,
             "title" => MediaKeys::KEY_MEDIA,
             "ns" => $NS,
@@ -32,7 +32,7 @@ class ViewMediaAction extends MediaAction {
             "closeDialogLabel" => $lang['img_backto']
         );
         $JSINFO = [MediaKeys::KEY_ID => MediaKeys::KEY_MEDIA,
-                   'namespace' => $NS];
+                   MediaKeys::KEY_NAMESPACE => $NS];
         return $response;
     }
 
@@ -87,6 +87,59 @@ class ViewMediaAction extends MediaAction {
             $this->triggerStartEvents();
         }
         return $ret;
+    }
+
+//    private function doMediaManagerPreProcess() {
+//        global $ACT;
+//        $content = "";
+//        if ($this->runBeforePreprocess($content)) {
+//            //crida parcial: només a la llista de fitxers del directori
+//            $content .= $this->mediaManagerFileList();
+//            //check permissions again - the action may have changed
+//            $ACT = IocCommon::act_permcheck($ACT);
+//        }
+//        $this->runAfterPreprocess($content);
+//        return $content;
+//    }
+    public function doMediaManagerPreProcess() {
+        global $ACT;
+        $content = "";
+        if ($this->runBeforePreprocess($content)) {
+            ob_start();
+            //crida parcial: només a la llista de fitxers del directori
+            $this->wikiMediaManagerFileList();
+            $content .= ob_get_clean();
+            //check permissions again - the action may have changed
+            $ACT = IocCommon::act_permcheck($ACT);
+        }
+        $this->runAfterPreprocess($content);
+        return $content;
+    }
+
+    function wikiMediaManagerFileList() {
+        global $NS, $JUMPTO, $fullscreen, $AUTH;
+        $fullscreen = TRUE;
+        require_once DOKU_INC . 'lib/exe/mediamanager.php';
+
+        echo '<div id="mediamanager__page">' . NL;
+        if ($NS == "") {
+            echo '<h1>Documents de l\'arrel de documents</h1>';
+        } else {
+            echo '<h1>Documents de ' . $NS . '</h1>';
+        }
+        echo '<div class="panel filelist ui-resizable">' . NL;
+        echo '<div class="panelContent">' . NL;
+
+        $do = $AUTH;
+        $query = ($_REQUEST['q']) ? $_REQUEST['q'] : "";
+        if ($do == 'searchlist' || $query) {
+            media_searchlist($query, $NS, $AUTH, TRUE, $_REQUEST['sort']);
+        } else {
+            media_tab_files($NS, $AUTH, $JUMPTO);
+        }
+        echo '</div>' . NL;
+        echo '</div>' . NL;
+        echo '</div>' . NL;
     }
 
 }

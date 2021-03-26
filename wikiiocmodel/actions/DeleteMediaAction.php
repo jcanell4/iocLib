@@ -33,7 +33,7 @@ class DeleteMediaAction extends MediaAction{
                 "info" => sprintf($lang['deletesucc'], noNS($this->params[MediaKeys::KEY_IMAGE])),
                 "result" => $this->actionReturn
             );
-            $JSINFO = array('id' => "media", 'namespace' => $this->params[MediaKeys::KEY_NS]);
+            $JSINFO = array(MediaKeys::KEY_ID => "media", MediaKeys::KEY_NAMESPACE => $this->params[MediaKeys::KEY_NS]);
         }
         elseif ($this->actionReturn & DOKU_MEDIA_INUSE) {
             if(!$conf['refshow']) {
@@ -67,31 +67,21 @@ class DeleteMediaAction extends MediaAction{
     }
 
     function mediaManagerFileList(){
-        global $NS, $IMG, $JUMPTO, $REV, $lang, $fullscreen, $INPUT, $AUTH;
+        global $NS, $JUMPTO, $fullscreen, $AUTH;
         $fullscreen = TRUE;
 
         ob_start();
-
-        $rev = '';
-        $image = cleanID($INPUT->str('image'));
-        if (isset($IMG))    $image = $IMG;
-        if (isset($JUMPTO)) $image = $JUMPTO;
-        if (isset($REV) && !$JUMPTO) $rev = $REV;
-
         echo '<div id="mediamanager__page">' . NL;
         if ($NS == "") {
             echo '<h1>Documents de l\'arrel de documents</h1>';
         } else {
             echo '<h1>Documents de ' . $NS . '</h1>';
         }
-
         echo '<div class="panel filelist ui-resizable">' . NL;
         echo '<div class="panelContent">' . NL;
 
         $do = $AUTH;
         $query = $_REQUEST['q'];
-        if (!$query) $query = '';
-
         if ($do == 'searchlist' || $query) {
             media_searchlist($query, $NS, $AUTH, TRUE, $_REQUEST['sort']);
         } else {

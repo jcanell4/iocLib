@@ -80,8 +80,7 @@ abstract class MediaAction extends DokuAction
 
     function mediaManagerFileList(){
         $content = "";
-        $fullscreen = TRUE;
-        $rev = '';
+        //$rev = '';
         $image = cleanID($this->params[MediaKeys::KEY_IMAGE]);
 
         if (isset($this->params[MediaKeys::KEY_REV])) {
@@ -99,11 +98,9 @@ abstract class MediaAction extends DokuAction
 
         $content .= '<div class="panel filelist ui-resizable">' . NL;
         $content .= '<div class="panelContent">' . NL;
+
         $do = $this->params[MediaKeys::KEY_MEDIA_DO];     //$do = $AUTH;
-        $query = $this->params[MediaKeys::KEY_QUERY];    //$_REQUEST['q'];
-        if (!$query) {
-            $query = '';
-        }
+        $query = ($this->params[MediaKeys::KEY_QUERY]) ? $this->params[MediaKeys::KEY_QUERY] : "";    //$_REQUEST['q'];
 
         ob_start();
         if ($do == 'searchlist' || $query) {
@@ -118,6 +115,28 @@ abstract class MediaAction extends DokuAction
         $content .= '</div>' . NL;
 
         return $content;
+    }
+
+    // Esta función duplica la misma en lib/plugins/wikiiocmodel/projects/defaultProject/DokuModelAdapter.php
+    protected function runBeforePreProcess(&$content) {
+        global $ACT;
+
+        $brun = FALSE;
+        // give plugins an opportunity to process the action
+        $this->ppEvt = new Doku_Event('ACTION_ACT_PREPROCESS', $ACT);
+        ob_start();
+        $brun = ($this->ppEvt->advise_before());
+        $content = ob_get_clean();
+
+        return $brun;
+    }
+
+    // Esta función duplica la misma en lib/plugins/wikiiocmodel/projects/defaultProject/DokuModelAdapter.php
+    protected function runAfterPreProcess(&$content) {
+        ob_start();
+        $this->ppEvt->advise_after();
+        $content .= ob_get_clean();
+        unset($this->ppEvt);
     }
 
 }
