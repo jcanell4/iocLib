@@ -220,6 +220,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $rowAttrs = [];
 
+        $refId = -1;
+
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
             // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
             // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
@@ -238,7 +240,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 $refId = $match[1];
 
                 // S'ha de fer una comprovació similar a l'anterior però cercant el tancament
-                $patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
+                //$patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
+                $patternClose = "/\[\/ref=" . $refId . "\]/ms";
 
 
                 // ALERTA! Un foreach pot inclorue múltiples files per iteració, cerquem el tancament en totes les línies posteriors
@@ -390,16 +393,22 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $this->parsingContent = false;
 
 
-        return $this->makeTable($table, $rowAttrs);
+        return $this->makeTable($table, $rowAttrs, $refId);
     }
 
 
-    protected function makeTable($tableData, $rowAttrs) {
+    protected function makeTable($tableData, $rowAttrs, $refId) {
 
         $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
 
 
         $len = $this->findRowCount($tableData);
+
+        // Aquest cas es dona quan no s'ha trobat cap fila però hi ha un ref. Cal ficar la referència
+        if ($len === 0 && $refId !==-1) {
+            $table .= '<tr data-wioccl-ref="' . $refId . '"></tr>';
+        }
+
 
         for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
 
