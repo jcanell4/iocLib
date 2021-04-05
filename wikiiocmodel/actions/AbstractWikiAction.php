@@ -21,8 +21,8 @@ abstract class AbstractWikiAction {
         }
     }
     
-    public function getActionInstance($actionName){
-        $action = $this->modelManager->getActionInstance($actionName, null, true);
+    public function getActionInstance($actionName, $params=NULL, $noInit=TRUE){
+        $action = $this->modelManager->getActionInstance($actionName, $params, $noInit);
         $action->params = $this->params;
         $action->modelManager = $this->modelManager;
         return $action;
@@ -98,11 +98,10 @@ abstract class AbstractWikiAction {
         return $ret;
     }
     
-    protected function addNotificationsMetaToResponse(&$response, $ns, $rev, $list) {
+    protected function addNotificationsMetaToResponse(&$response, $ns, $rev, $list, $extraCallerParams=false) {
         if (!isset($response['meta'])) {
             $response['meta'] = array();
         }
-
         $response['meta'][] = [
             "id" => $ns . "_metaNotifications",
             "title" => WikiIocLangManager::getLang('notification_form_title'),
@@ -142,17 +141,6 @@ abstract class AbstractWikiAction {
                             'fieldId' => 'username',
                             'defaultEntryField' => 'name',
                             'data' => $list,
-
-
-//                            'data' => [['username'=>'test1', 'name'=>'Test 1'], ['username'=>'test2', 'name'=>'Test 2']],
-//                            'searchDataUrl' => 'lib/exe/ioc_ajax.php?call=test_list',
-//                            'fields' => [
-//                                'field1' => 'Field 1',
-//                                'field2' => 'Field 2',
-//                                'fieldn' => 'Field N',
-//                            ],
-//                            'fieldId' => 'field2',
-
                         ],
                         'class' => 'IocFilteredList',
                         'label' => WikiIocLangManager::getLang('notification_form_to'), // Optional
@@ -182,6 +170,11 @@ abstract class AbstractWikiAction {
                         'value' => '',
                         'label' => WikiIocLangManager::getLang('notification_form_message'), // Optional
                         'properties' => ['required'] // Optional
+                    ],
+                    [
+                        'type' => 'hidden',
+                        'name' => 'data-call',
+                        'value' => $extraCallerParams,
                     ]
 
                 ],
