@@ -220,6 +220,29 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         $rowAttrs = [];
 
+//        $mainRefId = -1;
+
+        // ALERTA! el ^ es clau perquè volem ignorar el tancament de ref que pertany a la línia anterior
+        $patternOpen = "/^(?:\[\/ref=\d+\])*\[ref=(.*?)\]/ms";
+
+        // Cal estreure les files que només son wioccl
+        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])[|\^\n]/ms";
+
+        $newRows = [];
+
+        for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
+            if (preg_match($pureRefPattern, $rows[$rowIndex], $match)) {
+                // Afegim una fila de referències pures
+                $newRows[] = $match[1];
+            }
+
+            // No cal modificar la fila original perquè totes les referències anteriores a | o ^ són descartades
+            $newRows[] = $rows[$rowIndex];
+        }
+
+        // Reassignem per no modificar la resta del codi
+        $rows = $newRows;
+
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
             // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
             // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
@@ -232,13 +255,15 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
 
 
-            $patternOpen = "/^(?:\[\/ref=\d+\])*\[ref=(.*?)\]/ms";
-            if ($rowIndex < count($rows) - 1 && preg_match($patternOpen, $rows[$rowIndex], $match)) {
+
+            if ($rowIndex < count($rows) && preg_match($patternOpen, $rows[$rowIndex], $match)) {
 
                 $refId = $match[1];
+//                $mainRefId = $refId;
 
                 // S'ha de fer una comprovació similar a l'anterior però cercant el tancament
-                $patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
+                //$patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
+                $patternClose = "/\[\/ref=" . $refId . "\]/ms";
 
 
                 // ALERTA! Un foreach pot inclorue múltiples files per iteració, cerquem el tancament en totes les línies posteriors
@@ -255,6 +280,18 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //                        break;
                     }
                 }
+
+                // ALERTA! EXCEPCIÓ: pot ser  un foreach-buit que es troba com a últim element d'una taula
+
+                if ($rowIndex == count($rows)-1) {
+                    $foundClose = preg_match($patternClose, $rows[$rowIndex], $matchClose);
+                    if ($foundClose) {
+                        $closingIndex = $i;
+                    }
+                }
+
+
+
 
                 if ($closingIndex !== -1) {
                     $refOpen = '[ref=' . $refId . ']';
@@ -296,73 +333,73 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
             $tagPattern = '/(\^|\|)/ms';
-            preg_match_all($tagPattern, $rows[$rowIndex], $tagMatches);
+            if (preg_match_all($tagPattern, $rows[$rowIndex], $tagMatches)) {
 
 
-            for ($colIndex = 0; $colIndex < count($cols); $colIndex++) {
-                $cell = [];
+                for ($colIndex = 0; $colIndex < count($cols); $colIndex++) {
+                    $cell = [];
 
 
-                $firstChar = $tagMatches[0][$colIndex];
+                    $firstChar = $tagMatches[0][$colIndex];
 
-                if ($firstChar === '^') {
-                    $cell['tag'] = 'th';
-                } else {
-                    $cell['tag'] = 'td';
-                }
-
-                // gestionem el colspan
-                $empty = strlen($cols[$colIndex]) == 0;
-                if ($empty && $colIndex > 0) {
-
-                    // Cerquem el primer chunk que no sigui buit
-                    for ($j = $colIndex - 1; $j >= 0; $j--) {
-                        if (strlen($table[$j][$rowIndex]['content']) > 0 || $j == 0) {
-                            $table[$j][$rowIndex]['colspan'] = $table[$j][$rowIndex]['colspan'] ? $table[$j][$rowIndex]['colspan'] + 1 : 2;
-                            break;
-                        }
+                    if ($firstChar === '^') {
+                        $cell['tag'] = 'th';
+                    } else {
+                        $cell['tag'] = 'td';
                     }
 
-                    // es tracta de la primera columna, no ho posem a l'anterior
-                } else if ($empty && $colIndex == 0) {
-                    $cell['colspan'] = 1;
-                }
+                    // gestionem el colspan
+                    $empty = strlen($cols[$colIndex]) == 0;
+                    if ($empty && $colIndex > 0) {
 
-                // Gestionem l'alineació
-                $start = substr($cols[$colIndex], 0, 2);
-                $end = substr($cols[$colIndex], -2, 2);
-
-
-                if ($start === "  " && $end === "  ") {
-                    $cell['align'] = "center";
-                } else if ($start === "  ") {
-                    $cell['align'] = "right";
-                } else if ($end === "  ") {
-                    $cell['align'] = "left";
-                }
-
-
-                // Gestionem el rowspan
-                if (trim($cols[$colIndex]) === ":::") {
-
-
-                    if ($rowIndex == 0) {
-                        $table[$colIndex][$rowIndex]['rowspan'] = 1;
-                    } else {
-                        // Recorrem tots els elements cap amunt
-                        for ($j = $rowIndex - 1; $j >= 0; $j--) {
-
-
-                            if ((strlen($table[$colIndex][$j]['content']) > 0 && trim($table[$colIndex][$j]['content']) != ":::")
-                                || $j == 0) {
-                                $table[$colIndex][$j]['rowspan'] = $table[$colIndex][$j]['rowspan'] ? $table[$colIndex][$j]['rowspan'] + 1 : 2;
+                        // Cerquem el primer chunk que no sigui buit
+                        for ($j = $colIndex - 1; $j >= 0; $j--) {
+                            if (strlen($table[$j][$rowIndex]['content']) > 0 || $j == 0) {
+                                $table[$j][$rowIndex]['colspan'] = $table[$j][$rowIndex]['colspan'] ? $table[$j][$rowIndex]['colspan'] + 1 : 2;
                                 break;
                             }
                         }
+
+                        // es tracta de la primera columna, no ho posem a l'anterior
+                    } else if ($empty && $colIndex == 0) {
+                        $cell['colspan'] = 1;
                     }
 
-                    continue;
-                }
+                    // Gestionem l'alineació
+                    $start = substr($cols[$colIndex], 0, 2);
+                    $end = substr($cols[$colIndex], -2, 2);
+
+
+                    if ($start === "  " && $end === "  ") {
+                        $cell['align'] = "center";
+                    } else if ($start === "  ") {
+                        $cell['align'] = "right";
+                    } else if ($end === "  ") {
+                        $cell['align'] = "left";
+                    }
+
+
+                    // Gestionem el rowspan
+                    if (trim($cols[$colIndex]) === ":::") {
+
+
+                        if ($rowIndex == 0) {
+                            $table[$colIndex][$rowIndex]['rowspan'] = 1;
+                        } else {
+                            // Recorrem tots els elements cap amunt
+                            for ($j = $rowIndex - 1; $j >= 0; $j--) {
+
+
+                                if ((strlen($table[$colIndex][$j]['content']) > 0 && trim($table[$colIndex][$j]['content']) != ":::")
+                                    || $j == 0) {
+                                    $table[$colIndex][$j]['rowspan'] = $table[$colIndex][$j]['rowspan'] ? $table[$colIndex][$j]['rowspan'] + 1 : 2;
+                                    break;
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
 
 //                $class = static::$parserClass;
 //                $isInnerPrevious = $class::isInner();
@@ -370,27 +407,35 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 //                $cell['content'] = $class::getValue($cols[$colIndex]);
 
-                // Restaurem el separador de la signatura |
-                $cols[$colIndex] = preg_replace('/\[\[(.*?)&(.*?)\]\]/ms', '[[$1|$2]]', $cols[$colIndex]);
+                    // Restaurem el separador de la signatura |
+                    $cols[$colIndex] = preg_replace('/\[\[(.*?)&(.*?)\]\]/ms', '[[$1|$2]]', $cols[$colIndex]);
 
 
-                // Cal fer un parser per cel·las encara que en alguns casos ja s'haurà parsejat per resoldre els ref de fila
-                $cell['content'] = $this->parseContent($cols[$colIndex]);
+                    // Cal fer un parser per cel·las encara que en alguns casos ja s'haurà parsejat per resoldre els ref de fila
+                    $cell['content'] = $this->parseContent($cols[$colIndex]);
 
 //                $class::setInner($isInnerPrevious);
 
 
-                $table[$colIndex][$rowIndex] = $cell;
+                    $table[$colIndex][$rowIndex] = $cell;
 
+                }
+            } else {
+                // Hi havia una fila però no hi havia res, comprovem si hi ha $refId, si es troba s'ha de ficar
+                // una fila buida
             }
-
 
         }
 
         $this->parsingContent = false;
 
+//         El mainRefId només s'utilitza quan el nombre de files és 0. Si no s'ha trobat res
+//        if ($mainRefId === -1 && preg_match($patternOpen, $content, $match)) {
+//            // Cerquem una marca d'apertura, pel cas en que hi hagi algun wioccl però sense dades
+//            $mainRefId = $match[1];
+//        }
 
-        return $this->makeTable($table, $rowAttrs);
+        return $this->makeTable($table, $rowAttrs, $mainRefId);
     }
 
 
@@ -400,6 +445,12 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
         $len = $this->findRowCount($tableData);
+
+        // Aquest cas es dona quan no s'ha trobat cap fila però hi ha un ref. Cal ficar la referència
+//        if ($len === 0 && $refId !==-1) {
+//            $table .= '<tr data-wioccl-ref="' . $refId . '"></tr>';
+//        }
+
 
         for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
 
@@ -494,8 +545,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Posem el cursor de l'array a la última posició
             end($col);
 
-            if (key($col) > $rows) {
-                $rows = key($col);
+            // ALERTA! les claus comencen en 0, cal sumar 1 o es descarta quan només hi ha 1 fila
+            if (key($col) + 1 > $rows) {
+                $rows = key($col) + 1;
             }
         }
 

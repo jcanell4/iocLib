@@ -703,7 +703,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function getProjectType($id=NULL) {
-        return ($id===NULL) ? $this->projectType : $this->projectMetaDataQuery->getProjectType($id);
+        if($id===NULL){
+            if($this->projectType==null){
+                $this->projectType = $this->projectMetaDataQuery->getProjectType($this->id);
+            }
+            return $this->projectType;
+        }else{
+            $ret = $this->projectMetaDataQuery->getProjectType($id);
+        }
+        //return ($id===NULL) ? $this->projectType : $this->projectMetaDataQuery->getProjectType($id);
+        return $ret;
     }
 
     public function getViewConfigName() {

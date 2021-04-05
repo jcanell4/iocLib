@@ -4,10 +4,13 @@ if (!defined('DOKU_INC')) die();
 class BasicWorkflowProjectAction extends ProjectAction {
 
     public function responseProcess() {
+        if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_VIEW){
+            $this->params["data-call"]= "project&do=workflow&action=view";
+        }
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
         if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_SAVE){
             $action->addExcludeKeys(["action", "roles", "groups"]);
-        }
+        }        
         $response = $action->get($this->params);
         $response["alternativeResponseHandler"] = $this->getAlternativeResponseHandler();
         $this->stateProcess($response);

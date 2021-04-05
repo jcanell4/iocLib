@@ -12,8 +12,8 @@ abstract class ProjectAction extends AbstractWikiAction {
     protected $projectModel;
     protected $resourceLocker;
     
-    public function getActionInstance($actionName) {
-        $action = parent::getActionInstance($actionName);
+    public function getActionInstance($actionName, $params=NULL, $noInit=TRUE){
+        $action = parent::getActionInstance($actionName, $params, $noInit);
         $action->persistenceEngine = $this->persistenceEngine;
         $action->projectModel = $this->projectModel;
         $action->resourceLocker = $this->resourceLocker ;
@@ -128,7 +128,7 @@ abstract class ProjectAction extends AbstractWikiAction {
         return $new_message;
     }
 
-    protected function addNotificationsMetaToResponse(&$response, $ns=NULL, $rev=NULL, $list=NULL) {
+    protected function addNotificationsMetaToResponse(&$response, $ns=NULL, $rev=NULL, $list=NULL, $extraCallerParams=false) {
         if (!isset($response['meta'])) {
             $response['meta'] = array();
         }
@@ -136,7 +136,10 @@ abstract class ProjectAction extends AbstractWikiAction {
         $rev = $this->params['rev'];
 
         $list = $this->involvedUserList($response);
-        parent::addNotificationsMetaToResponse($response, $ns, $rev, $list);
+        if(!$extraCallerParams){
+            $extraCallerParams = isset($this->params["data-call"])?$this->params["data-call"]:"project";
+        }
+        parent::addNotificationsMetaToResponse($response, $ns, $rev, $list, $extraCallerParams);
     }
 
     protected function involvedUserList($response){

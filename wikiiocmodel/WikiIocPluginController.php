@@ -14,4 +14,14 @@ class WikiIocPluginController {
         global $plugin_controller;
         return $plugin_controller->getProjectTypeDir($projectType);
     }
+
+    public static function getProjectTypeFromProjectId($id, $force=FALSE) {
+        global $plugin_controller;
+        return $plugin_controller->getProjectTypeFromProjectId($id, $force);
+    }
+    
+    public static function getPluginController(){
+        global $plugin_controller;
+        return $plugin_controller;
+    }
 }
