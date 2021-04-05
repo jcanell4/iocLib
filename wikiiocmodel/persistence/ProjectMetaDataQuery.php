@@ -299,11 +299,19 @@ class ProjectMetaDataQuery extends DataQuery {
      * @return array correspondiente a la clave $action real o apuntada por el shortcut
      */
     public function getMetaDataActionWorkflowFile($estat, $action) {
+        $ret;
         $workflow = $this->getMetaDataJsonFile(FALSE, "workflow.json");
         if (($shortcut = $workflow[$estat]['actions'][$action]['shortcut'])) {
-            $estat = $shortcut;
-        }
-        return $workflow[$estat]['actions'][$action];
+            $ret = $workflow[$shortcut]['actions'][$action];
+            foreach ($workflow[$estat]['actions'][$action] as $key => $value) {
+                if($key!=='shortcut'){
+                    $ret[$key] = $value;
+                }
+            }
+        }else{
+            $ret = $workflow[$estat]['actions'][$action];
+        }        
+        return $ret;
     }
 
     //["""overwrite"""] copia de MetaDataDaoConfig.php

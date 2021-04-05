@@ -30,7 +30,7 @@ class NotifyAction extends AbstractWikiAction {
     protected $dokuNotifyModel;
     protected $isAdmin;
 
-    public function __construct($isAdmin) {
+    public function __construct($isAdmin=FALSE) {
         $this->isAdmin = $isAdmin;
 
         /*
@@ -120,7 +120,7 @@ class NotifyAction extends AbstractWikiAction {
         $notification = null;
 
         foreach ($receivers as $receiver) {
-            $notification = $this->buildMessage($this->params['message'], $senderId, $docId = $this->params['id'], $this->params['type'], $receiver['id'], $this->params['rev']);
+            $notification = $this->buildMessage($this->params['message'], $senderId, $docId = $this->params['id'], $this->params['type'], $receiver['id'], $this->params['rev'], $this->params["data-call"]);
 
             if ($this->params['send_email']) {
                 $this->sendNotificationByEmail($senderUser, $receiver, $notification['title'], $notification['content']['textMail']);
@@ -130,7 +130,7 @@ class NotifyAction extends AbstractWikiAction {
         }
 
         $receiversList = $this->getReceiversIdAsString($receivers);
-        $message = $this->buildMessage($this->params['message'], $senderId, $this->params['id'], null, $receiversList, $this->params['rev']);
+        $message = $this->buildMessage($this->params['message'], $senderId, $this->params['id'], null, $receiversList, $this->params['rev'], $this->params["data-call"]);
         $notification = $this->dokuNotifyModel->notifyMessageToFrom($message ['content'], $senderId, null, NotifyDataQuery::MAILBOX_SEND, true);
 
         $response['info'] = self::generateInfo('success', sprintf(WikiIocLangManager::getLang("notifation_send_success"), $receiversList));
@@ -151,31 +151,39 @@ class NotifyAction extends AbstractWikiAction {
     }
 
 
-    private function buildMessage($data, $senderId, $docId, $type = self::DEFAULT_MESSAGE_TYPE, $receivers, $rev = null) {
+    private function buildMessage($data, $senderId, $docId, $type = self::DEFAULT_MESSAGE_TYPE, $receivers, $rev = null, $dataCall=null) {
         if (is_string($data)) {
 
 
             $title = sprintf(WikiIocLangManager::getLang("title_message_notification_with_id"), $senderId, $docId);
 
+            if ($dataCall) {
+                $dataCall = "data-call=\"$dataCall\"";
+            }else{
+                $dataCall = "";
+            }           
+            $mainMessage = p_render('xhtml', p_get_instructions($data), $info);
             if ($rev) {
-                $message = sprintf(WikiIocLangManager::getLang("doc_message_with_rev"), wl($docId, ['rev'=>$rev], true), $docId , $rev) . "\n\n" . $data;
+                 $url =  wl($docId, ['rev' => $rev], true);
+                $message = "<p>".sprintf(WikiIocLangManager::getLang("doc_message_with_rev"), $url, $url, $dataCall, $docId , $rev) . "</p>" . $mainMessage;
             } else {
-                $message = sprintf(WikiIocLangManager::getLang("doc_message"), wl($docId, '', true), $docId) . "\n\n" . $data;
+                $url = wl($docId, '', true);
+                $message = "<p>".sprintf(WikiIocLangManager::getLang("doc_message"), $url, $url, $dataCall, $docId) . "</p>" . $mainMessage;
             }
 
-            $textMail = sprintf(WikiIocLangManager::getLang("mail_message"), DOKU_URL, $docId) .  "\n\n" . $data;
+            $textMail = "<p>".sprintf(WikiIocLangManager::getLang("mail_message"), DOKU_URL, DOKU_URL, $docId) .  "</p>" . $mainMessage;
 
             if ($receivers) {
-                $message = sprintf(WikiIocLangManager::getLang("message_notification_receivers"), $receivers) . "\n\n" . $message;
-                $textMail = sprintf(WikiIocLangManager::getLang("message_notification_receivers"), $receivers) . "\n\n" . $textMail;
+                $message = "<p>".sprintf(WikiIocLangManager::getLang("message_notification_receivers"), $receivers) . "</p>" . $message;
+                $textMail = "<p>".sprintf(WikiIocLangManager::getLang("message_notification_receivers"), $receivers) . "</p>". $textMail;
             }
 
             $content = [
                 'type' => $type,
                 'id' => $docId . '_' . $senderId,
                 'title' => $title,
-                'text' => p_render('xhtml', p_get_instructions($message), $info),
-                'textMail' => p_render('xhtml', p_get_instructions($textMail), $info)
+                'text' => $message,
+                'textMail' => $textMail
             ];
         } else {
             $title = $data['title'];
@@ -221,7 +229,8 @@ class NotifyAction extends AbstractWikiAction {
         $mail->subject($subject);
         $mail->setBody(preg_replace("/\n/", "", $message));
         $mail->from($senderUser['mail']);
-        $mail->send();
+        $ret = $mail->send();
+        return $ret;
     }
 
     public function notifyTo()
