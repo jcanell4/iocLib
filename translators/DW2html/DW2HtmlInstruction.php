@@ -145,7 +145,7 @@ class DW2HtmlInstruction extends IocInstruction {
                 // PROBLEMA: si $inline == true no s'afegeixen els paragraphs a la edicio parcial
                 // pendent de determinar en quin cas era necessari
                 // if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
-            if ((!$top || $top['state'] == 'newcontent')) {
+            if ((!$top || $top['state'] == 'newcontent') && !$this->isInner()) {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -301,6 +301,13 @@ class DW2HtmlInstruction extends IocInstruction {
             }
         }
         return $result;
+    }
+
+    // ALERTA! no confondre $this->isInner() amb static:isInner(), aquesta es crida sobre la instancia de la instrucció
+    // i retorna el isInner static del parser
+    public function isInner() {
+        $class = static::$parserClass;
+        return $class::isInner();
     }
 
     public function parseTokens($tokens, &$tokenIndex = 0) {
