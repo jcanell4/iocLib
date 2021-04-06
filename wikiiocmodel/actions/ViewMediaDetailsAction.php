@@ -201,10 +201,12 @@ class ViewMediaDetailsAction extends MediaAction {
             $more['w'] = $size[0];
             $more['h'] = $size[1];
             $src = ml($image, $more);
-            echo '<dl><dt>Enllaç:</dt><dd>';
-            echo '<a href="'.$src.'" target="_blank" title="'.$lang['mediaview'].'">'.$image.'</a>';
-            echo '</dd></dl>'.NL;
+        }else {
+            $src = ml($image);
         }
+        echo '<dl><dt>Enllaç:</dt><dd>';
+        echo '<a href="'.$src.'" target="_blank" title="'.$lang['mediaview'].'">'.$image.'</a>';
+        echo '</dd></dl>'.NL;
     }
 
     // viene de DokuModelAdapter
