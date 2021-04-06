@@ -146,7 +146,7 @@ abstract class PageAction extends DokuAction implements ResourceLockerInterface,
         return $newList;
     }
 
-    protected function addNotificationsMetaToResponse(&$response, $ns=NULL, $rev=NULL, $list=NULL) {
+    protected function addNotificationsMetaToResponse(&$response, $ns=NULL, $rev=NULL, $list=NULL, $extraCallerParams=false) {
         if (!isset($response['meta'])) {
             $response['meta'] = array();
         }
