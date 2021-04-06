@@ -1623,6 +1623,9 @@ class BasicPdfRenderer {
             case LeafNodeDoc::GRAVE_TYPE:
                 $ret = "&#96;";
                 break;
+            case LeafNodeDoc::NO_BREAK_SPACE_TYPE:
+                $ret = "&nbsp;";
+                break;
         }
         return $ret;
     }
