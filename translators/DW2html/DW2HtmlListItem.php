@@ -5,6 +5,7 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
 
 
     protected $solved = false;
+    protected $closing = false;
 
     public function open() {
         $return = '';
@@ -26,12 +27,25 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
 
         $return .= $this->getReplacement(self::OPEN) . $value;
 
+        if (substr($this->currentToken['raw'],-1) === "\n") {
+            $this->closing = true;
+        }
 
         return $return;
     }
 
 
     public function isClosing($token) {
+
+//        $t = substr($this->currentToken['raw'],-1);
+//
+//        if ($token['state']==='content' && substr($this->currentToken['raw'],-1) === "\n") {
+//            return true;
+//        }
+
+        if ($this->closing) {
+            return true;
+        }
 
         $wiocclClose = false;
         // ALERTA! només el open provoca el salt
@@ -65,24 +79,14 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
         // Prova: saltar sempre que es trobi un wioccl a continuació? això trencaria un ul que dintre tingués 2 wioccl
         // consecutius, per exemple per crear
 
-        // PROBLEMA: això no és possible perquè es tancan els foreach
-
         if (($this->solved && ($token['state']==='content' || $wiocclClose))
             || (isset($token['extra']) && $token['extra']['block'] === TRUE)) {
 
-//            die ("això no es crida mai");
-
             // Excepció, el següent és un block però el nivell es superior, en aquest cas s'ha de retornar fals, perquè no es tanca
-
-//            var_dump($token);
             $nextTokenLevel = $this->getLevel($token['raw']);
-//            var_dump($nextTokenLevel, $this->extra['level'] );
-//            die;
 
 
             if ($nextTokenLevel > $this->extra['level']) {
-//              var_dump ($token, $nextTokenLevel, $this->extra['level']);
-//              die ('el nivell és major');
 
                 return false;
             }
