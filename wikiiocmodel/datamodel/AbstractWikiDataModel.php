@@ -89,22 +89,53 @@ abstract class AbstractWikiDataModel extends AbstractWikiModel{
     }
 
     public function getNsTreeSubSetsList($ns) {
+        global $plugin_controller;
+        global $auth;
         $prps = $this->getPageDataQuery()->isAProject($ns, TRUE);
+        $projectType = $prps[ProjectKeys::KEY_PROJECT_TYPE];
+        $projectMetaDataQuery = $this->getProjectMetaDataQuery();
+
         if ($prps[ProjectKeys::KEY_TYPE] === "p" || $prps[ProjectKeys::KEY_TYPE] === "pd") {
-            $subSets = $this->getProjectMetaDataQuery()->getListMetaDataSubSets($prps[ProjectKeys::KEY_PROJECT_TYPE]);
+            $model = $plugin_controller->getAnotherProjectModel($ns, $projectType, "main"); //main és el subset que conté les dades del projecte
+            $roleData = $model->getRoleData();
+            $user = $_SERVER['REMOTE_USER'];
+            $userGroups = $auth->getUserData($user)['grps'];
+
+            $subSets = $projectMetaDataQuery->getListMetaDataSubSets($projectType);
             foreach ($subSets as $subset) {
                 if ($subset !== ProjectKeys::VAL_DEFAULTSUBSET) {
-                    $subSetList[] = [ProjectKeys::KEY_ID => $ns,
-                                     ProjectKeys::KEY_NAME => $subset,
-                                     ProjectKeys::KEY_TYPE => "s",
-                                     ProjectKeys::KEY_NSPROJECT => $prps[ProjectKeys::KEY_NSPROJECT],
-                                     ProjectKeys::KEY_PROJECT_TYPE => $prps[ProjectKeys::KEY_PROJECT_TYPE],
-                                     ProjectKeys::KEY_METADATA_SUBSET => $subset
-                                    ];
+                    $permissions = $projectMetaDataQuery->getSubSetPermissions($projectType, $subset);
+                    if ($this->getPermission($user, $userGroups, $roleData, $permissions)) {
+                        $subSetList[] = [ProjectKeys::KEY_ID => $ns,
+                                         ProjectKeys::KEY_NAME => $subset,
+                                         ProjectKeys::KEY_TYPE => "s",
+                                         ProjectKeys::KEY_NSPROJECT => $prps[ProjectKeys::KEY_NSPROJECT],
+                                         ProjectKeys::KEY_PROJECT_TYPE => $projectType,
+                                         ProjectKeys::KEY_METADATA_SUBSET => $subset
+                                        ];
+                    }
                 }
             }
         }
         return $subSetList;
     }
 
+    private function getPermission($user, $userGroups, $roleData, $permissions) {
+        $permis = FALSE;
+        foreach ($roleData as $rol => $u) {
+            if (in_array($rol, $permissions['rols'])) {
+                if (($permis = ($u === $user))) {
+                    break;
+                }
+            }
+        }
+        if (!$permis) {
+            foreach ($userGroups as $g) {
+                if (($permis = in_array($g, $permissions['groups']))) {
+                    break;
+                }
+            }
+        }
+        return $permis;
+    }
 }

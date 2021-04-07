@@ -4,11 +4,17 @@ if (!defined("DOKU_INC")) die();
 class NsTreeAction extends AbstractWikiAction {
 
     private $wikiDataModel;
+    private $projectMetaDataQuery;
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
         $this->persistenceEngine = $modelManager->getPersistenceEngine();
         $this->wikiDataModel = new BasicWikiDataModel($this->persistenceEngine);
+    }
+
+    protected function preResponseProcess() {
+        $this->startProcess();
+        $this->projectMetaDataQuery = $this->wikiDataModel->getProjectMetaDataQuery();
     }
 
     protected function startProcess() {

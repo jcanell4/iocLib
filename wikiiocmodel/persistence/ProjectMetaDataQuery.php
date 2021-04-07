@@ -367,7 +367,7 @@ class ProjectMetaDataQuery extends DataQuery {
      */
     public function getListMetaDataSubSets($projectType=FALSE) {
         $configSet = ProjectKeys::KEY_METADATA_CLASSES_NAMESPACES;
-        if(!$projectType){
+        if (!$projectType){
             $projectType = $this->getProjectType();
         }
         $projectTypeDir = $this->getProjectTypeDir($projectType);
@@ -384,6 +384,18 @@ class ProjectMetaDataQuery extends DataQuery {
             $toReturn[] = array_keys($configArray[$configSet][$i])[0];
         }
         return $toReturn;
+    }
+
+    public function getSubSetPermissions($projectType=FALSE, $subSet=FALSE) {
+        if (!$projectType) $projectType = $this->getProjectType();
+        $projectTypeDir = $this->getProjectTypeDir($projectType);
+        $file = $projectTypeDir . self::PATH_METADATA_CONFIG . "nsTreeConfig.json";
+        if (is_file($file)) {
+            if (!empty($nsTreeConfig = file_get_contents($file))) {
+                $ret = json_decode($nsTreeConfig, TRUE)['subsetpermissions'];
+            }
+        }
+        return ($subSet) ? $ret[$subSet] : $ret;
     }
 
     /**
