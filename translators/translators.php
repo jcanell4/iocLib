@@ -362,7 +362,11 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         $text = preg_replace("/:###.*?~~.*?~~\n?###:\n/ms", "", $text, 1, $counter);
 
-        //        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
+        // Hi ha com a mínim un cas en que hi ha USE:WIOCCL sense tancar el readonly: al ptfplogse
+        if ($counter===0) {
+            $text = preg_replace("/:###.*?~~USE:WIOCCL~~\n/ms", "", $text, 1, $counter);
+        }
+
         if ($counter > 0 || isset($params['generateStructure']) && $params['generateStructure']) {
 
 

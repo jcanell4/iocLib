@@ -17,7 +17,7 @@ class DW2HtmlList extends DW2HtmlInstruction {
         $value = $this->getValue($this->currentToken['raw']);
 
         // Cas 1: no hi ha $top o el nivell del top es menor que aquest
-        if (!$top || $top['instruction']->level < $this->level) {
+        if (!$top || $top['state'] !== 'list-item' || $top['instruction']->level < $this->level) {
             // Obrim la llista
 
 //            if ($top) {
