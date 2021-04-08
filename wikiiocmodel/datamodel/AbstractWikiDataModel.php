@@ -88,23 +88,21 @@ abstract class AbstractWikiDataModel extends AbstractWikiModel{
         return $this->pageDataQuery->getNsTree($currentnode, $sortBy, $onlyDirs, $expandProject, $hiddenProjects, $fromRoot, $subSetList);
     }
 
-    public function getNsTreeSubSetsList($ns) {
+    public function getNsTreeSubSetsList($ns, $subsetRoles="main") {
         global $plugin_controller;
-        global $auth;
         $prps = $this->getPageDataQuery()->isAProject($ns, TRUE);
         $projectType = $prps[ProjectKeys::KEY_PROJECT_TYPE];
-        $projectMetaDataQuery = $this->getProjectMetaDataQuery();
 
         if ($prps[ProjectKeys::KEY_TYPE] === "p" || $prps[ProjectKeys::KEY_TYPE] === "pd") {
-            $model = $plugin_controller->getAnotherProjectModel($ns, $projectType, "main"); //main és el subset que conté les dades del projecte
+            $model = $plugin_controller->getAnotherProjectModel($ns, $projectType, $subsetRoles); //main és el subset que conté les dades del projecte
             $roleData = $model->getRoleData();
-            $user = $_SERVER['REMOTE_USER'];
-            $userGroups = $auth->getUserData($user)['grps'];
+            $user = WikiIocInfoManager::getInfo("client");
+            $userGroups = WikiIocInfoManager::getInfo("userinfo")['grps'];
 
-            $subSets = $projectMetaDataQuery->getListMetaDataSubSets($projectType);
+            $subSets = $model->getListMetaDataSubSets($projectType);
             foreach ($subSets as $subset) {
                 if ($subset !== ProjectKeys::VAL_DEFAULTSUBSET) {
-                    $permissions = $projectMetaDataQuery->getSubSetPermissions($projectType, $subset);
+                    $permissions = $model->getSubSetPermissions($projectType, $subset);
                     if ($this->getPermission($user, $userGroups, $roleData, $permissions)) {
                         $subSetList[] = [ProjectKeys::KEY_ID => $ns,
                                          ProjectKeys::KEY_NAME => $subset,
