@@ -24,9 +24,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
     const T_DOUBLE_KEY   = "double_key";
     const T_FLOAT_KEY    = "float_key";
     const T_STRING_KEY   = "string_key";
-
     const T_JSON         = "json";
-
 
     protected static $PLUGUIN_TYPE = 'command';
     protected static $FILENAME_PARAM = 'name';
@@ -77,7 +75,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
         }
 
         if (!$modelManager) {
-            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);  //mirar per què es només s'envia el project type i no la resta de partàmetres?
+            $modelManager = AbstractModelManager::Instance($this->params[AjaxKeys::PROJECT_TYPE]);
         }
 
         $plugin_controller->setPersistenceEngine($modelManager->getPersistenceEngine());
