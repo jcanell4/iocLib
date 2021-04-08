@@ -4,17 +4,11 @@ if (!defined("DOKU_INC")) die();
 class NsTreeAction extends AbstractWikiAction {
 
     private $wikiDataModel;
-    private $projectMetaDataQuery;
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
         $this->persistenceEngine = $modelManager->getPersistenceEngine();
         $this->wikiDataModel = new BasicWikiDataModel($this->persistenceEngine);
-    }
-
-    protected function preResponseProcess() {
-        $this->startProcess();
-        $this->projectMetaDataQuery = $this->wikiDataModel->getProjectMetaDataQuery();
     }
 
     protected function startProcess() {
@@ -26,8 +20,7 @@ class NsTreeAction extends AbstractWikiAction {
 
     public function responseProcess() {
         if ($this->params['currentnode'] !== "" && $this->params['currentnode'] !== "_" && $this->params['fromRoot'] !== "" && $this->params['expandProject']) {
-            //[WARNING] Rafa: El método siguiente exige que los nombres de tipo de proyecto no se puedan repetir a lo largo de los diferentes plugins (../lib/plugins/)
-            $subSetList = $this->wikiDataModel->getNsTreeSubSetsList($this->params['fromRoot']);
+            $subSetList = $this->wikiDataModel->getNsTreeSubSetsList($this->params['fromRoot'], "main");
         }
         $tree = $this->wikiDataModel->getNsTree(
                                    $this->params['currentnode'],

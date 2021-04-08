@@ -190,19 +190,16 @@ class ViewMediaDetailsAction extends MediaAction {
     // viene de DokuModelAdapter
     function media_link($image, $rev='', $meta=false) {
         global $lang;
+        $more = array();
+        if ($rev) {$more['rev'] = $rev;}
+        else {$more['t'] = @filemtime(mediaFN($image));}
         $size = media_image_preview_size($image, $rev, $meta);
         if ($size) {
-            $more = array();
-            if ($rev) {
-                $more['rev'] = $rev;
-            } else {
-                $more['t'] = @filemtime(mediaFN($image));
-            }
             $more['w'] = $size[0];
             $more['h'] = $size[1];
             $src = ml($image, $more);
         }else {
-            $src = ml($image);
+            $src = ml($image, $more);
         }
         echo '<dl><dt>Enllaç:</dt><dd>';
         echo '<a href="'.$src.'" target="_blank" title="'.$lang['mediaview'].'">'.$image.'</a>';
