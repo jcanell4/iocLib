@@ -271,7 +271,7 @@ abstract class abstract_command_class extends DokuWiki_Plugin {
             $ret = $responseGenerator->getJsonResponse();
         }
         //for a dojo iframe the json response has to be inside a textarea
-        if (isset($this->params['iframe']) && empty($this->errorMessage)) {
+        if (isset($this->params['iframe']) && !$this->error) {
             $ret = "<html><body><textarea>" . $ret. "</textarea></body></html>";
         }
         $this->triggerEndEvents();
