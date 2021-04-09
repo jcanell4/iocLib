@@ -24,7 +24,7 @@ abstract class WikiIocModelException extends Exception {
                 $message = sprintf($message, $target);
             }
         }
-        Logger::debug("Params, codemessage: $codeMessage message: $message code: $code, previous: $previous, target: $target", 0, 0, "", 1, FALSE);
+        //Logger::debug("Params, codemessage: $codeMessage message: $message code: $code, previous: $previous, target: $target", 0, 0, "", 1, FALSE);
         parent::__construct($message, $code, $previous);
     }
 }

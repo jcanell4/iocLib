@@ -146,13 +146,13 @@ class ViewMediaDetailsAction extends MediaAction {
         } else {
             echo '<div id="panelMedia_' . $image . '" class="panelContent">' . NL;
             $meta = new JpegMeta(mediaFN($image, $rev));
+            $unknown = ($meta->_type == "unknown"); //tipus d'imatge desconegut: arxius PDF o ZIP
             $size = media_image_preview_size($image, $rev, $meta);
             if ($size) {
                 echo '<div style="float:left;width:47%;margin-right:10px;">' . NL;
                 media_preview($image, $AUTH, $rev, $meta);
                 echo '</div>' . NL;
             }
-
             echo '<div style="float:left;width:20%;">' . NL;
             echo '<h1>Dades de ' . $image . '</h1>';
             $this->media_link($image, $rev, $meta);
@@ -160,9 +160,9 @@ class ViewMediaDetailsAction extends MediaAction {
             media_details($image, $AUTH, $rev, $meta);
             echo '</div>' . NL;
 
-            if ($_REQUEST['tab_details']) {
+            if ($_REQUEST['tab_details'] && !$unknown) {
                 if (!$size) {
-                    throw new HttpErrorCodeException("No es poden editar les dades d'aquest element", -1);//JOSEP: Alerta! Excepció incorrecta, cal buscar o crear una execpció adient!
+                    throw new HttpErrorCodeException("No es poden editar les dades d'aquest element", 400);//JOSEP: Alerta! Excepció incorrecta, cal buscar o crear una execpció adient!
                 } else {
                     if ($_REQUEST['tab_details'] == 'edit') {
                         //$this->params['id'] = "form_".$image;
