@@ -15,8 +15,10 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
 
        // return parent::getReplacement($position);
 
-        // El primer element del structure stack és el root, en aquest no cal afegir la referència
-        if ($position == self::OPEN && count(WiocclParser::$structureStack) > 1) {
+        $class = static::$parserClass;
+
+        // El primer element del structure stack és el root NOMÉS quan no és inner!, en aquest no cal afegir la referència
+        if ($position == self::OPEN && ($class::isInner() || (!$class::isInner() && count(WiocclParser::$structureStack) > 1))) {
 
             $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
             $tag = parent::getReplacement($position);
