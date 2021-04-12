@@ -40,7 +40,7 @@ class RevertProjectAction extends ProjectAction {
             if (!$model->getNeedGenerateAction() || $model->isProjectGenerated()) {
                 $params = $model->buildParamsToPersons($response[ProjectKeys::KEY_PROJECT_METADATA], $oldPersonsDataProject);
                 $model->modifyACLPageAndShortcutToPerson($params);
-                $model->forceFileComponentRenderization();
+                $model->forceFileComponentRenderization(TRUE);
             }
             //Elimina todos los borradores dado que estamos haciendo una reversión del proyecto
             $model->removeDraft();
