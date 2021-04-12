@@ -11,7 +11,7 @@ class SaveProjectAuthorization extends EditProjectAuthorization {
     public function canRun($permis=AUTH_NONE, $type_exception="Save") {
         if (parent::canRun($permis, $type_exception)) {
             $permission = $this->getPermission();
-            if ($permission->isRoleChanged() && !$this->isResponsable() && !$this->isUserGroup(["admin"])) {
+            if ($permission->isRoleChanged() && !$this->isResponsable() && !$this->isUserGroup($this->adminGroups)) {
                 $this->errorAuth['error'] = TRUE;
                 $this->errorAuth['exception'] = 'ResponsableNotVerifiedException';
                 $this->errorAuth['extra_param'] = $permission->getIdPage();
@@ -36,7 +36,7 @@ class SaveProjectAuthorization extends EditProjectAuthorization {
         $params = $command->getParams(); //datos del formulario recibido
         $changed = FALSE;
         foreach ($oldProjectRoles as $rol => $name) {
-            if ($params[$rol] !== $name) {
+            if (isset($params[$rol]) && $params[$rol] !== $name) {
                 $changed = TRUE;
                 break;
             }

@@ -921,8 +921,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     // Verifica que el $subSet estigui definit a l'arxiu de configuració (configMain.json)
     public function validaSubSet($subSet) {
-        $subSetList = $this->projectMetaDataQuery->getListMetaDataSubSets();
+        $subSetList = $this->getListMetaDataSubSets();
         return in_array($subSet, $subSetList);
+    }
+
+    public function getListMetaDataSubSets($projectType=FALSE) {
+        return $this->projectMetaDataQuery->getListMetaDataSubSets($projectType);
+    }
+
+    public function getSubSetPermissions($projectType=FALSE, $subSet=FALSE) {
+        return $this->projectMetaDataQuery->getSubSetPermissions($projectType, $subSet);
     }
 
     public function getPluginName(){

@@ -20,8 +20,7 @@ class NsTreeAction extends AbstractWikiAction {
 
     public function responseProcess() {
         if ($this->params['currentnode'] !== "" && $this->params['currentnode'] !== "_" && $this->params['fromRoot'] !== "" && $this->params['expandProject']) {
-            //[WARNING] Rafa: El método siguiente exige que los nombres de tipo de proyecto no se puedan repetir a lo largo de los diferentes plugins (../lib/plugins/)
-            $subSetList = $this->wikiDataModel->getNsTreeSubSetsList($this->params['fromRoot']);
+            $subSetList = $this->wikiDataModel->getNsTreeSubSetsList($this->params['fromRoot'], "main");
         }
         $tree = $this->wikiDataModel->getNsTree(
                                    $this->params['currentnode'],

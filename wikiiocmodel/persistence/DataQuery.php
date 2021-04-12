@@ -744,10 +744,10 @@ abstract class DataQuery {
             }
         }
         if ($ret[self::K_TYPE] === "p") {
-            $file = $plugin_controller->getProjectTypeDir($dirName)."metadata/config/nsTreeTypes.json";
+            $file = $plugin_controller->getProjectTypeDir($dirName)."metadata/config/nsTreeConfig.json";
             if (is_file($file)) {
-                if (!empty($nsTreeTypes = file_get_contents($file))) {
-                    $ret[self::K_TYPE] = json_decode($nsTreeTypes, TRUE)['main'];
+                if (!empty($nsTreeConfig = file_get_contents($file))) {
+                    $ret[self::K_TYPE] = json_decode($nsTreeConfig, TRUE)['types']['main'];
                 }
             }
         }

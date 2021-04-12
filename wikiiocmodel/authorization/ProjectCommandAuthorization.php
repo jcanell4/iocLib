@@ -8,6 +8,7 @@ if (!defined('DOKU_INC')) die();
 class ProjectCommandAuthorization extends BasicCommandAuthorization {
 
     protected $allowedRoles = [];
+    protected $adminGroups = ["admin"];
 
     public function __construct() {
         parent::__construct();
@@ -21,7 +22,7 @@ class ProjectCommandAuthorization extends BasicCommandAuthorization {
                 $this->errorAuth['exception'] = 'InsufficientPermissionTo'.$type_exception.'ProjectException';
                 $this->errorAuth['extra_param'] = $this->permission->getIdPage();
             }else {
-                if (!$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
+                if (!$this->isUserGroup($this->adminGroups) && !$this->isUserGroup($this->allowedGroups) && !$this->isUserRole($this->allowedRoles)) {
                     $this->errorAuth['error'] = TRUE;
                     $this->errorAuth['exception'] = 'UserNotAuthorizedException';
                     $this->errorAuth['extra_param'] = $this->permission->getIdPage();

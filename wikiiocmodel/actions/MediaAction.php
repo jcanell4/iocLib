@@ -44,7 +44,7 @@ abstract class MediaAction extends DokuAction
             $REV = $this->params[MediaKeys::KEY_REV];
         }
 
-        if($this->params[MediaKeys::KEY_IMAGE]){
+        if ($this->params[MediaKeys::KEY_IMAGE]){
             $IMG = $this->params[MediaKeys::KEY_IMG] = $this->params[MediaKeys::KEY_IMAGE];
             $SRC = mediaFN($this->params[MediaKeys::KEY_IMAGE]);
         }else if($this->params[MediaKeys::KEY_IMG]){
@@ -52,18 +52,18 @@ abstract class MediaAction extends DokuAction
             $SRC = mediaFN($this->params[MediaKeys::KEY_IMAGE]);
         }
 
-        if($this->params[MediaKeys::KEY_DELETE]){
+        if ($this->params[MediaKeys::KEY_DELETE]){
             $DEL = $this->params[MediaKeys::KEY_DELETE];
-            if(!$this->params[MediaKeys::KEY_IMAGE]){
+            if (!$this->params[MediaKeys::KEY_IMAGE]){
                 $IMG = $this->params[MediaKeys::KEY_IMG] = $this->params[MediaKeys::KEY_IMAGE] = $this->params[MediaKeys::KEY_DELETE];
             }
         }else if($this->params[MediaKeys::KEY_MEDIA_DO]
-                && $this->params[MediaKeys::KEY_MEDIA_DO]=  MediaKeys::KEY_DELETE
-                && $this->params[MediaKeys::KEY_IMAGE]){
+                 && $this->params[MediaKeys::KEY_MEDIA_DO] === MediaKeys::KEY_DELETE
+                 && $this->params[MediaKeys::KEY_IMAGE]){
             $DEL = $this->params[MediaKeys::KEY_IMAGE];
         }
 
-        if($this->params[MediaKeys::KEY_MEDIA_ID] && !$this->params[MediaKeys::KEY_MEDIA_NAME]){
+        if ($this->params[MediaKeys::KEY_MEDIA_ID] && !$this->params[MediaKeys::KEY_MEDIA_NAME]){
             $this->params[MediaKeys::KEY_MEDIA_NAME] = $this->params[MediaKeys::KEY_MEDIA_ID];
         }elseif($this->params[MediaKeys::KEY_MEDIA_NAME] && !$this->params[MediaKeys::KEY_MEDIA_ID]){
             $this->params[MediaKeys::KEY_MEDIA_ID] = $this->params[MediaKeys::KEY_MEDIA_NAME];

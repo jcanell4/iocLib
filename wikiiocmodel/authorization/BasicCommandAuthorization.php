@@ -37,7 +37,7 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
 
         if ($userId) {
             return $_SERVER['REMOTE_USER'] === $userId;
-        } else {
+        }else {
             return $_SERVER['REMOTE_USER'] ? TRUE : FALSE;
         }
     }
@@ -50,11 +50,16 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         return checkSecurityToken();
     }
 
+    /**
+     * Verifica si alguno de los grupos a los que pertenece el usuario coincide con alguno de los grupos permitidos
+     * @param array $grups : grupos a los que pertenece el usuario
+     * @return boolean
+     */
     public function isUserGroup($grups=[]) {
         $ret = FALSE;
         if (!empty($grups)) {
             $userGrups = $this->permission->getUserGroups();
-            if (!empty($userGrups) && !empty($grups)) {
+            if (!empty($userGrups)) {
                 if (!is_array($userGrups)) {
                     $userGrups = [$userGrups];
                 }
@@ -66,11 +71,16 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         return $ret;
     }
 
+    /**
+     * Verifica si alguno de los roles del usuario coincide con alguno de los roles permitidos
+     * @param array $roles : roles del usuario
+     * @return boolean
+     */
     public function isUserRole($roles=[]) {
         $ret = FALSE;
         if (!empty($roles)) {
             $userRoles = $this->permission->getRol();
-            if (!empty($userRoles) && !empty($roles)) {
+            if (!empty($userRoles)) {
                 if (!is_array($userRoles)) {
                     $userRoles = [$userRoles];
                 }
