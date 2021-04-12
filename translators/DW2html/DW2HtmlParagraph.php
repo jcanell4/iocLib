@@ -25,7 +25,12 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
             // Eliminem el caràcter de tancament per afegir el id de referència. Donem per descomptat
             // que el tancament és >
             $tag = substr($tag, 0, strlen($tag)-1);
-            $tag .= ' data-wioccl-ref="' . $refId . '">';
+
+            if ($refId !=="0") {
+                $tag .= ' data-wioccl-ref="' . $refId . '"';
+            }
+
+            $tag .= '>';
 
             return $tag;
         } else {

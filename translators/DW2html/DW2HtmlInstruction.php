@@ -139,7 +139,8 @@ class DW2HtmlInstruction extends IocInstruction {
         // com es inner en fer la conversió HTML2DW es descartarà i es regenerarà a partir de la estructrura
         if ($this->isInner() && !$top && $currentToken['raw'] === "\n") {
             $action = 'content';
-            $currentToken['raw'] === "\n\n";
+            $currentToken = DW2HtmlParser::$defaultContainer;
+            $currentToken['raw'] = "\n";
         }
 
 

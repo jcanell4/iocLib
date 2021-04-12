@@ -303,15 +303,19 @@ abstract class AbstractTranslator {
 
 class Hmtl2DWTranslator extends AbstractTranslator {
 
+    const DEBUG_STRUCTURE = false;
 
     public static function translate($text, $params, &$extra) {
 
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
-        Logger::init(1, "HTML2DW-Debug.log");
 
-        Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($params['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        if (self::DEBUG_STRUCTURE) {
+            Logger::init(1, "HTML2DW-Debug.log");
 
-        Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($params['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+
+            Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
 
         $header = '';
         if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {
@@ -334,8 +338,9 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         // Per solventar-lo fem un trim i afegim un únic salt de línia final.
         $result = trim(Html2DWParser::getValue($text)) . "\n";
 
-        Logger::debug("### DW START ###\n" . $result . "### DW END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+        if (self::DEBUG_STRUCTURE) {
+            Logger::debug("### DW START ###\n" . $result . "### DW END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
         return $result;
         //return Html2DWParser::getValue($text);
     }
@@ -351,9 +356,11 @@ class DW2HtmlTranslator extends AbstractTranslator {
         global $plugin_controller;
 
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
-        Logger::init(1, "DW2HTML-Debug.log");
 
-        Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        if (self::DEBUG_STRUCTURE) {
+            Logger::init(1, "DW2HTML-Debug.log");
+            Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        }
 
         $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
@@ -400,7 +407,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
                 $text = WiocclParser::getValue($text, [], $dataSource);
             }
 
-            Logger::debug("### DW AFTER WIOCCL PARSE START ###\n" . $text . "### DW AFTER WIOCCL PARSE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            if (self::DEBUG_STRUCTURE) {
+                Logger::debug("### DW AFTER WIOCCL PARSE START ###\n" . $text . "### DW AFTER WIOCCL PARSE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            }
 
             WiocclParser::$generateStructure = false;
 
@@ -414,8 +423,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
             // dins es genera un json per comprovar els resultats de la estructura
 
-            Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+            if (self::DEBUG_STRUCTURE) {
+                Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            }
             $extra['wioccl_structure']['structure']['next'] = strval(array_key_last($extra['wioccl_structure']['structure']) + 1);
 
             if (self::DEBUG_STRUCTURE) {
@@ -435,8 +445,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $result = DW2HtmlParser::getValue($text, [], $dataSource);
         }
 
-        Logger::debug("### HTML START ###\n" . $result . "### HTML END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+        if (self::DEBUG_STRUCTURE) {
+            Logger::debug("### HTML START ###\n" . $result . "### HTML END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
 
         return $result;
 
