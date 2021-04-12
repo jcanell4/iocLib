@@ -134,7 +134,13 @@ class DW2HtmlInstruction extends IocInstruction {
             $top = end(static::$stack);
         }
 
-
+        // EXCEPCIÓ[Xavi], només per quan és isInner, no hi ha top i es reb un \n, ho canviem per content per posar un paràgraf)
+        // quan és inner no s'afegeigen les aperturas de paràgraf, així que cal forçarlo
+        // com es inner en fer la conversió HTML2DW es descartarà i es regenerarà a partir de la estructrura
+        if ($this->isInner() && !$top && $currentToken['raw'] === "\n") {
+            $action = 'content';
+            $currentToken['raw'] === "\n\n";
+        }
 
 
 //        var_dump($currentToken);
