@@ -402,6 +402,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
                 WiocclParser::setInner(true);
                 $null = []; //necesari perquè es passa per referència però no es fa servir
                 $text = WiocclParser::getValue($text, [], $dataSource, $null, false);
+
                 WiocclParser::setInner(false);
             } else {
                 $text = WiocclParser::getValue($text, [], $dataSource);
@@ -460,9 +461,10 @@ class DW2HtmlTranslator extends AbstractTranslator {
         reset($structure);
         $root = &$structure[key($structure)];
 
-        // El open del root no és correcte, eliminem les etiquetes d'apertura i tancament
-        $root->open = "";
-        $root->close = "";
+        // El open del root no és correcte (però és irrellevant) pel document comple
+        // són correctes per la edició d'un wioccl concret
+//        $root->open = "";
+//        $root->close = "";
 
         $tree = static::getNode($root);
         $json = json_encode($tree);
