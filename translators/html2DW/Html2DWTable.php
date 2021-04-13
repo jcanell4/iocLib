@@ -130,6 +130,21 @@ class Html2DWTable extends Html2DWMarkup {
 
                  preg_match($wiocclPattern, $rows[$rowIndex], $wiocclMatches);
 
+                 // ALERTA[Xavi], només considerem el primer WIOCCL que s'espera que sigui l'arrel
+                 // d'altres possibles wioccl que generen les files, es descarta qualsevol altra
+
+                // Això implica que no es pot fer una taula en dues parts per exemple, amb 2 foreach germans o
+                // amb 2 ifs per mostrar unes files si la condició es certa i altres files en cas contrari
+                //
+                // Aquesta limitació només s'aplica quan les files es troben dintre d'una taula que no es troba
+                // dintre d'un wioccl. És a dir, si fiquem la taula dins d'un block if que sempre s'avalui a cert
+                // es pot saltar aquesta limitació, perquè es regenerarà tot correctament.
+
+
+                 if (isset($table[0][$rowIndex])) {
+                    continue;
+                 }
+
                 $table[0][$rowIndex] = [
                     "wioccl" => $wiocclMatches[0]
                 ];

@@ -303,7 +303,7 @@ abstract class AbstractTranslator {
 
 class Hmtl2DWTranslator extends AbstractTranslator {
 
-    const DEBUG_STRUCTURE = false;
+    const DEBUG_STRUCTURE = true;
 
     public static function translate($text, $params, &$extra) {
 
@@ -349,7 +349,7 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 class DW2HtmlTranslator extends AbstractTranslator {
 
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
-    const DEBUG_STRUCTURE = false;
+    const DEBUG_STRUCTURE = true;
 
 
     public static function translate($text, $params, &$extra, $isPartial = false) {
@@ -457,7 +457,8 @@ class DW2HtmlTranslator extends AbstractTranslator {
     protected static function debugStructure($structure, $header) {
         // Primer hem de convertir la estructura en un array associatiu
 
-        $root = &$structure[0];
+        reset($structure);
+        $root = &$structure[key($structure)];
 
         // El open del root no és correcte, eliminem les etiquetes d'apertura i tancament
         $root->open = "";

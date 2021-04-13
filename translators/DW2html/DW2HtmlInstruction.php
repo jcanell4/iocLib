@@ -378,17 +378,8 @@ class DW2HtmlInstruction extends IocInstruction {
         $class::setInline($inline);
         $content = $class::getValue($raw);
 
-        // ALERTA! Hi ha un cas en que el html retornat no és correcte:
-        // Es un cas molt concret i dificil de generalitzar, per això ho gestionem aquí mitjançant regex
-        // cas: si es tracta d'una conversió parcial wioccl d'elements dins d'una taula generada amb foreach
-
-        $pattern = "/^<span data-wioccl-ref=.*? data-wioccl-state='open'><\/span>(<tr.*)/";
-
-        if (preg_match($pattern, $content, $matches)) {
-
-            $content = $matches[1];
-        }
-
+        // ALERTA! Hi ha un cas en que el html retornat no és correcte, cal arreglar les files
+        $content = self::fixTableRows($content);
 
 
         $class::setInline($previousInline);
@@ -401,4 +392,30 @@ class DW2HtmlInstruction extends IocInstruction {
         return $content;
     }
 
+    // Hi ha un problema dificil de generalitzar amb les files, si hi ha wioccl dins d'una taula
+    // el primer refid que es trobi s'ha de posar al primer <tr> que es trobi
+    protected static function fixTableRows($content) {
+
+        // Si conté <table llavors no cal ajustar res, s'ha d'haver generat amb un box
+        // Si no conté <tr no cal comprovar res més
+        if (strpos($content, '<table') || !strpos($content, '<tr')) {
+            return $content;
+        };
+
+
+        $patternChunks = "/^<span data-wioccl-ref=\"(.*?)\" data-wioccl-state=[\"']open[\"']><\/span>(:?<span data-wioccl-ref=.*?><\/span>)*(<tr.*)/ms";
+
+        if (preg_match($patternChunks, $content, $matches)) {
+            $refId = $matches[1];
+
+            $content = $matches[3];
+
+            // Ara cal reemplaçar el refid del primer <tr pel capturat
+
+            $patternFirstTR = '/<tr data-wioccl-ref=".*?"/ms';
+            $content = preg_replace($patternFirstTR, '<tr data-wioccl-ref="' . $refId. '"', $content, 1);
+        }
+
+        return $content;
+    }
 }
