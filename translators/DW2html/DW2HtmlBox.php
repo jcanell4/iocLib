@@ -331,6 +331,9 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             array_pop($cols);
             array_shift($cols);
 
+            if (count($cols)==0) {
+                continue;
+            }
 
             $tagPattern = '/(\^|\|)/ms';
             if (preg_match_all($tagPattern, $rows[$rowIndex], $tagMatches)) {
@@ -435,7 +438,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //            $mainRefId = $match[1];
 //        }
 
-        return $this->makeTable($table, $rowAttrs, $mainRefId);
+//        return $this->makeTable($table, $rowAttrs, $mainRefId);
+        return $this->makeTable($table, $rowAttrs);
     }
 
 
@@ -452,7 +456,17 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //        }
 
 
-        for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
+        // ALERTA:
+        //      - el valor de $cell no s'utilitza, només requerim el $rowIndex
+        //      - suposem que totes les files tenen el mateix nombre de cel·les
+        //      - el ref de totes les files és el mateix, això no és important perquè es reconstrueixen a partir del pare
+        foreach ($tableData[0] as $rowIndex => $cell ) {
+        //for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
+
+
+//            if ($tableData[0][$rowIndex]) {
+//                continue;
+//            }
 
             $attrs = '';
 

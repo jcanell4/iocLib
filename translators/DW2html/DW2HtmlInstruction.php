@@ -134,7 +134,14 @@ class DW2HtmlInstruction extends IocInstruction {
             $top = end(static::$stack);
         }
 
-
+        // EXCEPCIÓ[Xavi], només per quan és isInner, no hi ha top i es reb un \n, ho canviem per content per posar un paràgraf)
+        // quan és inner no s'afegeigen les aperturas de paràgraf, així que cal forçarlo
+        // com es inner en fer la conversió HTML2DW es descartarà i es regenerarà a partir de la estructrura
+        if ($this->isInner() && !$top && $currentToken['raw'] === "\n") {
+            $action = 'content';
+            $currentToken = DW2HtmlParser::$defaultContainer;
+            $currentToken['raw'] = "\n";
+        }
 
 
 //        var_dump($currentToken);
@@ -145,7 +152,7 @@ class DW2HtmlInstruction extends IocInstruction {
                 // PROBLEMA: si $inline == true no s'afegeixen els paragraphs a la edicio parcial
                 // pendent de determinar en quin cas era necessari
                 // if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
-            if ((!$top || $top['state'] == 'newcontent')) {
+            if ((!$top || $top['state'] == 'newcontent') && !$this->isInner()) {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -303,6 +310,13 @@ class DW2HtmlInstruction extends IocInstruction {
         return $result;
     }
 
+    // ALERTA! no confondre $this->isInner() amb static:isInner(), aquesta es crida sobre la instancia de la instrucció
+    // i retorna el isInner static del parser
+    public function isInner() {
+        $class = static::$parserClass;
+        return $class::isInner();
+    }
+
     public function parseTokens($tokens, &$tokenIndex = 0) {
 
         Logger::debug("\n### DW2HTML TOKENS START ###\n" . json_encode($tokens) . "\n### DW2HTML TOKENS END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
@@ -364,17 +378,8 @@ class DW2HtmlInstruction extends IocInstruction {
         $class::setInline($inline);
         $content = $class::getValue($raw);
 
-        // ALERTA! Hi ha un cas en que el html retornat no és correcte:
-        // Es un cas molt concret i dificil de generalitzar, per això ho gestionem aquí mitjançant regex
-        // cas: si es tracta d'una conversió parcial wioccl d'elements dins d'una taula generada amb foreach
-
-        $pattern = "/^<span data-wioccl-ref=.*? data-wioccl-state='open'><\/span>(<tr.*)/";
-
-        if (preg_match($pattern, $content, $matches)) {
-
-            $content = $matches[1];
-        }
-
+        // ALERTA! Hi ha un cas en que el html retornat no és correcte, cal arreglar les files
+        $content = self::fixTableRows($content);
 
 
         $class::setInline($previousInline);
@@ -387,4 +392,30 @@ class DW2HtmlInstruction extends IocInstruction {
         return $content;
     }
 
+    // Hi ha un problema dificil de generalitzar amb les files, si hi ha wioccl dins d'una taula
+    // el primer refid que es trobi s'ha de posar al primer <tr> que es trobi
+    protected static function fixTableRows($content) {
+
+        // Si conté <table llavors no cal ajustar res, s'ha d'haver generat amb un box
+        // Si no conté <tr no cal comprovar res més
+        if (strpos($content, '<table') || !strpos($content, '<tr')) {
+            return $content;
+        };
+
+
+        $patternChunks = "/^<span data-wioccl-ref=\"(.*?)\" data-wioccl-state=[\"']open[\"']><\/span>(:?<span data-wioccl-ref=.*?><\/span>)*(<tr.*)/ms";
+
+        if (preg_match($patternChunks, $content, $matches)) {
+            $refId = $matches[1];
+
+            $content = $matches[3];
+
+            // Ara cal reemplaçar el refid del primer <tr pel capturat
+
+            $patternFirstTR = '/<tr data-wioccl-ref=".*?"/ms';
+            $content = preg_replace($patternFirstTR, '<tr data-wioccl-ref="' . $refId. '"', $content, 1);
+        }
+
+        return $content;
+    }
 }

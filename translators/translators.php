@@ -303,15 +303,19 @@ abstract class AbstractTranslator {
 
 class Hmtl2DWTranslator extends AbstractTranslator {
 
+    const DEBUG_STRUCTURE = true;
 
     public static function translate($text, $params, &$extra) {
 
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
-        Logger::init(1, "HTML2DW-Debug.log");
 
-        Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($params['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        if (self::DEBUG_STRUCTURE) {
+            Logger::init(1, "HTML2DW-Debug.log");
 
-        Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($params['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+
+            Logger::debug("### HTML SOURCE START ###\n" . $text . "### HTML SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
 
         $header = '';
         if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {
@@ -334,8 +338,9 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         // Per solventar-lo fem un trim i afegim un únic salt de línia final.
         $result = trim(Html2DWParser::getValue($text)) . "\n";
 
-        Logger::debug("### DW START ###\n" . $result . "### DW END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+        if (self::DEBUG_STRUCTURE) {
+            Logger::debug("### DW START ###\n" . $result . "### DW END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
         return $result;
         //return Html2DWParser::getValue($text);
     }
@@ -344,16 +349,18 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 class DW2HtmlTranslator extends AbstractTranslator {
 
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
-    const DEBUG_STRUCTURE = false;
+    const DEBUG_STRUCTURE = true;
 
 
     public static function translate($text, $params, &$extra, $isPartial = false) {
         global $plugin_controller;
 
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
-        Logger::init(1, "DW2HTML-Debug.log");
 
-        Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        if (self::DEBUG_STRUCTURE) {
+            Logger::init(1, "DW2HTML-Debug.log");
+            Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
+        }
 
         $headerData = [];
         if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
@@ -362,7 +369,11 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         $text = preg_replace("/:###.*?~~.*?~~\n?###:\n/ms", "", $text, 1, $counter);
 
-        //        $text = preg_replace("/~~USE:WIOCCL~~\n/", "", $text, 1, $counter);
+        // Hi ha com a mínim un cas en que hi ha USE:WIOCCL sense tancar el readonly: al ptfplogse
+        if ($counter===0) {
+            $text = preg_replace("/:###.*?~~USE:WIOCCL~~\n/ms", "", $text, 1, $counter);
+        }
+
         if ($counter > 0 || isset($params['generateStructure']) && $params['generateStructure']) {
 
 
@@ -391,12 +402,15 @@ class DW2HtmlTranslator extends AbstractTranslator {
                 WiocclParser::setInner(true);
                 $null = []; //necesari perquè es passa per referència però no es fa servir
                 $text = WiocclParser::getValue($text, [], $dataSource, $null, false);
+
                 WiocclParser::setInner(false);
             } else {
                 $text = WiocclParser::getValue($text, [], $dataSource);
             }
 
-            Logger::debug("### DW AFTER WIOCCL PARSE START ###\n" . $text . "### DW AFTER WIOCCL PARSE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            if (self::DEBUG_STRUCTURE) {
+                Logger::debug("### DW AFTER WIOCCL PARSE START ###\n" . $text . "### DW AFTER WIOCCL PARSE END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            }
 
             WiocclParser::$generateStructure = false;
 
@@ -410,8 +424,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
             // dins es genera un json per comprovar els resultats de la estructura
 
-            Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+            if (self::DEBUG_STRUCTURE) {
+                Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+            }
             $extra['wioccl_structure']['structure']['next'] = strval(array_key_last($extra['wioccl_structure']['structure']) + 1);
 
             if (self::DEBUG_STRUCTURE) {
@@ -431,8 +446,9 @@ class DW2HtmlTranslator extends AbstractTranslator {
             $result = DW2HtmlParser::getValue($text, [], $dataSource);
         }
 
-        Logger::debug("### HTML START ###\n" . $result . "### HTML END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
-
+        if (self::DEBUG_STRUCTURE) {
+            Logger::debug("### HTML START ###\n" . $result . "### HTML END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
+        }
 
         return $result;
 
@@ -442,11 +458,13 @@ class DW2HtmlTranslator extends AbstractTranslator {
     protected static function debugStructure($structure, $header) {
         // Primer hem de convertir la estructura en un array associatiu
 
-        $root = &$structure[0];
+        reset($structure);
+        $root = &$structure[key($structure)];
 
-        // El open del root no és correcte, eliminem les etiquetes d'apertura i tancament
-        $root->open = "";
-        $root->close = "";
+        // El open del root no és correcte (però és irrellevant) pel document comple
+        // són correctes per la edició d'un wioccl concret
+//        $root->open = "";
+//        $root->close = "";
 
         $tree = static::getNode($root);
         $json = json_encode($tree);

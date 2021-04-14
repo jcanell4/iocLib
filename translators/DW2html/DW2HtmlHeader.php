@@ -7,7 +7,19 @@ class DW2HtmlHeader extends DW2HtmlInstruction {
 
     public function open() {
         $this->level = strlen(trim($this->currentToken['raw']));
-        return '<h'.(7-$this->level) . '>';
+
+
+        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
+        $tag = '<h'.(7-$this->level);
+
+        if ($refId !=="0") {
+            $tag .= ' data-wioccl-ref="' . $refId . '"';
+        }
+
+        $tag .= '>';
+
+        return $tag;
+//        return '<h'.(7-$this->level) . '>';
     }
 
 
