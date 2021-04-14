@@ -165,18 +165,15 @@ class SavePageAction extends RawPageAction {
         //Si es tracta de la Reversió d'un document de projecte iniciem el procés d'upgrade
         if ($this->fieldRevVersion) {
             global $plugin_controller;
-            $projectModel = $plugin_controller->getCurrentProjectModel();
-
+            $projectModel = $plugin_controller->getAnotherProjectModel($this->params[PageKeys::KEY_PROJECT_OWNER], $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE]);
             $filename = array_pop(explode(":", $this->params[PageKeys::KEY_ID]));
             $type = 'templates';
 
-            //versión guardada en el subset del fichero system del proyecto
-            $ver_project = $this->projectModel->getProjectSystemSubSetAttr("versions")[$type][$filename];
             //versión establecida en el archivo configMain.json (subset correspondiente) del tipo de proyecto
-            $ver_config = $this->projectModel->getMetaDataAnyAttr("versions")[$type][$filename];
+            $ver_config = $projectModel->getMetaDataAnyAttr("versions")[$type][$filename];
 
-            $upgader = new UpgradeManager($projectModel, $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE], ProjectKeys::VAL_DEFAULTSUBSET, $ver_project, $ver_config, $type);
-            $upgader->preProcess($ver_project, $ver_config, $type, $filename);
+            $upgader = new UpgradeManager($projectModel, $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE], ProjectKeys::VAL_DEFAULTSUBSET, $this->fieldRevVersion, $ver_config, $type);
+            $upgader->preProcess($this->fieldRevVersion, $ver_config, $type, $filename);
         }
 
     }
