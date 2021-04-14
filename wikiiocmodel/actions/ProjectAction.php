@@ -95,16 +95,7 @@ abstract class ProjectAction extends AbstractWikiAction {
 
         if ($ver_project != $ver_config) {
             $upgader = new UpgradeManager($this->projectModel, $this->params[ProjectKeys::KEY_PROJECT_TYPE], $this->params[ProjectKeys::KEY_METADATA_SUBSET], $ver_project, $ver_config, $type);
-            $new_ver = $upgader->process($ver_project, $ver_config, $type, $key);
-            if ($key) {
-                $versions_project[$type][$key] = $new_ver;
-            }else {
-                $versions_project[$type] = $new_ver;
-            }
-            $this->projectModel->setProjectSystemSubSetAttr("versions", $versions_project, $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
-            if ($new_ver < $ver_config){
-                throw new Exception("Error en l'actualització completa de la versió del projecte.");
-            }
+            $upgader->preProcess($ver_project, $ver_config, $type, $key);
         }
     }
 

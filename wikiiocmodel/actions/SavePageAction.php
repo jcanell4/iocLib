@@ -146,13 +146,11 @@ class SavePageAction extends RawPageAction {
         if (strtoupper($this->params["editorType"]) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->getFormat()) !== 'HTML'){
             $toSave = $this->translateToDW($toSave);
         }
-        $this->dokuPageModel->setData(array(
-                                        PageKeys::KEY_WIKITEXT => $toSave,
-                                        PageKeys::KEY_SUM      => $this->params[PageKeys::KEY_SUM],
-                                        PageKeys::KEY_MINOR    => $this->params[PageKeys::KEY_MINOR],
-                                        PageKeys::KEY_VERSION  => $this->fieldRevVersion)
-                                     );
-
+        $this->dokuPageModel->setData(array(PageKeys::KEY_WIKITEXT => $toSave,
+                                            PageKeys::KEY_SUM      => $this->params[PageKeys::KEY_SUM],
+                                            PageKeys::KEY_MINOR    => $this->params[PageKeys::KEY_MINOR],
+                                            PageKeys::KEY_VERSION  => $this->fieldRevVersion)
+                                           );
         //delete draft
         $this->dokuPageModel->removeFullDraft();
 
@@ -163,6 +161,24 @@ class SavePageAction extends RawPageAction {
 
         // Si s'ha eliminat el contingut de la pàgina, ho indiquem a l'atribut $deleted i desbloquegem la pàgina
         $this->deleted = $this->isEmptyText($this->params);
+
+        //Si es tracta de la Reversió d'un document de projecte iniciem el procés d'upgrade
+        if ($this->fieldRevVersion) {
+            global $plugin_controller;
+            $projectModel = $plugin_controller->getCurrentProjectModel();
+
+            $filename = array_pop(explode(":", $this->params[PageKeys::KEY_ID]));
+            $type = 'templates';
+
+            //versión guardada en el subset del fichero system del proyecto
+            $ver_project = $this->projectModel->getProjectSystemSubSetAttr("versions")[$type][$filename];
+            //versión establecida en el archivo configMain.json (subset correspondiente) del tipo de proyecto
+            $ver_config = $this->projectModel->getMetaDataAnyAttr("versions")[$type][$filename];
+
+            $upgader = new UpgradeManager($projectModel, $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE], ProjectKeys::VAL_DEFAULTSUBSET, $ver_project, $ver_config, $type);
+            $upgader->preProcess($ver_project, $ver_config, $type, $filename);
+        }
+
     }
 
     private function isEmptyText($param) {
