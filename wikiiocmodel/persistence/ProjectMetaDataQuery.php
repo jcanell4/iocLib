@@ -748,6 +748,9 @@ class ProjectMetaDataQuery extends DataQuery {
                 $projectType = $this->getProjectType();
             }
             $struct = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType);
+            if (!$metaDataSubSet) {
+                $metaDataSubSet = $this->getProjectSubset();
+            }
             $this->projectFileName = $struct[$metaDataSubSet];
         }
         if ($revision===NULL){

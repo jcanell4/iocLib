@@ -220,10 +220,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    public function setRawProjectDocument($filename, $text, $summary) {
-        $toSet = [ProjectKeys::KEY_ID => "{$this->id}:$filename",
+    public function setRawProjectDocument($filename, $text, $summary, $version) {
+        $toSet = [PageKeys::KEY_ID       => "{$this->id}:$filename",
                   PageKeys::KEY_WIKITEXT => $text,
-                  PageKeys::KEY_SUM => $summary];
+                  PageKeys::KEY_SUM      => $summary,
+                  PageKeys::KEY_VERSION  => $version];
         $this->dokuPageModel->setData($toSet);
     }
 
