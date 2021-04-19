@@ -15,8 +15,11 @@ class DW2HtmlLinkSpecial extends DW2HtmlInstruction {
 
         $sanitized = $this->sanitize($anchor);
 
+        $tag = '<a href="' . $sanitized . '" contenteditable="false" data-ioc-link="' . $this->extra['type'] . '" title="' . $sanitized . '">' . $this->parseContent($anchor) . '</a>';
 
-        return '<a href="' . $sanitized . '" contenteditable="false" data-ioc-link="' . $this->extra['type'] . '" title="' . $sanitized . '">' . $this->parseContent($anchor) . '</a>';
+        $this->addRefId($tag);
+
+        return $tag;
 
     }
 
