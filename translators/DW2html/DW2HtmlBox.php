@@ -226,7 +226,10 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $patternOpen = "/^(?:\[\/ref=\d+\])*\[ref=(.*?)\]/ms";
 
         // Cal estreure les files que només son wioccl
-        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])[|\^\n]/ms";
+        // ALERTA! hi ha algun cas en que el tancament de la caixa ::: va seguida del wioccl
+//        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])[|\^\n]/ms";
+
+        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])$/ms";
 
         $newRows = [];
 
@@ -234,10 +237,12 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             if (preg_match($pureRefPattern, $rows[$rowIndex], $match)) {
                 // Afegim una fila de referències pures
                 $newRows[] = $match[1];
+            } else {
+                // No cal modificar la fila original perquè totes les referències anteriores a | o ^ són descartades
+                $newRows[] = $rows[$rowIndex];
             }
 
-            // No cal modificar la fila original perquè totes les referències anteriores a | o ^ són descartades
-            $newRows[] = $rows[$rowIndex];
+
         }
 
         // Reassignem per no modificar la resta del codi
@@ -426,6 +431,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             } else {
                 // Hi havia una fila però no hi havia res, comprovem si hi ha $refId, si es troba s'ha de ficar
                 // una fila buida
+                // ALERTA[Xavi] es gestiona control·lant la existencia de l'atribut al makeTable()
             }
 
         }
@@ -448,11 +454,21 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
 
 
-        $len = $this->findRowCount($tableData);
+        $len = $this->findRowCount($tableData, $rowAttrs);
 
         // Aquest cas es dona quan no s'ha trobat cap fila però hi ha un ref. Cal ficar la referència
-//        if ($len === 0 && $refId !==-1) {
-//            $table .= '<tr data-wioccl-ref="' . $refId . '"></tr>';
+        // TODO: això no s'ha de fer aquí:
+        //  1 s'ha d'afegir si no hi ha fila corresponent a l'atribut
+        //  2 s'ha de fer el bucle fins al len, no només pels continguts de la fila
+
+//
+//        if ($len === 0 && count($rowAttrs) >0) {
+//
+//            foreach ($rowAttrs as $rowIndex => $row) {
+//                foreach ($row as $key => $value) {
+//                    $table .= '<tr ' . $key . '="' . $value . '"></tr>';
+//                }
+//            }
 //        }
 
 
@@ -460,7 +476,24 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         //      - el valor de $cell no s'utilitza, només requerim el $rowIndex
         //      - suposem que totes les files tenen el mateix nombre de cel·les
         //      - el ref de totes les files és el mateix, això no és important perquè es reconstrueixen a partir del pare
-        foreach ($tableData[0] as $rowIndex => $cell ) {
+
+
+        for ($rowIndex = 0; $rowIndex<$len; $rowIndex++) {
+
+            // TODO: comprovar si és correcte en tots els casos
+            if (!isset($tableData[0][$rowIndex])) {
+                foreach ($rowAttrs as $row) {
+                    foreach ($row as $key => $value) {
+                        $table .= '<tr ' . $key . '="' . $value . '"></tr>';
+                    }
+                }
+                continue;
+            }
+
+
+            //            $cell = $tableData[$rowIndex];
+
+            //        foreach ($tableData[0] as $rowIndex => $cell ) {
         //for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
 
 
@@ -550,7 +583,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $table;
     }
 
-    protected function findRowCount($tableData) {
+    protected function findRowCount($tableData, $rowAttrs) {
         // El nombre d'elements a cada fila no sempre correspon al nombre de files ja que pot haver cel·les amb rowspan
 
         $rows = 0;
@@ -564,6 +597,14 @@ class DW2HtmlBox extends DW2HtmlInstruction {
                 $rows = key($col) + 1;
             }
         }
+
+        foreach ($rowAttrs as $key => $value) {
+            // Posem el cursor de l'array a la última posició
+            if ($key +1 > $rows) {
+                $rows = $key +1;
+            }
+        }
+
 
         return $rows;
     }
