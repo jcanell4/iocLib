@@ -16,28 +16,13 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
        // return parent::getReplacement($position);
 
         $class = static::$parserClass;
-
-        // El primer element del structure stack és el root NOMÉS quan no és inner!, en aquest no cal afegir la referència
-        if ($position == self::OPEN && ($class::isInner() || (!$class::isInner() && count(WiocclParser::$structureStack) > 1))) {
-
-            $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
-            $tag = parent::getReplacement($position);
-            // Eliminem el caràcter de tancament per afegir el id de referència. Donem per descomptat
-            // que el tancament és >
-            $tag = substr($tag, 0, strlen($tag)-1);
-
-            if ($refId !=="0") {
-                $tag .= ' data-wioccl-ref="' . $refId . '"';
-            }
-
-            $tag .= '>';
-
-            return $tag;
-        } else {
-            return parent::getReplacement($position);
+//
+//        // El primer element del structure stack és el root NOMÉS quan no és inner!, en aquest no cal afegir la referència
+        if ($position == self::OPEN && !($class::isInner() || (!$class::isInner() && count(WiocclParser::$structureStack) > 1))) {
+            return is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
         }
 
-
+        return parent::getReplacement($position);
     }
 
     public function isClosing($token) {

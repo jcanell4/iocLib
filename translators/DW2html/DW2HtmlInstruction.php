@@ -1,29 +1,46 @@
 <?php
 
 if (!defined('DOKU_INC')) die();
-require_once DOKU_INC.'lib/lib_ioc/iocparser/IocInstruction.php';
+require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocInstruction.php';
 
-class DW2HtmlInstruction extends IocInstruction {
+class DW2HtmlInstruction extends IocInstruction
+{
 
     protected static $parserClass = "DW2HtmlParser";
+
     //protected static $defaultContentclass = "DW2HtmlContent";
 
-    protected function resolveOnClose($result, $tokenEnd) {
+    protected function resolveOnClose($result, $tokenEnd)
+    {
 
         die("Aquest tipus d'instrucció no fa servir resolveOnClose");
     }
 
-    public function open() {
+    public function open()
+    {
 
         return $this->getReplacement(self::OPEN);
     }
 
-    public function close() {
+    protected function getReplacement($position)
+    {
+
+        $tag = is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
+        if ($position === self::OPEN) {
+            $this->addRefId($tag);
+        }
+
+        return $tag;
+    }
+
+    public function close()
+    {
         return $this->getReplacement(self::CLOSE);
     }
 
 
-    public function isClosing($token) {
+    public function isClosing($token)
+    {
 
 //        var_dump($token);
 
@@ -32,8 +49,8 @@ class DW2HtmlInstruction extends IocInstruction {
 //        die("Unimplemented");
     }
 
-    public function parseToken($tokens, &$tokenIndex) {
-
+    public function parseToken($tokens, &$tokenIndex)
+    {
 
 
         $currentToken = $tokens[$tokenIndex];
@@ -91,16 +108,12 @@ class DW2HtmlInstruction extends IocInstruction {
         // Sense això no funciona, però amb això s'afegeix un salt de línia adicional davant de
 
         // TEST: Afegir spans adicionals al content
-        $topIndex = count(WiocclParser::$structureStack)-1;
-        if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+        $topIndex = count(WiocclParser::$structureStack) - 1;
+        if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex] > 0) {
             $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
         } else {
             $refId = -1;
         }
-
-
-
-
 
 
         // Alerta, això de tancar automàticament és necessari per les llistes amb mùltiples nivells
@@ -123,7 +136,7 @@ class DW2HtmlInstruction extends IocInstruction {
 
         // Aquest cas es dona quan una línia comença per una etiqueta de tipus inline (no és block)
         if (!$class::isInner() && !$top && isset($currentToken['extra']) && $currentToken['extra']['block'] !== TRUE &&
-                $currentToken['extra']['inline-block'] !== TRUE  && $currentToken['action'] !== 'close') {
+            $currentToken['extra']['inline-block'] !== TRUE && $currentToken['action'] !== 'close') {
 
             $newContainerToken = DW2HtmlParser::$defaultContainer;
             $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -152,7 +165,7 @@ class DW2HtmlInstruction extends IocInstruction {
                 // PROBLEMA: si $inline == true no s'afegeixen els paragraphs a la edicio parcial
                 // pendent de determinar en quin cas era necessari
                 // if ((!$top || $top['state'] == 'newcontent') && !DW2HtmlParser::isInline()) {
-            if ((!$top || $top['state'] == 'newcontent') && !$this->isInner()) {
+                if ((!$top || $top['state'] == 'newcontent') && !$this->isInner()) {
 
                     $newContainerToken = DW2HtmlParser::$defaultContainer;
                     $container = $this->getClassForToken($newContainerToken, $nextToken);
@@ -194,12 +207,11 @@ class DW2HtmlInstruction extends IocInstruction {
                     // El element amb id === 0 és el root, no s'afegeix
 //                    if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
                     if ($refId !== -1) {
-                        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
-                        $result .= '<span data-wioccl-ref="'. $refId.'">'. $item->getContent($currentToken) . '</span>';
+                        $refId = $this->getRefId();
+                        $result .= '<span data-wioccl-ref="' . $refId . '">' . $item->getContent($currentToken) . '</span>';
                     } else {
                         $result .= $item->getContent($currentToken);
                     }
-
 
 
                 }
@@ -247,8 +259,6 @@ class DW2HtmlInstruction extends IocInstruction {
                 break;
 
 
-
-
             case 'self-contained':
 //                die("self");
                 // Aquest tipus no s'afegeix a l'stack perque s'auto tanca
@@ -280,7 +290,6 @@ class DW2HtmlInstruction extends IocInstruction {
 //                break;
 
 
-
             // El tancament pot correspondre a una marca de tancament o a l'apertura d'altre etiequeta, per tant
             // no es controla aquí, es comprova abans de parsejar amb les crides a "isClose()"
 //            case 'close':
@@ -290,8 +299,6 @@ class DW2HtmlInstruction extends IocInstruction {
 //            default:
 //                die ($action . ' unimplemented');
         }
-
-
 
 
         // ALERTA: Això es necesari perque \n és un token de tancament però cal conservar-lo
@@ -312,12 +319,14 @@ class DW2HtmlInstruction extends IocInstruction {
 
     // ALERTA! no confondre $this->isInner() amb static:isInner(), aquesta es crida sobre la instancia de la instrucció
     // i retorna el isInner static del parser
-    public function isInner() {
+    public function isInner()
+    {
         $class = static::$parserClass;
         return $class::isInner();
     }
 
-    public function parseTokens($tokens, &$tokenIndex = 0) {
+    public function parseTokens($tokens, &$tokenIndex = 0)
+    {
 
         Logger::debug("\n### DW2HTML TOKENS START ###\n" . json_encode($tokens) . "\n### DW2HTML TOKENS END ###\n", 0, __LINE__, basename(__FILE__), 1, true);
 
@@ -354,7 +363,8 @@ class DW2HtmlInstruction extends IocInstruction {
         return $result;
     }
 
-    protected function parseContent($raw) {
+    protected function parseContent($raw)
+    {
         $class = static::$parserClass;
         $isInnerPrevious = $class::isInner();
         $class::setInner(true);
@@ -369,7 +379,8 @@ class DW2HtmlInstruction extends IocInstruction {
         return $content;
     }
 
-    public static function parseContent2($raw, $inline) {
+    public static function parseContent2($raw, $inline)
+    {
         $class = static::$parserClass;
         $isInnerPrevious = $class::isInner();
         $class::setInner(true);
@@ -394,7 +405,8 @@ class DW2HtmlInstruction extends IocInstruction {
 
     // Hi ha un problema dificil de generalitzar amb les files, si hi ha wioccl dins d'una taula
     // el primer refid que es trobi s'ha de posar al primer <tr> que es trobi
-    protected static function fixTableRows($content) {
+    protected static function fixTableRows($content)
+    {
 
         // Si conté <table llavors no cal ajustar res, s'ha d'haver generat amb un box
         // Si no conté <tr no cal comprovar res més
@@ -413,7 +425,39 @@ class DW2HtmlInstruction extends IocInstruction {
             // Ara cal reemplaçar el refid del primer <tr pel capturat
 
             $patternFirstTR = '/<tr data-wioccl-ref=".*?"/ms';
-            $content = preg_replace($patternFirstTR, '<tr data-wioccl-ref="' . $refId. '"', $content, 1);
+            $content = preg_replace($patternFirstTR, '<tr data-wioccl-ref="' . $refId . '"', $content, 1);
+        }
+
+        return $content;
+    }
+
+    protected function getRefId()
+    {
+        return WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+
+    }
+
+    // Afegeix a un contingut entre < i > el data-wioccl-ref com a darrer atribut
+    protected function addRefId(&$content)
+    {
+
+        if (strlen($content) == 0) {
+            return;
+        }
+
+        $refId = $this->getRefId();
+
+        if ($refId !== "0") {
+
+//            $pattern = '/^<.*?(>).*?$/ms';
+            // Primerament hem de comprovar que el tag inicial no contingui ya un ref id, això ens passa amb els spans
+
+            if (preg_match('/^(<.*?>).*?$/ms', $content, $matches)) {
+                if (strpos($matches[1], 'data-wioccl-ref') !== false) {
+                    return $content;
+                }
+            }
+            $content = preg_replace('/>/ms', ' data-wioccl-ref="' . $refId . '">', $content, 1);
         }
 
         return $content;

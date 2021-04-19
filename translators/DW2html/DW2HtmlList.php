@@ -91,16 +91,10 @@ class DW2HtmlList extends DW2HtmlInstruction {
             case IocInstruction::OPEN:
 
                 // Afegim la referència si escau
-                $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+                $tag = '<' . $this->extra['container']. ">";
+                $this->addRefId($tag);
 
-
-                if ($refId > 0) {
-                    $ref = ' data-wioccl-ref="' . $refId . '" ';
-                } else {
-                    $ref = '';
-                }
-
-                return '<' . $this->extra['container'] . $ref . ">";
+                return $tag;
 
             case IocInstruction::CLOSE:
                 return '</' . $this->extra['container'] . ">";

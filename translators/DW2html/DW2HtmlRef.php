@@ -52,7 +52,9 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
         switch ($position) {
             case IocInstruction::OPEN:
-                return sprintf($this->extra['replacement'][0], $match[1]);
+                $tag = sprintf($this->extra['replacement'][0], $match[1]);
+                $this->addRefId($tag);
+                return $tag;
 
 
             case IocInstruction::CLOSE:

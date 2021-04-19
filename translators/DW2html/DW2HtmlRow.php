@@ -289,7 +289,7 @@ class DW2HtmlRow extends DW2HtmlInstruction {
 
 
             // La referència de fila ha de ser la del top, no s'extreu
-            $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
+            $refId = $this->getRefId();
             $rowAttrs[$rowIndex]['data-wioccl-ref'] = $refId;
 
 

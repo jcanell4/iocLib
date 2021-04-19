@@ -9,7 +9,7 @@ class DW2HtmlHeader extends DW2HtmlInstruction {
         $this->level = strlen(trim($this->currentToken['raw']));
 
 
-        $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack)-1];
+        $refId = $this->getRefId();
         $tag = '<h'.(7-$this->level);
 
         if ($refId !=="0") {
