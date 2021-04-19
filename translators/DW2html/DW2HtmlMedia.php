@@ -63,6 +63,8 @@ class DW2HtmlMedia extends DW2HtmlImage {
             '<iframe src="' . $url . '" width="' . $width . '" height="' . $height . '"></iframe>' .
             '</div>';
 
+        $this->addRefId($html);
+
         return $html;
 
 

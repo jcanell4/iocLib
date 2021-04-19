@@ -116,6 +116,8 @@ class DW2HtmlQuiz extends DW2HtmlInstruction {
         $value .= '</div>';
         $value .= '</div>';
 
+        $this->addRefId($value);
+
         return $value;
     }
 

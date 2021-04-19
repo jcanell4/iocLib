@@ -19,6 +19,8 @@ class DW2HtmlSound extends DW2HtmlInstruction {
             '<iframe width="100%" height="20" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/' . $id . '?secret_token=none&color=%230066cc&inverse=false&auto_play=false&show_user=true"></iframe>' .
             '</div>';
 
+        $this->addRefId($html);
+
         return $html;
     }
 

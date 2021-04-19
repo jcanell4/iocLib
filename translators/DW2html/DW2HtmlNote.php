@@ -218,6 +218,8 @@ class DW2HtmlNote extends DW2HtmlInstruction {
 ////        $this->getPreAndPost($pre, $post);
 //
 
+        $this->addRefId($value);
+
         return $value;
 //        return $pre . $value . $post;
     }
