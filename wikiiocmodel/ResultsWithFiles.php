@@ -11,14 +11,40 @@ class ResultsWithFiles {
         $ext = $result["ext"] ? $result["ext"] : ".zip";
         if ($result['error']) {
             throw new Exception ("Error");
-        }elseif($result["fileNames"]){
+        }
+        elseif($result["fileNames"]) {
             if (!$result["dest"]) {
                 if (!self::copyFiles($result)) {
                     throw new Exception("Error en la còpia dels arxius d 'esportació des de la ubicació temporal");
                 }
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
-        }else{
+        }
+        elseif(isset($result["individualFiles"])) {
+            foreach ($result["individualFiles"] as $fileInfo) {
+                if ($fileInfo['error']) {
+                    throw new Exception ("Error");
+                }else {
+                    if ($fileInfo["zipFile"]){
+                        $name = $fileInfo["zipName"];
+                        $ext = ".zip";
+                        if (!self::copyFile($fileInfo, "zipFile", "zipName")) {
+                            throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
+                        }
+                    }elseif($fileInfo["pdfFile"]){
+                        $name = $fileInfo["pdfName"];
+                        $ext = ".pdf";
+                        if (!self::copyFile($fileInfo, "pdfFile", "pdfName")) {
+                            throw new Exception("Error en la còpia de l'arxiu PDF des de la ubicació temporal");
+                        }
+                    }
+                    $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) ."/$name";
+                    $ret .= self::_getHtmlMetadataFile($result['ns'], $file, $ext) . "<br>";
+                }
+            }
+            $ret = substr($ret, 0, -4);
+        }
+        else {
             if ($result["zipFile"]){
                 $ext = ".zip";
                 if (!self::copyFile($result, "zipFile", "zipName")) {
@@ -31,7 +57,7 @@ class ResultsWithFiles {
                 }
             }
             $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) .'/'.preg_replace('/:/', '_', $result['ns']);
-            $ret = self::_getHtmlMetadataFile($result['ns'], $file, $ext);
+            $ret = self::_getHtmlMetadataFile($result['ns'], $file, "");
         }
         return $ret;
     }
