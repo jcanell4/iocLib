@@ -20,6 +20,14 @@ class ResultsWithFiles {
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
         }
+        elseif(isset($result["multipleFiles"])) {
+            $result = self::_setMultiFileList($result);
+            if ($result['fileNames']) {
+                $ret = self::_getHtmlMetadataMultiFile($result);
+            }else {
+                $ret = self::_getHtmlMetadataFile($result['ns'], "", $ext);
+            }
+        }
         elseif(isset($result["individualFiles"])) {
             foreach ($result["individualFiles"] as $fileInfo) {
                 if ($fileInfo['error']) {
@@ -57,18 +65,36 @@ class ResultsWithFiles {
                 }
             }
             $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) .'/'.preg_replace('/:/', '_', $result['ns']);
-            $ret = self::_getHtmlMetadataFile($result['ns'], $file, "");
+            $ret = self::_getHtmlMetadataFile($result['ns'], $file, $ext);
+        }
+        return $ret;
+    }
+
+    /**
+     * Constuye la lista de ficheros contenidos en media/$ns/
+     * @param array $result : contiene el ns a investigar y la extensión de los archivos
+     * @return array : ['ns'=>'string', 'dest'=>[array de rutas completas], 'fileNames'=>[array de nombres de fichero]
+     */
+    private static function _setMultiFileList($result) {
+        $ret['ns'] = $result['ns'];
+        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.preg_replace('/:/', '/', $result['ns']);
+        if (is_dir($path_dest)) {
+            $entries = scandir($path_dest);
+            if ($entries) {
+                foreach($entries as $file){
+                    if ($file[0] !== '.' && substr($file, -4) === $result['ext']) {
+                        $ret['dest'][] = "$path_dest/$file";
+                        $ret['fileNames'][] = $file;
+                    }
+                }
+            }
         }
         return $ret;
     }
 
     private static function _getHtmlMetadataMultiFile($result) {
-        $P = "";
-        $nP = "";
-
-        $ret = '';
-        $ret.= $P.'<span id="exportacio" style="word-wrap: break-word;">';
-        for($i=0; $i<count($result["fileNames"]); $i++){
+        $ret = '<span id="exportacio" style="word-wrap: break-word;">';
+        for ($i=0; $i<count($result["fileNames"]); $i++){
             if (isset($result["dest"][$i]) && @file_exists($result["dest"][$i])) {
                 $filename = $result["fileNames"][$i];
                 $media_path = "lib/exe/fetch.php?media={$result['ns']}:$filename";
@@ -81,7 +107,7 @@ class ResultsWithFiles {
                 $ret.= '<p class="media mediafile '.$class.'">No hi ha cap exportació feta del fitxer'.$result["fileNames"][$i].'</p>';
             }
         }
-        $ret.= '</span>'.$nP;
+        $ret.= '</span>';
         return $ret;
     }
 
@@ -115,20 +141,9 @@ class ResultsWithFiles {
         }
         if (@file_exists($file.$ext)) {
             $ret = '';
-            $id = preg_replace('/:/', '_', $ns);
             $filename = str_replace(':','_',basename($ns)).$ext;
             $media_path = "lib/exe/fetch.php?media=$ns:$filename";
             $data = date("d/m/Y H:i:s", filemtime($file.$ext));
-
-//            if ($ext === ".pdf") {
-//                $ret.= '<p></p><div class="iocexport">';
-//                $ret.= '<span style="font-weight: bold;">Exportació PDF</span><br />';
-//                $ret.= '<form action="'.WIKI_IOC_MODEL.'renderer/basiclatex.php" id="export__form_'.$id.'" method="post">';
-//                $ret.= '<input name="filetype" value="zip" type="radio"> ZIP &nbsp;&nbsp;&nbsp;';
-//                $ret.= '<input name="filetype" value="pdf" checked type="radio"> PDF ';
-//                $ret.= '</form>';
-//                $ret.= '</div>';
-//            }
             $ret.= $P.'<span id="exportacio" style="word-wrap: break-word;">';
             $ret.= '<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
             $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
