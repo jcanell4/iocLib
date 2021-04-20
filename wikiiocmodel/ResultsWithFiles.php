@@ -25,24 +25,24 @@ class ResultsWithFiles {
                 if ($fileInfo['error']) {
                     throw new Exception ("Error");
                 }else {
+                    $fileInfo['ns'] = $r['ns'] = $result['ns'];
                     if ($fileInfo["zipFile"]){
-                        $name = $fileInfo["zipName"];
+                        $r['fileNames'][] = $name = $fileInfo["zipName"];
                         $ext = ".zip";
                         if (!self::copyFile($fileInfo, "zipFile", "zipName")) {
                             throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
                         }
                     }elseif($fileInfo["pdfFile"]){
-                        $name = $fileInfo["pdfName"];
+                        $r['fileNames'][] = $name = $fileInfo["pdfName"];
                         $ext = ".pdf";
                         if (!self::copyFile($fileInfo, "pdfFile", "pdfName")) {
                             throw new Exception("Error en la còpia de l'arxiu PDF des de la ubicació temporal");
                         }
                     }
-                    $file = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) ."/$name";
-                    $ret .= self::_getHtmlMetadataFile($result['ns'], $file, $ext) . "<br>";
+                    $r['dest'][] = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) ."/$name";
                 }
             }
-            $ret = substr($ret, 0, -4);
+            $ret = self::_getHtmlMetadataMultiFile($r);
         }
         else {
             if ($result["zipFile"]){
@@ -105,7 +105,6 @@ class ResultsWithFiles {
 
     private static function _getHtmlMetadataFile($ns, $file, $ext) {
         if ($ext === ".zip") {
-            $ext = ".zip";
             $P = ""; $nP = "";
             $class = "mf_zip";
             $mode = "HTML";
