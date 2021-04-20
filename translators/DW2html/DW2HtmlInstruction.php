@@ -314,7 +314,10 @@ class DW2HtmlInstruction extends IocInstruction
                 $result .= $currentToken['raw'];
             }
         }
-        return $result;
+
+        $this->addReadonly($result);
+
+            return $result;
     }
 
     // ALERTA! no confondre $this->isInner() amb static:isInner(), aquesta es crida sobre la instancia de la instrucció
@@ -458,6 +461,29 @@ class DW2HtmlInstruction extends IocInstruction
                 }
             }
             $content = preg_replace('/>/ms', ' data-wioccl-ref="' . $refId . '">', $content, 1);
+        }
+
+        return $content;
+    }
+
+    // Afegeix a un contingut entre < i > el contenteditable="true" com a darrer atribut
+    protected function addReadonly(&$content)
+    {
+
+        if (strlen($content) == 0) {
+            return;
+        }
+
+        if (WiocclParser::$readonlyStack>0) {
+
+            // Primerament hem de comprovar que el tag inicial no contingui ya un contenteditable
+
+            if (preg_match('/^(<.*?>).*?$/ms', $content, $matches)) {
+                if (strpos($matches[1], 'contenteditable') !== false) {
+                    return $content;
+                }
+            }
+            $content = preg_replace('/>/ms', ' contenteditable="false">', $content, 1);
         }
 
         return $content;
