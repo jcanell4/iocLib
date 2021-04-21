@@ -208,7 +208,7 @@ class BasicRenderObject extends renderComposite {
                             $jsonDoc = $render->process($doc, $item["name"]);
                             $this->_destroySessionStyle();
                             if (!empty($jsonDoc)) {//evita procesar los documentos inexistentes
-                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$item['name']][$doc] = $jsonDoc;
+                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $jsonDoc;
                             }
                         }
                     }else {
@@ -219,9 +219,11 @@ class BasicRenderObject extends renderComposite {
                             $htmlDocument = $render->process($doc, $item["name"]);
                             $this->_destroySessionStyle();
                             if (!empty($htmlDocument)) {//evita procesar los documentos inexistentes
-                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$item['name']][$doc] = $htmlDocument;
+                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $htmlDocument;
+                                $toc[$doc] = $this->cfgExport->toc[$item["name"]];
                             }
                         }
+                        $this->cfgExport->toc = $toc;
                     }
                 }
                 else if ($item["valueType"] == "arrayFields") {
@@ -269,7 +271,6 @@ class BasicRenderObject extends renderComposite {
             }
         }
 
-//        $ret = $this->cocinandoLaPlantillaConDatos($arrayDeDatosParaLaPlantilla);
         self::$deepLevel--;
         return $arrayDeDatosParaLaPlantilla;
     }
@@ -470,15 +471,26 @@ class BasicRenderDocument extends BasicRenderObject{
         return $ret;
     }
     
+    /**
+     * Tractament específic per a la generació de fitxers, individuals, resultat de cocinandoLaPlantillaConDatos
+     * @param array $data : dades ja renderitzades. La renderització del contigut de cada document està individualitzada
+     *                      en $data['arrayDocuments']
+     * @return array
+     */
     public function preCocinadoIndividual($data) {
-        foreach ($data['arrayDocuments'] as $name => $arrayDocuments) { //para cada tipo: pdf, html
-            foreach ($arrayDocuments as $key => $value) { //para cada documento
-                $this->cfgExport->output_filename = str_replace(':', '_', $this->cfgExport->id) . "_$key";
+        $id = str_replace(':', '_', $this->cfgExport->id);
+        $toc_backup = $this->cfgExport->toc;
+        
+        foreach ($data['arrayDocuments'] as $doc => $arrayDocuments) { //para cada documento
+            $this->cfgExport->toc = [];
+            foreach ($arrayDocuments as $name => $value) { //para cada tipo: pdf, html
                 $data[$name] = $value;
-                $idFile = "{$name}_".$this->cfgExport->output_filename;
-                $result[$idFile] = $this->cocinandoLaPlantillaConDatos($data);
+                $this->cfgExport->toc[$name] = $toc_backup[$doc];
             }
+            $this->cfgExport->output_filename = "{$id}_{$doc}";
+            $result[$this->cfgExport->output_filename] = $this->cocinandoLaPlantillaConDatos($data);
         }
+
         $ret['tmp_dir'] = $this->cfgExport->tmp_dir;
         foreach ($result as $key => $value) {
             if ($value['error']) {
