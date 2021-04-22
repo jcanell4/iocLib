@@ -1186,6 +1186,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     /**
+     * Obtiene datos de la clave metaDataExport del configMain.json
+     * @return ($key==NULL) ? contenido de la clave $metaDataSubset : contenido de la clave $metaDataSubset$key
+     */
+    public function getMetaDataExport($key=NULL, $metaDataSubset=FALSE) {
+        return $this->getProjectMetaDataQuery()->getMetaDataExport($key, $metaDataSubset);
+    }
+
+    /**
      * Obtiene la lista de ficheros, y sus propiedades, (del configMain.json) que hay que enviar por FTP
      * @return array
      */

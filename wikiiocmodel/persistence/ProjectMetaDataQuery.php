@@ -351,6 +351,13 @@ class ProjectMetaDataQuery extends DataQuery {
         return ($ret) ? ($key) ? $ret[$metaDataSubSet][$key] : $ret[$metaDataSubSet] : NULL;
     }
 
+    //Retorna el contenido de la subclave $metaDataSubset de la clave 'metaDataExport' del configMain.json
+    public function getMetaDataExport($key=FALSE, $metaDataSubSet=FALSE) {
+        $ret = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_EXPORT);
+        if (!$metaDataSubSet) $metaDataSubSet = $this->getProjectSubset();
+        return ($ret) ? ($key) ? $ret[$metaDataSubSet][$key] : $ret[$metaDataSubSet] : NULL;
+    }
+
     /*
      * Obtiene el atributo solicitado de la clave principal solicidada del archivo configMain.json
      */
