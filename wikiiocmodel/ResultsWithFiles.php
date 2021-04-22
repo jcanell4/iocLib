@@ -20,14 +20,15 @@ class ResultsWithFiles {
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
         }
-        elseif(isset($result["multipleFiles"])) {
-            $result = self::_setMultiFileList($result);
-            if ($result['fileNames']) {
-                $ret = self::_getHtmlMetadataMultiFile($result);
-            }else {
-                $ret = self::_getHtmlMetadataFile($result['ns'], "", $ext);
-            }
-        }
+//        // Aquesta versió no s'utilitza
+//        elseif(isset($result["multipleFiles"])) {
+//            $result = self::_setMultiFileList($result);
+//            if ($result['fileNames']) {
+//                $ret = self::_getHtmlMetadataMultiFile($result);
+//            }else {
+//                $ret = self::_getHtmlMetadataFile($result['ns'], "", $ext);
+//            }
+//        }
         elseif(isset($result["individualFiles"])) {
             foreach ($result["individualFiles"] as $fileInfo) {
                 if ($fileInfo['error']) {
@@ -71,7 +72,7 @@ class ResultsWithFiles {
     }
 
     /**
-     * Constuye la lista de ficheros contenidos en media/$ns/
+     * Construye la lista de ficheros contenidos en media/$ns/ (Ara no s'utilitza)
      * @param array $result : contiene el ns a investigar y la extensión de los archivos
      * @return array : ['ns'=>'string', 'dest'=>[array de rutas completas], 'fileNames'=>[array de nombres de fichero]
      */
