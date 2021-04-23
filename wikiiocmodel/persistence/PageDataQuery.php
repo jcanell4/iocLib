@@ -48,7 +48,31 @@ class PageDataQuery extends DataQuery {
         return metaFiles($id);
     }
 
-    public function save($id, $text, $summary, $minor = false, $forceSave=false){
+    /**
+     * Proceso de guardar un fichero de texto wiki. Incluye la generación de los logs .changes y .meta
+     * @param string $id : wiki ruta del document
+     * @param string $text : contingut del document
+     * @param string $summary
+     * @param boolean $minor
+     * @param boolean $forceSave
+     * @param integer $version : número de la versió del document
+     */
+    public function save($id, $text, $summary, $minor=false, $forceSave=false, $version=NULL){
+        global $plugin_controller;
+        $filename = array_pop(explode(":", $id));
+        // Incluimos la versión de template actual (o la perteneciente a la reversión si viene por parámetro)
+        $projectSourceType = $plugin_controller->getProjectSourceType();
+        if ($projectSourceType) {
+            $projectOwner = $plugin_controller->getProjectOwner();
+            $metaDataQuery = $plugin_controller->getPersistenceEngine()->createProjectMetaDataQuery($projectOwner, "main", $projectSourceType);
+            if (!$version) {
+                $version = $metaDataQuery->getMetaDataAnyAttr("versions")['templates'][$filename];
+            }
+        }
+        if ($version) {
+            $summary .= ' {"'.$filename.'":'.$version.'}';
+        }
+
         $fdt = @filemtime(wikiFN($id));
         saveWikiText($id, $text, $summary, $minor);
         if ($forceSave && $fdt === filemtime(wikiFN($id))){
@@ -59,6 +83,11 @@ class PageDataQuery extends DataQuery {
 
         $meta['partialDisabled'] = $partialDisabled;
         p_set_metadata($id, $meta);
+
+        // Si es una reversión de un archivo de proyecto, revertimos la versión en el archivo _wikiiocSystem.mdpr_ del proyecto
+        if ($projectSourceType) {
+            $metaDataQuery->setProjectSystemSubSetVersion($filename, $version);
+        }
     }
 
     public function getHtml($id, $rev = null){

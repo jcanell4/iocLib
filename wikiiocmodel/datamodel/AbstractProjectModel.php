@@ -220,10 +220,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    public function setRawProjectDocument($filename, $text, $summary) {
-        $toSet = [ProjectKeys::KEY_ID => "{$this->id}:$filename",
+    public function setRawProjectDocument($filename, $text, $summary, $version) {
+        $toSet = [PageKeys::KEY_ID       => "{$this->id}:$filename",
                   PageKeys::KEY_WIKITEXT => $text,
-                  PageKeys::KEY_SUM => $summary];
+                  PageKeys::KEY_SUM      => $summary,
+                  PageKeys::KEY_VERSION  => $version];
         $this->dokuPageModel->setData($toSet);
     }
 
@@ -1182,6 +1183,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function getMetaDataFtpSender($key=NULL, $metaDataSubset=FALSE) {
         return $this->getProjectMetaDataQuery()->getMetaDataFtpSender($key, $metaDataSubset);
+    }
+
+    /**
+     * Obtiene datos de la clave metaDataExport del configMain.json
+     * @return ($key==NULL) ? contenido de la clave $metaDataSubset : contenido de la clave $metaDataSubset$key
+     */
+    public function getMetaDataExport($key=NULL, $metaDataSubset=FALSE) {
+        return $this->getProjectMetaDataQuery()->getMetaDataExport($key, $metaDataSubset);
     }
 
     /**

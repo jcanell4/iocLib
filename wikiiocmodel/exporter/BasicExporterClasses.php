@@ -19,6 +19,7 @@ abstract class AbstractRenderer {
     protected $mode;
     protected $filetype;
     protected $styletype;
+    protected $output_filename;
 
     public function __construct($factory, $cfgExport=NULL) {
         $this->factory = $factory;
@@ -189,6 +190,42 @@ class BasicRenderObject extends renderComposite {
                     $arrayDeDatosParaLaPlantilla[$item["name"]] = $render->process($dataField, $item["name"]);
                     $this->_destroySessionStyle();
                 }
+                else if ($item["valueType"] == "arrayDocuments") {
+                    $typedefKeyField = $this->getTypedefKeyField($item["value"]);
+                    $renderKeyField = $this->getRenderKeyField($item["name"]);
+                    $render = $this->createRender($typedefKeyField, $renderKeyField);
+                    $render->init($item["name"], $renderKeyField['render']['styletype']);
+
+                    $arrayDataField = json_decode($this->getDataField($item["value"]), true);
+                    foreach ($arrayDataField as $key) {
+                        $arrDataField[$key['ordre']] = $key['nom'];
+                    }
+                    ksort($arrDataField);
+
+                    if ($item["type"] == "psdom") {
+                        foreach ($arrDataField as $doc) {
+                            $this->_createSessionStyle($renderKeyField['render']);
+                            $jsonDoc = $render->process($doc, $item["name"]);
+                            $this->_destroySessionStyle();
+                            if (!empty($jsonDoc)) {//evita procesar los documentos inexistentes
+                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $jsonDoc;
+                            }
+                        }
+                    }else {
+                        // Renderiza cada uno de los documentos
+                        $htmlDocument = "";
+                        foreach ($arrDataField as $doc) {
+                            $this->_createSessionStyle($renderKeyField['render']);
+                            $htmlDocument = $render->process($doc, $item["name"]);
+                            $this->_destroySessionStyle();
+                            if (!empty($htmlDocument)) {//evita procesar los documentos inexistentes
+                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $htmlDocument;
+                                $toc[$doc] = $this->cfgExport->toc[$item["name"]];
+                            }
+                        }
+                        $this->cfgExport->toc = $toc;
+                    }
+                }
                 else if ($item["valueType"] == "arrayFields") {
                     $typedefKeyField = $this->getTypedefKeyField($item["value"]);
                     $renderKeyField = $this->getRenderKeyField($item["name"]);
@@ -234,7 +271,6 @@ class BasicRenderObject extends renderComposite {
             }
         }
 
-//        $ret = $this->cocinandoLaPlantillaConDatos($arrayDeDatosParaLaPlantilla);
         self::$deepLevel--;
         return $arrayDeDatosParaLaPlantilla;
     }
@@ -427,10 +463,47 @@ class BasicRenderDocument extends BasicRenderObject{
     
     public function process($data) {
         $ret = parent::process($data);
-        $ret = $this->cocinandoLaPlantillaConDatos($ret);
+        if (isset($ret['arrayDocuments'])) {
+            $ret = $this->preCocinadoIndividual($ret);
+        }else {
+            $ret = $this->cocinandoLaPlantillaConDatos($ret);
+        }
         return $ret;
     }
     
+    /**
+     * Tractament específic per a la generació de fitxers, individuals, resultat de cocinandoLaPlantillaConDatos
+     * @param array $data : dades ja renderitzades. La renderització del contigut de cada document està individualitzada
+     *                      en $data['arrayDocuments']
+     * @return array
+     */
+    public function preCocinadoIndividual($data) {
+        $id = str_replace(':', '_', $this->cfgExport->id);
+        $toc_backup = $this->cfgExport->toc;
+        
+        foreach ($data['arrayDocuments'] as $doc => $arrayDocuments) { //para cada documento
+            $this->cfgExport->toc = [];
+            foreach ($arrayDocuments as $name => $value) { //para cada tipo: pdf, html
+                $data[$name] = $value;
+                $this->cfgExport->toc[$name] = $toc_backup[$doc];
+            }
+            $this->cfgExport->output_filename = "{$id}_{$doc}";
+            $result[$this->cfgExport->output_filename] = $this->cocinandoLaPlantillaConDatos($data);
+        }
+
+        $ret['tmp_dir'] = $this->cfgExport->tmp_dir;
+        foreach ($result as $value) {
+            if ($value['error']) {
+                $ret['error'][] = $value['error'];
+            }else {
+                $ret['files'][] = $value['file'];
+                $ret['fileNames'][] = $value['fileName'];
+            }
+            $ret['info'][] = $value['info'];
+        }
+        return $ret;
+    }
+
     public function cocinandoLaPlantillaConDatos($data) {
         $ret = "";
         $isArray = is_array($data);

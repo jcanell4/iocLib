@@ -45,7 +45,7 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
      * inclosos en els seus fitxers
      */
     public static function stForceFileComponentRenderization($model, $isGenerated=NULL){
-        if (!$model->getNeedGenerateAction() || $isGenerated){
+        if ($isGenerated || !$model->getNeedGenerateAction()){
             $ns_continguts = $model->getContentDocumentId();
             p_set_metadata($ns_continguts, array('metadataProjectChanged' => time()));
         }

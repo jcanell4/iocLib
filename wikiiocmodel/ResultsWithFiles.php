@@ -11,14 +11,16 @@ class ResultsWithFiles {
         $ext = $result["ext"] ? $result["ext"] : ".zip";
         if ($result['error']) {
             throw new Exception ("Error");
-        }elseif($result["fileNames"]){
+        }
+        elseif($result["fileNames"]) {
             if (!$result["dest"]) {
                 if (!self::copyFiles($result)) {
                     throw new Exception("Error en la còpia dels arxius d 'esportació des de la ubicació temporal");
                 }
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
-        }else{
+        }
+        else {
             if ($result["zipFile"]){
                 $ext = ".zip";
                 if (!self::copyFile($result, "zipFile", "zipName")) {
@@ -37,25 +39,23 @@ class ResultsWithFiles {
     }
 
     private static function _getHtmlMetadataMultiFile($result) {
-        $P = "";
-        $nP = "";
-
-        $ret = '';
-        $ret.= $P.'<span id="exportacio" style="word-wrap: break-word;">';
-        for($i=0; $i<count($result["fileNames"]); $i++){
+        $ret = '<span id="exportacio" style="word-wrap: break-word;">';
+        for ($i=0; $i<count($result["fileNames"]); $i++){
+            $filename = $result["fileNames"][$i];
+            $ext = substr($filename, -3);
+            $class = "mf_$ext";
             if (isset($result["dest"][$i]) && @file_exists($result["dest"][$i])) {
-                $filename = $result["fileNames"][$i];
                 $media_path = "lib/exe/fetch.php?media={$result['ns']}:$filename";
                 $data = date("d/m/Y H:i:s", filemtime($result["dest"][$i]));
-                $class = "mf_".substr($filename, -3);
 
-                $ret.= '<p><a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
-                $ret.= '<span style="white-space: nowrap;">'.$data.'</span></p>';
+                $ret.= '<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
+                $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
             }else{
-                $ret.= '<p class="media mediafile '.$class.'">No hi ha cap exportació feta del fitxer'.$result["fileNames"][$i].'</p>';
+                $mode = ($ext==="zip") ? "HTML" : "PDF";
+                $ret.= '<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer'.$result["fileNames"][$i].'</span>';
             }
         }
-        $ret.= '</span>'.$nP;
+        $ret.= '</span>';
         return $ret;
     }
 
@@ -79,7 +79,6 @@ class ResultsWithFiles {
 
     private static function _getHtmlMetadataFile($ns, $file, $ext) {
         if ($ext === ".zip") {
-            $ext = ".zip";
             $P = ""; $nP = "";
             $class = "mf_zip";
             $mode = "HTML";
@@ -89,27 +88,14 @@ class ResultsWithFiles {
             $mode = "PDF";
         }
         if (@file_exists($file.$ext)) {
-            $ret = '';
-            $id = preg_replace('/:/', '_', $ns);
             $filename = str_replace(':','_',basename($ns)).$ext;
             $media_path = "lib/exe/fetch.php?media=$ns:$filename";
             $data = date("d/m/Y H:i:s", filemtime($file.$ext));
-
-//            if ($ext === ".pdf") {
-//                $ret.= '<p></p><div class="iocexport">';
-//                $ret.= '<span style="font-weight: bold;">Exportació PDF</span><br />';
-//                $ret.= '<form action="'.WIKI_IOC_MODEL.'renderer/basiclatex.php" id="export__form_'.$id.'" method="post">';
-//                $ret.= '<input name="filetype" value="zip" type="radio"> ZIP &nbsp;&nbsp;&nbsp;';
-//                $ret.= '<input name="filetype" value="pdf" checked type="radio"> PDF ';
-//                $ret.= '</form>';
-//                $ret.= '</div>';
-//            }
             $ret.= $P.'<span id="exportacio" style="word-wrap: break-word;">';
             $ret.= '<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
             $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
             $ret.= '</span>'.$nP;
         }else{
-            $mode = ($ext===".zip") ? "HTML" : "PDF";
             $ret.= '<span id="exportacio">';
             $ret.= '<p class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta</p>';
             $ret.= '</span>';
