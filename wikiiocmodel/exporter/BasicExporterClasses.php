@@ -492,14 +492,14 @@ class BasicRenderDocument extends BasicRenderObject{
         }
 
         $ret['tmp_dir'] = $this->cfgExport->tmp_dir;
-        foreach ($result as $key => $value) {
+        foreach ($result as $value) {
             if ($value['error']) {
-                $ret['individualFiles'][$key]['error'] = $value['error'];
+                $ret['error'][] = $value['error'];
             }else {
-                $ret['individualFiles'][$key]['zipFile'] = $value['zipFile'];
-                $ret['individualFiles'][$key]['zipName'] = $value['zipName'];
+                $ret['files'][] = $value['file'];
+                $ret['fileNames'][] = $value['fileName'];
             }
-            $ret['individualFiles'][$key]['info'] = $value['info'];
+            $ret['info'][] = $value['info'];
         }
         return $ret;
     }

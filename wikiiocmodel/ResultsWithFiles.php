@@ -20,39 +20,6 @@ class ResultsWithFiles {
             }
             $ret = self::_getHtmlMetadataMultiFile($result);
         }
-//        // Aquesta versió no s'utilitza
-//        elseif(isset($result["multipleFiles"])) {
-//            $result = self::_setMultiFileList($result);
-//            if ($result['fileNames']) {
-//                $ret = self::_getHtmlMetadataMultiFile($result);
-//            }else {
-//                $ret = self::_getHtmlMetadataFile($result['ns'], "", $ext);
-//            }
-//        }
-        elseif(isset($result["individualFiles"])) {
-            foreach ($result["individualFiles"] as $fileInfo) {
-                if ($fileInfo['error']) {
-                    throw new Exception ("Error");
-                }else {
-                    $fileInfo['ns'] = $r['ns'] = $result['ns'];
-                    if ($fileInfo["zipFile"]){
-                        $r['fileNames'][] = $name = $fileInfo["zipName"];
-                        $ext = ".zip";
-                        if (!self::copyFile($fileInfo, "zipFile", "zipName")) {
-                            throw new Exception("Error en la còpia de l'arxiu zip des de la ubicació temporal");
-                        }
-                    }elseif($fileInfo["pdfFile"]){
-                        $r['fileNames'][] = $name = $fileInfo["pdfName"];
-                        $ext = ".pdf";
-                        if (!self::copyFile($fileInfo, "pdfFile", "pdfName")) {
-                            throw new Exception("Error en la còpia de l'arxiu PDF des de la ubicació temporal");
-                        }
-                    }
-                    $r['dest'][] = WikiGlobalConfig::getConf('mediadir').'/'. preg_replace('/:/', '/', $result['ns']) ."/$name";
-                }
-            }
-            $ret = self::_getHtmlMetadataMultiFile($r);
-        }
         else {
             if ($result["zipFile"]){
                 $ext = ".zip";
@@ -71,41 +38,21 @@ class ResultsWithFiles {
         return $ret;
     }
 
-    /**
-     * Construye la lista de ficheros contenidos en media/$ns/ (Ara no s'utilitza)
-     * @param array $result : contiene el ns a investigar y la extensión de los archivos
-     * @return array : ['ns'=>'string', 'dest'=>[array de rutas completas], 'fileNames'=>[array de nombres de fichero]
-     */
-    private static function _setMultiFileList($result) {
-        $ret['ns'] = $result['ns'];
-        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.preg_replace('/:/', '/', $result['ns']);
-        if (is_dir($path_dest)) {
-            $entries = scandir($path_dest);
-            if ($entries) {
-                foreach($entries as $file){
-                    if ($file[0] !== '.' && substr($file, -4) === $result['ext']) {
-                        $ret['dest'][] = "$path_dest/$file";
-                        $ret['fileNames'][] = $file;
-                    }
-                }
-            }
-        }
-        return $ret;
-    }
-
     private static function _getHtmlMetadataMultiFile($result) {
         $ret = '<span id="exportacio" style="word-wrap: break-word;">';
         for ($i=0; $i<count($result["fileNames"]); $i++){
+            $filename = $result["fileNames"][$i];
+            $ext = substr($filename, -3);
+            $class = "mf_$ext";
             if (isset($result["dest"][$i]) && @file_exists($result["dest"][$i])) {
-                $filename = $result["fileNames"][$i];
                 $media_path = "lib/exe/fetch.php?media={$result['ns']}:$filename";
                 $data = date("d/m/Y H:i:s", filemtime($result["dest"][$i]));
-                $class = "mf_".substr($filename, -3);
 
-                $ret.= '<p><a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
-                $ret.= '<span style="white-space: nowrap;">'.$data.'</span></p>';
+                $ret.= '<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
+                $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
             }else{
-                $ret.= '<p class="media mediafile '.$class.'">No hi ha cap exportació feta del fitxer'.$result["fileNames"][$i].'</p>';
+                $mode = ($ext==="zip") ? "HTML" : "PDF";
+                $ret.= '<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer'.$result["fileNames"][$i].'</span>';
             }
         }
         $ret.= '</span>';
@@ -141,7 +88,6 @@ class ResultsWithFiles {
             $mode = "PDF";
         }
         if (@file_exists($file.$ext)) {
-            $ret = '';
             $filename = str_replace(':','_',basename($ns)).$ext;
             $media_path = "lib/exe/fetch.php?media=$ns:$filename";
             $data = date("d/m/Y H:i:s", filemtime($file.$ext));
@@ -150,7 +96,6 @@ class ResultsWithFiles {
             $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
             $ret.= '</span>'.$nP;
         }else{
-            $mode = ($ext===".zip") ? "HTML" : "PDF";
             $ret.= '<span id="exportacio">';
             $ret.= '<p class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta</p>';
             $ret.= '</span>';
