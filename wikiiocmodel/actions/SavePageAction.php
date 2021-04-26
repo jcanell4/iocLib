@@ -10,6 +10,7 @@ class SavePageAction extends RawPageAction {
     protected $deleted = FALSE;
     protected $subAction;
     private $code = 0;
+    private $fieldRevVersion;
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
@@ -23,6 +24,14 @@ class SavePageAction extends RawPageAction {
         // ALERTA[Xavi] Alguns dels params passats no es troben al $this->params
         if (isset($_REQUEST['keep_draft'])) {
             $this->params['keep_draft'] = $_REQUEST['keep_draft']==="true";
+        }
+        
+        if ($this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE] && $this->subAction === PageKeys::DW_ACT_SAVE_REV) {
+            $listRevisions = $this->getRevisionList($this->params[PageKeys::KEY_ID]);
+            if (isset($listRevisions[$this->params[PageKeys::KEY_REV]])) {
+                preg_match("/\{\".*?\":.*?\}/", $listRevisions[$this->params[PageKeys::KEY_REV]]['sum'], $match);
+                $this->fieldRevVersion = current(json_decode($match[0], TRUE));
+            }
         }
     }
 
@@ -137,12 +146,11 @@ class SavePageAction extends RawPageAction {
         if (strtoupper($this->params["editorType"]) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->getFormat()) !== 'HTML'){
             $toSave = $this->translateToDW($toSave);
         }
-        $this->dokuPageModel->setData(array(
-                                        PageKeys::KEY_WIKITEXT => $toSave,
-                                        PageKeys::KEY_SUM      => $this->params[PageKeys::KEY_SUM],
-                                        PageKeys::KEY_MINOR    => $this->params[PageKeys::KEY_MINOR])
-                                     );
-
+        $this->dokuPageModel->setData(array(PageKeys::KEY_WIKITEXT => $toSave,
+                                            PageKeys::KEY_SUM      => $this->params[PageKeys::KEY_SUM],
+                                            PageKeys::KEY_MINOR    => $this->params[PageKeys::KEY_MINOR],
+                                            PageKeys::KEY_VERSION  => $this->fieldRevVersion)
+                                           );
         //delete draft
         $this->dokuPageModel->removeFullDraft();
 
@@ -153,6 +161,21 @@ class SavePageAction extends RawPageAction {
 
         // Si s'ha eliminat el contingut de la pàgina, ho indiquem a l'atribut $deleted i desbloquegem la pàgina
         $this->deleted = $this->isEmptyText($this->params);
+
+        //Si es tracta de la Reversió d'un document de projecte iniciem el procés d'upgrade
+        if ($this->fieldRevVersion) {
+            global $plugin_controller;
+            $projectModel = $plugin_controller->getAnotherProjectModel($this->params[PageKeys::KEY_PROJECT_OWNER], $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE]);
+            $filename = array_pop(explode(":", $this->params[PageKeys::KEY_ID]));
+            $type = 'templates';
+
+            //versión establecida en el archivo configMain.json (subset correspondiente) del tipo de proyecto
+            $ver_config = $projectModel->getMetaDataAnyAttr("versions")[$type][$filename];
+
+            $upgader = new UpgradeManager($projectModel, $this->params[PageKeys::KEY_PROJECT_SOURCE_TYPE], ProjectKeys::VAL_DEFAULTSUBSET, $this->fieldRevVersion, $ver_config, $type);
+            $upgader->preProcess($this->fieldRevVersion, $ver_config, $type, $filename);
+        }
+
     }
 
     private function isEmptyText($param) {

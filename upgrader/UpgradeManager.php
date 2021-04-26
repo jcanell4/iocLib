@@ -22,7 +22,20 @@ class UpgradeManager {
         $this->validaProcessVersion($type);
     }
 
-    public function process($ver_project=0, $ver_config=0, $type="x", $key=NULL) {
+    public function preProcess($ver_project, $ver_config, $type, $key) {
+        $new_ver = $this->process($ver_project, $ver_config, $type, $key);
+        if ($key) {
+            $versions_project[$type][$key] = $new_ver;
+        }else {
+            $versions_project[$type] = $new_ver;
+        }
+        $this->model->setProjectSystemSubSetAttr("versions", $versions_project, $this->metaDataSubSet);
+        if ($new_ver < $ver_config){
+            throw new Exception("Error en l'actualització completa de la versió del projecte.");
+        }
+    }
+
+    protected function process($ver_project=0, $ver_config=0, $type="x", $key=NULL) {
         $ret = $ver_project;
         if ($ver_project) $this->ver_project = $ver_project;
         if ($ver_config) $this->ver_config = $ver_config;
@@ -44,7 +57,6 @@ class UpgradeManager {
                 break;
             }
         }
-
         return $ret;
     }
 

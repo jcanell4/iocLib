@@ -39,14 +39,13 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $params = (is_array($toSet)) ? $toSet : array(PageKeys::KEY_WIKITEXT => $toSet);
 
         //--- ATENCIÓ: Vigilar aquest id ---
-        //$params[PageKeys::KEY_ID] = ($this->id) ? $this->id : $params[PageKeys::KEY_ID];
-        if (!$params[PageKeys::KEY_ID])
+        if (!$params[PageKeys::KEY_ID]) {
             $params[PageKeys::KEY_ID] = $this->id;
-
+        }
         $this->resourceLocker->init($params);
         //mirar si està bloquejat i si no ho està => excepció
         if ($this->resourceLocker->checklock() === LockDataQuery::UNLOCKED) {
-            $this->getPageDataQuery()->save($params[PageKeys::KEY_ID], $params[PageKeys::KEY_WIKITEXT], $params[PageKeys::KEY_SUM], $params[PageKeys::KEY_MINOR], $forceSave);
+            $this->getPageDataQuery()->save($params[PageKeys::KEY_ID], $params[PageKeys::KEY_WIKITEXT], $params[PageKeys::KEY_SUM], $params[PageKeys::KEY_MINOR], $forceSave, $params[PageKeys::KEY_VERSION]);
         }else {
             throw new UnexpectedLockCodeException($params[PageKeys::KEY_ID], 'ResourceLocked');
         }
