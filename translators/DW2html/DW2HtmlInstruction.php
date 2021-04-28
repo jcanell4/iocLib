@@ -483,7 +483,7 @@ class DW2HtmlInstruction extends IocInstruction
                     return $content;
                 }
             }
-            $content = preg_replace('/>/ms', ' contenteditable="false">', $content, 1);
+            $content = preg_replace('/>/ms', ' contenteditable="false" data-readonly="true">', $content, 1);
         }
 
         return $content;
