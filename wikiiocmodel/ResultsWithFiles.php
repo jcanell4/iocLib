@@ -39,6 +39,7 @@ class ResultsWithFiles {
     }
 
     private static function _getHtmlMetadataMultiFile($result) {
+        $P = ""; $nP = "";
         $ret = '<span id="exportacio" style="word-wrap: break-word;">';
         for ($i=0; $i<count($result["fileNames"]); $i++){
             $filename = $result["fileNames"][$i];
@@ -48,12 +49,13 @@ class ResultsWithFiles {
                 $media_path = "lib/exe/fetch.php?media={$result['ns']}:$filename";
                 $data = date("d/m/Y H:i:s", filemtime($result["dest"][$i]));
 
-                $ret.= '<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
-                $ret.= '<span style="white-space: nowrap;">'.$data.'</span>';
+                $ret.= $P.'<a class="media mediafile '.$class.'" href="'.$media_path.'" target="_blank">'.$filename.'</a> ';
+                $ret.= '<span style="white-space: nowrap;">'.$data.'</span>'.$nP;
             }else{
                 $mode = ($ext==="zip") ? "HTML" : "PDF";
-                $ret.= '<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer'.$result["fileNames"][$i].'</span>';
+                $ret.= $P.'<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer'.$result["fileNames"][$i].'</span>'.$nP;
             }
+            $P = "<p>"; $nP = "</p>";
         }
         $ret.= '</span>';
         return $ret;
