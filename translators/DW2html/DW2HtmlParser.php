@@ -240,10 +240,10 @@ class DW2HtmlParser extends IocParser {
         // ALERTA[Xavi]: per ara ignorem els Readonly, el funcionament ha de ser similar als refs, afegint algun atribut
         // que bloquegi a tots els elements entre l'apertura i el tancament, serà necessari fer servir un stack
         // per ara ho ignorem perquè s'afegeixen 2 nodes: un amb el wioccl que el referència a la estructura i aquest
-        "[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["", ""], 'inline-block' => TRUE]],
-        "[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["", ""], 'inline-block' => TRUE]],
-        //"[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-xtype=\"readonly\" data-wioccl-ref=\"%d\" data-wioccl-state='open'></span>", ""], 'inline-block' => TRUE]],
-        //"[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-xtype=\"readonly\" data-readonly='close' data-wioccl-ref=\"%d\" data-wioccl-state='close'></span>", ""], 'inline-block' => TRUE]],
+//        "[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["", ""], 'inline-block' => TRUE]],
+//        "[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlMarkup', 'action' => 'self-contained', 'extra' => ['replacement' => ["", ""], 'inline-block' => TRUE]],
+        "[readonly-open]" => ['state' => 'readonly-open', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-xtype=\"readonly\" data-wioccl-state='open'></span>", ""], 'inline-block' => TRUE]],
+        "[readonly-close]" => ['state' => 'readonly-close', 'type' => 'readonly', 'class' => 'DW2HtmlReadonly', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-xtype=\"readonly\" data-readonly='close' data-wioccl-state='close'></span>", ""], 'inline-block' => TRUE]],
 
 
         "\\[ref=(.*?)\\]" => ['state' => 'ref-open', 'type' => 'wioccl', 'class' => 'DW2HtmlRef', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-ref=\"%d\" data-wioccl-state='open'></span>", ""], 'regex' => TRUE, 'inline-block' => TRUE]],

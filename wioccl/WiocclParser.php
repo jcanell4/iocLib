@@ -235,6 +235,8 @@ class WiocclParser extends IocParser
     public static $generateStructure = false;
     public static $structureStack = [];
 
+    public static $readonlyStack = 0;
+
     public static $debugStructure = false;
 
     public static $cloning = false;
