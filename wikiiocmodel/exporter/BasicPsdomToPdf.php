@@ -650,6 +650,7 @@ class BasicIocTcPdf extends TCPDF{
                         } else {
                             $this->x += $mc_margin['L'];
                         }
+                        $border_start = $border_end = $border_middle = 0;
                         if ($startcolumn == $endcolumn) { // single column
                             $cborder = $border;
                             $h = max($h, ($endY - $oy));
