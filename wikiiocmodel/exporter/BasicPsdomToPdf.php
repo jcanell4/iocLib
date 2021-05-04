@@ -639,6 +639,7 @@ class BasicIocTcPdf extends TCPDF{
                         $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
                     }
                 }
+                $border_start = $border_end = $border_middle = 0;
                 if ($startpage == $endpage) {
                     // single page
                     for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
@@ -650,7 +651,6 @@ class BasicIocTcPdf extends TCPDF{
                         } else {
                             $this->x += $mc_margin['L'];
                         }
-                        $border_start = $border_end = $border_middle = 0;
                         if ($startcolumn == $endcolumn) { // single column
                             $cborder = $border;
                             $h = max($h, ($endY - $oy));
