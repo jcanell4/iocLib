@@ -355,6 +355,78 @@ class BasicIocTcPdf extends TCPDF{
         $this->nexStyletAttributes = array();
         return $ret;
     }
+    
+    public function getHtmlBorderFromCurrentStyle($pb=FALSE, $color=FALSE){
+        $ret="";
+        $cssAtt = ["border-top", "border-right", "border-bottom", "border-left"];
+        $hasBorder = $this->getHasBorderFromCurrentStyle($pb);
+        $colorBorder = $this->getColorBorderFromCurrentStyle($color);
+        $id=0;
+        foreach ($hasBorder as $hasBorderValue) {
+            if($hasBorderValue){
+                if(empty($ret)){
+                    $ret .= "{$cssAtt[$id]}:1px solid {$colorBorder[$id]};";
+                }else{
+                    $ret .= " ";
+                }
+            }
+            $id++;
+        }
+        return $ret;
+    }
+    
+    private function getHasBorderFromCurrentStyle($pb=FALSE){
+        if(is_array($pb)){
+            $allBordeStyr  = FALSE;
+            $bt = $pb["top"];
+            $br = $pb["right"];
+            $bb = $pb["bottom"];
+            $bl = $pb["left"];
+        }elseif(is_bool($bb)){
+            $allBordeStyr  = $pb;
+            $bt = FALSE;
+            $br = FALSE;
+            $bb = FALSE;
+            $bl = FALSE;
+        }else{
+            $allBordeStyr  = FALSE;
+            $bl = FALSE;
+            $bt = FALSE;
+            $br = FALSE;
+            $bb = FALSE;
+        }
+        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, $allBordeStyr);
+        $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBordeStyr||$bt);
+        $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBordeStyr||$br);
+        $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBordeStyr||$bb);
+        $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr||$bl);
+        return [$bt, $br, $bb, $bl];
+    }
+
+    private function getColorBorderFromCurrentStyle($color=FALSE){
+        if(is_string($color)){
+            $allBordeStyr  = $color;
+        }else{
+            $allBordeStyr  = FALSE;
+        }
+        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
+        if(!$allBordeStyr  && is_array($color)){
+            $bl = $color["left"];
+            $bt = $color["top"];
+            $br = $color["right"];
+            $bb = $color["bottom"];            
+        }else{
+            $bl = $allBordeStyr;
+            $bt = $allBordeStyr;
+            $br = $allBordeStyr;
+            $bb = $allBordeStyr;            
+        }
+        $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $bl);
+        $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $bt);
+        $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $br);
+        $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $bb);
+        return [$bl, $bt, $br, $bb];
+    }
 
     public function setBorderFromCurrentStyle(){
         $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
@@ -427,7 +499,7 @@ class BasicIocTcPdf extends TCPDF{
             $this->nexStyletAttributes[TcPdfStyle::POSITION_Y] = $y;
         }
     }
-
+    
     public function setFontFromCurrentStyle($fontNameDef="helvetica", $fontAttrDef="", $fontSizeDef=10){
         $fontName = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_NAME, $fontNameDef);
         $fontAttr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_ATTR, $fontAttrDef);
@@ -1433,23 +1505,27 @@ class BasicPdfRenderer {
                     for ($i=0; $i<count($e); $i++) $t += $e[$i];
                     for ($i=0; $i<count($e); $i++) $this->tablewidths[$i] = $e[$i] * 100 / $t;
                 }
-                $ret = "<div nobr=\"true\">";
+                $ret = "<div nobr=\"true\">";  //Llegir des de l'atribut NOBR del main.stypdf
                 if ($content["title"]) {
                     $this->style->goInTextContainer($content["type"], "title");
-                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center");
+                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
+                    //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
+                    //assignar l'atribut background-color de l'estil css  llegint des de background-color
                     $ret .= "<h4 style=\"text-align:{$align};\">Taula {$this->tableReferences[$content["id"]]}. {$content["title"]}</h4>";
                     $this->style->goOutTextContainer();
                 }
 
-                $this->style->goInTextContainer($content["type"]);
-                $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();
+                $this->style->goInTextContainer($content["type"]);  //NO ÉS CORRECTE! Cal assignat la classe
+                //$this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();  //CREC que no s'ha de fer
                 $ret .= $this->getStructuredContent($content);
                 $this->style->goOutTextContainer();
 
                 if ($content["footer"]) {
                     $this->style->goInTextContainer($content["type"], "footer");
-                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "justify");
-                    $size = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, "80%");
+                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "justify"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
+                    $size = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, "80%");  //Només s'accepten PIXELS!
+                    //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
+                    //assignar l'atribut background-color de l'estil css  llegint des de background-color
                     if ($content["title"]) {
                         $ret .= "<p style=\"text-align:{$align}; font-size:{$size};\">".$content["footer"]."</p>";
                     }else {
@@ -1460,7 +1536,7 @@ class BasicPdfRenderer {
                 $ret .= "</div>";
                 break;
             case TableNodeDoc::TABLE_TYPE:
-                $this->style->goInTextContainer($content["type"], TableNodeDoc::TABLE_TYPE);
+                $this->style->goInTextContainer($content["type"], TableNodeDoc::TABLE_TYPE); //En aquest cas TABLE_TYPE és contenidor =>  $this->style->goInTextContainer(TableNodeDoc::TABLE_TYPE);
                 $cellpadding = $this->style->getCurrentContainerStyleAttr("cellpadding", 5);
                 $ret = "<table cellpadding={$cellpadding}>".$this->getStructuredContent($content)."</table>";
                 $this->style->goOutTextContainer();
@@ -1476,16 +1552,17 @@ class BasicPdfRenderer {
                 break;
             case CellNodeDoc::TABLEHEADER_TYPE:
                 $this->isTableHeader = true;
-                $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLEHEADER_TYPE);
-                $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center");
-                $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");
-                $border = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, "1px solid black");
-                $bordercollapse = $this->style->getCurrentContainerStyleAttr("border-collapse", "collapse");
-                $fontweight = $this->style->getCurrentContainerStyleAttr(font-weight, "bold");
+                $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLEHEADER_TYPE);  //En aquest cas TABLEHEADER_TYPE és contenidor =>
+                $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
+                $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");  
+                $border = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, "1px solid black"); //Usar $this->iocTcPdf->getHtmlBorderFromCurretStyle i fer servir $content["hasBorder"] com a valor per defecte
+                $bordercollapse = $this->style->getCurrentContainerStyleAttr("border-collapse", "collapse"); //Atribut no existent a main.stypdf
+                $fontweight = $this->style->getCurrentContainerStyleAttr(font-weight, "bold");  //Atribut no existent a main.stypdf
+                //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
                 $backgroundcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#F0F0F0");
                 $this->style->goOutTextContainer();
-                $style = " style=\"" . (($content["hasBorder"]) ? "border:{$border}; border-collapse:{$bordercollapse};" : "");
-                $style.= "{$align} font-weight:{$fontweight}; background-color:{$backgroundcolor};\"";
+                $style = " style=\"" . (($content["hasBorder"]) ? "border:{$border}; border-collapse:{$bordercollapse};" : "");  //Mana $border sempre. $content["hasBorder"] es fa servir per defeecte no com a condició!
+                $style.= "{$align} font-weight:{$fontweight}; background-color:{$backgroundcolor};\""; // Redefinir des de font
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
                 $width = $this->cellWhidth($content["colspan"]);
@@ -1499,7 +1576,7 @@ class BasicPdfRenderer {
                     $this->aSpan = array();
                     $this->nRow = 0;
                 }
-                $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLECELL_TYPE);
+                $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLECELL_TYPE);  //En aquest cas TABLECELL_TYPE és contenidor =>
                 $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center");
                 $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");
                 $border = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, "1px solid black");
