@@ -356,19 +356,51 @@ class BasicIocTcPdf extends TCPDF{
         return $ret;
     }
     
+    public function getHtmFontAttributeFromCurrentStyle($attribute="") {
+        //font: font-style font-variant font-weight font-size/line-height font-family
+        $listWeight = ["B"=>"bold"];
+        $listStyle = ["I"=>"italic"];
+        $listDecoration = ["U"=>"underline", "D"=>"line through", "O"=>"overline"];
+        $style = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_ATTR, $attribute);
+        if (array_key_exists($style, $listWeight)) {
+            $ret = "font-weight:" . $listWeight[$style] . ";";
+        }
+        if (array_key_exists($style, $listStyle)) {
+            $ret .= "font-style:" . $listStyle[$style] . ";";
+        }
+        if (array_key_exists($style, $listDecoration)) {
+            $ret .= "text-decoration:" . $listDecoration[$style] . ";";
+        }
+        if ($ret == NULL) {
+            if (in_array($attribute, $listWeight)) {
+                $ret = "font-weight:{$attribute};";
+            }
+            if (in_array($attribute, $listStyle)) {
+                $ret .= "font-style:{$attribute};";
+            }
+            if (in_array($attribute, $listDecoration)) {
+                $ret .= "text-decoration:{$attribute};";
+            }
+        }
+        return (!$ret) ? "" : $ret;
+    }
+
+    public function getHtmAlignFromCurrentStyle($align="") {
+        $list = ["L"=>"left", "C"=>"center", "R"=>"right", "J"=>"justify"];
+        $style = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, $align);
+        $ret = (array_key_exists($style, $list)) ? $list[$style] : $align;
+        return $ret;
+    }
+
     public function getHtmlBorderFromCurrentStyle($pb=FALSE, $color=FALSE){
-        $ret="";
+        $ret = "";
         $cssAtt = ["border-top", "border-right", "border-bottom", "border-left"];
         $hasBorder = $this->getHasBorderFromCurrentStyle($pb);
         $colorBorder = $this->getColorBorderFromCurrentStyle($color);
-        $id=0;
+        $id = 0;
         foreach ($hasBorder as $hasBorderValue) {
-            if($hasBorderValue){
-                if(empty($ret)){
-                    $ret .= "{$cssAtt[$id]}:1px solid {$colorBorder[$id]};";
-                }else{
-                    $ret .= " ";
-                }
+            if ($hasBorderValue) {
+                $ret .= trim("{$cssAtt[$id]}:1px solid {$colorBorder[$id]}").";";
             }
             $id++;
         }
@@ -377,70 +409,70 @@ class BasicIocTcPdf extends TCPDF{
     
     private function getHasBorderFromCurrentStyle($pb=FALSE){
         if(is_array($pb)){
-            $allBordeStyr  = FALSE;
+            $allBorderSty  = FALSE;
             $bt = $pb["top"];
             $br = $pb["right"];
             $bb = $pb["bottom"];
             $bl = $pb["left"];
         }elseif(is_bool($bb)){
-            $allBordeStyr  = $pb;
+            $allBorderSty  = $pb;
             $bt = FALSE;
             $br = FALSE;
             $bb = FALSE;
             $bl = FALSE;
         }else{
-            $allBordeStyr  = FALSE;
+            $allBorderSty  = FALSE;
             $bl = FALSE;
             $bt = FALSE;
             $br = FALSE;
             $bb = FALSE;
         }
-        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, $allBordeStyr);
-        $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBordeStyr||$bt);
-        $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBordeStyr||$br);
-        $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBordeStyr||$bb);
-        $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr||$bl);
+        $allBorderSty = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, $allBorderSty);
+        $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBorderSty||$bt);
+        $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBorderSty||$br);
+        $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBorderSty||$bb);
+        $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBorderSty||$bl);
         return [$bt, $br, $bb, $bl];
     }
 
     private function getColorBorderFromCurrentStyle($color=FALSE){
-        if(is_string($color)){
-            $allBordeStyr  = $color;
-        }else{
-            $allBordeStyr  = FALSE;
+        if (is_string($color)){
+            $allBorderSty = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDERCOLOR, $color);
+            if (!$allBorderSty && is_array($color)) {
+                $bl = $color["left"];
+                $bt = $color["top"];
+                $br = $color["right"];
+                $bb = $color["bottom"];
+            }else {
+                $bl = $allBorderSty;
+                $bt = $allBorderSty;
+                $br = $allBorderSty;
+                $bb = $allBorderSty;
+            }
+            $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $bl);
+            $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $bt);
+            $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $br);
+            $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $bb);
+            $ret = [$bl, $bt, $br, $bb];
+        }else {
+            $ret = ["", "", "", ""];
         }
-        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
-        if(!$allBordeStyr  && is_array($color)){
-            $bl = $color["left"];
-            $bt = $color["top"];
-            $br = $color["right"];
-            $bb = $color["bottom"];            
-        }else{
-            $bl = $allBordeStyr;
-            $bt = $allBordeStyr;
-            $br = $allBordeStyr;
-            $bb = $allBordeStyr;            
-        }
-        $bl = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $bl);
-        $bt = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $bt);
-        $br = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $br);
-        $bb = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $bb);
-        return [$bl, $bt, $br, $bb];
+        return $ret;
     }
 
     public function setBorderFromCurrentStyle(){
-        $allBordeStyr = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
+        $allBorderSty = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, FALSE);
         $border = "";
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBordeStyr)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_LEFT, $allBorderSty)){
             $border.="L";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBordeStyr)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_TOP, $allBorderSty)){
             $border.="T";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBordeStyr)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_RIGHT, $allBorderSty)){
             $border.="R";
         }
-        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBordeStyr)){
+        if($this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER_BOTTOM, $allBorderSty)){
             $border.="B";
         }
         if(!empty($border)){
@@ -477,8 +509,6 @@ class BasicIocTcPdf extends TCPDF{
         $this->setFillColorFromCurrentStyle();
         $this->setPositonFromCurrentStyle();        
     }
-
-
 
     public function setFillColorFromCurrentStyle(){
         $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, FALSE);
@@ -567,8 +597,6 @@ class BasicIocTcPdf extends TCPDF{
     }
 
     public function writeHTMLCell($w, $h, $x, $y, $html='', $border=0, $ln=0, $fill=false, $reseth=true, $align='', $autopadding=true) {
-        $prev_cell_margin = $this->cell_margin;
-        $prev_cell_padding = $this->cell_padding;
         // adjust internal padding
         $this->adjustCellPadding($border);
         $extraHeight = $this->getCellHeight($this->getFontSize(), false);
@@ -581,14 +609,13 @@ class BasicIocTcPdf extends TCPDF{
         $ox = (!TCPDF_STATIC::empty_string($x)?$x: $this->GetX());
         $w=$w-$mc_padding["R"];
 
-//        $ret = $this->MultiCell($w, $h, $html, $border, $align, $fill, $ln, $x, $y, $reseth, 4, true, $autopadding, 0, 'T', false);
+      //$ret = $this->MultiCell($w, $h, $html, $border, $align, $fill, $ln, $x, $y, $reseth, 4, true, $autopadding, 0, 'T', false);
         $ret = $this->MultiCell($w, $h, $html, 0, $align, false, $ln, $x, $y, $reseth, 4, true, $autopadding, 0, 'T', false);
 
         $this->setCellPaddings(0, 0, 0, 0);
         $this->setCellMargins(0, 0, 0, 0);
 
         if($border || $fill){
-//            $this->SetFillColor(0, 128, 0);
             $w += $mc_padding["R"];
             $endpage = $this->getPage();
             $endcolumn = $this->current_column;
@@ -600,144 +627,144 @@ class BasicIocTcPdf extends TCPDF{
                 $ccode = '';
                 $this->setPage($page);
                 if ($this->num_columns < 2) {
-                        // single-column mode
-                        $this->SetX($ox);
-                        $this->y = $this->tMargin;
+                    // single-column mode
+                    $this->SetX($ox);
+                    $this->y = $this->tMargin;
                 }
                 // account for margin changes
                 if ($page > $startpage) {
-                        if (($this->rtl) AND ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-                                $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-                        } elseif ((!$this->rtl) AND ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
-                                $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
-                        }
+                    if (($this->rtl) AND ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
+                        $this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
+                    } elseif ((!$this->rtl) AND ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+                        $this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+                    }
                 }
                 if ($startpage == $endpage) {
-                        // single page
-                        for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
-                                if ($column != $this->current_column) {
-                                        $this->selectColumn($column);
-                                }
-                                if ($this->rtl) {
-                                        $this->x -= $mc_margin['R'];
-                                } else {
-                                        $this->x += $mc_margin['L'];
-                                }
-                                if ($startcolumn == $endcolumn) { // single column
-                                        $cborder = $border;
-                                        $h = max($h, ($endY - $oy));
-                                        $this->y = $oy;
-                                } elseif ($column == $startcolumn) { // first column
-                                        $cborder = $border_start;
-                                        $this->y = $oy;
-                                        $h = $this->h - $this->y - $this->bMargin;
-                                } elseif ($column == $endcolumn) { // end column
-                                        $cborder = $border_end;
-                                        $h = $endY - $this->y;
-                                        if ($resth > $h) {
-                                                $h = $resth;
-                                        }
-                                } else { // middle column
-                                        $cborder = $border_middle;
-                                        $h = $this->h - $this->y - $this->bMargin;
-                                        $resth -= $h;
-                                }
-                                $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-                        } // end for each column
+                    // single page
+                    for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
+                        if ($column != $this->current_column) {
+                            $this->selectColumn($column);
+                        }
+                        if ($this->rtl) {
+                            $this->x -= $mc_margin['R'];
+                        } else {
+                            $this->x += $mc_margin['L'];
+                        }
+                        if ($startcolumn == $endcolumn) { // single column
+                            $cborder = $border;
+                            $h = max($h, ($endY - $oy));
+                            $this->y = $oy;
+                        } elseif ($column == $startcolumn) { // first column
+                            $cborder = $border_start;
+                            $this->y = $oy;
+                            $h = $this->h - $this->y - $this->bMargin;
+                        } elseif ($column == $endcolumn) { // end column
+                            $cborder = $border_end;
+                            $h = $endY - $this->y;
+                            if ($resth > $h) {
+                                $h = $resth;
+                            }
+                        } else { // middle column
+                            $cborder = $border_middle;
+                            $h = $this->h - $this->y - $this->bMargin;
+                            $resth -= $h;
+                        }
+                        $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+                    } // end for each column
                 } elseif ($page == $startpage) { // first page
-                        for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
-                                if ($column != $this->current_column) {
-                                        $this->selectColumn($column);
-                                }
-                                if ($this->rtl) {
-                                        $this->x -= $mc_margin['R'];
-                                } else {
-                                        $this->x += $mc_margin['L'];
-                                }
-                                if ($column == $startcolumn) { // first column
-                                        $cborder = $border_start;
-                                        $this->y = $oy;
-                                        $h = $this->h - $this->y - $this->bMargin;
-                                } else { // middle column
-                                        $cborder = $border_middle;
-                                        $h = $this->h - $this->y - $this->bMargin;
-                                        $resth -= $h;
-                                }
-                                $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-                        } // end for each column
+                    for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
+                        if ($column != $this->current_column) {
+                            $this->selectColumn($column);
+                        }
+                        if ($this->rtl) {
+                            $this->x -= $mc_margin['R'];
+                        } else {
+                            $this->x += $mc_margin['L'];
+                        }
+                        if ($column == $startcolumn) { // first column
+                            $cborder = $border_start;
+                            $this->y = $oy;
+                            $h = $this->h - $this->y - $this->bMargin;
+                        } else { // middle column
+                            $cborder = $border_middle;
+                            $h = $this->h - $this->y - $this->bMargin;
+                            $resth -= $h;
+                        }
+                        $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+                    } // end for each column
                 } elseif ($page == $endpage) { // last page
-                        for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
-                                if ($column != $this->current_column) {
-                                        $this->selectColumn($column);
-                                }
-                                if ($this->rtl) {
-                                        $this->x -= $mc_margin['R'];
-                                } else {
-                                        $this->x += $mc_margin['L'];
-                                }
-                                if ($column == $endcolumn) {
-                                        // end column
-                                        $cborder = $border_end;
-                                        $h = $endY - $this->y;
-                                        if ($resth > $h) {
-                                                $h = $resth;
-                                        }
-                                } else {
-                                        // middle column
-                                        $cborder = $border_middle;
-                                        $h = $this->h - $this->y - $this->bMargin;
-                                        $resth -= $h;
-                                }
-                                $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-                        } // end for each column
+                    for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
+                        if ($column != $this->current_column) {
+                            $this->selectColumn($column);
+                        }
+                        if ($this->rtl) {
+                            $this->x -= $mc_margin['R'];
+                        } else {
+                            $this->x += $mc_margin['L'];
+                        }
+                        if ($column == $endcolumn) {
+                            // end column
+                            $cborder = $border_end;
+                            $h = $endY - $this->y;
+                            if ($resth > $h) {
+                                $h = $resth;
+                            }
+                        } else {
+                            // middle column
+                            $cborder = $border_middle;
+                            $h = $this->h - $this->y - $this->bMargin;
+                            $resth -= $h;
+                        }
+                        $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+                    } // end for each column
                 } else { // middle page
-                        for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
-                                $this->selectColumn($column);
-                                if ($this->rtl) {
-                                        $this->x -= $mc_margin['R'];
-                                } else {
-                                        $this->x += $mc_margin['L'];
-                                }
-                                $cborder = $border_middle;
-                                $h = $this->h - $this->y - $this->bMargin;
-                                $resth -= $h;
-                                $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-                        } // end for each column
+                    for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+                        $this->selectColumn($column);
+                        if ($this->rtl) {
+                            $this->x -= $mc_margin['R'];
+                        } else {
+                            $this->x += $mc_margin['L'];
+                        }
+                        $cborder = $border_middle;
+                        $h = $this->h - $this->y - $this->bMargin;
+                        $resth -= $h;
+                        $ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+                    } // end for each column
                 }
                 if ($cborder OR $fill) {
-                        $offsetlen = strlen($ccode);
-                        // draw border and fill
-                        if ($this->inxobj) {
-                                // we are inside an XObject template
-                                if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-                                        $pagemarkkey = key($this->xobjects[$this->xobjid]['transfmrk']);
-                                        $pagemark = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
-                                        $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
-                                } else {
-                                        $pagemark = $this->xobjects[$this->xobjid]['intmrk'];
-                                        $this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
-                                }
-                                $pagebuff = $this->xobjects[$this->xobjid]['outdata'];
-                                $pstart = substr($pagebuff, 0, $pagemark);
-                                $pend = substr($pagebuff, $pagemark);
-                                $this->xobjects[$this->xobjid]['outdata'] = $pstart.$ccode.$pend;
+                    $offsetlen = strlen($ccode);
+                    // draw border and fill
+                    if ($this->inxobj) {
+                        // we are inside an XObject template
+                        if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
+                            $pagemarkkey = key($this->xobjects[$this->xobjid]['transfmrk']);
+                            $pagemark = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
+                            $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
                         } else {
-                                if (end($this->transfmrk[$this->page]) !== false) {
-                                        $pagemarkkey = key($this->transfmrk[$this->page]);
-                                        $pagemark = $this->transfmrk[$this->page][$pagemarkkey];
-                                        $this->transfmrk[$this->page][$pagemarkkey] += $offsetlen;
-                                } elseif ($this->InFooter) {
-                                        $pagemark = $this->footerpos[$this->page];
-                                        $this->footerpos[$this->page] += $offsetlen;
-                                } else {
-                                        $pagemark = $this->intmrk[$this->page];
-                                        $this->intmrk[$this->page] += $offsetlen;
-                                }
-                                $pagebuff = $this->getPageBuffer($this->page);
-                                $pstart = substr($pagebuff, 0, $pagemark);
-                                $pend = substr($pagebuff, $pagemark);
-                                $this->setPageBuffer($this->page, $pstart.$ccode.$pend);
+                            $pagemark = $this->xobjects[$this->xobjid]['intmrk'];
+                            $this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
                         }
+                        $pagebuff = $this->xobjects[$this->xobjid]['outdata'];
+                        $pstart = substr($pagebuff, 0, $pagemark);
+                        $pend = substr($pagebuff, $pagemark);
+                        $this->xobjects[$this->xobjid]['outdata'] = $pstart.$ccode.$pend;
+                    } else {
+                        if (end($this->transfmrk[$this->page]) !== false) {
+                            $pagemarkkey = key($this->transfmrk[$this->page]);
+                            $pagemark = $this->transfmrk[$this->page][$pagemarkkey];
+                            $this->transfmrk[$this->page][$pagemarkkey] += $offsetlen;
+                        } elseif ($this->InFooter) {
+                            $pagemark = $this->footerpos[$this->page];
+                            $this->footerpos[$this->page] += $offsetlen;
+                        } else {
+                            $pagemark = $this->intmrk[$this->page];
+                            $this->intmrk[$this->page] += $offsetlen;
+                        }
+                        $pagebuff = $this->getPageBuffer($this->page);
+                        $pstart = substr($pagebuff, 0, $pagemark);
+                        $pend = substr($pagebuff, $pagemark);
+                        $this->setPageBuffer($this->page, $pstart.$ccode.$pend);
+                    }
                 }
             } // end for each page
 
@@ -974,7 +1001,8 @@ class BasicPdfRenderer {
                     $b = $this->_getBorderAttrFromCurrentStyle(FALSE, "#000");
                     $style = "$styleOp $b\"";                    
                 }
-                $ret = "<div $style nobr=\"true\">";
+                $nobr = $this->style->getCurrentContainerStyleAttr("nobr", "true");
+                $ret = "<div $style nobr=\"{$nobr}\">";
                 if ($content['title']) {
                     $this->style->goInTextContainer($content["type"], "title");
                     $fa = $this->_getFontAttrFromCurrentStyle(FALSE, "B", FALSE);
@@ -1479,7 +1507,8 @@ class BasicPdfRenderer {
                             $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#ccc");
                             $bc = " background-color: $bcolor;";
                         }
-                        $ret = "<div nobr=\"true\" style=\"$bc\">";
+                        $nobr = $this->style->getCurrentContainerStyleAttr("nobr", "true");
+                        $ret = "<div nobr=\"{$nobr}\" style=\"$bc\">";
                         $ret .= self::getStructuredContent($content);
                         $ret .= "</div>";
                         break;
@@ -1488,7 +1517,8 @@ class BasicPdfRenderer {
                     case IocElemNodeDoc::IOC_ELEM_TYPE_NOTE:
                     case IocElemNodeDoc::IOC_ELEM_TYPE_REF:
                         $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#ccc");
-                        $ret = "<div nobr=\"true\" style=\"background-color: $bcolor;\">$aux";
+                        $nobr = $this->style->getCurrentContainerStyleAttr("nobr", "true");
+                        $ret = "<div nobr=\"{$nobr}\" style=\"background-color:$bcolor;\">$aux";
                         $ret .= $this->getStructuredContent($content);
                         $ret .= "</div>";
                         break;
@@ -1505,31 +1535,32 @@ class BasicPdfRenderer {
                     for ($i=0; $i<count($e); $i++) $t += $e[$i];
                     for ($i=0; $i<count($e); $i++) $this->tablewidths[$i] = $e[$i] * 100 / $t;
                 }
-                $ret = "<div nobr=\"true\">";  //Llegir des de l'atribut NOBR del main.stypdf
+                $nobr = $this->style->getCurrentContainerStyleAttr("nobr", "true");
+                $ret = "<div nobr=\"{$nobr}\">";
                 if ($content["title"]) {
                     $this->style->goInTextContainer($content["type"], "title");
-                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
-                    //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
-                    //assignar l'atribut background-color de l'estil css  llegint des de background-color
+                    $align = $this->iocTcPdf->getHtmAlignFromCurrentStyle("center");
                     $ret .= "<h4 style=\"text-align:{$align};\">Taula {$this->tableReferences[$content["id"]]}. {$content["title"]}</h4>";
                     $this->style->goOutTextContainer();
                 }
 
-                $this->style->goInTextContainer($content["type"]);  //NO ÉS CORRECTE! Cal assignat la classe
-                //$this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();  //CREC que no s'ha de fer
+                $aTypes = array_reverse(explode(",", $content["types"]));
+                foreach ($aTypes as $types) {
+                    $this->style->goInTextContainer($content["type"], $types);
+                }
                 $ret .= $this->getStructuredContent($content);
-                $this->style->goOutTextContainer();
+                foreach ($aTypes as $types) {
+                    $this->style->goOutTextContainer();
+                }
 
                 if ($content["footer"]) {
                     $this->style->goInTextContainer($content["type"], "footer");
-                    $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "justify"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
-                    $size = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, "80%");  //Només s'accepten PIXELS!
-                    //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
-                    //assignar l'atribut background-color de l'estil css  llegint des de background-color
+                    $align = $this->iocTcPdf->getHtmAlignFromCurrentStyle("justify");
+                    $size = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, 12);
                     if ($content["title"]) {
-                        $ret .= "<p style=\"text-align:{$align}; font-size:{$size};\">".$content["footer"]."</p>";
+                        $ret .= "<p style=\"text-align:{$align}; font-size:{$size}px;\">".$content["footer"]."</p>";
                     }else {
-                        $ret .= "<p style=\"text-align:{$align}; font-size:{$size};\"> Taula ".$this->tableReferences[$content["id"]].". ".$content["footer"]."</p>";
+                        $ret .= "<p style=\"text-align:{$align}; font-size:{$size}px;\"> Taula ".$this->tableReferences[$content["id"]].". ".$content["footer"]."</p>";
                     }
                     $this->style->goOutTextContainer();
                 }
@@ -1553,16 +1584,13 @@ class BasicPdfRenderer {
             case CellNodeDoc::TABLEHEADER_TYPE:
                 $this->isTableHeader = true;
                 $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLEHEADER_TYPE);  //En aquest cas TABLEHEADER_TYPE és contenidor =>
-                $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center"); //Arriba com a L/C/R/J i cal traduir a HTML compatible
-                $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");  
-                $border = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, "1px solid black"); //Usar $this->iocTcPdf->getHtmlBorderFromCurretStyle i fer servir $content["hasBorder"] com a valor per defecte
-                $bordercollapse = $this->style->getCurrentContainerStyleAttr("border-collapse", "collapse"); //Atribut no existent a main.stypdf
-                $fontweight = $this->style->getCurrentContainerStyleAttr(font-weight, "bold");  //Atribut no existent a main.stypdf
-                //assignar l'atribut font de l'estil css  llegint des de (font-name, font-size, font-color i font-attribute)
+                $align = "text-align:" . (($content["align"]) ? $content["align"] : $this->iocTcPdf->getHtmAlignFromCurrentStyle("center")) . ";";
+                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"]);
+                $fontweight = $this->iocTcPdf->getHtmFontAttributeFromCurrentStyle("bold");
                 $backgroundcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#F0F0F0");
                 $this->style->goOutTextContainer();
-                $style = " style=\"" . (($content["hasBorder"]) ? "border:{$border}; border-collapse:{$bordercollapse};" : "");  //Mana $border sempre. $content["hasBorder"] es fa servir per defeecte no com a condició!
-                $style.= "{$align} font-weight:{$fontweight}; background-color:{$backgroundcolor};\""; // Redefinir des de font
+                $style = " style=\"" . (($border) ? "border:{$border}; border-collapse:collapse;" : "");
+                $style.= "{$align} {$fontweight} background-color:{$backgroundcolor};\""; // Redefinir des de font
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
                 $width = $this->cellWhidth($content["colspan"]);
@@ -1577,12 +1605,11 @@ class BasicPdfRenderer {
                     $this->nRow = 0;
                 }
                 $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLECELL_TYPE);  //En aquest cas TABLECELL_TYPE és contenidor =>
-                $align = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::ALIGN, "center");
+                $align = $this->iocTcPdf->getHtmAlignFromCurrentStyle("center");
                 $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");
-                $border = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BORDER, "1px solid black");
-                $bordercollapse = $this->style->getCurrentContainerStyleAttr("border-collapse", "collapse");
+                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"]);
                 $this->style->goOutTextContainer();
-                $style = " style=\"" . (($content["hasBorder"]) ? "border:{$border}; border-collapse:{$bordercollapse};" : "");
+                $style = " style=\"" . (($border) ? "border:{$border}; border-collapse:collapse;" : "");
                 $style.= "{$align}\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
