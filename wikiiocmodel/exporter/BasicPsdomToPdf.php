@@ -1585,11 +1585,11 @@ class BasicPdfRenderer {
                 $this->isTableHeader = true;
                 $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLEHEADER_TYPE);  //En aquest cas TABLEHEADER_TYPE és contenidor =>
                 $align = "text-align:" . (($content["align"]) ? $content["align"] : $this->iocTcPdf->getHtmAlignFromCurrentStyle("center")) . ";";
-                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"]);
+                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"], "#000");
                 $fontweight = $this->iocTcPdf->getHtmFontAttributeFromCurrentStyle("bold");
                 $backgroundcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#F0F0F0");
                 $this->style->goOutTextContainer();
-                $style = " style=\"" . (($border) ? "border:{$border}; border-collapse:collapse;" : "");
+                $style = " style=\"" . (($border) ? "{$border} border-collapse:collapse;" : "");
                 $style.= "{$align} {$fontweight} background-color:{$backgroundcolor};\""; // Redefinir des de font
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
@@ -1607,9 +1607,9 @@ class BasicPdfRenderer {
                 $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLECELL_TYPE);  //En aquest cas TABLECELL_TYPE és contenidor =>
                 $align = $this->iocTcPdf->getHtmAlignFromCurrentStyle("center");
                 $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");
-                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"]);
+                $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"], "#000");
                 $this->style->goOutTextContainer();
-                $style = " style=\"" . (($border) ? "border:{$border}; border-collapse:collapse;" : "");
+                $style = " style=\"" . (($border) ? "{$border} border-collapse:collapse;" : "");
                 $style.= "{$align}\"";
                 $colspan = $content["colspan"]>1 ? ' colspan="'.$content["colspan"].'"' : "";
                 $rowspan = $content["rowspan"]>1 ? ' rowspan="'.$content["rowspan"].'"' : "";
