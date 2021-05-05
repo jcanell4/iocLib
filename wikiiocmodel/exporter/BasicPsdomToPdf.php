@@ -1526,6 +1526,7 @@ class BasicPdfRenderer {
                 }
                 $this->style->goOutTextContainer();
                 break;
+            
             case TableFrame::FRAME_TABLE:
             case TableFrame::TABLEFRAME_TYPE_TABLE:
             case TableFrame::TABLEFRAME_TYPE_ACCOUNTING:
@@ -1606,8 +1607,7 @@ class BasicPdfRenderer {
                     $this->nRow = 0;
                 }
                 $this->style->goInTextContainer($content["type"], CellNodeDoc::TABLECELL_TYPE);  //En aquest cas TABLECELL_TYPE és contenidor =>
-                $align = $this->iocTcPdf->getHtmAlignFromCurrentStyle("center");
-                $align = "text-align:" . (($content["align"]) ? "{$content["align"]};" : "{$align};");
+                $align = "text-align:" . (($content["align"]) ? $content["align"] : $this->iocTcPdf->getHtmAlignFromCurrentStyle("center")) . ";";
                 $border = $this->iocTcPdf->getHtmlBorderFromCurrentStyle($content["hasBorder"], "#000");
                 $this->style->goOutTextContainer();
                 $style = " style=\"" . (($border) ? "{$border} border-collapse:collapse;" : "");
@@ -1619,6 +1619,7 @@ class BasicPdfRenderer {
                 $this->nColInRow += $content["colspan"];
                 $ret = "<td$colspan$rowspan$style$width>".$this->getStructuredContent($content)."</td>";
                 break;
+                
             case TextNodeDoc::HTML_TEXT_TYPE:
                 $ret = $this->getTextContent($content);
                 break;
