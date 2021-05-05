@@ -963,7 +963,7 @@ class BasicPdfRenderer {
         }else {
             $ret = $this->getContent($content);
         }
-        $this->_cleanWriteHTML($ret, $iocTcPdf);                            
+        $this->_cleanWriteHTML($ret, $iocTcPdf);
 
         if ($content["type"] == StructuredNodeDoc::ORDERED_LIST_TYPE
                 || $content["type"] == StructuredNodeDoc::UNORDERED_LIST_TYPE
