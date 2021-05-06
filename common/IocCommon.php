@@ -263,4 +263,17 @@ class IocCommon {
         }
         return $ret;
     }
+
+    // Busca si algún elemento de $array1 está incluido en $array2
+    public function array_in_array($array1, $array2) {
+        $has = FALSE;
+        foreach ($array1 as $elem) {
+            if (in_array($elem, $array2)) {
+                $has = TRUE;
+                break;
+            }
+        }
+        return $has;
+    }
+
 }
