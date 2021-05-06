@@ -421,7 +421,7 @@ class BasicIocTcPdf extends TCPDF{
             $bb = FALSE;
             $bl = FALSE;
         }else{
-            $allBorderSty  = FALSE;
+            $allBorderSty  = filter_var($pb, FILTER_VALIDATE_BOOLEAN);
             $bl = FALSE;
             $bt = FALSE;
             $br = FALSE;
@@ -482,6 +482,9 @@ class BasicIocTcPdf extends TCPDF{
                 $res = array();
                 $this->nexStyletAttributes[TcPdfStyle::BORDERCOLOR] = TCPDF_COLORS::convertHTMLColorToDec($bcolor, $res);
             }
+        }elseif(isset ($this->nexStyletAttributes[TcPdfStyle::BORDER])){
+            unset($this->nexStyletAttributes[TcPdfStyle::BORDER]);
+            unset($this->nexStyletAttributes[TcPdfStyle::BORDERCOLOR]);
         }
     }
 
@@ -512,9 +515,11 @@ class BasicIocTcPdf extends TCPDF{
 
     public function setFillColorFromCurrentStyle(){
         $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, FALSE);
-        if($bcolor){
+        if($bcolor!==FALSE){
             $res = array();
             $this->nexStyletAttributes[TcPdfStyle::BACKGROUND_COLOR] = TCPDF_COLORS::convertHTMLColorToDec($bcolor, $res);
+        }elseif(isset ($this->nexStyletAttributes[TcPdfStyle::BACKGROUND_COLOR])){
+            unset($this->nexStyletAttributes[TcPdfStyle::BACKGROUND_COLOR]);
         }
     }
 
@@ -522,11 +527,15 @@ class BasicIocTcPdf extends TCPDF{
         $xy = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::POSITION, FALSE);
         $x = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::POSITION_X, $xy);
         $y = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::POSITION_Y, $xy);
-        if($x){
+        if($x!==FALSE){
             $this->nexStyletAttributes[TcPdfStyle::POSITION_X] = $x;
+        }elseif(isset ($this->nexStyletAttributes[TcPdfStyle::POSITION_X])){
+            unset($this->nexStyletAttributes[TcPdfStyle::POSITION_X]);
         }
-        if($y){
+        if($y!==FALSE){
             $this->nexStyletAttributes[TcPdfStyle::POSITION_Y] = $y;
+        }elseif(isset($this->nexStyletAttributes[TcPdfStyle::POSITION_Y])){
+            unset($this->nexStyletAttributes[TcPdfStyle::POSITION_Y]);
         }
     }
     
@@ -1566,6 +1575,7 @@ class BasicPdfRenderer {
                     }
                     $this->style->goOutTextContainer();
                 }
+                $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();
                 $ret .= "</div>";
                 break;
             case TableNodeDoc::TABLE_TYPE:
