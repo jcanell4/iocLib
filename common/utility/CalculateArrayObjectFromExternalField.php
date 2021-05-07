@@ -29,7 +29,7 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
                         ->createProjectMetaDataQuery($projectId, $metadataSubset)
                         ->getDataProject());
         if($externalValues){
-            $ret = $this->getArrayObjectFromExternalFiled($externalValues, $data);
+            $ret = $this->getArrayObjectFromExternalField($externalValues, $data);
         }else{
             $ret = $this->getDefaultValue($data);
         }
@@ -37,7 +37,7 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
         return $ret;
     }
     
-    private function getArrayObjectFromExternalFiled($values, $data){
+    private function getArrayObjectFromExternalField($values, $data){
         $ret = array();
         if(isset($data[self::FILTERING_CONDITION_PARAM])){
             $condition = $data[self::FILTERING_CONDITION_PARAM];
