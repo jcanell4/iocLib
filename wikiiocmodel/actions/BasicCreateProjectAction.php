@@ -36,11 +36,7 @@ class BasicCreateProjectAction extends ProjectAction {
 
             $ret = $model->getData();      //obtiene la estructura y el contenido del proyecto
 
-            //[TODO: Rafael] La asignación de permisos y shortcuts a las 'personas' del proyecto debería hacerse
-            //               en el momento de la Generación y no en la Creación
-            //[JOSEP] Ara s'han canviat per tal aquells projectes que no necessitin generació puguin actaulitzar-se sense 
-            // necessitat de generar-se.
-            if(!$model->getNeedGenerateAction()){
+            if (!$model->getNeedGenerateAction()){
                 $params = $model->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
                 $model->modifyACLPageAndShortcutToPerson($params);
             }
@@ -58,8 +54,8 @@ class BasicCreateProjectAction extends ProjectAction {
             $ret[PageKeys::KEY_HTML_SC] = [PageKeys::KEY_HTML_SC => $data['structure']['html']];
         }
         
-        if($this->getModel()->hasTemplates()){
-            $this->getModel()->createTemplateDocument($ret);
+        if ($model->hasTemplates()){
+            $model->createTemplateDocument($ret);
         }
         
         if (!$ret)
