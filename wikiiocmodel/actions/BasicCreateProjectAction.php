@@ -38,7 +38,20 @@ class BasicCreateProjectAction extends ProjectAction {
 
             if (!$model->getNeedGenerateAction()){
                 $params = $model->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
+                
+                //Verificar si existeix la pestanya 'Dreceres' (mirant si existeix el fitxer dreceres.txt)
+                $user_shortcut = $params['userpage_ns'].$metaDataValues['autor'].':'.$params['shortcut_name'];
+                $shortcutFile = $model->getRawDocument($user_shortcut);
+
                 $model->modifyACLPageAndShortcutToPerson($params);
+
+                //Si no existeix la pestanya dreceres es crea una resposta
+                if ($shortcutFile == "") {
+                    $ret['ShortcutTabCreate'] = ['id' => "TAB Dreceres",
+                                                 'title' => "Dreceres",
+                                                 'content' => $model->getRawDocument($user_shortcut),
+                                                 'selected' => TRUE];
+                }
             }
 
             $ret['info'] = self::generateInfo("info", WikiIocLangManager::getLang('project_created'), $id);  //añade info para la zona de mensajes

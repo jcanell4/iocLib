@@ -183,7 +183,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     //Obtiene el contenido de un archivo wiki, es decir, está en pages/$id:nombre y tienen extensión .txt
     public function getRawProjectDocument($filename) {
-        $content = $this->getPageDataQuery()->getRaw("{$this->id}:$filename");
+        $content = $this->getRawDocument("{$this->id}:$filename");
         return $content;
     }
 
@@ -531,7 +531,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $summary = "include Page Project To User Shortcut";
         $comment = ($parArr['link_page'] === $parArr['id']) ? "al" : "als continguts del";
         $shortcutText = "\n[[${parArr['link_page']}|accés $comment projecte ${parArr['id']}]]";
-        $text = $this->getPageDataQuery()->getRaw($parArr['user_shortcut']);
+        $text = $this->getRawDocument($parArr['user_shortcut']);
         if ($text == "") {
             //La página dreceres.txt del usuario no existe
             $this->createPageFromTemplate($parArr['user_shortcut'], WikiGlobalConfig::getConf('template_shortcuts_ns', 'wikiiocmodel'), $shortcutText, $summary);
@@ -548,7 +548,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Elimina el link al proyecto contenido en el archivo dreceres del usuario
      */
     private function removeProjectPageFromUserShortcut($usershortcut, $link_page) {
-        $text = $this->getPageDataQuery()->getRaw($usershortcut);
+        $text = $this->getRawDocument($usershortcut);
         if ($text !== "" ) {
             if (preg_match("/$link_page/", $text) === 1) {  //subtexto hallado
                 $eliminar = "/\[\[$link_page\|.*]]/";
@@ -644,7 +644,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Crea el archivo $destino a partir de una plantilla
      */
     protected function createPageFromTemplate($destino, $plantilla=NULL, $extra=NULL, $summary="generate project") {
-        $text = ($plantilla) ? $this->getPageDataQuery()->getRaw($plantilla) : "";
+        $text = ($plantilla) ? $this->getRawDocument($plantilla) : "";
         $this->dokuPageModel->setData([PageKeys::KEY_ID => $destino,
                                        PageKeys::KEY_WIKITEXT => $text . $extra,
                                        PageKeys::KEY_SUM => $summary]);
