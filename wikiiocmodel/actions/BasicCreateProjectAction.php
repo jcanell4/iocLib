@@ -49,7 +49,7 @@ class BasicCreateProjectAction extends ProjectAction {
                 if ($shortcutFile == "") {
                     $ret['ShortcutTabCreate'] = ['id' => "TAB Dreceres",
                                                  'title' => "Dreceres",
-                                                 'content' => $model->getRawDocument($user_shortcut),
+                                                 'content' => $model->getDataDocument($user_shortcut)['structure']['html'],
                                                  'selected' => TRUE];
                 }
             }
