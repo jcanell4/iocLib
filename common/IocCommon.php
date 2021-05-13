@@ -267,6 +267,8 @@ class IocCommon {
     // Busca si algún elemento de $array1 está incluido en $array2
     public function array_in_array($array1, $array2) {
         $has = FALSE;
+        if (!is_array($array1)) $array1 = array($array1);
+        if (!is_array($array2)) $array2 = array($array2);
         foreach ($array1 as $elem) {
             if (in_array($elem, $array2)) {
                 $has = TRUE;
