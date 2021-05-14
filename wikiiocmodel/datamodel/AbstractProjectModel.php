@@ -798,6 +798,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine());
                 $values[$key] = $value;
             }
+            $isView = FALSE; //$this->dokuPageModel->getFormat();
+            if (isset($def["parseOnView"]) && $isView) {
+                $instructions = p_get_instructions($values[$key]);
+                $value = p_render('xhtml', $instructions, $info);
+                $values[$key] = $value;
+            }
         }
         $data = $isArray ? $values : json_encode($values);
         return $data;
