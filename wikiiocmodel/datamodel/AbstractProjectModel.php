@@ -17,6 +17,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $metaDataSubSet;
     protected $actionCommand;
     protected $externalCallMethods;
+    protected $isOnView; //indica si la página está en modo 'view' o no
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -54,7 +55,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL) {
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
         if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
@@ -64,13 +65,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             if ($params[ProjectKeys::VIEW_CONFIG_NAME]){
                 $this->viewConfigName = $params[ProjectKeys::VIEW_CONFIG_NAME];
             }
+            $this->isOnView = $params[ProjectKeys::KEY_ISONVIEW];
         }else {
             $this->id = $params;
             $this->projectType = $projectType;
             $this->rev = $rev;
             $this->metaDataSubSet = $metaDataSubSet;
-            $this->actionCommand  = $actionCommand;
-            $this->viewConfigName=empty($viewConfigName)?"defaultView":$viewConfigName;
+            $this->actionCommand = $actionCommand;
+            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
+            $this->isOnView = $isOnView;
         }
         $this->projectMetaDataQuery->init($this->id);
         if ($this->projectType) {
@@ -90,6 +93,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $attr[ProjectKeys::KEY_REV] = $this->rev;
         $attr[ProjectKeys::KEY_METADATA_SUBSET] = $this->getMetaDataSubSet();
         $attr[ProjectKeys::KEY_ACTION] = $this->actionCommand;
+        $attr[ProjectKeys::KEY_ISONVIEW] = $this->isOnView;
         return ($key) ? $attr[$key] : $attr;
     }
 
@@ -793,13 +797,13 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if ($configStructure==NULL){
             $configStructure = $this->getMetaDataDefKeys();
         }
+        $isOnView = $this->getModelAttributes(ProjectKeys::KEY_ISONVIEW);
         foreach ($configStructure as $key => $def) {
             if (isset($def["calculateOnRead"])) {
                 $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine());
                 $values[$key] = $value;
             }
-            $isView = FALSE; //$this->dokuPageModel->getFormat();
-            if (isset($def["parseOnView"]) && $isView) {
+            if (isset($def["parseOnView"]) && $isOnView) {
                 $instructions = p_get_instructions($values[$key]);
                 $value = p_render('xhtml', $instructions, $info);
                 $values[$key] = $value;

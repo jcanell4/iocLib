@@ -4,6 +4,7 @@ if (!defined("DOKU_INC")) die();
 class BasicViewProjectAction extends ProjectAction {
 
     protected function setParams($params) {
+        $this->setIsOnView(true); //debe ser anterior a la llamada a parent
         parent::setParams($params);
         if (!$this->params[ProjectKeys::KEY_DATE]) {
             $draft_date = $this->projectModel->getDraft('date');
