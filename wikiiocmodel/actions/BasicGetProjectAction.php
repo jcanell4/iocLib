@@ -8,8 +8,8 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
     private $messageLock;
 
     protected function setParams($params) {
-        $this->setIsOnView(false); //debe ser anterior a la llamada a parent
         parent::setParams($params);
+        $this->getModel()->setIsOnView(false);
     }
 
     protected function runAction() {

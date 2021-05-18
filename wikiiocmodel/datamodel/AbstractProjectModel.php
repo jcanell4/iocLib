@@ -97,6 +97,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return ($key) ? $attr[$key] : $attr;
     }
 
+    //Esteblece el estado 'view' o 'no view' de una página
+    public function setIsOnView($isOnView) {
+        $this->isOnView = $isOnView;
+    }
+
+    public function getIsOnView() {
+        return $this->isOnView;
+    }
+
     public function llistaDeEspaiDeNomsDeDocumentsDelProjecte() {
         $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);

@@ -11,7 +11,6 @@ abstract class ProjectAction extends AbstractWikiAction {
     protected $persistenceEngine;
     protected $projectModel;
     protected $resourceLocker;
-    protected $onView = false; //indica si la página está en modo 'view' o no
     
     public function getActionInstance($actionName, $params=NULL, $noInit=TRUE){
         $action = parent::getActionInstance($actionName, $params, $noInit);
@@ -36,21 +35,12 @@ abstract class ProjectAction extends AbstractWikiAction {
                                    ProjectKeys::KEY_REV             => $this->params[ProjectKeys::KEY_REV],
                                    ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
                                    ProjectKeys::KEY_ACTION          => $this->params[ProjectKeys::KEY_ACTION],
-                                   ProjectKeys::KEY_ISONVIEW        => $this->getIsOnView()
+                                   ProjectKeys::KEY_ISONVIEW        => $this->getModel()->getIsOnView()
                                 ]);
     }
 
     protected function getModel() {
         return $this->projectModel;
-    }
-
-    //Esteblece el estado 'view' o 'no view' de una página
-    public function setIsOnView($isOnView) {
-        $this->isOnView = $isOnView;
-    }
-
-    public function getIsOnView() {
-        return $this->isOnView;
     }
 
     //Añadir propiedades/restricciones del configMain para la creación de elementos dentro del proyecto
