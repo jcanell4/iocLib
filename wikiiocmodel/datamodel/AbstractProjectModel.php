@@ -233,7 +233,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    public function setRawProjectDocument($filename, $text, $summary, $version) {
+    public function setRawProjectDocument($filename, $text, $summary, $version=NULL) {
         $toSet = [PageKeys::KEY_ID       => "{$this->id}:$filename",
                   PageKeys::KEY_WIKITEXT => $text,
                   PageKeys::KEY_SUM      => $summary,
@@ -997,14 +997,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->projectMetaDataQuery->isProjectGenerated();
     }
 
-    public function getProjectSubSetAttr($att) {
-        return $this->projectMetaDataQuery->getProjectSystemSubSetAttr($att);
-    }
-
-    public function setProjectSubSetAttr($att, $value) {
-        return $this->projectMetaDataQuery->setProjectSystemSubSetAttr($att, $value);
-    }
-
     public function generateProject(){
         $ret = array();
         //0. Obtiene los datos del proyecto
@@ -1020,13 +1012,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                     $params = $this->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
                     $this->modifyACLPageAndShortcutToPerson($params);
                 }
-            }
-            catch (Exception $e) {
+            }catch (Exception $e) {
                 $ret[ProjectKeys::KEY_GENERATED] = FALSE;
                 $this->getProjectMetaDataQuery()->setProjectSystemStateAttr("generated", FALSE);
             }
         }
-
         return $ret;
     }
 
@@ -1058,7 +1048,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getMetaDataAnyAttr($attr=NULL, $configMainKey=NULL) {
         return $this->projectMetaDataQuery->getMetaDataAnyAttr($attr, $configMainKey);
     }
-
 
     /**
      * @param integer $num Número de revisiones solicitadas El valor 0 significa obtener todas las revisiones
@@ -1124,29 +1113,24 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return string nom de la plantilla
      */
     public function getTemplateContentDocumentId($responseData=NULL){
-
-        if($responseData==NULL){
+        if ($responseData==NULL){
             $plantilla = $this->_getTemplateContentDocumentId ();
         }else if (is_string($responseData)) {
            // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
             $plantilla = $responseData;
 
-        } else {
+        }else {
             $plantilla = $responseData["plantilla"];
-
             if ($plantilla === NULL) {
                 $plantilla = $responseData[ProjectKeys::KEY_PROJECT_METADATA]["plantilla"]['value'];
             }
         }
-
         $lastPos = strrpos($plantilla, ':');
 
         if ($lastPos) {
             $plantilla = substr($plantilla, $lastPos+1);
         }
-
         return $plantilla;
-
     }
 
     private function _getTemplateContentDocumentId(){
