@@ -17,7 +17,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $metaDataSubSet;
     protected $actionCommand;
     protected $externalCallMethods;
-    protected $isOnView; //indica si la página está en modo 'view' o no
+    protected $isOnView = FALSE; //indica si la página está en modo 'view' o no
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
