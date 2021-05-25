@@ -812,10 +812,31 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine());
                 $values[$key] = $value;
             }
-            if (isset($def["parseOnView"]) && $isOnView) {
-                $instructions = p_get_instructions($values[$key]);
-                $value = p_render('xhtml', $instructions, $info);
-                $values[$key] = $value;
+            if (isset($def["parseOnView"]) && $def["parseOnView"] && $isOnView) {
+                if ($def["type"]==="string") {
+                    $instructions = p_get_instructions($values[$key]);
+                    $values[$key] = p_render('xhtml', $instructions, $info);
+                }elseif ($def["type"]==="array") {
+                    if (!empty($def["value"])) {
+                        foreach ($def["value"] as $v) {
+                            $instructions = p_get_instructions($v);
+                            $varray[] = trim(p_render('xhtml', $instructions, $info));
+                        }
+                        $values[$key] = $varray;
+                    }
+                }elseif ($def["type"]==="objectArray" || $def["type"]==="table") {
+                    if (!empty($def["parseOnView"])) {
+                        $array = json_decode($def["value"], true);
+                        foreach ($array as $row => $value) {
+                            $vobjectArray[$row] = $value;
+                            foreach ($def["parseOnView"] as $parse) {
+                                $instructions = p_get_instructions($value[$parse]);
+                                $vobjectArray[$row][$parse] = trim(p_render('xhtml', $instructions, $info));
+                            }
+                        }
+                        $values[$key] = json_encode($vobjectArray);
+                    }
+                }
             }
         }
         $data = $isArray ? $values : json_encode($values);
