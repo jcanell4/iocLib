@@ -826,7 +826,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                     }
                 }elseif ($def["type"]==="objectArray" || $def["type"]==="table") {
                     if (!empty($def["parseOnView"])) {
-                        $array = json_decode($def["value"], true);
+                        $isArray = is_array($def["value"]);
+                        $array = ($isArray) ? $def["value"] : json_decode($def["value"], true);
                         foreach ($array as $row => $value) {
                             $vobjectArray[$row] = $value;
                             foreach ($def["parseOnView"] as $parse) {
@@ -834,7 +835,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                                 $vobjectArray[$row][$parse] = trim(p_render('xhtml', $instructions, $info));
                             }
                         }
-                        $values[$key] = json_encode($vobjectArray);
+                        $values[$key] = ($isArray) ? $vobjectArray : json_encode($vobjectArray);
                     }
                 }
             }
