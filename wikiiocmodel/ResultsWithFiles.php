@@ -53,7 +53,7 @@ class ResultsWithFiles {
                 $ret.= '<span style="white-space: nowrap;">'.$data.'</span>'.$nP;
             }else{
                 $mode = ($ext==="zip") ? "HTML" : "PDF";
-                $ret.= $P.'<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer'.$result["fileNames"][$i].'</span>'.$nP;
+                $ret.= $P.'<span class="media mediafile '.$class.'">No hi ha cap exportació '.$mode.' feta del fitxer '.$result["fileNames"][$i].'</span>'.$nP;
             }
             $P = "<p>"; $nP = "</p>";
         }
