@@ -181,28 +181,32 @@ class ArrayFieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
-            if(is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
+            $conditions = $obj->getParam("conditions"); $idField = $obj->getIdField();
+            if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
                 foreach ($keysOfArray[$field] as $arrayKey){
-                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }            
             }else{
-                foreach ($keysOfArray[$obj->getIdField()] as $arrayKey){
-                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+                foreach ($keysOfArray[$idField] as $arrayKey){
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }
             }
-         }
+        }
     }
     
-    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey){
-        if(is_string($projectMetaData[$field])){
+    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey, $conditions=NULL){
+        if (is_string($projectMetaData[$field])){
             $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
         }
-        for ($i=0; $i<count($projectMetaData[$field]); $i++ ){
-            $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
-            if($obj->hasParam("concat")){
+        for ($i=0; $i<count($projectMetaData[$field]); $i++) {
+            $condition = ($conditions) ? ($projectMetaData[$field][$i][key($conditions)] === current($conditions)) : TRUE;
+            if ($condition) {
+                $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
+            }
+            if ($obj->hasParam("concat")){
                 $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
             }
-            if($obj->hasParam("returnType")){
+            if ($obj->hasParam("returnType")){
                 $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
             }            
         }
