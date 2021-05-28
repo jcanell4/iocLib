@@ -181,7 +181,8 @@ class ArrayFieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
-            $conditions = $obj->getParam("conditions"); $idField = $obj->getIdField();
+            $conditions = $obj->getParam("conditions");
+            $idField = $obj->getIdField();
             if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
                 foreach ($keysOfArray[$field] as $arrayKey){
                     self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
