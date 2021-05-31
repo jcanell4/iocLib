@@ -178,16 +178,18 @@ class FieldProjectUpdateProcessor{
 }
 
 class ArrayFieldProjectUpdateProcessor{
+
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
             $conditions = $obj->getParam("conditions");
             $idField = $obj->getIdField();
             if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
-                foreach ($keysOfArray[$field] as $arrayKey){
+                //[Rafa diu: WARNING: Esta condición se debería cumplir cuando $keysOfArray es un hash array con claves field]
+                foreach ($keysOfArray as $arrayKey){
                     self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }            
-            }else{
+            }else {
                 foreach ($keysOfArray[$idField] as $arrayKey){
                     self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }
@@ -200,28 +202,28 @@ class ArrayFieldProjectUpdateProcessor{
             $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
         }
         for ($i=0; $i<count($projectMetaData[$field]); $i++) {
-            $condition = ($conditions) ? ($projectMetaData[$field][$i][key($conditions)] === current($conditions)) : TRUE;
+            $condition = TRUE;
+            if (is_array($conditions)) {
+                foreach ($conditions as $key => $value) {
+                    $condition &= ($projectMetaData[$field][$i][$key] === $value);
+                }
+            }
             if ($condition) {
                 $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
+                if ($obj->hasParam("concat")){
+                    $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+                }
+                if ($obj->hasParam("returnType")){
+                    $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
+                }
             }
-            if ($obj->hasParam("concat")){
-                $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
-            }
-            if ($obj->hasParam("returnType")){
-                $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
-            }            
         }
     }
 }
 
 
 class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProcessor{
-    /**
-     * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
-     * @param string $value : valor que se utiliza en la substitución
-     * @param array $params : conjunto de campos sobre los que se aplica la sustitución
-     * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
-     */
+
     public function getFieldValue($fieldValue) {
         return $this->value;
     }
@@ -231,13 +233,9 @@ class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProce
  * Incrementa el valor en los campos especificados del archivo de datos de un proyecto
  */
 class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcessor {
+    
     protected $dateFormat='Y-m-d';
-    /**
-     * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
-     * @param string $value : valor que se utiliza para incrementar el valor del campo
-     * @param array $params : array de campos [key, type, value] sobre los que se aplica el incremento
-     * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
-     */
+
     public function getFieldValue($fieldValue) {
         $ret  = $fieldValue;
         switch ($this->params['type']) {
