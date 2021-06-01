@@ -185,9 +185,8 @@ class ArrayFieldProjectUpdateProcessor{
             $conditions = $obj->getParam("conditions");
             $idField = $obj->getIdField();
             if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
-                //[Rafa diu: WARNING: Esta condición se debería cumplir cuando $keysOfArray es un hash array con claves field]
-                foreach ($keysOfArray as $arrayKey){
-                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
+                foreach ($keysOfArray[$field] as $arrayKey){
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$field]);
                 }            
             }else {
                 foreach ($keysOfArray[$idField] as $arrayKey){
