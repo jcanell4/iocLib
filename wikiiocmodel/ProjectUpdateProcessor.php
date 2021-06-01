@@ -203,10 +203,21 @@ class ArrayFieldProjectUpdateProcessor{
         }
         for ($i=0; $i<count($projectMetaData[$field]); $i++) {
             $condition = TRUE;
-            if (is_array($conditions)) {
-                foreach ($conditions as $key => $value) {
-                    $condition &= ($projectMetaData[$field][$i][$key] === $value);
-                }
+            if (is_array($conditions) && !empty($conditions)) {
+                $condition = self::_evalCondition($projectMetaData[$field], $conditions);
+//                $orcondition = FALSE;
+//                foreach ($conditions as $key => $value) {
+//                    if (is_numeric($key) && is_array($value)) {
+//                        $andcondition = TRUE;
+//                        foreach ($value as $k => $v) {
+//                            $andcondition &= ($projectMetaData[$field][$i][$k] === $v);
+//                        }
+//                        $orcondition |= $andcondition;
+//                    }else {
+//                        $condition &= ($projectMetaData[$field][$i][$key] === $value);
+//                    }
+//                }
+//                if (isset($andcondition)) {$condition = $orcondition;}
             }
             if ($condition) {
                 $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
@@ -219,6 +230,23 @@ class ArrayFieldProjectUpdateProcessor{
             }
         }
     }
+
+    private static function _evalCondition($field, $conditions) {
+        $orcondition = FALSE;
+        foreach ($conditions as $key => $value) {
+            if (is_numeric($key) && is_array($value)) {
+                $andcondition = TRUE;
+                foreach ($value as $k => $v) {
+                    $andcondition &= ($field[$i][$k] === $v);
+                }
+                $orcondition |= $andcondition;
+            }else {
+                $condition &= ($field[$i][$key] === $value);
+            }
+        }
+        return (isset($andcondition)) ? $orcondition : $condition;
+    }
+
 }
 
 
