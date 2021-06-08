@@ -17,7 +17,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $metaDataSubSet;
     protected $actionCommand;
     protected $externalCallMethods;
-    protected $isOnView; //indica si la página está en modo 'view' o no
+    protected $isOnView = FALSE; //indica si la página está en modo 'view' o no
 
     //protected $persistenceEngine; Ya está definida en AbstractWikiModel
     protected $metaDataService;
@@ -233,7 +233,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    public function setRawProjectDocument($filename, $text, $summary, $version) {
+    public function setRawProjectDocument($filename, $text, $summary, $version=NULL) {
         $toSet = [PageKeys::KEY_ID       => "{$this->id}:$filename",
                   PageKeys::KEY_WIKITEXT => $text,
                   PageKeys::KEY_SUM      => $summary,
@@ -812,10 +812,32 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine());
                 $values[$key] = $value;
             }
-            if (isset($def["parseOnView"]) && $isOnView) {
-                $instructions = p_get_instructions($values[$key]);
-                $value = p_render('xhtml', $instructions, $info);
-                $values[$key] = $value;
+            if (isset($def["parseOnView"]) && $def["parseOnView"] && $isOnView) {
+                if ($def["type"]==="string") {
+                    $instructions = p_get_instructions($values[$key]);
+                    $values[$key] = p_render('xhtml', $instructions, $info);
+                }elseif ($def["type"]==="array") {
+                    if (!empty($def["value"])) {
+                        foreach ($def["value"] as $v) {
+                            $instructions = p_get_instructions($v);
+                            $varray[] = trim(p_render('xhtml', $instructions, $info));
+                        }
+                        $values[$key] = $varray;
+                    }
+                }elseif ($def["type"]==="objectArray" || $def["type"]==="table") {
+                    if (!empty($def["parseOnView"])) {
+                        $isArray = is_array($def["value"]);
+                        $array = ($isArray) ? $def["value"] : json_decode($def["value"], true);
+                        foreach ($array as $row => $value) {
+                            $vobjectArray[$row] = $value;
+                            foreach ($def["parseOnView"] as $parse) {
+                                $instructions = p_get_instructions($value[$parse]);
+                                $vobjectArray[$row][$parse] = trim(p_render('xhtml', $instructions, $info));
+                            }
+                        }
+                        $values[$key] = ($isArray) ? $vobjectArray : json_encode($vobjectArray);
+                    }
+                }
             }
         }
         $data = $isArray ? $values : json_encode($values);
@@ -997,14 +1019,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->projectMetaDataQuery->isProjectGenerated();
     }
 
-    public function getProjectSubSetAttr($att) {
-        return $this->projectMetaDataQuery->getProjectSystemSubSetAttr($att);
-    }
-
-    public function setProjectSubSetAttr($att, $value) {
-        return $this->projectMetaDataQuery->setProjectSystemSubSetAttr($att, $value);
-    }
-
     public function generateProject(){
         $ret = array();
         //0. Obtiene los datos del proyecto
@@ -1020,13 +1034,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                     $params = $this->buildParamsToPersons($ret[ProjectKeys::KEY_PROJECT_METADATA], NULL);
                     $this->modifyACLPageAndShortcutToPerson($params);
                 }
-            }
-            catch (Exception $e) {
+            }catch (Exception $e) {
                 $ret[ProjectKeys::KEY_GENERATED] = FALSE;
                 $this->getProjectMetaDataQuery()->setProjectSystemStateAttr("generated", FALSE);
             }
         }
-
         return $ret;
     }
 
@@ -1058,7 +1070,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getMetaDataAnyAttr($attr=NULL, $configMainKey=NULL) {
         return $this->projectMetaDataQuery->getMetaDataAnyAttr($attr, $configMainKey);
     }
-
 
     /**
      * @param integer $num Número de revisiones solicitadas El valor 0 significa obtener todas las revisiones
@@ -1124,29 +1135,24 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return string nom de la plantilla
      */
     public function getTemplateContentDocumentId($responseData=NULL){
-
-        if($responseData==NULL){
+        if ($responseData==NULL){
             $plantilla = $this->_getTemplateContentDocumentId ();
         }else if (is_string($responseData)) {
            // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
             $plantilla = $responseData;
 
-        } else {
+        }else {
             $plantilla = $responseData["plantilla"];
-
             if ($plantilla === NULL) {
                 $plantilla = $responseData[ProjectKeys::KEY_PROJECT_METADATA]["plantilla"]['value'];
             }
         }
-
         $lastPos = strrpos($plantilla, ':');
 
         if ($lastPos) {
             $plantilla = substr($plantilla, $lastPos+1);
         }
-
         return $plantilla;
-
     }
 
     private function _getTemplateContentDocumentId(){

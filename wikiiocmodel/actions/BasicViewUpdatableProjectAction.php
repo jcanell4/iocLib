@@ -75,8 +75,8 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
                 }
 
                 if ($finestraOberta) {
-                    $updetedDate = $projectModel->getProjectSubSetAttr("updatedDate");
-                    $isUpdated = ($updetedDate && $updetedDate >= $inici_semestre->getTimestamp());
+                    $updatedDate = $projectModel->getProjectSystemSubSetAttr("updatedDate");
+                    $isUpdated = ($updatedDate && $updatedDate >= $inici_semestre->getTimestamp());
                 }
             }
         }else {

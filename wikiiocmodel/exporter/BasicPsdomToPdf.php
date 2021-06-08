@@ -1465,6 +1465,14 @@ class BasicPdfRenderer {
                 $this->iocTcPdf->updateAllStyleAttributesFromCurrentStyle();                
                 $this->iocTcPdf->setIconContainerToRender($content["elemType"]);
                 switch ($content["elemType"]){
+                    case IocElemNodeDoc::IOC_ELEM_TYPE_INCLUDE:
+                        $bcolor = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::BACKGROUND_COLOR, "#ffefef");
+                        $bc = "background-color:$bcolor;";
+                        $bs = "border:1px dotted #ccc;";
+                        $ret .= "<div style=\"$bc$bs\">";
+                        $ret .= self::getStructuredContent($content);
+                        $ret .= "</div>";
+                        break;
                     case IocElemNodeDoc::IOC_ELEM_TYPE_EXAMPLE:
                         $fs = $this->style->getCurrentContainerStyleAttr(TcPdfStyle::FONT_SIZE, 9)*1.5;
                         $aux=" font-size: {$fs}px;";

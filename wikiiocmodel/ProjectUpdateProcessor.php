@@ -178,45 +178,67 @@ class FieldProjectUpdateProcessor{
 }
 
 class ArrayFieldProjectUpdateProcessor{
+
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
-            if(is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
+            $conditions = $obj->getParam("conditions");
+            $idField = $obj->getIdField();
+            if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
                 foreach ($keysOfArray[$field] as $arrayKey){
-                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$field]);
                 }            
-            }else{
-                foreach ($keysOfArray[$obj->getIdField()] as $arrayKey){
-                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey);
+            }else {
+                foreach ($keysOfArray[$idField] as $arrayKey){
+                    self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }
             }
-         }
+        }
     }
     
-    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey){
-        if(is_string($projectMetaData[$field])){
+    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey, $conditions=NULL){
+        if (is_string($projectMetaData[$field])){
             $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
         }
-        for ($i=0; $i<count($projectMetaData[$field]); $i++ ){
-            $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
-            if($obj->hasParam("concat")){
-                $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+        for ($i=0; $i<count($projectMetaData[$field]); $i++) {
+            $condition = TRUE;
+            if (is_array($conditions) && !empty($conditions)) {
+                $condition = self::_evalCondition($projectMetaData[$field][$i], $conditions);
             }
-            if($obj->hasParam("returnType")){
-                $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
-            }            
+            if ($condition) {
+                $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
+                if ($obj->hasParam("concat")){
+                    $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+                }
+                if ($obj->hasParam("returnType")){
+                    $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
+                }
+            }
         }
     }
+
+    private static function _evalCondition($field, $conditions) {
+        $condition = TRUE;
+        $orcondition = FALSE;
+        foreach ($conditions as $key => $value) {
+            if (is_numeric($key) && is_array($value)) {
+                $andcondition = TRUE;
+                foreach ($value as $k => $v) {
+                    $andcondition &= ($field[$k] === $v);
+                }
+                $orcondition |= $andcondition;
+            }else {
+                $condition &= ($field[$key] === $value);
+            }
+        }
+        return (isset($andcondition)) ? $orcondition : $condition;
+    }
+
 }
 
 
 class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProcessor{
-    /**
-     * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
-     * @param string $value : valor que se utiliza en la substitución
-     * @param array $params : conjunto de campos sobre los que se aplica la sustitución
-     * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
-     */
+
     public function getFieldValue($fieldValue) {
         return $this->value;
     }
@@ -226,13 +248,9 @@ class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProce
  * Incrementa el valor en los campos especificados del archivo de datos de un proyecto
  */
 class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcessor {
+    
     protected $dateFormat='Y-m-d';
-    /**
-     * Modifica el conjunto de datos del archivo (meta.mdpr) de datos de un proyecto
-     * @param string $value : valor que se utiliza para incrementar el valor del campo
-     * @param array $params : array de campos [key, type, value] sobre los que se aplica el incremento
-     * @param array $projectMetaData : conjunto de datos del archivo meta.mdpr
-     */
+
     public function getFieldValue($fieldValue) {
         $ret  = $fieldValue;
         switch ($this->params['type']) {
