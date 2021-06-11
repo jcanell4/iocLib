@@ -198,9 +198,8 @@ class BasicRenderObject extends renderComposite {
 
                     $arrayDataField = json_decode($this->getDataField($item["value"]), true);
                     foreach ($arrayDataField as $key) {
-                        $arrDataField[$key['ordre']] = $key['nom'];
+                        $arrDataField[] = $key['nom'];
                     }
-                    ksort($arrDataField);
 
                     if ($item["type"] == "psdom") {
                         foreach ($arrDataField as $doc) {
