@@ -21,7 +21,7 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
     }
     
     public static function stCreateTemplateDocument($obj, $data=NULL){
-        $pdir = $obj->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $obj->getProjectTypeDir()."metadata/plantilles/";
         $file = $obj->getTemplateContentDocumentId() . ".txt";
         $plantilla = file_get_contents($pdir.$file);
         $name = substr($file, 0, -4);

@@ -106,8 +106,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->isOnView;
     }
 
+    public function getProjectTypeDir() {
+        return $this->getProjectMetaDataQuery()->getProjectTypeDir();
+    }
+    
     public function llistaDeEspaiDeNomsDeDocumentsDelProjecte() {
-        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
@@ -118,7 +122,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function llistaDeNomsDeLesPlantillesDelProjecte() {
-        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
@@ -976,7 +980,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function getPluginName(){
-        $dir = $this->projectMetaDataQuery->getProjectTypeDir();
+        $dir = $this->getProjectTypeDir();
         $dirs  = explode("/", $dir);
         $ret = $dirs[count($dirs)-4];
         return  $ret;
@@ -1156,7 +1160,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     private function _getTemplateContentDocumentId(){
-        $pdir = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
@@ -1168,7 +1172,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function getTemplatePath($templateName, $version = null){
-        $path = $this->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/" . $templateName . ".txt";
+        $path = $this->getProjectTypeDir()."metadata/plantilles/" . $templateName . ".txt";
 
         if ($version) {
             $path .= "." . $version;

@@ -15,7 +15,7 @@ abstract class MultiContentFilesProjectModel extends AbstractProjectModel{
     }
     
     public static function stCreateTemplateDocument($obj, $data=NULL){
-        $pdir = $obj->getProjectMetaDataQuery()->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $obj->getProjectTypeDir()."metadata/plantilles/";
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4) === ".txt") {
