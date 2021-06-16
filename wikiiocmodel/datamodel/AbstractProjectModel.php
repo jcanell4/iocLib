@@ -111,7 +111,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
     
     public function llistaDeEspaiDeNomsDeDocumentsDelProjecte() {
-        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $this->getTemplatePath();
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
@@ -122,7 +122,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function llistaDeNomsDeLesPlantillesDelProjecte() {
-        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
+        $pdir = $this->getTemplatePath();
         $scdir = scandir($pdir);
         foreach($scdir as $file){
             if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
@@ -211,7 +211,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     //Obté el contingut d'una platilla situada en el directori del projecte/metadata/plantilles
-    public function getRawProjectTemplate($filename, $version=FALSE) {
+    public function getRawProjectTemplate($filename=FALSE, $version=FALSE) {
+        if (!$filename) $filename = $this->getTemplateContentDocumentId();
         $content = $this->getProjectMetaDataQuery()->getRawProjectTemplate($filename, $version);
         return $content;
     }
@@ -659,12 +660,30 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     /**
      * Crea el archivo $destino a partir de una plantilla
+     * @param string $destino : id del fichero destino = wiki ruta del fichero destino (en pages)
+     * @param string $plantilla : wiki ruta de la plantilla base del documento (en pages)
+     * @param string $extra : contenido extra que se añadirá al contenido de la plantilla
+     * @param string $summary
      */
-    protected function createPageFromTemplate($destino, $plantilla=NULL, $extra=NULL, $summary="generate project") {
+    protected function createPageFromTemplate($destino, $plantilla=NULL, $extra=NULL, $summary="generate project", $forceSave=false) {
         $text = ($plantilla) ? $this->getRawDocument($plantilla) : "";
         $this->dokuPageModel->setData([PageKeys::KEY_ID => $destino,
                                        PageKeys::KEY_WIKITEXT => $text . $extra,
-                                       PageKeys::KEY_SUM => $summary]);
+                                       PageKeys::KEY_SUM => $summary],
+                                       $forceSave);
+    }
+
+    /**
+     * Canvia el nom d'una pàgina del directori pages mantenint el control de versions
+     * @param string $id : wiki ruta del directori base
+     * @param string $path : ruta absoluta del directori del fitxer actual
+     * @param string $old_name : nom actual del fitxer
+     * @param string $new_name : nou nom del fitxer
+     */
+    protected function renamePage($id, $path, $old_name, $new_name) {
+        $contingut = $this->getRawDocument("$id:$old_name");
+        rename("$path/$old_name.txt", "$path/$new_name.txt");
+        $this->createPageFromTemplate("$id:$new_name", NULL, $contingut, "rename page", TRUE);
     }
 
     protected function mergeFieldNameToLayout(&$projectViewDataFields) {
@@ -1140,11 +1159,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function getTemplateContentDocumentId($responseData=NULL){
         if ($responseData==NULL){
-            $plantilla = $this->_getTemplateContentDocumentId ();
+            $plantilla = $this->llistaDeNomsDeLesPlantillesDelProjecte()[0];
         }else if (is_string($responseData)) {
-           // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
+            // Pot tractar-se del nom de la plantilla o una ruta, extraiem el nom i el retornem
             $plantilla = $responseData;
-
         }else {
             $plantilla = $responseData["plantilla"];
             if ($plantilla === NULL) {
@@ -1152,32 +1170,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             }
         }
         $lastPos = strrpos($plantilla, ':');
-
         if ($lastPos) {
             $plantilla = substr($plantilla, $lastPos+1);
         }
         return $plantilla;
     }
 
-    private function _getTemplateContentDocumentId(){
-        $pdir = $this->getProjectTypeDir()."metadata/plantilles/";
-        $scdir = scandir($pdir);
-        foreach($scdir as $file){
-            if ($file !== '.' && $file !== '..' && substr($file, -4)===".txt") {
-                $templateName = substr($file, 0, -4);
-                break;
-            }
-        }
-        return $templateName;
-    }
-
-    public function getTemplatePath($templateName, $version = null){
-        $path = $this->getProjectTypeDir()."metadata/plantilles/" . $templateName . ".txt";
-
-        if ($version) {
-            $path .= "." . $version;
-        }
-
+    public function getTemplatePath($templateName=NULL, $version=NULL){
+        $path = $this->getProjectTypeDir()."metadata/plantilles/";
+        if ($templateName) $path .= $templateName . ".txt";
+        if ($version) $path .= "." . $version;
         return $path;
     }
 
