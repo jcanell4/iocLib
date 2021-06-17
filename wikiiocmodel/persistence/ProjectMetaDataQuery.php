@@ -347,7 +347,7 @@ class ProjectMetaDataQuery extends DataQuery {
     //Retorna el contenido de la subclave $metaDataSubset de la clave 'metaDataFtpSender' del configMain.json
     public function getMetaDataFtpSender($key=FALSE, $metaDataSubSet=FALSE) {
         $ret = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_FTP_SENDER);
-        if (!$metaDataSubSet) $metaDataSubSet = $this->getProjectSubset();
+        if ($ret && !$metaDataSubSet) $metaDataSubSet = $this->getProjectSubset();
         return ($ret) ? ($key) ? $ret[$metaDataSubSet][$key] : $ret[$metaDataSubSet] : NULL;
     }
 
