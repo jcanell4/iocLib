@@ -50,7 +50,12 @@ class BasicViewProjectAction extends ProjectAction {
 
         //Añadir propiedades/restricciones del configMain para la creación de elementos dentro del proyecto
         parent::addResponseProperties($response);
-        $response[ProjectKeys::KEY_GENERATED] = $this->getModel()->isProjectGenerated();
+        
+        $projectModel = $this->getModel();
+        $response[ProjectKeys::KEY_GENERATED] = $projectModel->isProjectGenerated();
+        if ($projectModel->getMetaDataFtpSender()) {
+            $response[ProjectKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $projectModel->haveFilesToExportList();
+        }
         return $response;
     }
 
