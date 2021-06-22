@@ -73,7 +73,7 @@ class PageDataQuery extends DataQuery {
             $summary .= ' {"'.$filename.'":'.$version.'}';
         }
 
-        if (file($id)) $fdt = @filemtime(wikiFN($id));
+        if (is_file($id)) $fdt = @filemtime(wikiFN($id));
         saveWikiText($id, $text, $summary, $minor);
         if ($forceSave && $fdt && $fdt === filemtime(wikiFN($id))){
             saveWikiText($id, " ", "");
