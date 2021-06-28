@@ -90,6 +90,23 @@ class CommonUpgrader {
         return $data;
     }
 
+    /**
+     * Añade un nuevo campo con un valor autoincrementado a todos los registros de un multirregistro
+     * @param array $data : array de datos original
+     * @param string $row : clave del multirregistro
+     * @param string $newkey : clave a añadir
+     * @return array de datos con la nueva clave añadida
+     */
+    public function addFieldAutoIncrementInMultiRow($data, $row, $newkey) {
+        $rama = (is_array($data[$row])) ? $data[$row] : json_decode($data[$row], TRUE);
+        if ($rama==NULL) $rama = [];
+        foreach ($rama as $k => $v) {
+            $rama[$k][$newkey] = $k;
+        }
+        $data[$row] = $rama;
+        return $data;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
