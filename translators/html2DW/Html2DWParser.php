@@ -48,6 +48,7 @@ class Html2DWParser extends IocParser {
         ],
 
         // ALERTA! Es trobava al principi, mogut perquè si no no captura el wioccl de les files de les taules
+        // ALERTA! al BasicEditorSubclass s'elimina l'atribut class
         '<span data-wioccl-ref="\d+" data-wioccl-state="open"><\/span>' => [
             'state' => 'wioccl'
         ],
