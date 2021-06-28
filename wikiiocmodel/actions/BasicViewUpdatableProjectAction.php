@@ -9,7 +9,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
         $projectModel = $this->getModel();
         
         if ($projectModel->isProjectGenerated()) {
-            $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($this->isUpdatedDate($this->params[ProjectKeys::KEY_METADATA_SUBSET])) ? "0" : "1";
+            $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($this->isUpdatedDate($this->params[ProjectKeys::KEY_METADATA_SUBSET])) ? "1" : "0";
         }
         $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $projectModel->haveFilesToExportList();
 
@@ -21,6 +21,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
     }
 
     public static function stIsUpdatedDate($obj, $metaDataSubSet) {
+        $isUpdated = FALSE;
         $projectModel = $obj->getModel();
 
         if ($projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet) !== NULL) {
@@ -80,8 +81,6 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
                     $isUpdated = ($updatedDate && $updatedDate >= $inici_semestre->getTimestamp());
                 }
             }
-        }else {
-            $isUpdated = FALSE;
         }
         return $isUpdated;
     }
