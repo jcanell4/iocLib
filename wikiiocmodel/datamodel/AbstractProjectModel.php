@@ -677,12 +677,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Canvia el nom d'una pàgina del directori pages mantenint el control de versions
      * @param string $id : wiki ruta del directori base
      * @param string $path : ruta absoluta del directori del fitxer actual
-     * @param string $old_name : nom actual del fitxer
-     * @param string $new_name : nou nom del fitxer
+     * @param string $old_name : nom actual del fitxer (pot incloure wiki ruta relativa a pages:projecte)
+     * @param string $new_name : nou nom del fitxer (pot incloure wiki ruta relativa a pages:projecte)
      */
     protected function renamePage($id, $path, $old_name, $new_name) {
         $contingut = $this->getRawDocument("$id:$old_name");
-        rename("$path/$old_name.txt", "$path/$new_name.txt");
+        $o_name = str_replace(":", "/", $old_name);
+        $n_name = str_replace(":", "/", $new_name);
+        rename("$path/$o_name.txt", "$path/$n_name.txt");
         $this->createPageFromTemplate("$id:$new_name", NULL, $contingut, "rename page", TRUE);
     }
 
