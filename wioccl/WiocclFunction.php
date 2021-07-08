@@ -574,7 +574,6 @@ class WiocclFunction extends WiocclInstruction
 
     protected function UPPERCASE($value1, $value2, $value3=0)
     {
-        $ret;
         if(!is_numeric($value2) || !is_numeric($value3)){
             return "[ERROR! paràmetres incorrectes UPPERCASE($value1, $value2, $value3)]"; //TODO: internacionalitzar
         }
@@ -591,7 +590,6 @@ class WiocclFunction extends WiocclInstruction
     
     protected function LOWERCASE($value1, $value2, $value3=0)
     {
-        $ret;
         if(!is_numeric($value2) || !is_numeric($value3)){
             return "[ERROR! paràmetres incorrectes LOWERCASE($value1, $value2, $value3)]"; //TODO: internacionalitzar
         }
