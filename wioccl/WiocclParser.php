@@ -112,6 +112,7 @@ class WiocclParser extends IocParser
         '</WIOCCL:REPARSE>(\n)?' => [
             'state' => 'close_reparse',
         ],
+        // ALERTA[Xavi] Aquesta instrucció existeix? no està definida la classe wiocclreparseset
         '<WIOCCL:REPARSESET.*?[^\\\\]>(\n)?' => [
             'state' => 'open_reparseset',
         ],
