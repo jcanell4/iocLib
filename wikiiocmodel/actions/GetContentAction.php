@@ -12,14 +12,18 @@ class GetContentAction extends PageAction {
 
     public function responseProcess() {
         $this->getModel()->init($this->params['id'], NULL, $this->params['selected']);
-//        $this->params['target'] = "section";
-//        $this->params['section_id'] = $this->params['idSection'];
+        $section = $this->params['selected'];
+        $idSection = $this->params['idSection'];
         $data = $this->getModel()->getData(TRUE);
-        $seccio = preg_replace($pattern, $replacement, $data);
-        $p = $data['structure']['dictionary'][$this->params['idSection']];
-        $start = $data['structure']['chunks'][$p]['start'];
-        $end = $data['structure']['chunks'][$p]['end'];
-        $capitol = substr($data['structure']['html'], $start, $end-$start);
+        if (preg_match('/(<h([1-9]) class=\"sectionedit([1-9])\" id=\"'.$idSection.'\">'.$section.'<\/h\2>)'
+                      .'(\n.*)+'
+                      .'(<!-- EDIT\3 SECTION \"'.$section.'\".*-->)/', $data['structure']['html'], $match)) {
+            $capitol = str_replace($match[5], "", $match[0]);
+        }
+//        $p = $data['structure']['dictionary'][$this->params['idSection']];
+//        $start = $data['structure']['chunks'][$p]['start'];
+//        $end = $data['structure']['chunks'][$p]['end'];
+//        $capitol = substr($data['structure']['html'], $start, $end-$start);
         $ret = json_encode(['htmlContent' => preg_replace(['/\n\n/', '/\n/'], '', $capitol),
                             'date' => $data['structure']['date']]);
         return $ret;
