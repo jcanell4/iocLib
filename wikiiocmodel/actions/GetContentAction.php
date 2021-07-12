@@ -1,6 +1,6 @@
 <?php
 /**
- * GetTocAction: Obtiene la Table Of Contents de una página
+ * GetContentAction: Obtiene la Table Of Contents de una página
  * @author rafael <rclaver@ioc.cat>
  */
 if (!defined("DOKU_INC")) die();
@@ -17,7 +17,7 @@ class GetContentAction extends PageAction {
         $data = $this->getModel()->getData(TRUE);
         if (preg_match('/(<h([1-9]) class=\"sectionedit([1-9])\" id=\"'.$idSection.'\">'.$section.'<\/h\2>)'
                       .'(\n.*)+'
-                      .'(<!-- EDIT\3 SECTION \"'.$section.'\".*-->)/', $data['structure']['html'], $match)) {
+                      .'(<!-- EDIT\3 SECTION \"'.$section.'\".*-->)/i', $data['structure']['html'], $match)) {
             $capitol = str_replace($match[5], "", $match[0]);
         }
 //        $p = $data['structure']['dictionary'][$this->params['idSection']];
