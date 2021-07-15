@@ -12,7 +12,7 @@ class GetTocAction extends PageAction {
 
     public function responseProcess() {
         $toc = $this->getModel()->getMetaToc();
-        $toc = json_encode(['html' => preg_replace(['/<!--.*-->\n*/', '/\n/'], '', $toc)]);
+        $toc = json_encode(['htmlTOC' => preg_replace(['/<!--.*-->\n*/', '/\n/'], '', $toc)]);
         return $toc;
     }
 
