@@ -8,7 +8,10 @@ class BasicGetUpdatableProjectAction extends BasicGetProjectAction {
         $estat = $this->isUpdatedDate($this->params[ProjectKeys::KEY_METADATA_SUBSET]);
         if ($estat !== BasicViewUpdatableProjectAction::IS_UPDATED) {
             $this->getModel()->setViewConfigName("updateView");
-            $new_message = self::generateInfo("info", "El projecte no està actualitzat", $this->params[ProjectKeys::KEY_ID]);
+            if ($estat === BasicViewUpdatableProjectAction::NO_IS_UPDATED)
+                $new_message = self::generateInfo("info", "El projecte no està actualitzat", $this->params[ProjectKeys::KEY_ID]);
+            else
+                $new_message = self::generateInfo("info", "El projecte es troba fora de període", $this->params[ProjectKeys::KEY_ID]);
         }
 
         $response = parent::runAction();
