@@ -3,13 +3,18 @@ if (!defined('DOKU_INC')) die();
 
 class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
 
+    const FORA_FINESTRA = 0;
+    const IS_UPDATED = 1;
+    const NO_IS_UPDATED = 2;
+
     protected function runAction() {
         $response = parent::runAction();
 
         $projectModel = $this->getModel();
         
         if ($projectModel->isProjectGenerated()) {
-            $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($this->isUpdatedDate($this->params[ProjectKeys::KEY_METADATA_SUBSET])) ? "1" : "0";
+            $estat = $this->isUpdatedDate($this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+            $response[AjaxKeys::KEY_ACTIVA_UPDATE_BTN] = ($estat === self::NO_IS_UPDATED) ? "1" : "0";
         }
         $response[AjaxKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $projectModel->haveFilesToExportList();
 
@@ -21,7 +26,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
     }
 
     public static function stIsUpdatedDate($obj, $metaDataSubSet) {
-        $isUpdated = FALSE;
+        $isUpdated = self::FORA_FINESTRA;
         $projectModel = $obj->getModel();
 
         if ($projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet) !== NULL) {
@@ -78,7 +83,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
 
                 if ($finestraOberta) {
                     $updatedDate = $projectModel->getProjectSystemSubSetAttr("updatedDate");
-                    $isUpdated = ($updatedDate && $updatedDate >= $inici_semestre->getTimestamp());
+                    $isUpdated = ($updatedDate && $updatedDate >= $inici_semestre->getTimestamp()) ? self::IS_UPDATED : self::NO_IS_UPDATED;
                 }
             }
         }
