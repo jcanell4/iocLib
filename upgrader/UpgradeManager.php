@@ -24,12 +24,8 @@ class UpgradeManager {
 
     public function preProcess($ver_project, $ver_config, $type, $key) {
         $new_ver = $this->process($ver_project, $ver_config, $type, $key);
-        if ($key) {
-            $versions_project[$type][$key] = $new_ver;
-        }else {
-            $versions_project[$type] = $new_ver;
-        }
-        $this->model->setProjectSystemSubSetAttr("versions", $versions_project, $this->metaDataSubSet);
+        $att = ($type === "fields") ? $type : $key;
+        $this->model->setProjectSystemSubSetVersion($att, $new_ver, $this->metaDataSubSet);
         if ($new_ver < $ver_config){
             throw new Exception("Error en l'actualització completa de la versió del projecte.");
         }
