@@ -972,7 +972,7 @@ class BasicPdfRenderer {
         }else {
             $ret = $this->getContent($content);
         }
-        $this->_cleanWriteHTML($ret, $iocTcPdf);
+        $this->_cleanWriteHTML($ret, $content['type'], $iocTcPdf);
 
         if ($content["type"] == StructuredNodeDoc::ORDERED_LIST_TYPE
                 || $content["type"] == StructuredNodeDoc::UNORDERED_LIST_TYPE
@@ -1060,7 +1060,7 @@ class BasicPdfRenderer {
      * @param $cell (boolean) if true add the current left (or right for RTL) padding to each Write (default false).
      * @param $align (string) Allows to center or align the text. Possible values are: L:left align - C:center - R:right align - empty:left for LTR or right for RTL
      */
-    private function _cleanWriteHTML($content, IocTcPdf &$iocTcPdf) {
+    private function _cleanWriteHTML($content, $type, IocTcPdf &$iocTcPdf) {
         $c = 0;
         $aSearch = ["/0xFF/", "/0xFEFF/"];
         $aReplace = [" ", " "];
@@ -1068,6 +1068,13 @@ class BasicPdfRenderer {
         if ($c > 0) {
             $content = str_replace($aSearch, $aReplace, $content);
         }
+        if ($type === TableFrame::FRAME_TABLE) {
+            //Elimina los tags <thead> de las tablas para que el pdf resultante no agrupe indebidamente las cabeceras
+            $aSearch = ["/<thead>/", "/<\/thead>/"];
+            $aReplace = "";
+            $content = preg_replace($aSearch, $aReplace, $content);
+        }
+
         $margins = $iocTcPdf->getMargins();
         $cellMargins = $iocTcPdf->getCellMargins();
         $cellPaddings = $iocTcPdf->getCellPaddings();
