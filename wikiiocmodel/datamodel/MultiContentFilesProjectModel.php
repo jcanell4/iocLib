@@ -40,8 +40,10 @@ abstract class MultiContentFilesProjectModel extends AbstractProjectModel{
     public static function stForceFileComponentRenderization($model, $isGenerated=NULL){
         if (!$model->getNeedGenerateAction() || $isGenerated){
             $llista = $model->llistaDeEspaiDeNomsDeDocumentsDelProjecte();
-            foreach ($llista as $p) {
-                p_set_metadata($p, array('metadataProjectChanged' => time()));
+            if (!empty($llista)) {
+                foreach ($llista as $p) {
+                    p_set_metadata($p, array('metadataProjectChanged' => time()));
+                }
             }
         }
     }
