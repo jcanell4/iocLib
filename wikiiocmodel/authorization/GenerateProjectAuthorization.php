@@ -12,10 +12,10 @@ class GenerateProjectAuthorization extends ProjectCommandAuthorization {
     public function __construct() {
         parent::__construct();
         $this->allowedGroups[] = "projectmanager";
-        $this->allowedRoles = [];
+        $this->allowedRoles[] = ProjectPermission::ROL_AUTOR;
     }
 
-    public function canRun($permis=AUTH_CREATE, $type_exception="Generate") {
+    public function canRun($permis=AUTH_NONE, $type_exception="Generate") {
 //        if (parent::canRun()) {
 //            if ($this->permission->getInfoPerm() < AUTH_CREATE) {
 //                $this->errorAuth['error'] = TRUE;
