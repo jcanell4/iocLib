@@ -31,13 +31,8 @@ class BasicWorkflowProjectAction extends ProjectAction {
         return $ret;
     }
 
-
-
     protected function preResponseProcess() {
-//        parent::preResponseProcess();
-
         $model = $this->getModel();
-
         $user_roles = (is_array($this->params['roles'])) ? $this->params['roles'] : [$this->params['roles']];
         $user_groups = $this->params['groups'];
 
@@ -113,8 +108,6 @@ class BasicWorkflowProjectAction extends ProjectAction {
     }
 
     protected function postResponseProcess(&$response) {
-//        parent::postResponseProcess($response);
-
         $model = $this->getModel();
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
@@ -130,7 +123,8 @@ class BasicWorkflowProjectAction extends ProjectAction {
 
     private function getActionName($action) {
         $actions = [ProjectKeys::KEY_EDIT => "GetProjectAction",
-                    ProjectKeys::KEY_SAVE => "SetProjectAction"
+                    ProjectKeys::KEY_SAVE => "SetProjectAction",
+                    ProjectKeys::KEY_FTP_PROJECT => "FtpProjectAction"
                    ];
         $ret = ($actions[$action]) ? $actions[$action]: ucfirst($action)."ProjectAction";
         return $ret;
