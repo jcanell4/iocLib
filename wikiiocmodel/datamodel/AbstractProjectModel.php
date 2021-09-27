@@ -1032,8 +1032,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Indica si el proyecto ya existe
      * @return boolean
      */
-    public function existProject() {
-        return $this->projectMetaDataQuery->existProject();
+    public function existProject($id=NULL) {
+        return $this->projectMetaDataQuery->existProject($id);
     }
 
     /**
