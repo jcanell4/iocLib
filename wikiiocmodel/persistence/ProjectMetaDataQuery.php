@@ -236,8 +236,9 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param string $ns
      * @return boolean
      */
-    public function existProject() {
-        return $this->isAProject($this->getProjectId());
+    public function existProject($id=NULL) {
+        if ($id === NULL) $id = $this->getProjectId();
+        return $this->isAProject($id);
     }
 
     /**
@@ -1015,11 +1016,13 @@ class ProjectMetaDataQuery extends DataQuery {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
                 if (($content = file_get_contents($file))) {
-                    $search = "/^\[\[{$old_name}.*\]\]$/m";
-                    if (preg_match($search, $content, $stmp) === 1) {
-                        $insert = $stmp[0]."\n\n[[{$new_name}|accés al projecte {$new_name}]]";
-                        $content = preg_replace($search, $insert, $content);
-                    }
+//                    Insertar el enlace duplicado justo debajo del original
+//                    $search = "/^\[\[{$old_name}.*\]\]$/m";
+//                    if (preg_match($search, $content, $stmp) === 1) {
+//                        $insert = $stmp[0]."\n\n[[{$new_name}|accés al projecte {$new_name}]]";
+//                        $content = preg_replace($search, $insert, $content);
+//                    }
+                    $content .= "\n\n[[{$new_name}|accés al projecte {$new_name}]]";
                     if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                         throw new Exception("duplicateProject: Error mentre canviava el contingut de la drecera de $user.");
                 }
