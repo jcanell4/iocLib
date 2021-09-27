@@ -80,6 +80,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $workflowJson = $this->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
 
+        $msgState = WikiIocLangManager::getLang('workflowState')[$newState];
         if ($currentState !== $newState) {
             $newMetaData['changeDate'] = date("Y-m-d");
             $newMetaData['oldState'] = $currentState;
@@ -91,10 +92,10 @@ class BasicWorkflowProjectAction extends ProjectAction {
             $metaDataManagement['workflow']['currentState'] = $newState;
 
             $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
-            $message = self::generateInfo("info", "El canvi d'estat a '{$newState}' ha finalitzat correctament.", $id);
+            $message = self::generateInfo("info", "El canvi d'estat a '{$msgState}' ha finalitzat correctament.", $id);
             $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
-        $message = self::generateInfo("info", "L'estat actual és |{$newState}|.", $id);
+        $message = self::generateInfo("info", "L'estat actual és: '{$msgState}'.", $id);
         $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
     }
     
