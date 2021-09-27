@@ -12,16 +12,15 @@ class BasicDuplicateProjectAction extends ProjectAction {
         $oldID = $this->params[ProjectKeys::KEY_ID];
         $newID = "{$this->params['new_path']}:{$this->params['new_project']}";
 
+        //Sólo se ejecutará si no existe el proyecto que se desea crear (el duplicado)
+        if ($model->existProject($newID)) {
+            throw new ProjectExistException($newID);
+        }
         $response = $model->getData();
         $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
 
         $this->params[ProjectKeys::KEY_ID] = $newID;
         parent::setParams($this->params);
-
-        //Sólo se ejecutará si no existe el proyecto que se desea crear (el duplicado)
-        if ($this->getModel()->existProject()) {
-            throw new ProjectExistException($this->params[ProjectKeys::KEY_ID]);
-        }
 
         $old = explode(":", $oldID);
         $old_project = array_pop($old);
