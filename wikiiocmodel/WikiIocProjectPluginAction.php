@@ -4,8 +4,7 @@
  * @culpable Rafael Claver
  */
 if (!defined("DOKU_INC")) die();
-if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC.'lib/lib_ioc/');
 
 class WikiIocProjectPluginAction extends WikiIocPluginAction {
 
@@ -115,7 +114,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                         }
                         $condButtonVisible .= "$startStr";
                         foreach ($values as $item) {
-                            $condButtonVisible .= "$key==$item$glue";                        
+                            $condButtonVisible .= "$key==$item$glue";
                         }
                         if(!empty($glue)){
                             $condButtonVisible = substr($condButtonVisible, 0, -3);
@@ -149,7 +148,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                                          $conditionsButtonVisible,
                                          $changeWidgetPropertyCondition];
 
-            $arxiu =  WIKI_IOC_MODEL."metadata/templates/templateUpdateViewHandler.js";
+            $arxiu = DOKU_LIB_IOC."wikiiocmodel/templates/templateUpdateViewHandler.js";
             $event->data->addControlScript($arxiu, $aReplacements);
         }
     }
@@ -184,7 +183,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                                          $workflowState,
                                          json_encode($configDataFunctions)];
 
-            $arxiu =  WIKI_IOC_MODEL."metadata/templates/templateUpdateButtonAttributes.js";
+            $arxiu = DOKU_LIB_IOC."wikiiocmodel/templates/templateUpdateButtonAttributes.js";
             $event->data->addControlScript($arxiu, $aReplacements);
         }
     }
