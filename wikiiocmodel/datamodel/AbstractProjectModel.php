@@ -885,6 +885,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     private function _updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
+        if($originalDataKeyValue){
+            $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
+        }
         $values = $this->updateCalculatedFieldsOnSave($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
@@ -893,6 +896,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     private function _updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
+        if($originalDataKeyValue){
+            $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
+        }
         $values = $this->updateCalculatedFieldsOnRead($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
