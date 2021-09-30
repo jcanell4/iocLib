@@ -102,6 +102,20 @@ abstract class AbstractWikiAction {
         if (!isset($response['meta'])) {
             $response['meta'] = array();
         }
+
+        //Descomponer la lista de usuarios en usuarios únicos
+        foreach ($list as $elem) {
+            $users = preg_split("/[\s,]+/", $elem['username']);
+            foreach ($users as $user) {
+                $u_list[] = $user;
+            }
+        }
+        $u_list = array_unique($u_list);
+        foreach ($u_list as $user) {
+            $users_list[] = ['username' => $user,
+                             'name' => ""];
+        }
+        
         $response['meta'][] = [
             "id" => $ns . "_metaNotifications",
             "title" => WikiIocLangManager::getLang('notification_form_title'),
@@ -140,7 +154,7 @@ abstract class AbstractWikiAction {
                             ],
                             'fieldId' => 'username',
                             'defaultEntryField' => 'name',
-                            'data' => $list,
+                            'data' => $users_list,
                         ],
                         'class' => 'IocFilteredList',
                         'label' => WikiIocLangManager::getLang('notification_form_to'), // Optional
