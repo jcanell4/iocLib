@@ -904,9 +904,29 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
+    // Hace trim, recursivamente, a los valores de todos los campos de $data
+    private function _timData($data, $json=FALSE) {
+        if (!is_array($data)) {
+            $data = json_decode($data, true);
+        }
+        foreach ($data as $key => $value) {
+            if (!empty($value)) {
+                $elem = json_decode($value, true);
+                if (is_array($value)) {
+                    $data[$key] = $this->_timData($value);
+                }elseif (is_array($elem)) {
+                    $data[$key] = $this->_timData($elem, TRUE);
+                }else {
+                    $data[$key] = trim($value);
+                }
+            }
+        }
+        return ($json) ? json_encode($data) : $data;
+    }
+
     public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
-        // A implementar a les subclasses, per defecte no es fa res
-        return $data;
+        // A implementar a les subclasses, per defecte només fa trim als valors dels camps
+        return $this->_timData($data);
     }
 
     public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
