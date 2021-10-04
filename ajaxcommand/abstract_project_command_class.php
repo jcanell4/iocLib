@@ -64,12 +64,10 @@ abstract class abstract_project_command_class extends abstract_command_class {
         $rol = $this->authorization->getPermission()->getRol();
         $rolList = $this->authorization->getPermission()->getRol(true);
         $rolOrder = $this->authorization->getPermission()->getRolOrder();
-        $roleList = $this->authorization->getPermission()->getRol(true);
         if ($rol) {
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL] = $rol;
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL."List"] = $rolList;
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL."Order"] = $rolOrder;
-            $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL."List"] = $roleList;
         }
         if ($projectMetaData[ProjectKeys::KEY_PROJECT_TYPE]) {
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_PROJECT_TYPE] = $projectMetaData[ProjectKeys::KEY_PROJECT_TYPE];
