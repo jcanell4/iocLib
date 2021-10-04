@@ -42,12 +42,9 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                             $event->data->addControlScript($path.$value);
                     }
                 }
-
-                if (isset($arrayButton['id'])) {
-                    $id = $arrayButton['id'];
-                }else {
-                    $id = $arrayButton['parms']['DOM']['id'];
-                }
+                
+                $id = (isset($arrayButton['id'])) ? $arrayButton['id'] : $arrayButton['parms']['DOM']['id'];
+                
                 //Construcción de los valores de sustitución de los patrones para el template UpdateViewHandler
                 //changeWidgetProperty sólo para los botones propios
                 if (!(!isset($arrayButton['class']) || isset($arrayButton['overwrite']))) {
@@ -93,7 +90,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 if ($aRoles) {
                     $rolButtonVisible = "is${id}ButtonVisible = is${id}ButtonVisible || (";
                     foreach ($aRoles as $value) {
-                        $rolButtonVisible .= "page.rol=='".$value."' || ";
+                        $rolButtonVisible .= "page.rolList.includes('${value}') || ";
                     }
                     $rolButtonVisible = substr($rolButtonVisible, 0, -4) . ");";
                 }
