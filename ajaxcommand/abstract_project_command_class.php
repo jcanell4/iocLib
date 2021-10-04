@@ -63,9 +63,11 @@ abstract class abstract_project_command_class extends abstract_command_class {
     protected function _addExtraData(&$projectMetaData) {
         $rol = $this->authorization->getPermission()->getRol();
         $rolOrder = $this->authorization->getPermission()->getRolOrder();
+        $roleList = $this->authorization->getPermission()->getRol(true);
         if ($rol) {
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL] = $rol;
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL."Order"] = $rolOrder;
+            $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_ROL."List"] = $roleList;
         }
         if ($projectMetaData[ProjectKeys::KEY_PROJECT_TYPE]) {
             $projectMetaData[ProjectKeys::KEY_PROJECT_EXTRADATA][ProjectKeys::KEY_PROJECT_TYPE] = $projectMetaData[ProjectKeys::KEY_PROJECT_TYPE];
