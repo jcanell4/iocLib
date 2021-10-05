@@ -417,11 +417,11 @@ class BasicRenderFile extends AbstractRenderer {
         $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
         $_SESSION['alternateAddress'] = TRUE;
         $_SESSION['dir_images'] = "img/";
-        if($this->cfgExport->styletype){
+        if ($this->cfgExport->styletype){
             $_SESSION['styletype'] = $this->cfgExport->styletype;
         }
 
-        if(preg_match("/".$this->cfgExport->id."/", $data)!=1){
+        if (preg_match("/".$this->cfgExport->id."/", $data)!=1){
             $fns = $this->cfgExport->id.":".$data;
         }
         $file = wikiFN($fns);
@@ -436,9 +436,13 @@ class BasicRenderFile extends AbstractRenderer {
 
         $instructions = p_get_instructions($text);
         $renderData = array();
-        $html = $this->render($instructions, $renderData);
-        if(empty($alias)){
-            $alias=$data;
+        try {
+            $html = $this->render($instructions, $renderData);
+        }catch (Exception $e) {
+            throw new Exception($e->getMessage().". En el document: ".trim($data));
+        }
+        if (empty($alias)){
+            $alias = $data;
         }
         $this->cfgExport->toc[$alias] = $renderData["tocItems"];
         if ($startedHere) session_destroy();
