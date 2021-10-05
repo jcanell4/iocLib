@@ -439,7 +439,7 @@ class BasicRenderFile extends AbstractRenderer {
         try {
             $html = $this->render($instructions, $renderData);
         }catch (Exception $e) {
-            throw new Exception($e->getMessage().". En el document: ".trim($data));
+            throw new Exception($e->getMessage().". En el document: $data");
         }
         if (empty($alias)){
             $alias = $data;
