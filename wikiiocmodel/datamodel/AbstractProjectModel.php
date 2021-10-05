@@ -911,10 +911,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         foreach ($data as $key => $value) {
             if (!empty($value)) {
-                $elem = json_decode($value, true);
                 if (is_array($value)) {
                     $data[$key] = $this->_timData($value);
-                }elseif (is_array($elem)) {
+                }
+                $elem = json_decode($value, true);
+                if (is_array($elem)) {
                     $data[$key] = $this->_timData($elem, TRUE);
                 }else {
                     $data[$key] = trim($value);
