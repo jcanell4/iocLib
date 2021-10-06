@@ -1116,6 +1116,61 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
+     * Canvia el valor del camp 'nsProgramacio' quan es fa un 'rename' d'un projecte de programació
+     * buscant en tots els projectes del model ·pla de treball"
+     * @param string $old_name : nom original del projecte (ns en format wiki ruta)
+     * @param string $new_name : nou nom del projecte (ns en format wiki ruta)
+     * @param array $projectesPlaTreball : array de tipus de projecte del model ·pla de treball"
+     * @return boolean : true o false
+     */
+    public function changeNsProgramacioField($old_name, $new_name, $projectesPlaTreball) {
+        $basedir = WikiGlobalConfig::getConf('mdprojects');
+        $pos = strlen($basedir)+1;
+        $ret = $this->_changeNsProgramacioField($pos, $basedir, $old_name, $new_name, $projectesPlaTreball);
+        return $ret;
+    }
+
+    /**
+     * Canvia el valor del camp 'nsProgramacio' quan es fa un 'rename' d'un projecte de programació
+     * buscant en tots els projectes del model ·pla de treball"
+     * @param integer $pos :
+     * @param string $dir : directori per escanejar
+     * @param string $old_name : nom original del projecte (ns en format wiki ruta)
+     * @param string $new_name : nou nom del projecte (ns en format wiki ruta)
+     * @param array $projectesPT : array de tipus de projecte del model ·pla de treball"
+     * @return boolean : true o false
+     */
+    private function _changeNsProgramacioField($pos, $dir, $old_name, $new_name, $projectesPT) {
+        $ret = TRUE;
+        $scan = @scandir($dir);
+        if ($scan) $scan = array_diff($scan, [".", ".."]);
+        if ($scan) {
+            foreach ($scan as $file) {
+                if (in_array($file, $projectesPT)) {
+                    $id = str_replace("/", ":", substr($dir, $pos));
+                    $metaDataSubSet = "main";
+                    $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
+                    if (is_file("$dir/$file/$projectFileName")) {
+                        $dades = $this->getDataProject($id, $file, $metaDataSubSet);
+                        if (is_array($dades) && $dades['nsProgramacio'] === $old_name) {
+                            $dades['nsProgramacio'] = $new_name;
+                            $ret = $this->_setMeta($metaDataSubSet,
+                                                   "$dir/$file/",
+                                                   $projectFileName,
+                                                   $dades,
+                                                   "nsProgramacio: canvi de nom de la programació associada",
+                                                   "");
+                        }
+                    }
+                }elseif (is_dir("$dir/$file")) {
+                    $ret = $ret && $this->_changeNsProgramacioField($pos, "$dir/$file", $old_name, $new_name, $projectesPT);
+                }
+            }
+        }
+        return $ret;
+    }
+
+    /**
      * @return array Con los datos del proyecto (.mdpr en mdprojects/) correspondientes a la clave '$metaDataSubSet'
      */
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {

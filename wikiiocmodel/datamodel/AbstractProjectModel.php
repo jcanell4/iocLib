@@ -596,8 +596,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
         $this->projectMetaDataQuery->changeOldPathInACLFile($base_old_dir, $old_name, $base_old_dir, $new_name);
 
+        $projectesProgramacio = ["prgfpfct", "prgfploe", "prgfplogse"];
+        $projectesPlaTreball = ["ptfct", "ptfploe", "ptfplogse"];
+        if (in_array($this->getProjectType(), $projectesProgramacio)) {
+            $old = str_replace("/", ":", "$base_old_dir:$old_name");
+            $new = str_replace("/", ":", "$base_old_dir:$new_name");
+            $this->projectMetaDataQuery->changeNsProgramacioField($old, $new, $projectesPlaTreball);
+        }
+
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
-        $this->setProjectId($new_ns);;
+        $this->setProjectId($new_ns);
     }
 
     /**
