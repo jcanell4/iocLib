@@ -905,29 +905,45 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     // Hace trim, recursivamente, a los valores de todos los campos de $data
-    private function _timData($data, $json=FALSE) {
-        if (!is_array($data)) {
-            $data = json_decode($data, true);
-        }
-        foreach ($data as $key => $value) {
-            if (!empty($value)) {
-                if (is_array($value)) {
-                    $data[$key] = $this->_timData($value);
-                }
-                $elem = json_decode($value, true);
-                if (is_array($elem)) {
-                    $data[$key] = $this->_timData($elem, TRUE);
-                }else {
-                    $data[$key] = trim($value);
-                }
+    private function _trimData($data) {
+        if(is_string($data)){
+            $data = trim($data);
+            if($data[0]==="[" && $data[strlen($data)-1]==="]" || $data[0]==="{" && $data[strlen($data)-1]==="}"){
+                $dData = json_decode($data, TRUE);
+                $dData= $this->_trimData($dData);
+                $data = json_encode($dData);
+            }            
+        }else if(is_array($data)){
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->_trimData($value);
             }
         }
-        return ($json) ? json_encode($data) : $data;
+        return $data;
     }
+//    // Hace trim, recursivamente, a los valores de todos los campos de $data
+//    private function _timData($data, $json=FALSE) {
+//        if (!is_array($data)) {
+//            $data = json_decode($data, true);
+//        }
+//        foreach ($data as $key => $value) {
+//            if (!empty($value)) {
+//                if (is_array($value)) {
+//                    $data[$key] = $this->_timData($value);
+//                }
+//                $elem = json_decode($value, true);
+//                if (is_array($elem)) {
+//                    $data[$key] = $this->_timData($elem, TRUE);
+//                }else {
+//                    $data[$key] = trim($value);
+//                }
+//            }
+//        }
+//        return ($json) ? json_encode($data) : $data;
+//    }
 
     public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
         // A implementar a les subclasses, per defecte només fa trim als valors dels camps
-        return $this->_timData($data);
+        return $this->_trimData($data);
     }
 
     public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
