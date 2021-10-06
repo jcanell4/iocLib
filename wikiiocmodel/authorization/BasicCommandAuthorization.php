@@ -79,7 +79,7 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
     public function isUserRole($roles=[]) {
         $ret = FALSE;
         if (!empty($roles)) {
-            $userRoles = $this->permission->getRol();
+            $userRoles = $this->permission->getRol(true);
             if (!empty($userRoles)) {
                 if (!is_array($userRoles)) {
                     $userRoles = [$userRoles];
