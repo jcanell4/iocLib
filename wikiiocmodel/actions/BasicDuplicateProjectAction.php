@@ -59,7 +59,7 @@ class BasicDuplicateProjectAction extends ProjectAction {
 
     protected function postAction(&$response) {
         $this->resourceLocker->leaveResource(TRUE);
-        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], 'project_duplicated');
+        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], WikiIocLangManager::getLang('project_duplicated','wikiiocmodel'));
         $response['info'] = self::addInfoToInfo($response['info'], $new_message);
     }
 
