@@ -585,6 +585,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @param string $persons : noms dels autors i els responsables separats per ","
      */
     public function renameProject($ns, $new_name, $persons) {
+        $this->preRenameProject($ns, $new_name, $persons);
+        $this->postRenameProject($ns, $new_name);
+    }
+
+    public function preRenameProject($ns, $new_name, $persons) {
         $base_old_dir = explode(":", $ns);
         $old_name = array_pop($base_old_dir);
         $base_old_dir = implode("/", $base_old_dir);
@@ -595,15 +600,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->changeOldPathInContentFiles($base_old_dir, $old_name, $base_old_dir, $new_name);
         $this->projectMetaDataQuery->changeOldPathProjectInShortcutFiles($old_name, $new_name, $persons);
         $this->projectMetaDataQuery->changeOldPathInACLFile($base_old_dir, $old_name, $base_old_dir, $new_name);
+    }
 
-        $projectesProgramacio = ["prgfpfct", "prgfploe", "prgfplogse"];
-        $projectesPlaTreball = ["ptfct", "ptfploe", "ptfplogse"];
-        if (in_array($this->getProjectType(), $projectesProgramacio)) {
-            $old = str_replace("/", ":", "$base_old_dir:$old_name");
-            $new = str_replace("/", ":", "$base_old_dir:$new_name");
-            $this->projectMetaDataQuery->changeNsProgramacioField($old, $new, $projectesPlaTreball);
-        }
-
+    public function postRenameProject($ns, $new_name) {
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
         $this->setProjectId($new_ns);
     }
