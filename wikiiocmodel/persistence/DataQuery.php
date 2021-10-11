@@ -152,7 +152,7 @@ abstract class DataQuery {
             foreach ($scan as $file) {
                 if (is_dir("$path/$file")) {
                     if ($recursive) {
-                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $old_base_name, $new_base_name, $listfiles, TRUE);
+                        $ret = $this->_renameRenderGeneratedFiles("$path/$file", $old_base_name, $new_base_name, $listfiles, $recursive);
                         if (is_string($ret)) break;
                     }
                 }elseif (preg_match("/^$old_base_name/", $file)) {
@@ -173,6 +173,37 @@ abstract class DataQuery {
             }
         }
         return $ret;
+    }
+
+    /**
+     * Canvia el nom dels arxius de media_meta/ que contenen (en el nom) l'antiga ruta del projecte o directori
+     * @param string $old_base_name : directori wiki original del projecte o directori
+     * @param string $new_base_name : ruta actual del projecte o directori
+     * @throws Exception
+     */
+    public function renameMediaMetaFiles($old_base_name, $new_base_name) {
+        $newPath = WikiGlobalConfig::getConf('mediametadir')."/$new_base_name";
+        $old_base_name = str_replace("/", "_", $old_base_name);
+        $new_base_name = str_replace("/", "_", $new_base_name);
+        $ret = TRUE;
+        if (($scan = @scandir($newPath))){
+            foreach ($scan as $file) {
+                if (is_file("$newPath/$file")) {
+                    $search = "/^{$old_base_name}(.*)/";
+                    if (preg_match($search, $file)) {
+                        $newfile = preg_replace($search, "{$new_base_name}$1", $file);
+                        $ret = rename("$newPath/$file", "$newPath/$newfile");
+                        if (!$ret) {
+                            $ret = "$newPath/$file";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (is_string($ret)) {
+            throw new Exception("renameProjectOrDirectory: Error mentre canviava el nom de l'arxiu $ret.");
+        }
     }
 
     /**

@@ -14,13 +14,18 @@ class BasicRenameProjectAction extends BasicViewProjectAction {
         $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
         $model->renameProject($this->params[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_NEWNAME], $persons);
 
-        $this->setGlobalID($model->getId());
+        $old_ns = $this->params[ProjectKeys::KEY_ID];
+        $old_id = $this->idToRequestId($this->params[ProjectKeys::KEY_ID]);
+
+        $this->params[ProjectKeys::KEY_ID] = $newId = $model->getId();
+        $this->setGlobalID($newId);
+        parent::setParams($this->params);
 
         $response = parent::runAction();
 
-        $response[ProjectKeys::KEY_OLD_NS] = $this->params[ProjectKeys::KEY_ID];
-        $response[ProjectKeys::KEY_OLD_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID]);
-        $response[ProjectKeys::KEY_NS] = $model->getID();
+        $response[ProjectKeys::KEY_OLD_NS] = $old_ns;
+        $response[ProjectKeys::KEY_OLD_ID] = $old_id;
+        $response[ProjectKeys::KEY_NS] = $model->getId();
         $response[ProjectKeys::KEY_ID] = $this->idToRequestId($response[ProjectKeys::KEY_NS]);
         $response[ProjectKeys::KEY_GENERATED] = $model->isProjectGenerated();
 
@@ -49,7 +54,7 @@ class BasicRenameProjectAction extends BasicViewProjectAction {
 
     protected function postAction(&$response) {
         $this->resourceLocker->leaveResource(TRUE);
-        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], 'project_renamed');
+        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], WikiIocLangManager::getLang('project_renamed','wikiiocmodel'));
         $response['info'] = self::addInfoToInfo($response['info'], $new_message);
     }
 
@@ -60,7 +65,7 @@ class BasicRenameProjectAction extends BasicViewProjectAction {
 
     private function setGlobalID($id){
         global $INPUT;
-
         $INPUT->set("id", $id);
     }
+    
 }

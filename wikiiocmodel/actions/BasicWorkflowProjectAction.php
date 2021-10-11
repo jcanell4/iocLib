@@ -4,11 +4,11 @@ if (!defined('DOKU_INC')) die();
 class BasicWorkflowProjectAction extends ProjectAction {
 
     public function responseProcess() {
-        if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_VIEW){
+        if ($this->params[ProjectKeys::KEY_ACTION] === ProjectKeys::KEY_VIEW){
             $this->params["data-call"]= "project&do=workflow&action=view";
         }
         $action = parent::getActionInstance($this->getActionName($this->params[ProjectKeys::KEY_ACTION]));
-        if($this->params[ProjectKeys::KEY_ACTION]==ProjectKeys::KEY_SAVE){
+        if ($this->params[ProjectKeys::KEY_ACTION] === ProjectKeys::KEY_SAVE){
             $action->addExcludeKeys(["action", "roles", "groups"]);
         }        
         $response = $action->get($this->params);
@@ -69,13 +69,17 @@ class BasicWorkflowProjectAction extends ProjectAction {
 
     protected function stateProcess(&$projectMetaData) {
         $model = $this->getModel();
+        if ($this->params[ProjectKeys::KEY_ACTION] === ProjectKeys::KEY_RENAME && $this->params[ProjectKeys::KEY_NEWNAME]) {
+            $path = substr($this->params[ProjectKeys::KEY_ID], 0, strrpos($this->params[ProjectKeys::KEY_ID], ":"));
+            $this->params[ProjectKeys::KEY_ID] = "$path:{$this->params[ProjectKeys::KEY_NEWNAME]}";
+        }
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
 
         $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
 
-        $metaDataManagement = $metaDataQuery->getDataProject();
+        $metaDataManagement = $metaDataQuery->getDataProject($id);
         $currentState = $metaDataManagement['workflow']['currentState'];
         $workflowJson = $this->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
