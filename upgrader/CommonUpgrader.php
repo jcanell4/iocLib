@@ -7,6 +7,10 @@
 if (!defined("DOKU_INC")) die();
 
 class CommonUpgrader {
+
+    const ABANS = 0;
+    const DESPRES = 1;
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                    Actualización de nombres de campo del formulario
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
