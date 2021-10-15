@@ -18,11 +18,30 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
     public function renameProject($ns, $new_name, $persons) {
         $this->preRenameProject($ns, $new_name, $persons);
 
-        $projectesPlaTreball = ["ptfct", "ptfploe", "ptfplogse", "sintesi"];
+        $projectTypes = ["ptfct", "ptfploe", "ptfplogse", "sintesi"];
         $old_dir = explode(":", $ns);
         $old_name = array_pop($old_dir);
         $old_dir = implode(":", $old_dir);
-        $this->projectMetaDataQuery->changeNsProgramacioField("$old_dir:$old_name", "$old_dir:$new_name", $projectesPlaTreball);
+        $field = "nsProgramacio";
+        /**
+         * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
+         * @param array $dades : array de dades del projecte
+         * @param array $params : ['field', 'value']
+         * @return boolean
+         */
+        $function = function($dades, $params) {
+                        $field = $params[0];
+                        $value = $params[1];
+                        return (is_array($dades) && !empty($dades[$field]) && $dades[$field] === $value);
+                    };
+        $callback = ['function' => $function,
+                     'params' => [$field, "$old_dir:$old_name"]
+                    ];
+        $projectList = $this->projectMetaDataQuery->selectProjectsByField($callback, $projectTypes);
+        if (!empty($projectList)) {
+            $summary = "$field: canvi de nom de la programació associada";
+            $this->projectMetaDataQuery->changeFieldValueInProjects($field, "$old_dir:$new_name", $projectList, $summary, $callback);
+        }
 
         $this->postRenameProject($ns, $new_name);
     }

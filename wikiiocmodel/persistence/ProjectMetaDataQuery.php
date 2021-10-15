@@ -1116,54 +1116,77 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
-     * Canvia el valor del camp 'nsProgramacio' quan es fa un 'rename' d'un projecte de programació
-     * buscant en tots els projectes del model ·pla de treball"
-     * @param string $old_name : nom original del projecte (ns en format wiki ruta)
-     * @param string $new_name : nou nom del projecte (ns en format wiki ruta)
-     * @param array $projectesPlaTreball : array de tipus de projecte del model ·pla de treball"
-     * @return boolean : true o false
+     * Cerca els projectes que responen a la funció callback
+     * @param array $callback : nom i paràmetres de la funció callback que s'executarà per a cada projecte
+     * @param array $projectTypes : llista de projectes on cal fer la cerca
+     * @return array : llista dels projectes
      */
-    public function changeNsProgramacioField($old_name, $new_name, $projectesPlaTreball) {
+    public function selectProjectsByField($callback, $projectTypes=[]) {
         $basedir = WikiGlobalConfig::getConf('mdprojects');
         $pos = strlen($basedir)+1;
-        $ret = $this->_changeNsProgramacioField($pos, $basedir, $old_name, $new_name, $projectesPlaTreball);
+        $ret = $this->_selectProjectsByField($basedir, $pos, $callback, $projectTypes);
         return $ret;
     }
 
     /**
-     * Canvia el valor del camp 'nsProgramacio' quan es fa un 'rename' d'un projecte de programació
-     * buscant en tots els projectes del model ·pla de treball"
-     * @param integer $pos :
-     * @param string $dir : directori per escanejar
-     * @param string $old_name : nom original del projecte (ns en format wiki ruta)
-     * @param string $new_name : nou nom del projecte (ns en format wiki ruta)
-     * @param array $projectesPT : array de tipus de projecte del model ·pla de treball"
-     * @return boolean : true o false
+     * Cerca recursivament els projectes que responen a la funció callback
+     * @param string $dir : directori inicial on es fa la cerca
+     * @param integer $pos : longitud del directori base dins de l'string $dir
+     * @param array $callback : nom i paràmetres de la funció callback que s'executarà per a cada projecte
+     * @param array $projectTypes : llista de projectes on cal fer la cerca
+     * @return array : llista dels projectes
      */
-    private function _changeNsProgramacioField($pos, $dir, $old_name, $new_name, $projectesPT) {
-        $ret = TRUE;
+    private function _selectProjectsByField($dir, $pos, $callback, $projectTypes=[]) {
+        $selected = [];
         $scan = @scandir($dir);
         if ($scan) $scan = array_diff($scan, [".", ".."]);
         if ($scan) {
+            $metaDataSubSet = "main";
+            $id = str_replace("/", ":", substr($dir, $pos));
             foreach ($scan as $file) {
-                if (in_array($file, $projectesPT)) {
-                    $id = str_replace("/", ":", substr($dir, $pos));
-                    $metaDataSubSet = "main";
-                    $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
-                    if (is_file("$dir/$file/$projectFileName")) {
-                        $dades = $this->getDataProject($id, $file, $metaDataSubSet);
-                        if (is_array($dades) && $dades['nsProgramacio'] === $old_name) {
-                            $dades['nsProgramacio'] = $new_name;
-                            $ret = $this->_setMeta($metaDataSubSet,
-                                                   "$dir/$file/",
-                                                   $projectFileName,
-                                                   $dades,
-                                                   "nsProgramacio: canvi de nom de la programació associada",
-                                                   "");
+                if (is_dir("$dir/$file")) {
+                    if (empty($projectTypes) || in_array($file, $projectTypes)) {
+                        $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
+                        if (is_file("$dir/$file/$projectFileName")) {
+                            $dades = $this->getDataProject($id, $file, $metaDataSubSet);
+                            if ($callback['function']($dades, $callback['params'])) {
+                                $selected[] = $id;
+                            }
+                        }
+                    }else {
+                        $ret = $this->_selectProjectsByField("$dir/$file", $pos, $callback, $projectTypes);
+                        if (!empty($ret)) {
+                            $selected = array_merge($selected, $ret);
                         }
                     }
-                }elseif (is_dir("$dir/$file")) {
-                    $ret = $ret && $this->_changeNsProgramacioField($pos, "$dir/$file", $old_name, $new_name, $projectesPT);
+                }
+            }
+        }
+        return $selected;
+    }
+
+    public function changeFieldValueInProjects($field, $new_value, $projectes, $summary, $callback) {
+        $ret = TRUE;
+        $basedir = WikiGlobalConfig::getConf('mdprojects');
+        $metaDataSubSet = "main";
+        foreach ($projectes as $project) {
+            $dir = "$basedir/".str_replace(":", "/", $project);
+            $scan = @scandir($dir);
+            if ($scan) $scan = array_diff($scan, [".", ".."]);
+            if ($scan) {
+                foreach ($scan as $file) {
+                    $projectDataFile = $this->getProjectFileName($metaDataSubSet, $file);
+                    if (is_file("$dir/$file/$projectDataFile")) {
+                        $dades = $this->getDataProject($project, $file, $metaDataSubSet);
+                        if ($callback['function']($dades, $callback['params'])) {
+                            $dades[$field] = $new_value;
+                            $ret = $this->_setMeta($metaDataSubSet,
+                                                   "$dir/$file/",
+                                                   $projectDataFile,
+                                                   $dades,
+                                                   $summary, "");
+                        }
+                    }
                 }
             }
         }
