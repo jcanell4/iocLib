@@ -4,10 +4,13 @@
  * @author rafael
  */
 if (!defined("DOKU_INC")) die();
+if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC.'lib/lib_ioc/');
+require_once DOKU_LIB_IOC . "wikiiocmodel/ResourceLocker.php";
 
 class UpgradeManager {
 
     protected $model;
+    protected $resourceLocker;
     protected $projectType;
     protected $metaDataSubSet;
     protected $ver_project = 0;  //versió del projecte actual
@@ -17,6 +20,10 @@ class UpgradeManager {
         $this->model = $model;
         $this->projectType = ($projectType) ? $projectType : $this->model->getProjectType();
         $this->metaDataSubSet = ($metaDataSubSet) ? $metaDataSubSet : $this->model->getMetaDataSubSet();
+
+        $this->resourceLocker = new ResourceLocker($this->model->getPersistenceEngine());
+        $this->resourceLocker->init([ProjectKeys::KEY_ID => $this->model->getId()]);
+
         if ($ver_project) $this->ver_project = $ver_project;
         if ($ver_config) $this->ver_config = $ver_config;
         $this->validaProcessVersion($type);
@@ -37,21 +44,30 @@ class UpgradeManager {
         if ($ver_config) $this->ver_config = $ver_config;
         $this->validaProcessVersion($type);
 
-        $dir = WikiIocPluginController::getProjectTypeDir($this->projectType) . "upgrader";
-        for ($i=$ver_project+1; $i<=$ver_config; $i++) {
-            $uclass = "upgrader_$i";
-            $udir = "$dir/$uclass.php";
-            if (file_exists($udir)) {
-                require_once $udir;
-                $iupgrade = new $uclass($this->model);
-                if ($iupgrade->process($type, $i, $key)) {
-                    $ret = $i;
-                }else {
-                    break;  //Se ha producido un error en una actualización y, por tanto, se fuerza la finalización del proceso
+        $lockStruct = $this->resourceLocker->requireResource(TRUE);
+
+        if ($lockStruct["state"] === ResourceLockerInterface::LOCKED){
+            $dir = WikiIocPluginController::getProjectTypeDir($this->projectType) . "upgrader";
+            for ($i=$ver_project+1; $i<=$ver_config; $i++) {
+                $uclass = "upgrader_$i";
+                $udir = "$dir/$uclass.php";
+                if (file_exists($udir)) {
+                    require_once $udir;
+                    $iupgrade = new $uclass($this->model);
+                    if ($iupgrade->process($type, $i, $key)) {
+                        $ret = $i;
+                    }else {
+                        break;  //Se ha producido un error en una actualización y, por tanto, se fuerza la finalización del proceso
+                    }
+                }else{
+                    break;
                 }
-            }else{
-                break;
             }
+            $this->resourceLocker->leaveResource(TRUE);
+        }else {
+            if ($key===NULL) $key = $this->model->getProjectDocumentName();
+            $id = $this->model->getId().":$key";
+            throw new FileIsLockedException($id, "lockedByUpdate");
         }
         return $ret;
     }
