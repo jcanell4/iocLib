@@ -3,7 +3,6 @@ if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 
 require_once DOKU_INC . 'inc/inc_ioc/MailerIOC.class.php';
-require_once DOKU_PLUGIN . "wikiiocmodel/LockManager.php";
 
 class NotifyAction extends AbstractWikiAction {
     const DO_INIT    = "init";
