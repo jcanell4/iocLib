@@ -15,4 +15,8 @@ abstract class AbstractWikiModel {
 
     public abstract function setData($toSet);
 
+    public function getPersistenceEngine(){
+        return $this->persistenceEngine;
+    }
+
 }

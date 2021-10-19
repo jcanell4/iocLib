@@ -14,10 +14,6 @@ abstract class AbstractWikiDataModel extends AbstractWikiModel{
         $this->pageDataQuery = $persistenceEngine->createPageDataQuery();
     }
 
-    public function getPersistenceEngine(){
-        return $this->persistenceEngine;
-    }
-
     public function getProjectMetaDataQuery() {
         return $this->projectMetaDataQuery;
     }
