@@ -10,6 +10,22 @@ class CommonUpgrader {
 
     const ABANS = 0;
     const DESPRES = 1;
+    
+    protected $model;
+    protected $metaDataSubSet;
+
+    public function __construct($model) {
+        $this->model = $model;
+        $this->metaDataSubSet = $this->model->getMetaDataSubSet();
+    }
+
+    public function upgrade($type, $ver, $filename=NULL) {
+        $isOnView = $this->model->getIsOnView();
+        $this->model->setIsOnView(false);
+        $ret =$this->process($type, $ver, $filename);
+        $this->model->setIsOnView($isOnView);
+        return $ret;
+    }
 
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                    Actualización de nombres de campo del formulario

@@ -54,7 +54,7 @@ class UpgradeManager {
                 if (file_exists($udir)) {
                     require_once $udir;
                     $iupgrade = new $uclass($this->model);
-                    if ($iupgrade->process($type, $i, $key)) {
+                    if ($iupgrade->upgrade($type, $i, $key)) {
                         $ret = $i;
                     }else {
                         break;  //Se ha producido un error en una actualización y, por tanto, se fuerza la finalización del proceso
