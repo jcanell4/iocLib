@@ -12,7 +12,12 @@ class ValidateByExactMatch extends ValidateWithResponse{
     public function validate($data) {
         $ret = true;
         foreach ($data["responses"] as $matcher){
-            $ret = $ret && ($this->response[$matcher["key"]]===$matcher["value"]);
+            $ret = $ret && isset($this->response[$matcher["key"]]);
+            if($ret && isset($this->response[$matcher["key"]]["type"])){
+                $ret = $ret && ($this->response[$matcher["key"]]["value"]===$matcher["value"]);
+            }else{
+                $ret = $ret && ($this->response[$matcher["key"]]===$matcher["value"]);
+            }
         }
         if($data["deniedResponse"]){
             $ret = !$ret;
