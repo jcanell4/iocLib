@@ -710,12 +710,11 @@ abstract class DataQuery {
      */
     private function getNsItems($ns) { //debería llamarse getFullNsProperties()
         $this->setBaseDir();
-        $page = $this->datadir."/";
+        $page = $this->datadir."/".str_replace(":", "/", $ns);
         $ret[self::K_TYPE] = is_dir($page) ? "d" : (page_exists($ns) ? "f" : "");
 
         if ($ns) {
             $camins = explode(":", $ns);
-            $page .= implode("/", $camins);
             $type = $ret[self::K_TYPE];
             $pathElement = $this->metaDataPath."/".str_replace(":", "/", $ns);
 
@@ -727,16 +726,15 @@ abstract class DataQuery {
                     while ($current = readdir($fh)) {
                         $currentDir = "$parentDir/$current";
                         if (is_dir($currentDir) && $current !== "." && $current !== "..") {
-                            $ret = $this->getProjectProperties($pathElement, $currentDir, $nsElement, $current);
-                            if ($ret[self::K_PROJECTTYPE]) {
+                            $prp = $this->getProjectProperties($pathElement, $currentDir, $nsElement, $current);
+                            if ($prp[self::K_PROJECTTYPE]) {
                                 if ($type==="f") {
                                     $ret[self::K_TYPE] = "pf";
-                                    $ret[self::K_PROJECTSOURCETYPE] = $ret[self::K_PROJECTTYPE];
-                                    $ret[self::K_PROJECTOWNER] = $ret[self::K_NSPROJECT];
-                                    unset($ret[self::K_PROJECTTYPE]);
-                                    unset($ret[self::K_NSPROJECT]);
+                                    $ret[self::K_PROJECTSOURCETYPE] = $prp[self::K_PROJECTTYPE];
+                                    $ret[self::K_PROJECTOWNER] = $prp[self::K_NSPROJECT];
                                 }
-                                return $ret;
+                                $ret = $prp;
+                                break 2;
                             }
                         }
                     }
