@@ -93,14 +93,14 @@ class WiocclFunction extends WiocclInstruction
 
 
 
-    protected function COUNTINARRAY($array, $fields, $values=NULL){
+    protected function COUNTINARRAY($array, $fields, $values=NULL, $strict=false){
         if($values==NULL){
             $values=$fields;
             $fields=NULL;
         }
         $cont=0;
         foreach ($array as $item) {
-            if (self::_arrayFilter($item, $values, $fields)) {
+            if (self::_arrayFilter($item, $values, $fields, $strict)) {
                 $cont++;
             }
         }
@@ -435,7 +435,7 @@ class WiocclFunction extends WiocclInstruction
         return $ret;
     }
     
-    private static function _arrayFilter($element, $value, $field=false){
+    private static function _arrayFilter($element, $value, $field=false, $strict=false){
         if(is_array($value)){
             if(is_array($field)){
                 $compliant=true;
@@ -443,9 +443,9 @@ class WiocclFunction extends WiocclInstruction
                     $compliant = $compliant && self::_arrayFilter($element[$field[$i]],$value[$i]);
                 }
             }elseif($field===false){
-                $compliant = in_array($element, $value);
+                $compliant = in_array($element, $value, $strict);
             }else{
-                $compliant = in_array($element[$field], $value);
+                $compliant = in_array($element[$field], $value, $strict);
             }
         }else{
             if(is_array($field)){
@@ -454,9 +454,9 @@ class WiocclFunction extends WiocclInstruction
                     $compliant = $compliant && $element[$field[$i]]==$value;
                 }
             }elseif($field===false){
-                $compliant = $element == $value;
+                $compliant = $strict?$element === $value:$element == $value;
             }else{
-                $compliant = $element[$field] == $value;
+                $compliant = $strict?$element[$field] === $value:$element[$field] == $value;
             }
         }
         return $compliant;
@@ -742,13 +742,13 @@ class WiocclFunction extends WiocclInstruction
      * @param type $filter_value : valor del filtre que cal comparar
      * @return numeric : suma total de los valores del campo $camp
      */
-    protected function ARRAY_GET_SUM ($taula, $camp, $filter_field=NULL, $filter_value=NULL) {
+    protected function ARRAY_GET_SUM ($taula, $camp, $filter_field=NULL, $filter_value=NULL, $strict=false) {
         $suma = 0;
         if (!empty($taula)) {
             if ($filter_field !== NULL && $filter_value !== NULL) {
                 foreach ($taula as $fila) {
 //                    if ($fila[$filter_field] == $filter_value) {
-                    if (self::_arrayFilter($fila, $filter_value, $filter_field)) {
+                    if (self::_arrayFilter($fila, $filter_value, $filter_field, $strict)) {
                         $suma += $fila[$camp];
                     }
                 }
