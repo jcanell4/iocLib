@@ -206,10 +206,22 @@ class DW2HtmlInstruction extends IocInstruction
 
                     // El element amb id === 0 és el root, no s'afegeix
 //                    if ($topIndex >= 0 && WiocclParser::$structureStack[$topIndex]>0) {
+                    $class = static::$parserClass;
+
                     if ($refId !== -1) {
                         $refId = $this->getRefId();
                         $result .= '<span data-wioccl-ref="' . $refId . '">' . $item->getContent($currentToken) . '</span>';
+                    } else if (!$top && $class::isInner()) {
+                        // ALERTA[Xavi]
+                        // Si no hi ha $top això pot ser ser el principi o el final, si es deixa com a text pla quan
+                        // retorna la resposta parcial el resultat no és correcte, perquè es descarta per no ser
+                        // html vàlid. S'ha de comprovar que sigui inner, en cas contrari s'afegeix <span> a tot el document
+                        // Altres opcions que es poden comprovar: si $tokenIndex == 0  i si $nextToken == null
+
+                        // Idea: afegim un span especial que al javascript és reemplaçat per un node de text
+                        $result .= '<span data-text-node>' . $item->getContent($currentToken) . '</span>';
                     } else {
+
                         $result .= $item->getContent($currentToken);
                     }
 

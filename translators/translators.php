@@ -427,7 +427,8 @@ class DW2HtmlTranslator extends AbstractTranslator {
             if (self::DEBUG_STRUCTURE) {
                 Logger::debug("### WIOCCLSTRUCTURE START ###\n" . json_encode($extra['wioccl_structure']['structure']) . "\n### WIOCCLSTRUCTURE ###\n", 0, __LINE__, basename(__FILE__), 1, true);
             }
-            $extra['wioccl_structure']['structure']['next'] = strval(array_key_last($extra['wioccl_structure']['structure']) + 1);
+            $nextKey = max(array_key_last($extra['wioccl_structure']['structure']) + 1, $counter);
+            $extra['wioccl_structure']['structure']['next'] = strval($nextKey);
 
             if (self::DEBUG_STRUCTURE) {
                 static::debugStructure(WiocclParser::getStructure(), $headerData);
