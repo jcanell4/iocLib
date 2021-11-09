@@ -417,9 +417,11 @@ class DW2HtmlTranslator extends AbstractTranslator {
             if ($extra == NULL) {
                 $extra = [];
             }
+
             $extra['wioccl_structure'] = [
                 'header' => $headerData,
-                'structure' => WiocclParser::getStructure()
+                'structure' => WiocclParser::getStructure(),
+                'fields' => array_keys($dataSource)
             ];
 
             // dins es genera un json per comprovar els resultats de la estructura
