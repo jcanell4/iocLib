@@ -6,9 +6,6 @@
 if (!defined("DOKU_INC")) die();
 
 class RawPageAction extends EditPageAction {
-    const DOJO_EDITOR = "DOJO";
-    const ACE_EDITOR = "ACE";
-
     protected $lockStruct;
 
     public function init($modelManager = NULL) {
@@ -133,16 +130,14 @@ class RawPageAction extends EditPageAction {
     }
 
     protected function getEditorForContent() {
-
         // Si el tipus es HTML es força
         if ($this->dokuPageModel->GetFormat() === "HTML") {
-            return self::DOJO_EDITOR;
+            return PageKeys::DOJO_EDITOR;
         } else if ($this->params['editorType']) {
             return $this->params['editorType'];
         } else {
-            return self::ACE_EDITOR;
+            return PageKeys::ACE_EDITOR;
         }
-
     }
 
     private function _cleanResponse($text) {
@@ -289,7 +284,7 @@ class RawPageAction extends EditPageAction {
         $resp['content'] = $rawData['content'];
 
         // TODO s'ha de discriminar quan el $rawData ja és html
-        if (strtoupper($this->params['editorType']) === self::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
+        if (strtoupper($this->params['editorType']) === PageKeys::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
             // Pasem el extra perquè s'ompli, si escau al traductor (en aquest cas per afegir la estructura)
             // ALERTA! La implementació actual fa que això s'envii també al ['editing']['extra']
             $resp['content'] = $this->translateToHTML($resp['content'], $resp['extra']);
