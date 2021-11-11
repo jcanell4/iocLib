@@ -23,12 +23,12 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
             //enviar el contingut actual i determinar si hi ha canvis a l'esborrany
             $response['content'] = $this->_getRawData();
         }elseif ($this->_lockState() === self::LOCKED_BEFORE) {
-            //1) L'usuari té obert el document en una altra sessió
+            // L'usuari té obert el document en una altra sessió
             $rawData = $this->_getRawData();
             $response = $this->_getSelfLockedDialog($rawData);
         }elseif ($this->params[ProjectKeys::KEY_RECOVER_DRAFT]) {
             $response = parent::runAction();
-            $this->_getDraftResponse($response);
+//            $this->_getDraftResponse($response); //potser no és necessari
         }elseif ($this->params[ProjectKeys::KEY_DATE] && $this->params[ProjectKeys::KEY_RECOVER_DRAFT]!==FALSE) {
             $rawData = $this->_getRawData();
             $rawData['draftType'] = $this->_getDraftType($rawData['draftType']);
@@ -145,21 +145,21 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
         return $ret;
     }
 
-    private function _getDraftResponse(&$response) {
-        if (!$this->model->hasDraft()) {
-            throw new DraftNotFoundException($this->params[PageKeys::KEY_ID]);
-        }
-        if ($this->_lockState() === self::REQUIRED) {
-            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
-        }
-
-        $response['recover_draft'] = TRUE;
-        $info = self::generateInfo("warning", WikiIocLangManager::getLang('draft_editing'));
-        if (array_key_exists('info', $response)) {
-            $info = self::addInfoToInfo($response['info'], $info);
-        }
-        $response['info'] = $info;
-    }
+//    private function _getDraftResponse(&$response) {
+//        if (!$this->model->hasDraft()) {
+//            throw new DraftNotFoundException($this->params[PageKeys::KEY_ID]);
+//        }
+//        if ($this->_lockState() === self::REQUIRED) {
+//            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
+//        }
+//
+//        $response['recover_draft'] = TRUE;
+//        $info = self::generateInfo("warning", WikiIocLangManager::getLang('draft_editing'));
+//        if (array_key_exists('info', $response)) {
+//            $info = self::addInfoToInfo($response['info'], $info);
+//        }
+//        $response['info'] = $info;
+//    }
 
     private function _getLocalDraftResponse() {
         if ($this->_lockState() === self::REQUIRED) {
