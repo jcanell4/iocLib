@@ -55,7 +55,7 @@ class BasicCreateDocumentAction extends CreatePageAction {
         $toSave = con($this->params[PageKeys::KEY_PRE],
                       $this->params[PageKeys::KEY_WIKITEXT],
                       $this->params[PageKeys::KEY_SUF], 1);
-        if (strtoupper($this->params["editorType"]) === self::DOJO_EDITOR){
+        if (strtoupper($this->params["editorType"]) === PageKeys::DOJO_EDITOR){
             $toSave = $this->translateToDW($toSave);
         }
         $this->dokuPageModel->setData(array(

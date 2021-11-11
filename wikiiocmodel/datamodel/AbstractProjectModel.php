@@ -990,8 +990,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $drafts;
     }
 
-    private function hasDraft(){
+    public function hasDraft(){
         return $this->draftDataQuery->hasFull($this->id.$this->getMetaDataSubSet());
+    }
+
+    public function getFullDraftDate() {
+        $this->draftDataQuery->getFullDraftDate($this->id);
     }
 
     public function saveDraft($draft) {

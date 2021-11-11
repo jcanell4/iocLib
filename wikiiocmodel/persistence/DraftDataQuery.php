@@ -86,8 +86,8 @@ class DraftDataQuery extends DataQuery
     }
 
     /**
-     * Retorna cert si existeix un esborrany o no. En cas de que es trobi un esborrany més antic que el document es
-     * esborrat.
+     * Retorna cert si existeix un esborrany del propi usuari.
+     * En cas de que es trobi un esborrany més antic que el document, és esborrat.
      * @param $id - id del document
      * @return bool - cert si hi ha un esborrany vàlid o fals en cas contrari.
      */
