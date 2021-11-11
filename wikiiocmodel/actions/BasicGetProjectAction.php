@@ -28,7 +28,7 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
             $response = $this->_getSelfLockedDialog($rawData);
         }elseif ($this->params[ProjectKeys::KEY_RECOVER_DRAFT]) {
             $response = parent::runAction();
-//            $this->_getDraftResponse($response); //potser no és necessari
+            $this->_getDraftResponse($response);
         }elseif ($this->params[ProjectKeys::KEY_DATE] && $this->params[ProjectKeys::KEY_RECOVER_DRAFT]!==FALSE) {
             $rawData = $this->_getRawData();
             $rawData['draftType'] = $this->_getDraftType($rawData['draftType']);
@@ -145,21 +145,21 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
         return $ret;
     }
 
-//    private function _getDraftResponse(&$response) {
-//        if (!$this->model->hasDraft()) {
-//            throw new DraftNotFoundException($this->params[PageKeys::KEY_ID]);
-//        }
-//        if ($this->_lockState() === self::REQUIRED) {
-//            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
-//        }
-//
-//        $response['recover_draft'] = TRUE;
-//        $info = self::generateInfo("warning", WikiIocLangManager::getLang('draft_editing'));
-//        if (array_key_exists('info', $response)) {
-//            $info = self::addInfoToInfo($response['info'], $info);
-//        }
-//        $response['info'] = $info;
-//    }
+    private function _getDraftResponse(&$response) {
+        if (!$this->model->hasDraft()) {
+            throw new DraftNotFoundException($this->params[PageKeys::KEY_ID]);
+        }
+        if ($this->_lockState() === self::REQUIRED) {
+            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
+        }
+
+        $response['recover_draft'] = TRUE;
+        $info = self::generateInfo("warning", WikiIocLangManager::getLang('draft_editing'));
+        if (array_key_exists('info', $response)) {
+            $info = self::addInfoToInfo($response['info'], $info);
+        }
+        $response['info'] = $info;
+    }
 
     private function _getLocalDraftResponse() {
         if ($this->_lockState() === self::REQUIRED) {
