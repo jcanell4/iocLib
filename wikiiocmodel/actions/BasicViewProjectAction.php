@@ -5,9 +5,10 @@ class BasicViewProjectAction extends ProjectAction {
 
     protected function setParams($params) {
         parent::setParams($params);
-        $this->getModel()->setIsOnView(true);
+        $model = $this->getModel();
+        $model->setIsOnView(true);
         if (!$this->params[ProjectKeys::KEY_DATE]) {
-            $draft_date = $this->projectModel->getDraft('date');
+            $draft_date = $model->getDraft('date');
             if ($draft_date) {
                 $this->params[ProjectKeys::KEY_DATE] = $draft_date;
             }
@@ -22,22 +23,24 @@ class BasicViewProjectAction extends ProjectAction {
     }
 
     protected function runAction() {
-        $response = $this->projectModel->getData();
+        $model = $this->getModel();
+
+        $response = $model->getData();
 
         //afegir les revisions a la resposta
-        $response[ProjectKeys::KEY_REV] = $this->projectModel->getProjectRevisionList(0);
+        $response[ProjectKeys::KEY_REV] = $model->getProjectRevisionList(0);
 
         //en un futuro, añadir pestaña de notificaciones en la ZONA META
-        //$this->projectModel->addNotificationsMetaToResponse($response);
+        //$model->addNotificationsMetaToResponse($response);
 
-        $drafts = $this->projectModel->getAllDrafts();
+        $drafts = $model->getAllDrafts();
         if (count($drafts) > 0) {
             $response['drafts'] = $drafts;
         }
         //Pot existir un draft local i sense draft remot
-        $response['originalLastmod'] = $this->projectModel->getLastModFileDate();
+        $response['originalLastmod'] = $model->getLastModFileDate();
 
-        $response[ProjectKeys::KEY_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID].$this->projectModel->getIdSuffix($this->params[ProjectKeys::KEY_REV]));
+        $response[ProjectKeys::KEY_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID].$model->getIdSuffix($this->params[ProjectKeys::KEY_REV]));
 
         if ($this->params[ProjectKeys::KEY_REV]) {
             if ($response['meta']) {
@@ -51,10 +54,9 @@ class BasicViewProjectAction extends ProjectAction {
         //Añadir propiedades/restricciones del configMain para la creación de elementos dentro del proyecto
         parent::addResponseProperties($response);
         
-        $projectModel = $this->getModel();
-        $response[ProjectKeys::KEY_GENERATED] = $projectModel->isProjectGenerated();
-        if ($projectModel->getMetaDataFtpSender()) {
-            $response[ProjectKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $projectModel->haveFilesToExportList();
+        $response[ProjectKeys::KEY_GENERATED] = $model->isProjectGenerated();
+        if ($model->getMetaDataFtpSender()) {
+            $response[ProjectKeys::KEY_ACTIVA_FTP_PROJECT_BTN] = $model->haveFilesToExportList();
         }
         return $response;
     }
