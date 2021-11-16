@@ -315,7 +315,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     /**
      * Obtiene y, después, retorna una estructura con los metadatos y valores del proyecto
-     * @return array('projectMetaData'=>array('values','structure'), array('projectViewData'))
+     * @return array('projectMetaData'=>array('values','structure'), array(ProjectKeys::KEY_PROJECT_VIEWDATA))
      */
     public function getData() {
         $ret = [];
@@ -346,12 +346,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 $this->viewConfigName = $struct['viewfiles'][0];
             }
         }
-        $ret['projectViewData'] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
-
+        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
-        $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret['projectViewData']['fields']);
-        $this->mergeFieldNameToLayout($ret['projectViewData']['fields']);
+        $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
+        $this->mergeFieldNameToLayout($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
 
         return $ret;
     }
