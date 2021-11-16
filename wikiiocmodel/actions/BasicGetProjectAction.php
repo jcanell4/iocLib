@@ -67,67 +67,27 @@ class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLo
         return $resp;
     }
 
-    // Transforma un array, o un objeto JSON en un texto con saltos de línea en cada item
-    private function transformArrayToText($data, $pre="") {
-        $resp = "";
-        foreach ($data as $key => $value) {
-            $jd = json_decode($value, true);
-            if (is_array($jd) && count($jd)>0) {
-                $resp .= $this->transformArrayToText($jd, "$pre$key:");
-            }elseif (is_array($value) && count($value)>0) {
-                $resp .= $this->transformArrayToText($value, "$pre$key:");
-            }else {
-                $resp .= "$pre$key:$value\n";
-            }
-        }
-        return $resp;
-    }
-
     private function _getDraftDialog($rawData) {
         $resp = $this->_getLocalDraftDialog($rawData);
-        $resp['draft'] = $this->model->getDraft();
+        $resp[ProjectKeys::KEY_DRAFT] = $this->model->getDraft();
         $resp['local'] = FALSE;
-        $resp['projectType'] = $this->params[ProjectKeys::KEY_PROJECT_TYPE];
+        $resp[ProjectKeys::KEY_PROJECT_TYPE] = $this->params[ProjectKeys::KEY_PROJECT_TYPE];
+
+        $responseData = $this->model->getData();
+        $resp[ProjectKeys::KEY_PROJECT_METADATA] = $responseData[ProjectKeys::KEY_PROJECT_METADATA];
+        $resp[ProjectKeys::KEY_PROJECT_VIEWDATA] = $responseData[ProjectKeys::KEY_PROJECT_VIEWDATA];
         return $resp;
     }
 
     private function _getLocalDraftDialog($rawData) {
-        $resp = $this->_getRawDataContent($rawData);
+        $resp = $this->dokuPageModel->getBaseDataToSend($this->params[PageKeys::KEY_ID], $this->params[PageKeys::KEY_REV]);
+        $resp['content'] = $rawData['content'];
+        $resp['locked'] = $rawData['locked'];
         $resp['type'] = "project";
         $resp['local'] = TRUE;
         $resp['lastmod'] = WikiIocInfoManager::getInfo('meta')['date']['modified'];
         $resp['show_draft_dialog'] = TRUE;
         return $resp;
-    }
-
-    private function _getRawDataContent($rawData) {
-        $resp = $this->dokuPageModel->getBaseDataToSend($this->params[PageKeys::KEY_ID], $this->params[PageKeys::KEY_REV]);
-        $resp = array_merge($resp, $this->_getStructuredHtmlForm($rawData['content']));
-        $resp['content'] = $rawData['content'];
-
-        // TODO s'ha de discriminar quan el $rawData ja és html
-        if (strtoupper($this->params['editorType']) === PageKeys::DOJO_EDITOR && strtoupper($this->dokuPageModel->GetFormat()) != 'HTML') {
-            // Pasem el extra perquè s'ompli, si escau al traductor (en aquest cas per afegir la estructura)
-            // ALERTA! La implementació actual fa que això s'envii també al ['editing']['extra']
-            $resp['content'] = $this->translateToHTML($resp['content'], $resp['extra']);
-        }
-        $resp['locked'] = $rawData['locked'];
-        return $resp;
-    }
-
-    private function _getStructuredHtmlForm($ptext) {
-        global $DATE, $TEXT;
-
-        $auxText = $TEXT;
-        $TEXT = json_encode($ptext);
-        $auxDate = $DATE;
-        $DATE = $this->params[PageKeys::KEY_DATE];
-        ob_start();
-        html_edit();
-        $form = ob_get_clean();
-        $TEXT = $auxText;
-        $DATE = $auxDate;
-        return $this->_cleanResponse($form);
     }
 
     private function _getDraftType($dt=PageKeys::NO_DRAFT) {
