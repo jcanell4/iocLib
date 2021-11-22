@@ -58,7 +58,7 @@ class WiocclForEach extends WiocclInstruction implements WiocclLooperInstruction
     }
 
     public function getTo() {
-        return count($this->fullArray)-1;
+        return (is_array($this->fullArray)) ? count($this->fullArray)-1 : -1;
     }
 
     public function updateLoop() {

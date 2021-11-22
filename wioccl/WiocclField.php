@@ -62,15 +62,22 @@ class WiocclField extends WiocclInstruction {
             // despés comprovem als arrays i si no es troba comprovem el datasource
             }else if(isset($this->arrays[$fieldName])) {
 //                $ret =json_encode($this->arrays[$fieldName]);
-                $ret =$this->arrays[$fieldName];
+                $ret = $this->arrays[$fieldName];
             } else if (isset($this->dataSource[$fieldName])) {
                 $ret =$this->dataSource[$fieldName];
             // Si no està en lloc, potser es tracti d'un nom de camp compost 
             }else if(strpos($fieldName, "#")>0){
                 $akeys = explode("#", $fieldName);
-                $ret = $this->dataSource;
+                $tmp = $this->dataSource;
                 for ($i=0; $i<count($akeys); $i++) {
-                    $ret = $ret[$akeys[$i]];
+                    if (!isset($tmp[$akeys[$i]])) {
+                        $tmp = NULL;
+                        break;
+                    }
+                    $tmp = $tmp[$akeys[$i]];
+                }
+                if (!empty($tmp)) {
+                    $ret = $tmp;
                 }
             }
         }

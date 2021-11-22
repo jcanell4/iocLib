@@ -79,16 +79,13 @@ class NotifyDataQuery extends DataQuery
     }
 
     public function update($notificationId, $blackboardId, $dataForUpdate) {
-
         $this->loadBlackboard($blackboardId);
-
         $notificationIndex = $this->searchNotificationIndexInBlackboard($notificationId, $this->blackboard[$blackboardId]);
-
         $notification = $this->blackboard[$blackboardId][$notificationIndex];
-        $notification = array_replace($notification, $dataForUpdate);
-
+        if (is_array($notification) && !empty($notification)) {
+            $notification = array_replace($notification, $dataForUpdate);
+        }
         $this->blackboard[$blackboardId][$notificationIndex] = $notification;
-
         $this->saveBlackboard($blackboardId);
     }
 
@@ -104,10 +101,11 @@ class NotifyDataQuery extends DataQuery
 
 
     private function searchNotificationIndexInBlackboard($id, $blackboard)  {
-
-        for ($i = 0, $len = count($blackboard); $i < $len; $i++) {
-            if ($blackboard[$i][self::NOTIFICATION_ID] == $id) {
-                return $i;
+        if (is_array($blackboard)) {
+            for ($i = 0, $len = count($blackboard); $i < $len; $i++) {
+                if ($blackboard[$i][self::NOTIFICATION_ID] == $id) {
+                    return $i;
+                }
             }
         }
         return null;
