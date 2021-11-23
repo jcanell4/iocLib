@@ -309,8 +309,8 @@ class CommonUpgrader {
             if (preg_match($t0, $doc, $stmp0) === 1) {
                 $t1 = "/".$tok['regexp1']."/$m";
                 if (preg_match($t1, $doc, $stmp1) === 1) {
-                    $doc = preg_replace($t0, "", $doc);  //Delete
-                    $s = ($tok['pos']===0) ? $stmp1[0].$stmp0[0] : $stmp0[0].$stmp1[0];
+                    $doc = preg_replace($t0, "", $doc);  //delete
+                    $s = ($tok['pos']===0) ? $stmp0[0].$stmp1[0] : $stmp1[0].$stmp0[0];
                     $doc = preg_replace($t1, $s, $doc);   //Insert
                 }
             }
