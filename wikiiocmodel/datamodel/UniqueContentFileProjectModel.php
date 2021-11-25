@@ -76,12 +76,11 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
                 $fileexists = (!$useSavedTime || ($savedtime === $filetime));
             }
             if ($fileexists) {
-                $type = $ofile['type'];
                 $unzip = in_array(1, $ofile['action']);  //0:action tipo copy, 1:action tipo unzip
                 $data = date("d/m/Y H:i:s", $filetime);
-                $class = "mf_$type";
                 $index = $filename;
                 $linkRef = $filename;
+                $class = "mf_".pathinfo($index, PATHINFO_EXTENSION);
                 $rDir = (empty($ofile['remoteDir'])) ? (empty($mdFtpSender['remoteDir'])) ? $connData["remoteDir"] : $mdFtpSender['remoteDir'] : $ofile['remoteDir'];
                 $rDir .= ($unzip) ? $ruta.pathinfo($file, PATHINFO_FILENAME)."/" : $ruta;
                 $url = "{$connData['remoteUrl']}{$rDir}{$index}";
