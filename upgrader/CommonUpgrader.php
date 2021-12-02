@@ -127,6 +127,40 @@ class CommonUpgrader {
         return $data;
     }
 
+    /**
+     * Actualitza els camps calculats notaMinima??? a partir dels valors de la taula 'taulaInstrumentsAvaluacio'
+     * @param array $data dades del projecte
+     * @return dades del projecte amb les notaMinima??? actualitzades
+     */
+    public function updateNotaMinimaInProgramacions(&$data) {
+        $notaMinimaAC = 11;
+        $notaMinimaEAF = 11;
+        $notaMinimaJT = 11;
+        $notaMinimaPAF = 11;
+        $taulaInstrumentsAvaluacio = is_array($data['taulaInstrumentsAvaluacio']) ? $data['taulaInstrumentsAvaluacio'] : json_decode($data['taulaInstrumentsAvaluacio'], TRUE);
+        if (is_array($taulaInstrumentsAvaluacio)) {
+            foreach ($taulaInstrumentsAvaluacio as $item) {
+                if ($item["tipus"] == "AC"){
+                    if ($notaMinimaAC > $item["notaMinima"]) $notaMinimaAC = $item["notaMinima"];
+                }
+                if ($item["tipus"] == "EAF"){
+                    if($notaMinimaEAF > $item["notaMinima"]) $notaMinimaEAF = $item["notaMinima"];
+                }
+                if ($item["tipus"] == "JT"){
+                    if ($notaMinimaJT > $item["notaMinima"]) $notaMinimaJT = $item["notaMinima"];
+                }
+                if ($item["tipus"] == "PAF"){
+                    if($notaMinimaPAF > $item["notaMinima"]) $notaMinimaPAF = $item["notaMinima"];
+                }
+            }
+        }
+        $data['notaMinimaAC'] = ($notaMinimaAC === 11) ? 0 : $notaMinimaAC;
+        $data['notaMinimaEAF'] = ($notaMinimaEAF === 11) ? 0 : $notaMinimaEAF;
+        $data['notaMinimaJT'] = ($notaMinimaJT === 11) ? 0 : $notaMinimaJT;
+        $data['notaMinimaPAF'] = ($notaMinimaPAF === 11) ? 0 : $notaMinimaPAF;
+        return TRUE;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
