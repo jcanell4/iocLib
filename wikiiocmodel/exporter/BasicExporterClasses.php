@@ -231,7 +231,10 @@ class BasicRenderObject extends renderComposite {
                     $render = $this->createRender($typedefKeyField, $renderKeyField);
                     $render->init($item["name"], $renderKeyField['render']['styletype']);
 
-                    $arrayDataField = json_decode($this->getDataField($item["value"]), true);
+                    $arrayDataField = $this->getDataField($item["value"]);
+                    if (!is_array($arrayDataField)) {
+                        $arrayDataField = json_decode($arrayDataField, true);
+                    }
                     foreach ($arrayDataField as $key) {
                         $arrDataField[$key['ordre']] = $key['nom'];
                     }
