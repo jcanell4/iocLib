@@ -329,6 +329,9 @@ class Html2DWParser extends IocParser {
 
     public static function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL) {
 
+        // Reemplacem els nbsp per espais normals
+        $text = str_replace(' ', ' ', $text);
+
         foreach (static::$forceReplacements as $pattern => $replacementValue) {
             $text = preg_replace($pattern, $replacementValue, $text);
         }
