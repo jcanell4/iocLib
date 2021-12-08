@@ -12,7 +12,7 @@ class DW2HtmlHeader extends DW2HtmlInstruction {
         $refId = $this->getRefId();
         $tag = '<h'.(7-$this->level);
 
-        if ($refId !=="0") {
+        if ($refId !== null && $refId !=="0") {
             $tag .= ' data-wioccl-ref="' . $refId . '"';
         }
 

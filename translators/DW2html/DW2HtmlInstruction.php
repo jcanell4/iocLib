@@ -462,7 +462,7 @@ class DW2HtmlInstruction extends IocInstruction
 
         $refId = $this->getRefId();
 
-        if ($refId !== "0") {
+        if ($refId != NULL && $refId !== "0") {
 
 //            $pattern = '/^<.*?(>).*?$/ms';
             // Primerament hem de comprovar que el tag inicial no contingui ya un ref id, això ens passa amb els spans
