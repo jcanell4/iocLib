@@ -15,6 +15,8 @@ class Html2DWMarkup extends Html2DWInstruction {
             $result = trim($result);
         }
 
+        $post = $this->getReplacement(self::CLOSE);
+
         return $this->getReplacement(self::OPEN) . $result . $this->getReplacement(self::CLOSE);
     }
 }

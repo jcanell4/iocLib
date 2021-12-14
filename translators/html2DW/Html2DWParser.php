@@ -53,7 +53,7 @@ class Html2DWParser extends IocParser {
             'state' => 'wioccl'
         ],
 
-        '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [
+        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?)<\/div><\/div>\n?" => [
             /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
             'state' => 'box-text',
         ],
@@ -125,31 +125,31 @@ class Html2DWParser extends IocParser {
         '<h1.*?>' => [
             'state' => 'open_h1',
         ],
-        '<\/h1>' => [
+        '<\/h1>\n?' => [
             'state' => 'close_h1',
         ],
         '<h2.*?>' => [
             'state' => 'open_h2',
         ],
-        "\n?<\/h2>" => [
+        "\n?<\/h2>\n?" => [
             'state' => 'close_h2',
         ],
         '<h3.*?>' => [
             'state' => 'open_h3',
         ],
-        "\n?<\/h3>" => [
+        "\n?<\/h3>\n?" => [
             'state' => 'close_h3',
         ],
         '<h4.*?>' => [
             'state' => 'open_h4',
         ],
-        "\n?<\/h4>" => [
+        "\n?<\/h4>\n?" => [
             'state' => 'close_h4',
         ],
         "<h5.*?>" => [
             'state' => 'open_h5',
         ],
-        "\n?<\/h5>" => [
+        "\n?<\/h5>\n?" => [
             'state' => 'close_h5',
         ],
 
@@ -216,7 +216,7 @@ class Html2DWParser extends IocParser {
 
         '<div(?: class="")?(?: contenteditable="false")? data-dw-block="video".*?>.*?<\/div>' => ['state' => 'video', 'type' => 'video', 'class' => 'Html2DWMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        '<div class="ioc(?:text|textl|example|note|reference|important|quote).*?" data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => ['state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?)<\/div><\/div>\n?" => ['state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="ioc-quiz".*?(<\/div><\/div><\/div>|<\/pre><\/div><\/div>)' => ['state' => 'quiz', 'type' => 'quiz', 'class' => 'Html2DWQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 

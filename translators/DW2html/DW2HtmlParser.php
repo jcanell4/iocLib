@@ -86,7 +86,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "::.*?:.*?:::$" => [
+        "::.*?:.*?:::\n?$" => [
 //        "::.*?:.*?:::" => [
             'state' => 'box'
         ],
@@ -193,13 +193,15 @@ class DW2HtmlParser extends IocParser {
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
 
-        "::(.*?):(.*?):::" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+        "::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+            'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-        "[\^\|](.*?)*[\|\^]\n" => ['state' => 'row', 'type' => 'row', 'class' => 'DW2HtmlRow', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+        "[\^\|](.*?)*[\|\^]\n" => ['state' => 'row', 'type' => 'row', 'class' => 'DW2HtmlRow', 'action' => 'self-contained',
+            'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-        "={2,6}" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+        "={2,6}\n?" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         '^\[{2}(.*?)\]{2}' => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
