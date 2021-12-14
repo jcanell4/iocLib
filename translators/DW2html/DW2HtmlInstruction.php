@@ -378,11 +378,12 @@ class DW2HtmlInstruction extends IocInstruction
         return $result;
     }
 
-    protected function parseContent($raw)
+    protected function parseContent($raw, $setInner = true)
     {
         $class = static::$parserClass;
         $isInnerPrevious = $class::isInner();
-        $class::setInner(true);
+        $class::setInner($setInner);
+//        $class::setInner(true);
 
         $content = $class::getValue($raw);
 

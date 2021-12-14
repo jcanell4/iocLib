@@ -73,7 +73,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             }
         }
 
-        $content = $this->parseContent($content);
+        $content = $this->parseContent($content, false);
 
         $content = str_replace('<p>', '<p class="editable-text">', $content);
 
