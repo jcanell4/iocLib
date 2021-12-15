@@ -59,6 +59,7 @@ class IocInstruction {
             $result .= $newChunk;
         }
 
+        $auxToken['next'] = $tokens[$tokenIndex+1];
         return $this->resolveOnClose($result, $auxToken);
     }
 

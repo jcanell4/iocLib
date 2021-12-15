@@ -21,7 +21,8 @@ class Html2DWWioccl extends Html2DWInstruction {
             return '';
         }
 
-        $structure = Html2DWParser::$structure;
+//        $structure = Html2DWParser::$structure;
+
         return Html2DWParser::$structure[$refId]->toWioccl();
     }
 }

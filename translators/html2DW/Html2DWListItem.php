@@ -90,11 +90,11 @@ class Html2DWListItem extends Html2DWMarkup {
         }
     }
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $tokenEnd) {
 
         // quan es crida? a que tenim accéss?
 
-        $ret = parent::resolveOnClose($result);
+        $ret = parent::resolveOnClose($result, $tokenEnd);
 
         return $ret;
     }

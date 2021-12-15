@@ -52,11 +52,11 @@ class Html2DWList extends Html2DWMarkup {
         return '';
     }
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $tokenEnd) {
 
         // quan es crida? a que tenim accéss?
 
-        $ret = parent::resolveOnClose($result);
+        $ret = parent::resolveOnClose($result, $tokenEnd);
 
         if (count(static::$stack)==0) {
             $ret .= "\n"; // és l'últim element d'una llista, afegim un salt de línia per separar-lo del següent bloc
