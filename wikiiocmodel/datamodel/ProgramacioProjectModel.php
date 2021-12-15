@@ -45,6 +45,10 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
 
         $this->postRenameProject($ns, $new_name);
     }
-
+    
+    public function canDocumentBeEdited($documentId){
+        $data = $this->getDataProject($this->getId(), $this->getProjectType(), "management");
+        return $data['workflow']['currentState'] && ($data['workflow']['currentState']=="creating" || $data['workflow']['currentState']=="modifiying");
+    }
 }
 

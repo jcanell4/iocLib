@@ -295,8 +295,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
         $rev = $this->projectMetaDataQuery->getRevision();
         if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
-            $ret = $this->processAutoFieldsOnRead($values);  //[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
-            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values);//[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
+            $ret = $this->processAutoFieldsOnRead($values, null, $metaDataSubSet);  //[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
+            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values, $metaDataSubSet);//[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
         }else{
             $ret = $values;
         }
@@ -832,11 +832,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    private function processAutoFieldsOnRead($data, $configStructure=NULL) {
+    private function processAutoFieldsOnRead($data, $configStructure=NULL, $subset=FALSE) {
         $isArray = is_array($data);
         $values = $isArray ? $data : json_decode($data, true);
         if ($configStructure==NULL){
-            $configStructure = $this->getMetaDataDefKeys();
+            $configStructure = $this->getMetaDataDefKeys($subset);
         }
         $isOnView = $this->getModelAttributes(ProjectKeys::KEY_ISONVIEW);
         foreach ($configStructure as $key => $def) {
@@ -900,13 +900,13 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $data;
     }
 
-    private function _updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
+    private function _updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
         if($originalDataKeyValue){
             $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
         }
-        $values = $this->updateCalculatedFieldsOnRead($values, $originalDataKeyValue);
+        $values = $this->updateCalculatedFieldsOnRead($values, $originalDataKeyValue, $subset);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
     }
@@ -948,12 +948,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 //        return ($json) ? json_encode($data) : $data;
 //    }
 
-    public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE) {
+    public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
         // A implementar a les subclasses, per defecte només fa trim als valors dels camps
         return $this->_trimData($data);
     }
 
-    public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE) {
+    public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
@@ -964,11 +964,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * InvalidDataProjectException.
      * @param type $data
      */
-    public function validateFields($data=NULL){
+    public function validateFields($data=NULL, $subset=FALSE){
         // A implementar a les subclasses, per defecte no es fa res
     }
 
-    public function getErrorFields($data=NULL) {
+    public function getErrorFields($data=NULL, $subset=FALSE) {
         return NULL;
     }
 
@@ -1030,13 +1030,13 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     /**
      * Devuelve un array con la estructura definida en el archivo configMain.json
      */
-    public function getMetaDataDefKeys() {
+    public function getMetaDataDefKeys($subset=FALSE) {
         //Cambiado por traspaso desde Dao a ProjectMetaDataQuery
 //        $dao = $this->metaDataService->getMetaDataDaoConfig();
 //        $struct = $dao->getMetaDataStructure($this->getProjectType(),
 //                                             $this->getMetaDataSubSet(),
 //                                             $this->persistenceEngine);
-        $defKeys = $this->projectMetaDataQuery->getMetaDataDefKeys();
+        $defKeys = $this->projectMetaDataQuery->getMetaDataDefKeys($subset);
         return json_decode($defKeys, TRUE);
     }
 
@@ -1435,5 +1435,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function hasTemplates(){
         return false;
+    }
+    
+    /**
+     * Indica si el projecte presenta alguna restricció per editar el document passat per paràmetre
+     */
+    public function canDocumentBeEdited($documentId){
+        return true;
     }
 }
