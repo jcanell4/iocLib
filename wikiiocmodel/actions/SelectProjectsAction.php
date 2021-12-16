@@ -38,7 +38,7 @@ class SelectProjectsAction extends AdminAction {
         $form->addHidden('sectok', null);
         $form->addHidden('id', "");
 
-        $aListProjectTypes = $this->getListPtypes(true);
+        $aListProjectTypes = $this->getListPtypes("pt.*");
 
         $attrs = ['_text' => "Llista de tipus de projecte:&nbsp;",
                   'name' => "selected_project"];
@@ -75,7 +75,7 @@ class SelectProjectsAction extends AdminAction {
         }elseif (!empty($all)) {
             $temp = [];
             foreach ($listProjectTypes as $value) {
-                if (preg_match($all, $value)) {
+                if (preg_match("/$all/", $value)) {
                     $temp[] = $value;
                 }
             }
