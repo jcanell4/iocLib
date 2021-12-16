@@ -140,7 +140,6 @@ class AjaxCmdResponseGenerator {
      * @param string $content
      * @param string $rev
      * @param string $type
-     * @param $structured
      */
     public function addHtmlDoc($id, $ns, $title, $content, $rev, $type)
     {
@@ -1146,21 +1145,19 @@ class AjaxCmdResponseGenerator {
      * Afegeix una resposta de tipus HTML_TYPE al generador de respostes.
      *
      * @param string $id
-     * @param string $ns
      * @param string $title
      * @param string $content
      * @param array $aFormArgs
      * @param array $aLinkArgs
      */
-    public function addRecents($id, $title, $content, $aFormArgs, $linkArgs)
+    public function addRecents($id, $title, $content, $aFormArgs, $aLinkArgs)
     {
         $contentData = array(
             'id' => $id,
             'title' => $title,
             'content' => $content,
             'aRequestFormArgs' => $aFormArgs,
-            'requestLinkArgs' => $linkArgs,
-
+            'requestLinkArgs' => $aLinkArgs
         );
 
         $this->response->add(
