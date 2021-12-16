@@ -302,6 +302,10 @@ class ajaxCall {
             $respHandClass = $this->camelCase($this->call, "ResponseHandler", "inicial");
             $respHandFile  = $respHandDir . $respHandClass . ".php";
         }
+        if (!@file_exists($respHandFile)) {
+            $respHandClass = $this->camelCase($this->call, "ResponseHandler", "under");
+            $respHandFile  = $respHandDir . $respHandClass . ".php";
+        }
         if (@file_exists($respHandFile)) {
             $ret = ['respHandClass' => $respHandClass,
                     'respHandFile' => $respHandFile];
@@ -310,10 +314,18 @@ class ajaxCall {
     }
 
     private function camelCase($str, $extra, $type="camel") {
-        if ($type==="camel")
+        if ($type==="camel") {
             return strtoupper(substr($str, 0, 1)) . strtolower(substr($str, 1)) . $extra;
-        else
-            return strtoupper(substr($str, 0, 1)) . substr($str, 1) . $extra;
+        }elseif ($type==="under") {
+            $ret = "";
+            $parts = explode("_", $str);
+            foreach ($parts as $part) {
+                $ret .= ucfirst($part);
+            }
+            return $ret . $extra;
+        }else {
+            return ucfirst($str) . $extra;
+        }
     }
 
 }
