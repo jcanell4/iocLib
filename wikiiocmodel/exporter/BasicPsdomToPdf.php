@@ -350,6 +350,13 @@ class BasicIocTcPdf extends TCPDF{
         $this->defaultFontSize = $defaultFontSize;
     }
 
+    public function AddPage($orientation='', $format='', $keepmargins=false, $tocpage=false) {
+        parent::AddPage($orientation, $format, $keepmargins, $tocpage);
+        if($this->CurOrientation!=$orientation[0]){
+            $this->setPageOrientation($orientation);
+        }
+    }
+
     public function popNextAttributes(){
         $ret = array_merge(array(),$this->nexStyletAttributes);
         $this->nexStyletAttributes = array();
