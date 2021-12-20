@@ -1167,6 +1167,31 @@ class AjaxCmdResponseGenerator {
         );
     }
 
+    /**
+     * Afegeix una resposta de tipus HTML_FORM_TYPE al generador de respostes.
+     *
+     * @param string $id
+     * @param string $title
+     * @param string $content
+     * @param array $aFormArgs
+     * @param array $aLinkArgs
+     */
+    public function addHtmlForm($id, $title, $content, $aFormArgs, $aLinkArgs) {
+        $contentData = array(
+            'id' => $id,
+            'title' => $title,
+            'content' => $content,
+            'aRequestFormArgs' => $aFormArgs,
+            'requestLinkArgs' => $aLinkArgs
+        );
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::HTML_FORM_TYPE,
+                $contentData)
+        );
+    }
+
     public function addContenttoolTimerStop($id)
     {
         $contentData = array(
