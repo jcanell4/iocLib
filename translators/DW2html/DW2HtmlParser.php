@@ -86,7 +86,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "::.*?:.*?:::\n?$" => [
+        "^::.*?:.*?:::\n?$" => [
 //        "::.*?:.*?:::" => [
             'state' => 'box'
         ],
@@ -193,7 +193,7 @@ class DW2HtmlParser extends IocParser {
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
 
-        "::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+        "^::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
