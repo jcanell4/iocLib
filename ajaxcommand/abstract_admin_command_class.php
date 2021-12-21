@@ -18,20 +18,4 @@ abstract class abstract_admin_command_class extends abstract_command_class {
         $this->setModelManager($modelManager);
     }
 
-    /**
-     * Estableix l'adaptador a emprar i l'autorització que li correspon.
-     * @param modelManager
-     */
-    //Josep: Perquè repetim? Jo crec que aquest mètode no cal sobrescriure'l
-    public function setModelManager($modelManager) {
-        $this->modelManager = $modelManager;
-
-        if (!$this->getModelAdapter()) {
-            $this->modelAdapter = $modelManager->getModelAdapterManager();
-        }
-        if (!$this->authorization) {
-            $this->authorization = $modelManager->getAuthorizationManager($this->getAuthorizationType());
-        }
-    }
-
 }
