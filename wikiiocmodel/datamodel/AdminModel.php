@@ -7,6 +7,7 @@ if (!defined('DOKU_INC')) die();
 
 class AdminModel extends AbstractWikiModel {
 
+    //JOSEP: No tinc clara la seva utilitat!. Hauríem de definir bé la funció que es demana a AdminModel i jo crec que hauria de resoldre les utilitats demanades a través que qualsevol AdminAction o UtilAction o ...Action
     protected $id;
     protected $pageDataQuery;
     protected $projectMetaDataQuery;

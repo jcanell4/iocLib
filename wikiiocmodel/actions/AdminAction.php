@@ -6,6 +6,11 @@
 if (!defined("DOKU_INC")) die();
 
 abstract class AdminAction extends AbstractWikiAction {
+    
+   /*JOSEP: Jo definiria dos tipus d'Actions diferents:
+    *  1) Action per construir el formulari a partir d'un parametre que identifiqui l'acció. Podria ser un AdminFormAction o un UtilFormAction o ...
+    *  2) Action específic per a cada acció. En concret ara necessitem l'action SelectProjectsAction encarregat de gestionar la cerca i retornar la llista.
+    */
 
     protected $persistenceEngine;
     protected $adminModel;
@@ -33,6 +38,7 @@ abstract class AdminAction extends AbstractWikiAction {
         return $this->adminModel;
     }
 
+    //Josep: Per què es repeteix? No cal sobrescriure aquest mètode!
     protected function postResponseProcess(&$response) {
     }
 
