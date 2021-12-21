@@ -129,7 +129,7 @@ abstract class AbstractFactoryAuthorization {
                  ,'copy_image_to_project'=> 'upload'
                  ,'diff'		 => 'read'
                  ,'draft'		 => 'editing'
-                 ,'edit'		 => 'read'
+                 ,'edit'		 => 'edit'
                  ,'get_image_detail'	 => 'read'
                  ,'login'                => 'command'
                  ,'lock'                 => 'read'

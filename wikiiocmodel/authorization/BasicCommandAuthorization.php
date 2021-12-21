@@ -91,5 +91,11 @@ class BasicCommandAuthorization extends AbstractCommandAuthorization {
         }
         return $ret;
     }
+    
+    public function canProjectOwnerAllowEditionPage(){
+        global $plugin_controller;
+        
+        return $plugin_controller->canProjectOwnerAllowEditionDocument($this->permission->getIdPAge());
+    }
 
 }
