@@ -352,7 +352,7 @@ class BasicIocTcPdf extends TCPDF{
 
     public function AddPage($orientation='', $format='', $keepmargins=false, $tocpage=false) {
         parent::AddPage($orientation, $format, $keepmargins, $tocpage);
-        if($this->CurOrientation!=$orientation[0]){
+        if($this->CurOrientation[0]!=$orientation[0]){
             $this->setPageOrientation($orientation);
         }
     }
