@@ -1,47 +1,50 @@
 <?php
 /**
- * Obtiene la lista de tipos de proyecto, es decir, la lista de directorios de proyectos
- * @culpable Rafael Claver
+ * Class ListProjectsAction: Mostra en una pàgina el resultat de la selecció de projectes
+ * @culpable <rclaver@xtec.cat>
  */
-if (!defined('DOKU_INC')) die();
+if (!defined("DOKU_INC")) die();
+include_once(DOKU_INC.'/inc/form.php');
 
-class ListProjectsAction extends AbstractWikiAction {
-
-    private $persistenceEngine;
-    private $model;
+class ListProjectsAction extends AdminAction {
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
-        $this->persistenceEngine = $modelManager->getPersistenceEngine();
-        $this->model = new BasicWikiDataModel($this->persistenceEngine);
     }
 
-    /**
-     * Retorna un JSON que conté la llista de tipus de projectes vàlids
-     */
-    public function responseProcess() {
-        if ($this->params['list_type'] !== FALSE) {
-            $metaDataSubSet = ($this->params[ProjectKeys::KEY_METADATA_SUBSET]) ? $this->params[ProjectKeys::KEY_METADATA_SUBSET] : ProjectKeys::VAL_DEFAULTSUBSET;
+    protected function responseProcess() {
+        /**
+         * Informa si, en les dades del projecte, el camp 'field' conté el valor 'value'
+         * @param array $dades : array de dades del projecte
+         * @param array $params : ['field', 'value']
+         * @return boolean
+         */
+        $function = function($dades, $params) {
+                        $field = $params[0];
+                        $value = $params[1];
+                        return (is_array($dades) && !empty($dades[$field]));
+                    };
+        $callback = ['function' => $function,
+                     'params' => explode(":", $this->params['consulta'])];
+        
+        $llista = $this->getModel()->selectProjectsByField($this->params['projectType'], $callback);
+        $response = ['id' => $this->params[AjaxKeys::KEY_ID],
+                     'title' => "Llista de projectes seleccionats i filtrats",
+                     'content' => $this->setSelectedProjectsList($llista),
+                     'type' => "html_form"
+                    ];
+        return $response;
+    }
 
-            $this->model->init([ProjectKeys::KEY_ID              => $this->params[ProjectKeys::KEY_ID],
-                                ProjectKeys::KEY_PROJECT_TYPE    => $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                                ProjectKeys::KEY_METADATA_SUBSET => $metaDataSubSet
-                              ]);
-            $listProjectTypes = $this->model->getListProjectTypes($this->params['list_type']!=="array");
-            $listProjectTypes[] = "wikipages";
-            sort($listProjectTypes);
-            $aList=[];
-            foreach ($listProjectTypes as $pTypes) {
-                $name = WikiGlobalConfig::getConf("projectname_$pTypes");
-                if ($name) {
-                    $aList[] = ['id' => "$pTypes", 'name' => $name];
-                }else{
-                    $aList[] = ['id' => "$pTypes", 'name' => $pTypes];
-                }
-            }
-            $ret = json_encode($aList);
+    private function setSelectedProjectsList($llista="") {
+        $html = '<h1 class="sectionedit1" id="'.$this->params[AjaxKeys::KEY_ID].'">Lista de projectes seleccionats</h1>'
+               .'<div class="level1"><p>Lista de projectes seleccionats amb condicions específiques</p></div>'
+               .'<div style="padding:10px; width:50%;"><ul>';
+        foreach ($llista as $elem) {
+            $html .= "<li><a href='lib/exe/ioc_ajax.php?call=project&do=view&id=$elem'>$elem</a></li>";
         }
-        return $ret;
+        $html .= "</ul></div>";
+        return $html;
     }
 
 }

@@ -38,8 +38,4 @@ abstract class AdminAction extends AbstractWikiAction {
         return $this->adminModel;
     }
 
-    //Josep: Per què es repeteix? No cal sobrescriure aquest mètode!
-    protected function postResponseProcess(&$response) {
-    }
-
 }

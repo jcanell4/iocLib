@@ -7,7 +7,8 @@ if (!defined('DOKU_INC')) die();
 
 class AdminModel extends AbstractWikiModel {
 
-    //JOSEP: No tinc clara la seva utilitat!. Hauríem de definir bé la funció que es demana a AdminModel i jo crec que hauria de resoldre les utilitats demanades a través que qualsevol AdminAction o UtilAction o ...Action
+    //JOSEP: No tinc clara la seva utilitat!. Hauríem de definir bé la funció que es demana a AdminModel
+    // i jo crec que hauria de resoldre les utilitats demanades a través que qualsevol AdminAction o UtilAction o ...Action
     protected $id;
     protected $pageDataQuery;
     protected $projectMetaDataQuery;
@@ -43,17 +44,22 @@ class AdminModel extends AbstractWikiModel {
      * @param array $callback funció de filtre per a la selecció de projectes: ['function'=>, 'params'=>]
      * @return array
      */
-    public function getProjects($projectType, $callback) {
-        return $this->projectMetaDataQuery->selectProjectsByField($callback, [$projectType]);
+    public function selectProjectsByField($projectType, $callback) {
+        return $this->getProjectMetaDataQuery()->selectProjectsByField($callback, [$projectType]);
     }
 
     //Obtiene un array [key, value] con los datos del proyecto solicitado
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
-        $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
+        $values = $this->getProjectMetaDataQuery()->getDataProject($id, $projectType, $metaDataSubSet);
         return $values;
     }
 
-    public function getData() {}
-    public function setData($toSet) {}
+    public function getData() {
+        throw new UnavailableMethodExecutionException();
+    }
+
+    public function setData($toSet) {
+        throw new UnavailableMethodExecutionException();
+    }
 
 }

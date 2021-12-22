@@ -38,7 +38,7 @@ class SelectProjectsAction extends AdminAction {
         $callback = ['function' => $function,
                      'params' => explode(":", $this->params['consulta'])];
         
-        $llista = $model->getProjects($this->params['projectType'], $callback);
+        $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
         $ret = ['id' => $this->params[AjaxKeys::KEY_ID],
                 'title' => "Llista de projectes seleccionats i filtrats",
                 'content' => $this->setSelectedProjectsList($llista),
@@ -52,7 +52,7 @@ class SelectProjectsAction extends AdminAction {
                .'<div class="level1"><p>Lista de projectes seleccionats amb condicions específiques</p></div>'
                .'<div style="padding:10px; width:50%;"><ul>';
         foreach ($llista as $elem) {
-            $html .= "<li>$elem</li>";
+            $html .= "<li><a href='lib/exe/ioc_ajax.php?call=project&do=view&id=$elem'>$elem</a></li>";
         }
         $html .= "</ul></div>";
         return $html;
@@ -123,7 +123,7 @@ class SelectProjectsAction extends AdminAction {
             }
             $listProjectTypes = $temp;
         }
-        sort($listProjectTypes);
+
         $aList = [];
         foreach ($listProjectTypes as $pTypes) {
             $name = WikiGlobalConfig::getConf("projectname_$pTypes");
