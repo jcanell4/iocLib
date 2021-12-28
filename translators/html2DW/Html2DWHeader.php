@@ -26,9 +26,11 @@ class Html2DWHeader extends Html2DWInstruction {
                 $stateNext = $tokenEnd['next']['next'];
                 $stateNextNext = $tokenEnd['next']['next']['next'];
 //                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && ($tokenEnd['next']['next']['state'] === "content")) {
+
+                // ALERTA! només comprovem el type, però no mirem si el següent es tancament perquè no ho tenim
+                // estandaritzat (els states per open/close es van ficar pel wioccl i no ens serveixen tal com estant)
                 if ($tokenEnd['next'] && $tokenEnd['next']['next'] && ($stateNext['state'] === "content"
-                        || ($stateNext['mode'] === "block"
-                            && $stateNext['type'] !== $stateNextNext['type']))) {
+                        || ($stateNext['mode'] === "block" && $stateNext['type'] !== $stateNextNext['type']))) {
 //                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && $tokenEnd['next']['next']['state'] === "content" || $tokenEnd['next']['next']['state'] === "paragraph") {
                     $wioccl->open .= "\n"; // reafegim el salt de línia després del readonly
                 }

@@ -80,7 +80,7 @@ class Html2DWParser extends IocParser {
             'state' => 'space',
         ],
 
-        "\n?<\/p>" => [
+        "\n?<\/p>\n?" => [
             'state' => 'close_p',
         ],
 
@@ -232,7 +232,7 @@ class Html2DWParser extends IocParser {
         '^<p( .*?)?>' => ['mode' => 'block', 'state' => 'open_p', 'type' => 'paragraph', 'class' => 'Html2DWParagraph', 'action' => 'open', 'extra' => ['replacement' => ["", "\n\n"], 'regex' => TRUE]],
 
 
-        "\n?<\/p>" => ['mode' => 'block', 'state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        "\n?<\/p>\n?" => ['mode' => 'block', 'state' => 'close_p', 'type' => 'paragraph', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
 
         "<pre.*?>\n?<code.*?>(.*?)<\/code>\n?<\/pre>" => ['mode' => 'block', 'state' => 'code', 'type' => 'code', 'class' => 'Html2DWCode', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],

@@ -99,6 +99,11 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
+        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => [
+            'state' => 'code',
+        ],
+
+
         "<file>(.*?)<\/file>\n?" => [
             'state' => 'code',
         ],
@@ -220,6 +225,10 @@ class DW2HtmlParser extends IocParser {
 //        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
         "<code.*?>(.*?)<\/code>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
+        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
+
+
+
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
