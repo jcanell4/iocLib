@@ -22,8 +22,14 @@ class Html2DWHeader extends Html2DWInstruction {
             if ($wioccl->type ==="readonly_close"){
                 $post = str_replace("\n", "", $post);
 
-                $state = $tokenEnd['next']['next']['state'];
-                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && $tokenEnd['next']['next']['state'] === "content") {
+                // tant el [next][next] com el [next][next][bext] s'estableix a l'IocInstruction
+                $stateNext = $tokenEnd['next']['next'];
+                $stateNextNext = $tokenEnd['next']['next']['next'];
+//                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && ($tokenEnd['next']['next']['state'] === "content")) {
+                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && ($stateNext['state'] === "content"
+                        || ($stateNext['mode'] === "block"
+                            && $stateNext['type'] !== $stateNextNext['type']))) {
+//                if ($tokenEnd['next'] && $tokenEnd['next']['next'] && $tokenEnd['next']['next']['state'] === "content" || $tokenEnd['next']['next']['state'] === "paragraph") {
                     $wioccl->open .= "\n"; // reafegim el salt de línia després del readonly
                 }
 
