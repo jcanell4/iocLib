@@ -766,9 +766,6 @@ class ProjectMetaDataQuery extends DataQuery {
         if ($revision===NULL){
             $revision = $this->getRevision();
         }
-//        if (!$metaDataSubSet){
-//            $metaDataSubSet = $this->getProjectSubset();
-//        }
         $ret = $this->projectFileName;
         if ($revision){
             $ret = "$ret.$revision.txt.gz";
@@ -1005,12 +1002,11 @@ class ProjectMetaDataQuery extends DataQuery {
 
     /**
      * Canvia el contingut dels arxius de dreceres d'autors i responsables amb la nova ruta del projecte
-     * @param string $old_name : nom actual del projecte
      * @param string $new_name : nou nom del projecte
      * @param string $persons : noms dels autors i els responsables separats per ","
      * @throws Exception
      */
-    public function duplicateOldPathProjectInShortcutFiles($old_name, $new_name, $persons) {
+    public function duplicateOldPathProjectInShortcutFiles($new_name, $persons) {
         $path_dreceres = WikiGlobalConfig::getConf('datadir') . str_replace(":", "/", WikiGlobalConfig::getConf('userpage_ns','wikiiocmodel'));
         $nom_dreceres = WikiGlobalConfig::getConf('shortcut_page_name','wikiiocmodel') . ".txt";
         $persons = explode(",", $persons);
@@ -1018,12 +1014,6 @@ class ProjectMetaDataQuery extends DataQuery {
             $file = "$path_dreceres$user/$nom_dreceres";
             if (@file_exists($file)) {
                 if (($content = file_get_contents($file))) {
-//                    Insertar el enlace duplicado justo debajo del original
-//                    $search = "/^\[\[{$old_name}.*\]\]$/m";
-//                    if (preg_match($search, $content, $stmp) === 1) {
-//                        $insert = $stmp[0]."\n\n[[{$new_name}|accés al projecte {$new_name}]]";
-//                        $content = preg_replace($search, $insert, $content);
-//                    }
                     $content .= "\n\n[[{$new_name}|accés al projecte {$new_name}]]";
                     if (file_put_contents($file, $content, LOCK_EX) === FALSE)
                         throw new Exception("duplicateProject: Error mentre canviava el contingut de la drecera de $user.");

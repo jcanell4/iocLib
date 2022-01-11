@@ -651,7 +651,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->changeOldPathInDuplicateRevisionFiles($base_dir, $new_name, $old_path, $old_name);
         $this->projectMetaDataQuery->changeOldPathInDuplicateContentFiles($base_dir, $new_name, $old_path, $old_name);
         $this->projectMetaDataQuery->duplicateOldPathInACLFile($old_path, $old_name, $base_dir, $new_name);
-        $this->projectMetaDataQuery->duplicateOldPathProjectInShortcutFiles($this->sGlue([$old_path,$old_name],":"), $this->sGlue([$base_dir,$new_name],":"), $persons);
+        $this->projectMetaDataQuery->duplicateOldPathProjectInShortcutFiles($this->sGlue([$base_dir,$new_name],":"), $persons);
 
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
         $this->setProjectId($new_ns);
