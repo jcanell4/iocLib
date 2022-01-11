@@ -30,7 +30,7 @@ class SelectProjectsAction extends AdminAction {
                      'params' => explode(":", $this->params['consulta'])];
 
         $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
-        $this->response = ['id' => $this->params[AjaxKeys::KEY_ID],
+        $this->response = ['id' => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
                 'title' => "Llista de projectes seleccionats i filtrats",
                 'content' => $this->setSelectedProjectsList($llista),
                 'type' => "html_form"
@@ -39,8 +39,8 @@ class SelectProjectsAction extends AdminAction {
     }
 
     private function setSelectedProjectsList($llista="") {
-        $html = '<h1 class="sectionedit1" id="'.$this->params[AjaxKeys::KEY_ID].'">Lista de projectes seleccionats</h1>'
-               .'<div class="level1"><p>Lista de projectes seleccionats amb condicions específiques</p></div>'
+        $html = '<h1 class="sectionedit1" id=dw__"'.$this->params[AjaxKeys::KEY_ACTION_COMMAND].'">Llista de projectes seleccionats</h1>'
+               .'<div class="level1"><p>Llista de projectes seleccionats amb condicions específiques</p></div>'
                .'<div style="padding:10px; width:50%;"><ul>';
         foreach ($llista as $elem) {
             $html .= "<li><a href='lib/exe/ioc_ajax.php?call=project&do=view&id=$elem'>$elem</a></li>";
