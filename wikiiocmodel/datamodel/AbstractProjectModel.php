@@ -295,8 +295,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
         $rev = $this->projectMetaDataQuery->getRevision();
         if ($values && !$rev) { //En el momento de la creación de proyecto $ret es NULL
-            $ret = $this->processAutoFieldsOnRead($values, null, $metaDataSubSet);  //[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
-            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values, $metaDataSubSet);//[JOSEP] TODO => RAFA: Cal afegir-hi el subset per tal de tenir-lo en compte en els càlculs
+            $ret = $this->processAutoFieldsOnRead($values, null, $metaDataSubSet);
+            $ret = $this->_updateCalculatedFieldsOnRead($ret, $values, $metaDataSubSet);
         }else{
             $ret = $values;
         }
@@ -359,7 +359,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Construye un array de datos para la actualización de permisos (y shortcuts), sobre un proyecto,
      * de los usuarios (autores, responsables, etc) relacionados en el formulario del proyecto
      * @param array $newDataProject : array con los nuevos datos del proyecto
-     * @param bool $old : indica si existen old_persons (no existen en el caso de CreateProject)
+     * @param array $oldDataProject : array con los viejos datos del proyecto
      * @return array con los datos necesarios
      */
     public function buildParamsToPersons($newDataProject, $oldDataProject=NULL) {
@@ -927,26 +927,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         return $data;
     }
-//    // Hace trim, recursivamente, a los valores de todos los campos de $data
-//    private function _timData($data, $json=FALSE) {
-//        if (!is_array($data)) {
-//            $data = json_decode($data, true);
-//        }
-//        foreach ($data as $key => $value) {
-//            if (!empty($value)) {
-//                if (is_array($value)) {
-//                    $data[$key] = $this->_timData($value);
-//                }
-//                $elem = json_decode($value, true);
-//                if (is_array($elem)) {
-//                    $data[$key] = $this->_timData($elem, TRUE);
-//                }else {
-//                    $data[$key] = trim($value);
-//                }
-//            }
-//        }
-//        return ($json) ? json_encode($data) : $data;
-//    }
 
     public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
         // A implementar a les subclasses, per defecte només fa trim als valors dels camps
