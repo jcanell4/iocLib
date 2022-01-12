@@ -20,7 +20,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
             $text = $url;
         }
 
-        $html = '<div class="iocgif"><img src="' . $url . '" alt="' . $text . '" title="' . $text . '" data-dw-ns="' . $ns . '"></div>';
+        $html = '<div class="iocgif" contenteditable="false"><img src="' . $url . '" alt="' . $text . '" title="' . $text . '" data-dw-ns="' . $ns . '"></div>';
 
         $this->addRefId($html);
 

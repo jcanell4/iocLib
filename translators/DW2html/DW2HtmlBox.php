@@ -112,9 +112,18 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $pre = $this->getPreContent($fields, $id, $type);
         $content = $this->getContent($token);
 
-        $value = $this->parseContent($content);
+        // ALERTA[Xavi] eliminem el trailing \n aquí perquè no sempre és aplicable, a les taules
+        // s'han de conservar per poder fer el parser correcte de les files
 
         $post = "</div>";
+
+        if (substr($content, -1) == "\n") {
+            $content = substr_replace($content ,"",-1);
+        }
+
+        $value = $this->parseContent($content);
+
+
 
         return $pre . $value . $post;
     }

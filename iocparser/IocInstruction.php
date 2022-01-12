@@ -47,6 +47,12 @@ class IocInstruction {
 
         $auxToken = [];
 
+        // Assignem el next a cada token abans de paresjar-los
+        for ($i =0; $i<count($tokens); $i++) {
+            $tokens[$i]['next'] = $tokens[$i + 1];
+            $tokens[$i]['next']['next'] = $tokens[$i + 2];
+        }
+
         while ($tokenIndex < count($tokens)) {
             $auxToken = $tokens[$tokenIndex];
                 $auxToken['tokenIndex'] = $tokenIndex;
@@ -59,6 +65,7 @@ class IocInstruction {
             $result .= $newChunk;
         }
 
+        //$auxToken['next'] = $tokens[$tokenIndex+1];
         return $this->resolveOnClose($result, $auxToken);
     }
 

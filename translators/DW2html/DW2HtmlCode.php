@@ -36,6 +36,8 @@ class DW2HtmlCode extends DW2HtmlInstruction {
             $value = "ERROR: No s'ha trobat coincidencia amb el patró";
         }
 
+
+
         // Si l'últim caràcters és un salt de línia l'eliminem, això es necessari perque el salt de línia no
         // ha de forma part del contingut
 
@@ -43,6 +45,10 @@ class DW2HtmlCode extends DW2HtmlInstruction {
             $value = substr($value, 0, strlen($value) - 1);
         }
 
+        if ($token['extra']['padding']) {
+            $pattern = "/^ {" . $token['extra']['padding'] . "}/m";
+            $value = preg_replace($pattern, '', $value);
+        }
 
         // Si hi ha un llenguatge ho posem com atribut
 

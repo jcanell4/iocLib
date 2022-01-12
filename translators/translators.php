@@ -357,7 +357,7 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
         // no es pot ficar en el constructor perquè aquesta funció és estàtica
 
-        if (self::DEBUG_STRUCTURE) {
+            if (self::DEBUG_STRUCTURE) {
             Logger::init(1, "DW2HTML-Debug.log");
             Logger::debug("### DW SOURCE START ###\n" . $text . "### DW SOURCE END ###\n", 0, __LINE__, basename(__FILE__), 1, false);
         }
