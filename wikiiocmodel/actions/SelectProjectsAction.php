@@ -30,11 +30,11 @@ class SelectProjectsAction extends AdminAction {
                      'params' => explode(":", $this->params['consulta'])];
 
         $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
-        $this->response = ['id' => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
-                'title' => "Llista de projectes seleccionats i filtrats",
-                'content' => $this->setSelectedProjectsList($llista),
-                'type' => "html_form"
-               ];
+        $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
+                           PageKeys::KEY_TITLE => "Llista de projectes seleccionats i filtrats",
+                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista),
+                           PageKeys::KEY_TYPE => "html_response_form"
+                          ];
         return $this->response;
     }
 

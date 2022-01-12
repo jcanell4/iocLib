@@ -63,6 +63,7 @@ interface JsonGenerator {
     const META_ERROR_TYPE        = "meta_error_type";   //50;
     const PROJECT_PARTIAL_TYPE   = "project_partial";
     const HTML_FORM_TYPE         = "html_form";
+    const HTML_RESPONSE_FORM_TYPE= "html_response_form";
 
     // Aquestes constants es fan servir com a subtipus
     const ADD_ADMIN_TAB     = "add_admin_tab";

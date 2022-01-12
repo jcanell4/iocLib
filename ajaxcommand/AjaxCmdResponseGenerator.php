@@ -874,9 +874,7 @@ class AjaxCmdResponseGenerator {
      * @param string $title
      * @param string $content
      */
-    public function addAdminTask($id, $ns, $title, $content)
-    {
-
+    public function addAdminTask($id, $ns, $title, $content) {
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::ADMIN_TASK,
@@ -1188,6 +1186,29 @@ class AjaxCmdResponseGenerator {
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::HTML_FORM_TYPE,
+                $contentData)
+        );
+    }
+
+    /**
+     * Afegeix una resposta de tipus HTML_RESPONSE_FORM_TYPE al generador de respostes.
+     * per generar una pàgina com a resposta d'una consulta d'un formulari
+     * @param string $id
+     * @param string $title
+     * @param string $content
+     * @param array $extra
+     */
+    public function addHtmlRsponseForm($id, $title, $content, $extra) {
+        $contentData = array(
+            'id' => $id,
+            'title' => $title,
+            'content' => $content,
+            'extra' => $extra
+        );
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::HTML_RESPONSE_FORM_TYPE,
                 $contentData)
         );
     }
