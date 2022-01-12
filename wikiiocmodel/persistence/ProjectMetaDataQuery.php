@@ -228,7 +228,7 @@ class ProjectMetaDataQuery extends DataQuery {
                 }
             }
         }
-        return $ret;
+            return $ret;
     }
 
     /**
@@ -247,7 +247,7 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param string $projectType
      * @return Json con el array correspondiente a la clave $configMainKey del subSet actual del archivo FILE_CONFIGMAIN
      */
-    public function getMetaDataConfig($configMainKey, $projectType=FALSE) {
+    public function getMetaDataConfig($configMainKey, $projectType=FALSE, $subset=FALSE) {
         if (!$projectType){
             $projectType = $this->getProjectType();
         }
@@ -258,7 +258,9 @@ class ProjectMetaDataQuery extends DataQuery {
             $configMain = @file_get_contents(self::DEFAULT_PROJECT_TYPE_DIR . self::PATH_METADATA_CONFIG . self::FILE_CONFIGMAIN);
         }
 
-        $subset = $this->getProjectSubset();
+        if(!$subset){
+            $subset = $this->getProjectSubset();
+        }
         $configArray = json_decode($configMain, true);
 
         if ($configArray[$configMainKey]) {
@@ -317,11 +319,11 @@ class ProjectMetaDataQuery extends DataQuery {
 
     //["""overwrite"""] copia de MetaDataDaoConfig.php
     //Devuelve un array con el contenido, del subset actual, de la clave principal especificada del archivo configMain.json
-    private function getMetaDataDefinition($configMainKey=NULL, $projectType=FALSE) {
+    private function getMetaDataDefinition($configMainKey=NULL, $projectType=FALSE, $subset=FALSE) {
         if ($configMainKey === NULL) {
             $configMainKey = ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE;
         }
-        $jsonConfigProject = $this->getMetaDataConfig($configMainKey, $projectType);
+        $jsonConfigProject = $this->getMetaDataConfig($configMainKey, $projectType, $subset);
         $arrConfigProject = $this->controlMalFormedJson($jsonConfigProject, "array");
         return $arrConfigProject;
     }
@@ -334,8 +336,8 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     //["""overwrite"""] copia de MetaDataDaoConfig.php
-    public function getMetaDataDefKeys() {
-        $ret = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE);
+    public function getMetaDataDefKeys($metaDataSubSet=FALSE, $projectType=FALSE) {
+        $ret = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType, $metaDataSubSet);
         $type = $ret['mainType']['typeDef'];
         return json_encode($ret['typesDefinition'][$type]['keys']);
     }
@@ -755,18 +757,18 @@ class ProjectMetaDataQuery extends DataQuery {
             if (!$projectType){
                 $projectType = $this->getProjectType();
             }
-            $struct = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType);
             if (!$metaDataSubSet) {
                 $metaDataSubSet = $this->getProjectSubset();
             }
+            $struct = $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType, $metaDataSubSet);
             $this->projectFileName = $struct[$metaDataSubSet];
         }
         if ($revision===NULL){
             $revision = $this->getRevision();
         }
-        if (!$metaDataSubSet){
-            $metaDataSubSet = $this->getProjectSubset();
-        }
+//        if (!$metaDataSubSet){
+//            $metaDataSubSet = $this->getProjectSubset();
+//        }
         $ret = $this->projectFileName;
         if ($revision){
             $ret = "$ret.$revision.txt.gz";

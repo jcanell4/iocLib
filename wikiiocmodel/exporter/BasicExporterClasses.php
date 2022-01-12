@@ -85,6 +85,8 @@ class cfgExporter {
     public $toc = NULL;
     public $tocs = array();
     public $styletype = NULL;
+    public $figure_references = array();
+    public $table_references = array();
 
     public function __construct() {
         $this->tmp_dir = realpath(EXPORT_TMP)."/".rand();
@@ -220,9 +222,29 @@ class BasicRenderObject extends renderComposite {
                             if (!empty($htmlDocument)) {//evita procesar los documentos inexistentes
                                 $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $htmlDocument;
                                 $toc[$doc] = $this->cfgExport->toc[$item["name"]];
+                                
+                                $latexImg[$doc] = $this->cfgExport->latex_images;
+                                $this->cfgExport->latex_images = array();
+                                $mediaFiles[$doc] = $this->cfgExport->media_files;
+                                $this->cfgExport->media_files = array();
+                                $graphvizImg[$doc]= $this->cfgExport->graphviz_images;
+                                $this->cfgExport->graphviz_images = array();
+                                $gifImg[$doc] = $this->cfgExport->gif_images;
+                                $this->cfgExport->gif_images = array();
+                                $figRef[$doc] = $this->cfgExport->figure_references;
+                                $this->cfgExport->figure_references = array();
+                                $tabRef[$doc] = $this->cfgExport->table_references;
+                                $this->cfgExport->table_references = array();
                             }
                         }
                         $this->cfgExport->toc = $toc;
+                        
+                        $this->cfgExport->latex_images = $latexImg;
+                        $this->cfgExport->media_files = $mediaFiles;
+                        $this->cfgExport->graphviz_images = $graphvizImg;
+                        $this->cfgExport->gif_images = $gifImg;
+                        $this->cfgExport->figure_references= $figRef;
+                        $this->cfgExport->table_references= $tabRef;
                     }
                 }
                 else if ($item["valueType"] == "arrayFields") {
@@ -418,6 +440,8 @@ class BasicRenderFile extends AbstractRenderer {
         $_SESSION['media_files'] = &$this->cfgExport->media_files;
         $_SESSION['graphviz_images'] = &$this->cfgExport->graphviz_images;
         $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
+        $_SESSION['figure_references'] = &$this->cfgExport->figure_references;
+        $_SESSION['table_references'] = &$this->cfgExport->table_references;
         $_SESSION['alternateAddress'] = TRUE;
         $_SESSION['dir_images'] = "img/";
         if ($this->cfgExport->styletype){
@@ -487,6 +511,14 @@ class BasicRenderDocument extends BasicRenderObject{
         $id = str_replace(':', '_', $this->cfgExport->id);
         $toc_backup = $this->cfgExport->toc;
         
+        $latexImg_backup = $this->cfgExport->latex_images;
+        $mediaFiles_backup = $this->cfgExport->media_files;
+        $graphvizImg_backup = $this->cfgExport->graphviz_images;
+        $gifImg_backup = $this->cfgExport->gif_images;
+        $figRef_backup = $this->cfgExport->figure_references;
+        $tabRef_backup = $this->cfgExport->table_references;
+
+        
         foreach ($data['arrayDocuments'] as $doc => $arrayDocuments) { //para cada documento
             $this->cfgExport->toc = [];
             foreach ($arrayDocuments as $name => $value) { //para cada tipo: pdf, html
@@ -494,8 +526,24 @@ class BasicRenderDocument extends BasicRenderObject{
                 $this->cfgExport->toc[$name] = $toc_backup[$doc];
             }
             $this->cfgExport->output_filename = "{$id}_{$doc}";
+
+            $this->cfgExport->latex_images = $latexImg_backup[$doc];
+            $this->cfgExport->media_files = $mediaFiles_backup[$doc];
+            $this->cfgExport->graphviz_images = $graphvizImg_backup[$doc];
+            $this->cfgExport->gif_images = $gifImg_backup[$doc];
+            $this->cfgExport->figure_references = $figRef_backup[$doc];
+            $this->cfgExport->table_references = $tabRef_backup[$doc];
+            
             $result[$this->cfgExport->output_filename] = $this->cocinandoLaPlantillaConDatos($data);
         }
+
+        $this->cfgExport->toc = $toc_backup ;        
+        $this->cfgExport->latex_images = $latexImg_backup ;
+        $this->cfgExport->media_files = $mediaFiles_backup ;
+        $this->cfgExport->graphviz_images = $graphvizImg_backup ;
+        $this->cfgExport->gif_images = $gifImg_backup ;
+        $this->cfgExport->figure_references = $figRef_backup ;
+        $this->cfgExport->table_references = $tabRef_backup ;
 
         $ret['tmp_dir'] = $this->cfgExport->tmp_dir;
         foreach ($result as $value) {

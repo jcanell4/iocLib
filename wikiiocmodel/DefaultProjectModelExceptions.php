@@ -106,3 +106,11 @@ class DefaultProjectAlreadyExistsException extends WikiIocModelException {
         parent::__construct($message, $code, $previous, $page);
     }
 }
+
+class PageIsProtectedCantEditException extends WikiIocModelException {
+    public function __construct($page, $message='La pàgina està protegida i no es pot editar', $code=7102, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $page);
+    }
+}
+
+
