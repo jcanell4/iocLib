@@ -20,6 +20,57 @@ class SuppliesFormAction extends AdminAction {
                            AjaxKeys::KEY_ACTION_COMMAND => "select_projects",
                            PageKeys::KEY_TYPE => "html_form"
                           ];
+        $this->response[ProjectKeys::KEY_PROJECT_METADATA] = [
+                            "filtre" => ['default' => "",
+                                         'id' => "filtre",
+                                         'type' => "string",
+                                         'value' => ""
+                                        ],
+                            "projectType" => ['default' => "",
+                                              'id' => "projectType",
+                                              'type' => "string",
+                                              'value' => ""
+                                             ],
+                            "consulta" => ['default' => "",
+                                           'id' => "consulta",
+                                           'type' => "string",
+                                           'value' => ""
+                                          ]
+                        ];
+
+        $this->response[ProjectKeys::KEY_PROJECT_VIEWDATA] = [
+                            "definition" => ['chars_column' => 10,
+                                             'n_columns' => 12,
+                                             'n_rows' => 10,
+                                             'rows_row' => 1
+                                            ],
+                            "fields" => ['filtre' => ['group' => "main",
+                                                      'label' => "filtre",
+                                                      'n_columns' => 12,
+                                                      'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"]
+                                                     ],
+                                         'projectType' => ['config' => ['options' => [$this->getListPtypes()]],
+                                                           'group' => "main",
+                                                           'label' => "filtre",
+                                                           'n_columns' => 12,
+                                                           'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"],
+                                                           'type' => "select"
+                                                          ],
+                                         'consulta' => ['group' => "main",
+                                                        'label' => "consulta",
+                                                        'n_columns' => 12,
+                                                        'props' => ['title' => "Escriu la consulta de selecció"]
+                                                       ]
+                                        ],
+                            "groups" => ['main' => ['config' => ['collapsable'=>false,
+                                                                 'collapsed'=>false],
+                                                    'frame' => true,
+                                                    'label' => "selecció",
+                                                    'n_columns' => 12,
+                                                    'n_rows' => 1,
+                                                    'parent' => ""]
+                                        ]
+        ];
         return $this->response;
     }
 
