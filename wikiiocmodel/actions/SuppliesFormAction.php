@@ -51,7 +51,7 @@ class SuppliesFormAction extends AdminAction {
                                                      ],
                                          'projectType' => ['config' => ['options' => [$this->getListPtypes()]],
                                                            'group' => "main",
-                                                           'label' => "filtre",
+                                                           'label' => "tipus de projecte",
                                                            'n_columns' => 12,
                                                            'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"],
                                                            'type' => "select"
@@ -142,6 +142,7 @@ class SuppliesFormAction extends AdminAction {
             }
         }
         uasort($aList, "self::ordena");
+        $aList = array_column($aList, NULL);
         return $aList;
     }
 
