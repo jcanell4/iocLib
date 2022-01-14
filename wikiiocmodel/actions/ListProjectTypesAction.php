@@ -40,6 +40,7 @@ class ListProjectTypesAction extends AbstractWikiAction {
                 }
             }
             uasort($aList, "self::ordena");
+            $aList = array_column($aList, NULL);
             $ret = json_encode($aList);
         }
         return $ret;
