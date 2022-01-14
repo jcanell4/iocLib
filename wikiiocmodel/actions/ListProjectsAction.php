@@ -1,6 +1,7 @@
 <?php
 /**
  * Class ListProjectsAction: Mostra en una pàgina el resultat de la selecció de projectes
+ * AQUESTA classe HA ESTAT SUBSTITUIDA PER LES classes: SelectProjectsAction i SuppliesFormAction
  * @culpable <rclaver@xtec.cat>
  */
 if (!defined("DOKU_INC")) die();
