@@ -20,57 +20,6 @@ class SuppliesFormAction extends AdminAction {
                            AjaxKeys::KEY_ACTION_COMMAND => "select_projects",
                            PageKeys::KEY_TYPE => "html_form"
                           ];
-        $this->response[ProjectKeys::KEY_PROJECT_METADATA] = [
-                            "filtre" => ['default' => "",
-                                         'id' => "filtre",
-                                         'type' => "string",
-                                         'value' => ""
-                                        ],
-                            "projectType" => ['default' => "",
-                                              'id' => "projectType",
-                                              'type' => "string",
-                                              'value' => ""
-                                             ],
-                            "consulta" => ['default' => "",
-                                           'id' => "consulta",
-                                           'type' => "string",
-                                           'value' => ""
-                                          ]
-                        ];
-
-        $this->response[ProjectKeys::KEY_PROJECT_VIEWDATA] = [
-                            "definition" => ['chars_column' => 10,
-                                             'n_columns' => 12,
-                                             'n_rows' => 10,
-                                             'rows_row' => 1
-                                            ],
-                            "groups" => ['main' => ['config' => ['collapsable'=>false,
-                                                                 'collapsed'=>false],
-                                                    'frame' => true,
-                                                    'label' => "selecció",
-                                                    'n_columns' => 12,
-                                                    'n_rows' => 1,
-                                                    'parent' => ""]
-                                        ],
-                            "fields" => ['filtre' => ['group' => "main",
-                                                      'label' => "filtre",
-                                                      'n_columns' => 12,
-                                                      'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"]
-                                                     ],
-                                         'projectType' => ['config' => ['options' => $this->getListPtypes(NULL, TRUE)],
-                                                           'group' => "main",
-                                                           'label' => "tipus de projecte",
-                                                           'n_columns' => 12,
-                                                           'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"],
-                                                           'type' => "select"
-                                                          ],
-                                         'consulta' => ['group' => "main",
-                                                        'label' => "consulta",
-                                                        'n_columns' => 12,
-                                                        'props' => ['title' => "Escriu la consulta de selecció"]
-                                                       ]
-                                        ]
-        ];
         return $this->response;
     }
 
@@ -82,13 +31,24 @@ class SuppliesFormAction extends AdminAction {
         $ret = [];
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Selecció de projectes</h1>'
-                      .'<div class="level1"><p>Selecciona el tipus de projecte i un atribut.</p></div>'
+                      .'<div class="level1"><p>Selecciona el tipus de projecte i les condicions de cerca.</p></div>'
                       .'<div style="text-align:center; padding:10px; width:30%; border:1px solid gray">';
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
 
-        $aListProjectTypes = $this->getListPtypes("pt.*");
+        $attrs = ['_text' => "Filtre:&nbsp;&nbsp;",
+                  'name' => "consulta",
+                  'type' => "text",
+                  'size' => "35",
+                  'value' => ""];
+        $form->addElement("<div style='margin:0px 20px 10px 0px;'>");
+        $form->addElement(form_field($attrs));
+        $button = form_makeButton('submit', $this->params[AjaxKeys::KEY_ID], "filtre", ['form' => $formId]);
+        $form->addElement(form_button($button));
+        $form->addElement("</div>");
+
+        $aListProjectTypes = $this->getListPtypes();
 
         $attrs = ['_text' => "Llista de tipus de projecte:&nbsp;",
                   'name' => "projectType"];
@@ -104,8 +64,8 @@ class SuppliesFormAction extends AdminAction {
                   'size' => "35",
                   'value' => ""];
         $form->addElement(form_field($attrs));
-
         $form->addElement("<p></p>");
+
         $button = form_makeButton('submit', $this->params[AjaxKeys::KEY_ID], WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
         $form->addElement(form_button($button));
 
@@ -117,7 +77,7 @@ class SuppliesFormAction extends AdminAction {
     /**
      * Retorna un array que conté la llista de tipus de projecte vàlids
      */
-    private function getListPtypes($all=false, $defs=FALSE) {
+    private function getListPtypes($all=false) {
         $model = $this->getModel();
         $listProjectTypes = $model->getListProjectTypes($all);
         if ($all===true) {
@@ -132,32 +92,22 @@ class SuppliesFormAction extends AdminAction {
             $listProjectTypes = $temp;
         }
 
-        $a0 = ($defs) ? "description" : "id";
-        $a1 = ($defs) ? "value" : "name";
         $aList = [];
         foreach ($listProjectTypes as $pTypes) {
             $name = WikiGlobalConfig::getConf("projectname_$pTypes");
             if ($name) {
-                $aList[] = [$a0 => "$pTypes", $a1 => $name];
+                $aList[] = ['id' => "$pTypes", 'name' => $name];
             }else{
-                $aList[] = [$a0 => "$pTypes", $a1 => $pTypes];
+                $aList[] = ['id' => "$pTypes", 'name' => $pTypes];
             }
         }
-        if ($defs) {
-            uasort($aList, "self::ordena1");
-        }else{
-            uasort($aList, "self::ordena0");
-        }
+        uasort($aList, "self::ordena");
         $aList = array_column($aList, NULL);
         return $aList;
     }
 
-    static private function ordena0($a, $b) {
+    static private function ordena($a, $b) {
         return ($a['name'] > $b['name']) ? 1 : (($a['name'] < $b['name']) ? -1 : 0);
-    }
-
-    static private function ordena1($a, $b) {
-        return ($a['description'] > $b['description']) ? 1 : (($a['description'] < $b['description']) ? -1 : 0);
     }
 
 }
