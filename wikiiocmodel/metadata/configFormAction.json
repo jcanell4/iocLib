@@ -1,0 +1,32 @@
+{
+    "metaDataProjectStructure": [
+        {
+            "mainType": {
+                "type": "object",
+                "typeDef": "suppliesform"
+            },
+            "typesDefinition": {
+                "suppliesform": {
+                    "type": "object",
+                    "keys": {
+                        "filtre": {
+                            "type": "string"
+                        },
+                        "tipusProjecte": {
+                            "type": "string"
+                            "default": ""
+                        },
+                        "consulta": {
+                            "type": "string"
+                        },                                                
+                        "mostrarAutor": {
+                            "type": "boolean",
+                            "mandatory": true,
+                            "default":true
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

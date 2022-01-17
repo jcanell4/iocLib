@@ -44,12 +44,20 @@ class SuppliesFormAction extends AdminAction {
                                              'n_rows' => 10,
                                              'rows_row' => 1
                                             ],
+                            "groups" => ['main' => ['config' => ['collapsable'=>false,
+                                                                 'collapsed'=>false],
+                                                    'frame' => true,
+                                                    'label' => "selecció",
+                                                    'n_columns' => 12,
+                                                    'n_rows' => 1,
+                                                    'parent' => ""]
+                                        ],
                             "fields" => ['filtre' => ['group' => "main",
                                                       'label' => "filtre",
                                                       'n_columns' => 12,
                                                       'props' => ['title' => "Establir un filtre per a la llista de tipus de projecte"]
                                                      ],
-                                         'projectType' => ['config' => ['options' => [$this->getListPtypes()]],
+                                         'projectType' => ['config' => ['options' => $this->getListPtypes(NULL, TRUE)],
                                                            'group' => "main",
                                                            'label' => "tipus de projecte",
                                                            'n_columns' => 12,
@@ -61,14 +69,6 @@ class SuppliesFormAction extends AdminAction {
                                                         'n_columns' => 12,
                                                         'props' => ['title' => "Escriu la consulta de selecció"]
                                                        ]
-                                        ],
-                            "groups" => ['main' => ['config' => ['collapsable'=>false,
-                                                                 'collapsed'=>false],
-                                                    'frame' => true,
-                                                    'label' => "selecció",
-                                                    'n_columns' => 12,
-                                                    'n_rows' => 1,
-                                                    'parent' => ""]
                                         ]
         ];
         return $this->response;
@@ -117,7 +117,7 @@ class SuppliesFormAction extends AdminAction {
     /**
      * Retorna un array que conté la llista de tipus de projecte vàlids
      */
-    private function getListPtypes($all=false) {
+    private function getListPtypes($all=false, $defs=FALSE) {
         $model = $this->getModel();
         $listProjectTypes = $model->getListProjectTypes($all);
         if ($all===true) {
@@ -132,22 +132,32 @@ class SuppliesFormAction extends AdminAction {
             $listProjectTypes = $temp;
         }
 
+        $a0 = ($defs) ? "description" : "id";
+        $a1 = ($defs) ? "value" : "name";
         $aList = [];
         foreach ($listProjectTypes as $pTypes) {
             $name = WikiGlobalConfig::getConf("projectname_$pTypes");
             if ($name) {
-                $aList[] = ['id' => "$pTypes", 'name' => $name];
+                $aList[] = [$a0 => "$pTypes", $a1 => $name];
             }else{
-                $aList[] = ['id' => "$pTypes", 'name' => $pTypes];
+                $aList[] = [$a0 => "$pTypes", $a1 => $pTypes];
             }
         }
-        uasort($aList, "self::ordena");
+        if ($defs) {
+            uasort($aList, "self::ordena1");
+        }else{
+            uasort($aList, "self::ordena0");
+        }
         $aList = array_column($aList, NULL);
         return $aList;
     }
 
-    static private function ordena($a, $b) {
+    static private function ordena0($a, $b) {
         return ($a['name'] > $b['name']) ? 1 : (($a['name'] < $b['name']) ? -1 : 0);
+    }
+
+    static private function ordena1($a, $b) {
+        return ($a['description'] > $b['description']) ? 1 : (($a['description'] < $b['description']) ? -1 : 0);
     }
 
 }

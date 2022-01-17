@@ -1,0 +1,68 @@
+{
+    "definition": {
+        "n_columns": 12,
+        "n_rows": 10,
+        "chars_column": 10,
+        "rows_row": 1
+    },
+    "groups": {
+        "main": {
+            "parent": "",
+            "label": "Selecció",
+            "n_columns": 12,
+            "n_rows": 1,
+            "frame": true,
+            "config":{
+                "collapsable":false,
+                "collapsed":false
+            }
+        }
+    },
+    "fields": {
+        "filtre": {
+            "label" : "Filtre per a la llista de tipus de projecte.",
+            "n_columns": 8,
+            "group": "main",
+            "props": {
+                "title": "Indiqueu un filtre per crear la llista de tipus de projecte."
+            }
+        },
+        "tipusProjecte":{
+            "type":"select",
+            "n_columns": 4,
+            "label": "Tipus de projecte",
+            "group": "main",
+            "props": {
+                "title" : "Seleccioneu el tipus de projecte."
+            },
+            "config":{
+                "options":[
+                    {"description":"estil normal", "value":"main"},
+                    {"description":"estil boostioc", "value":"boostioc"}
+                ]
+            }
+        },
+        "consulta": {
+            "label" : "Escriu la consulta.",
+            "n_columns": 8,
+            "group": "main",
+            "props": {
+                "title": "Escriu la consulta."
+            }
+        },
+        "mostrarAutor": {
+            "type" : "hidden",
+            "oldtype" : "checkbox",
+            "label" : "Mostrar l'autor en el document final?",
+            "n_columns": 4,
+            "group": "authorship",
+            "props": {
+                "required": true,
+                "title": "Indiqueu si voleu mostrar el nom de l'autor en el document final"
+            }
+        },
+        "data_fitxercontinguts": {
+            "type" : "hidden"
+        }
+    }
+}
