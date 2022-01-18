@@ -1213,6 +1213,29 @@ class AjaxCmdResponseGenerator {
         );
     }
 
+    /**
+     * Afegeix una resposta de tipus HTML_SUPPLIES_FORM_TYPE al generador de respostes.
+     * per generar una pàgina de formulari amb resposta Ajax
+     * @param string $id
+     * @param string $title
+     * @param string $content
+     * @param array $extra
+     */
+    public function addHtmlSuppliesForm($id, $title, $content, $extra) {
+        $contentData = array(
+            'id' => $id,
+            'title' => $title,
+            'content' => $content,
+            'extra' => $extra
+        );
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::HTML_SUPPLIES_FORM_TYPE,
+                $contentData)
+        );
+    }
+
     public function addContenttoolTimerStop($id)
     {
         $contentData = array(
