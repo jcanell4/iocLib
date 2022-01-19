@@ -1219,14 +1219,18 @@ class AjaxCmdResponseGenerator {
      * @param string $id
      * @param string $title
      * @param string $content
-     * @param array $extra
+     * @param array $params
+     * @param array $aFormArgs
+     * @param array $aLinkArgs
      */
-    public function addHtmlSuppliesForm($id, $title, $content, $extra) {
+    public function addHtmlSuppliesForm($id, $title, $content, $params, $aFormArgs, $aLinkArgs) {
         $contentData = array(
             'id' => $id,
             'title' => $title,
             'content' => $content,
-            'extra' => $extra
+            'params' => $params,
+            'aRequestFormArgs' => $aFormArgs,
+            'requestLinkArgs' => $aLinkArgs
         );
 
         $this->response->add(
