@@ -1166,15 +1166,15 @@ class AjaxCmdResponseGenerator {
     }
 
     /**
-     * Afegeix una resposta de tipus HTML_FORM_TYPE al generador de respostes.
-     *
+     * Afegeix una resposta de tipus HTML_SUPPLIES_FORM_TYPE al generador de respostes.
+     * per generar una pàgina de formulari amb resposta Ajax
      * @param string $id
      * @param string $title
      * @param string $content
      * @param array $aFormArgs
      * @param array $aLinkArgs
      */
-    public function addHtmlForm($id, $title, $content, $aFormArgs, $aLinkArgs) {
+    public function addHtmlSuppliesForm($id, $title, $content, $aFormArgs, $aLinkArgs) {
         $contentData = array(
             'id' => $id,
             'title' => $title,
@@ -1185,7 +1185,7 @@ class AjaxCmdResponseGenerator {
 
         $this->response->add(
             new JSonGeneratorImpl(
-                JSonGenerator::HTML_FORM_TYPE,
+                JSonGenerator::HTML_SUPPLIES_FORM_TYPE,
                 $contentData)
         );
     }
@@ -1209,33 +1209,6 @@ class AjaxCmdResponseGenerator {
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::HTML_RESPONSE_FORM_TYPE,
-                $contentData)
-        );
-    }
-
-    /**
-     * Afegeix una resposta de tipus HTML_SUPPLIES_FORM_TYPE al generador de respostes.
-     * per generar una pàgina de formulari amb resposta Ajax
-     * @param string $id
-     * @param string $title
-     * @param string $content
-     * @param array $params
-     * @param array $aFormArgs
-     * @param array $aLinkArgs
-     */
-    public function addHtmlSuppliesForm($id, $title, $content, $params, $aFormArgs, $aLinkArgs) {
-        $contentData = array(
-            'id' => $id,
-            'title' => $title,
-            'content' => $content,
-            'params' => $params,
-            'aRequestFormArgs' => $aFormArgs,
-            'requestLinkArgs' => $aLinkArgs
-        );
-
-        $this->response->add(
-            new JSonGeneratorImpl(
-                JSonGenerator::HTML_SUPPLIES_FORM_TYPE,
                 $contentData)
         );
     }
