@@ -9,12 +9,14 @@ include_once(DOKU_INC.'/inc/form.php');
 
 class SuppliesFormAction extends AdminAction {
 
+    const DIVGRUP = '<div style="text-align:left; margin:10px; padding:10px; border:1px solid blue; border-radius:10px;">';
+
     public function init($modelManager=NULL) {
         parent::init($modelManager);
     }
 
     protected function responseProcess() {
-        if ($this->params['do']['consulta']) {
+        if ($this->params['do']['cerca']) {
             $command = "select_projects";
         }else {
             $command = $this->params[AjaxKeys::KEY_ID];
@@ -33,20 +35,16 @@ class SuppliesFormAction extends AdminAction {
     /** Construeix un formulari a partir d'un arbre d'elements rebut del client */
     protected function creaForm() {
         $ret = [];
-        $last_group = "0";
-        if (isset($this->params['grups'])) {
-            $grups = json_decode($this->params['grups'], true);
-            $last_group = $grups['last_group'];
-        }
 
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Selecció de projectes</h1>'
                       .'<div class="level1"><p>Selecciona el tipus de projecte i les condicions de cerca.</p></div>'
-                      .'<div style="text-align:left; padding:10px; width:35%; border:1px solid gray">';
+                      .'<div style="text-align:center; padding:10px; width:70%; border:1px solid gray; border-radius:10px;">';
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
 
+        $form->addElement(self::DIVGRUP);
         //FILTRE
         $attrs = ['_text' => "Filtre pels tipus de projecte:&nbsp;",
                   'name' => "filtre",
@@ -61,7 +59,6 @@ class SuppliesFormAction extends AdminAction {
         $aListProjectTypes = $this->getListPtypes($this->params['filtre']);
         $attrs = ['_text' => "Tipus de projecte:&nbsp;",
                   'name' => "projectType"];
-        //$attrs['_options'][] = ["", "", "", false]; //'value','text','select','disabled' (primer elemento nulo)
         foreach ($aListProjectTypes as $v) {
             $attrs['_options'][] = [$v['id'],$v['name'],"",false]; //'value','text','select','disabled'
         }
@@ -70,16 +67,43 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</span>");
         $ret['grups']['grup_T']['elements'][] = $this->params[AjaxKeys::PROJECT_TYPE];
         $this->_creaConnectorGrup($form, $ret['grups'], "T");
-        $form->addElement("<p></p>");
+        $form->addElement("</div>");
 
-        //CONDICIONS - Anàlisi de l'arbre
-        if (isset($this->params['do']["nou_element_grup_$last_group"])) {
+        //GRUPS
+        //Botó de creació d'un grup de primer nivell
+        $form->addElement("<p>&nbsp;</p><p style='text-align:right;'>");
+        $this->_creaBotoNouGrup($form);
+        $form->addElement("</p>");
+
+        $last_group = "0";
+
+        if (isset($this->params['grups'])) {
+            //arbre de GRUPS
+            $grups = json_decode($this->params['grups'], true);
+            $last_group = $grups['last_group'];
+
+            //S'ha pulsat el botó [nou Grup]
+            if (isset($this->params['do']["nou_grup"])) {
+                $last_group++;
+                $grups["grup_$last_group"] = ["connector" => "",
+                                              "elements" => []];
+            }
+
+            //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
-            $last_group++;
         }
-        $this->_creaConsulta($form, $ret['grups'], $this->params["consulta_grup_$last_group"], $last_group);
+
+        //Consultes
+        if (isset($this->params['do']["nou_element_grup_$last_group"]) || ($last_group=="0" && !isset($grups))) {
+            //S'ha pulsat el botó [nova Consulta]
+            $last_group += (isset($grups)) ? 1 : 0;
+            $this->_creaGrup($form, $ret, $last_group);
+            $this->_creaCondicio($form, $ret['grups'], $this->params["condicio_grup_$last_group"], $last_group);
+        }
+        $form->addElement("</div>");
 
         //BOTÓ CERCA
+        $form->addElement("<p>&nbsp;</p>");
         $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
 
         $form->addHidden('grups', json_encode($ret['grups']));
@@ -89,42 +113,49 @@ class SuppliesFormAction extends AdminAction {
         return $ret;
     }
 
-    // Construeix els elements HTML a partir de l'arbre
+    // Reconstrueix els elements HTML a partir de l'arbre
     private function _recreaArbre(&$form, &$ret, $grups) {
         foreach ($grups as $G => $grup) {
             $g = explode("_", $G)[1];
             if (is_numeric($g)) {
+                $this->_creaGrup($form, $ret, $g); //¿añadir el valor del conector? , $grup["connector"]
                 foreach ($grup as $key => $value) {
-                    if ($key == "connector") {
-                        $this->_creaConnectorGrup($form, $ret, $g);
-                    }elseif ($key == "elements") {
+                    if ($key == "elements") {
                         foreach ($value as $element) {
-                            $this->_creaPreConsulta($form, $ret, $element, $g);
+                            $this->_creaPreCondicio($form, $ret, $element, $g);
                         }
                     }
                 }
-                $this->_creaBotoNouElement($form, $g);
-                $form->addElement("<p></p>");
+                $form->addElement("</div>");
             }
         }
     }
 
-    private function _creaConsulta(&$form, &$ret, $value="", $grup="0") {
-        $this->_creaPreConsulta($form, $ret, $value, $grup);
-        $this->_creaConnectorGrup($form, $ret, $grup);
-        $this->_creaBotoNouElement($form, $grup);
+    private function _creaCondicio(&$form, &$ret, $value="", $grup="0") {
+        $this->_creaPreCondicio($form, $ret, $value, $grup);
         $form->addElement("<p></p>");
         $ret['last_group'] = $grup;
     }
 
-    private function _creaPreConsulta(&$form, &$ret, $value="", $grup="0") {
+    private function _creaPreCondicio(&$form, &$ret, $value="", $grup="0") {
         $value = IocCommon::nz($value, "");
         $attrs = ['_text' => "condicions:&nbsp;",
-                  'name' => "consulta_grup_$grup",
+                  'name' => "condicio_grup_$grup",
                   'type' => "text",
                   'size' => "35",
                   'value' => $value];
         $this->_creaElement($form, $ret, $value, $attrs, $grup);
+    }
+
+    private function _creaGrup(&$form, &$ret, $grup="0") { //¿añadir el valor del conector? , $value=""
+        $form->addElement(self::DIVGRUP);
+        $form->addElement("<div style='float:left;margin:0 0 10px 0;'><b>Grup $grup</b></div>");
+        $form->addElement('<div style="float:right;text-align:right;margin:0 0 10px 0;">');
+        $this->_creaBotoNouElement($form, $grup);
+        $form->addElement('</div>');
+        $form->addElement("<div style='clear:left;text-align:left;margin:0 0 10px 0;'>connector:&nbsp;");
+        $this->_creaConnectorGrup($form, $ret, $grup);
+        $form->addElement('</div>');
     }
 
     private function _creaElement(&$form, &$ret, $value, $attrs, $grup="0") {
@@ -133,15 +164,24 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</span>");
         $ret["grup_$grup"]["elements"][] = $value;
     }
+
     private function _creaBotoNouElement(&$form, $grup="0") {
-        $this->_creaBoto($form, "nou_element_grup_$grup", "nou", ['id'=>"btn__nou_element_grup_$grup"]);
+        $this->_creaBoto($form, "nou_element_grup_$grup", "nova Condició", ['id'=>"btn__nou_element_grup_$grup"]);
+    }
+
+    private function _creaBotoNouSubGrup(&$form, $grup="0") {
+        $this->_creaBoto($form, "nou_subgrup_$grup", "nou SubGrup", ['id'=>"btn__nou_subgrup_$grup"]);
+    }
+
+    private function _creaBotoNouGrup(&$form) {
+        $this->_creaBoto($form, "nou_grup", "nou Grup", ['id'=>"btn__nou_grup"]);
     }
 
     private function _creaConnectorGrup(&$form, &$ret, $grup) {
-        $values = ['nul' => "",
+        $values = ['' => "",
                    'and' => "I",
                    'or' => "O"];
-        $valor = $this->params["connector_grup_$grup"];
+        $valor = IocCommon::nz($this->params["connector_grup_$grup"],"");
         $connector = form_makeMenuField("connector_grup_$grup", $values, $valor, "", "connector:", "idconnector_$grup");
         $this->_obreSpan($form);
         $form->addElement(form_menufield($connector));
@@ -241,7 +281,7 @@ class SuppliesFormAction extends AdminAction {
 
         //CONSULTA
         $attrs = ['_text' => "condicions:&nbsp;",
-                  'name' => "consulta",
+                  'name' => "condicio",
                   'type' => "text",
                   'size' => "35",
                   'value' => ""];
