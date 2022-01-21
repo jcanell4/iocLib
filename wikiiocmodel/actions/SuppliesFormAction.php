@@ -33,7 +33,11 @@ class SuppliesFormAction extends AdminAction {
     /** Construeix un formulari a partir d'un arbre d'elements rebut del client */
     protected function creaForm() {
         $ret = [];
-        $last_group = IocCommon::nz($this->params['grups']['last_group'], "0");
+        $last_group = "0";
+        if (isset($this->params['grups'])) {
+            $grups = json_decode($this->params['grups'], true);
+            $last_group = $grups['last_group'];
+        }
 
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Selecció de projectes</h1>'
@@ -49,7 +53,7 @@ class SuppliesFormAction extends AdminAction {
                   'type' => "text",
                   'size' => "18",
                   'value' => $this->params['filtre']];
-        $this->_creaElement($form, $ret['grups'], $this->params["filtre"], "F", $attrs);
+        $this->_creaElement($form, $ret['grups'], IocCommon::nz($this->params["filtre"], ""), $attrs, "F");
         $this->_creaBoto($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
         $form->addElement("<p></p>");
 
@@ -70,15 +74,10 @@ class SuppliesFormAction extends AdminAction {
 
         //CONDICIONS - Anàlisi de l'arbre
         if (isset($this->params['do']["nou_element_grup_$last_group"])) {
-            $this->_creaArbre($form, $ret['grups']);
-            $ret['grups']['last_group'] += 1;
-        }else {
-            $this->_creaElement($form, $ret['grups'], $this->params["consulta_grup_0"], "0");
-            $this->_creaConnectorGrup($form, $ret['grups'], "0");
-            $this->_creaBotoNouElement($form, "0");
-            $form->addElement("<p></p>");
-            $ret['grups']['last_group'] = 0;
+            $this->_recreaArbre($form, $ret['grups'], $grups);
+            $last_group++;
         }
+        $this->_creaConsulta($form, $ret['grups'], $this->params["consulta_grup_$last_group"], $last_group);
 
         //BOTÓ CERCA
         $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
@@ -91,36 +90,50 @@ class SuppliesFormAction extends AdminAction {
     }
 
     // Construeix els elements HTML a partir de l'arbre
-    private function _creaArbre(&$form, &$ret) {
-        foreach ($this->params['grups'] as $g => $grup) {
-            foreach ($grup as $key => $value) {
-                if ($key == "conector") {
-                    $this->_creaConnectorGrup($form, $ret, $g);
-                }else {
-                    $this->_creaElement($form, $ret, $value, $g);
+    private function _recreaArbre(&$form, &$ret, $grups) {
+        foreach ($grups as $G => $grup) {
+            $g = explode("_", $G)[1];
+            if (is_numeric($g)) {
+                foreach ($grup as $key => $value) {
+                    if ($key == "connector") {
+                        $this->_creaConnectorGrup($form, $ret, $g);
+                    }elseif ($key == "elements") {
+                        foreach ($value as $element) {
+                            $this->_creaPreConsulta($form, $ret, $element, $g);
+                        }
+                    }
                 }
+                $this->_creaBotoNouElement($form, $g);
+                $form->addElement("<p></p>");
             }
-            $this->_creaBotoNouElement($form, $g);
-            $form->addElement("<p></p>");
         }
-        
     }
 
-    private function _creaElement(&$form, &$ret, $value="", $grup=0, $attrs=NULL) {
-        if (empty($attrs)) {
-            $attrs = ['_text' => "condicions:&nbsp;",
-                      'name' => "consulta_grup_$grup",
-                      'type' => "text",
-                      'size' => "35",
-                      'value' => $value];
-        }
+    private function _creaConsulta(&$form, &$ret, $value="", $grup="0") {
+        $this->_creaPreConsulta($form, $ret, $value, $grup);
+        $this->_creaConnectorGrup($form, $ret, $grup);
+        $this->_creaBotoNouElement($form, $grup);
+        $form->addElement("<p></p>");
+        $ret['last_group'] = $grup;
+    }
+
+    private function _creaPreConsulta(&$form, &$ret, $value="", $grup="0") {
+        $value = IocCommon::nz($value, "");
+        $attrs = ['_text' => "condicions:&nbsp;",
+                  'name' => "consulta_grup_$grup",
+                  'type' => "text",
+                  'size' => "35",
+                  'value' => $value];
+        $this->_creaElement($form, $ret, $value, $attrs, $grup);
+    }
+
+    private function _creaElement(&$form, &$ret, $value, $attrs, $grup="0") {
         $this->_obreSpan($form);
         $form->addElement(form_field($attrs));
         $form->addElement("</span>");
         $ret["grup_$grup"]["elements"][] = $value;
     }
-
-    private function _creaBotoNouElement(&$form, $grup=0) {
+    private function _creaBotoNouElement(&$form, $grup="0") {
         $this->_creaBoto($form, "nou_element_grup_$grup", "nou", ['id'=>"btn__nou_element_grup_$grup"]);
     }
 
