@@ -349,7 +349,7 @@ class Hmtl2DWTranslator extends AbstractTranslator {
 class DW2HtmlTranslator extends AbstractTranslator {
 
     // canviar a true/false fa que es cridi a la funció debugStructure() i s'afegeixi el resultat a cada instrucció
-    const DEBUG_STRUCTURE = true;
+    const DEBUG_STRUCTURE = false;
 
 
     public static function translate($text, $params, &$extra, $isPartial = false) {

@@ -99,9 +99,9 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
-        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => [
-            'state' => 'code',
-        ],
+//        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => [
+//            'state' => 'code',
+//        ],
 
 
         "<file>(.*?)<\/file>\n?" => [
@@ -110,6 +110,10 @@ class DW2HtmlParser extends IocParser {
 
         "(?: {2})+[\*-](.*?)\n" => [
             'state' => 'list-item'
+        ],
+
+        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => [
+            'state' => 'code',
         ],
 
         "\*\*" => [
@@ -225,7 +229,7 @@ class DW2HtmlParser extends IocParser {
 //        ':figure:(.*?):' => ['state' => 'box', 'type' => 'figure', 'class' => 'DW2HtmlLinkSpecial', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'type' => 'figure']],
 
         "<code.*?>(.*?)<\/code>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
-        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
+//        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
 
 
 
@@ -234,6 +238,8 @@ class DW2HtmlParser extends IocParser {
 
         " {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
+
+        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
 
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
 
