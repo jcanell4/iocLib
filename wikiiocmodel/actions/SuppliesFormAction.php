@@ -9,7 +9,7 @@ include_once(DOKU_INC.'/inc/form.php');
 
 class SuppliesFormAction extends AdminAction {
 
-    const DIVGRUP = '<div style="text-align:left; margin:10px; padding:10px; border:1px solid blue; border-radius:10px;">';
+    const DIVGRUP = '<div style="text-align:left; margin:7px; padding:10px; border:1px solid blue; border-radius:8px;">';
     const OBRE_SPAN = '<span style="margin:0 20px 10px 0;">';
 
     public function init($modelManager=NULL) {
@@ -66,7 +66,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(form_listboxfield($attrs));
         $form->addElement("</span>");
         $ret['grups']['grup_T']['elements'][] = $this->params[AjaxKeys::PROJECT_TYPE];
-        $this->_creaConnectorGrup($form, $ret['grups'], "T");
+        $this->_creaConnectorGrup($form, $ret['grups'], $this->params['connector_grup_T'], "T");
         $form->addElement("</div>");
 
         //GRUPS
@@ -91,7 +91,7 @@ class SuppliesFormAction extends AdminAction {
             if (isset($this->params['do']["nou_grup"])) {
                 $last_group++;
                 $grups["grup_$last_group"] = ['connector' => "",
-                                              'elements' => []];
+                                              'elements' => [""]];
             }
 
             //Elements de CONDICIONS
@@ -105,6 +105,7 @@ class SuppliesFormAction extends AdminAction {
 
             //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
+            $grups['last_group'] = $last_group;
         }
 
         $form->addElement("</div>");
@@ -129,7 +130,7 @@ class SuppliesFormAction extends AdminAction {
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
-                            $this->_creaPreCondició($form, $ret, $k, $element, $g);
+                            $this->_creaPreCondició($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
                             $form->addElement("<p></p>");
                         }
                     }
