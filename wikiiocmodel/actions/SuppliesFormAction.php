@@ -89,6 +89,8 @@ class SuppliesFormAction extends AdminAction {
                                               'checkbox' => "",
                                               'elements' => [""]];
             }
+
+            $ret['grups']['agrupacions'] = $grups['agrupacions'];
             //S'ha pulsat el botó [connecta grups]
             if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
                 for ($i=0; $i<100; $i++) {
