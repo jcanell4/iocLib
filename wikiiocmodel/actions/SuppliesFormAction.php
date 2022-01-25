@@ -76,15 +76,16 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</p>");
         $form->addElement("<p style='text-align:right;'>");
         $this->_creaBotóCondicióGrup($form);
-        $this->_creaConnectorGrups($form, $ret);
+        $this->_creaConnectorGrups($form);
         $form->addElement("</p>");
 
         $last_group = "0";
 
         if (!isset($this->params['grups'])) {
             //Estat inicial
-            $this->_creaGrup($form, $ret, $last_group);
+            $this->_creaGrup($form, $ret['grups'], $last_group);
             $this->_creaCondició($form, $ret['grups'], "0", "", $last_group);
+            $form->addElement("<p></p>");
         }
         else {
             //Arbre de GRUPS
@@ -95,7 +96,21 @@ class SuppliesFormAction extends AdminAction {
             if (isset($this->params['do']["nou_grup"])) {
                 $last_group++;
                 $grups["grup_$last_group"] = ['connector' => "",
+                                              'projecttype' => "",
+                                              'checkbox' => "",
                                               'elements' => [""]];
+            }
+            //S'ha pulsat el botó [connecta grups]
+            if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
+                for ($i=0; $i<100; $i++) {
+                    if (isset($this->params["checkbox_grup_$i"])) {
+                        $e .= "$i " . $this->params['connector_de_grups'] . " ";
+                    }
+                }
+                if (!empty($e)) {
+                    $e = trim($e, " a..z");
+                    $ret['grups']["agrupacions"][] = $e;
+                }
             }
 
             //Elements de CONDICIONS
@@ -109,8 +124,8 @@ class SuppliesFormAction extends AdminAction {
 
             //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
-            $grups['last_group'] = $last_group;
         }
+        $ret['grups']['last_group'] = $last_group;
 
         $form->addElement("</div>");
 
@@ -134,7 +149,7 @@ class SuppliesFormAction extends AdminAction {
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
-                            $this->_creaPreCondició($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
+                            $this->_creaCondició($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -145,12 +160,6 @@ class SuppliesFormAction extends AdminAction {
     }
 
     private function _creaCondició(&$form, &$ret, $n="0", $value="", $grup="0") {
-        $this->_creaPreCondició($form, $ret, $n, $value, $grup);
-        $form->addElement("<p></p>");
-        $ret['last_group'] = $grup;
-    }
-
-    private function _creaPreCondició(&$form, &$ret, $n="0", $value="", $grup="0") {
         $value = IocCommon::nz($value, "");
         $attrs = ['_text' => "condició ${n}:&nbsp;",
                   'name' => "condicio_${n}_grup_${grup}",
@@ -184,16 +193,15 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaBotó($form, "nova_condicio_grup_$grup", "nova Condició", ['id'=>"btn__nova_condicio_grup_$grup"]);
     }
 
-    private function _creaConnectorGrups(&$form, &$ret, $valor="") {
+    private function _creaConnectorGrups(&$form) {
         $valor = IocCommon::nz($valor, "");
         $values = ['' => "",
                    'and' => "I",
                    'or' => "O"];
-        $connector = form_makeMenuField("connectordegrups", $values, $valor, "", "connector de grups:", "idconnector_de_grups");
+        $connector = form_makeMenuField("connector_de_grups", $values, "", "", "connector de grups:", "idconnector_de_grups");
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_menufield($connector));
         $form->addElement("</span>");
-        $ret["connector_de_grups"] = $valor;
     }
 
     private function _creaBotóCondicióGrup(&$form) {
@@ -217,9 +225,11 @@ class SuppliesFormAction extends AdminAction {
     }
 
     private function _creaLlistaTipusDeProjecte(&$form, &$ret, $valor="", $grup="0") {
+        $valor = IocCommon::nz($valor, "");
         $aListProjectTypes = $this->getListPtypes($this->params['filtre']);
         $attrs = ['_text' => "Tipus de projecte:&nbsp;",
                   'name' => "projecttype_grup_$grup"];
+        $attrs['_options'][] = ['', ''];
         foreach ($aListProjectTypes as $v) {
             $selected = ($v['name']==$valor) ? "select" : "";
             $attrs['_options'][] = [$v['id'], $v['name'], $selected, false]; //'value','text','select','disabled'
@@ -227,13 +237,13 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_listboxfield($attrs));
         $form->addElement("</span>");
-        $ret["grup_$grup"]['projecttype'] = $this->params["projecttype_grup_$grup"];
+        $ret["grup_$grup"]['projecttype'] = IocCommon::nz($this->params["projecttype_grup_$grup"]);
     }
 
     private function _creaCheckBox(&$form, &$ret, $valor="", $grup="0") {
-        $checkbox = form_makeCheckboxField("checkbox_grup_$grup", $valor, "");
+        $checkbox = form_makeCheckboxField("checkbox_grup_$grup", $valor, "marca la casella per connectar amb altres grups");
         $form->addElement(form_checkboxfield($checkbox));
-        $ret["grup_$grup"]["checkbox"] = $valor;
+        $ret["grup_$grup"]["checkbox"] = IocCommon::nz($valor);
     }
 
     private function _creaBotó(&$form, $action, $title='', $attrs=array(), $type='submit') {
