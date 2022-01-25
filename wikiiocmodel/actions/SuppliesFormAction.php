@@ -55,20 +55,6 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaBotó($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
         $form->addElement("</div>");
 
-//        //LLISTA DE TIPUS DE PROJECTE
-//        $aListProjectTypes = $this->getListPtypes($this->params['filtre']);
-//        $attrs = ['_text' => "Tipus de projecte:&nbsp;",
-//                  'name' => "projectType"];
-//        foreach ($aListProjectTypes as $v) {
-//            $attrs['_options'][] = [$v['id'],$v['name'],"",false]; //'value','text','select','disabled'
-//        }
-//        $form->addElement(self::OBRE_SPAN);
-//        $form->addElement(form_listboxfield($attrs));
-//        $form->addElement("</span>");
-//        $ret['grups']['grup_T']['elements'][] = $this->params[AjaxKeys::PROJECT_TYPE];
-//        $this->_creaConnectorGrup($form, $ret['grups'], $this->params['connector_grup_T'], "T");
-//        $form->addElement("</div>");
-
         //GRUPS
         //Botó de creació d'un grup de primer nivell
         $form->addElement("<p>&nbsp;</p><p style='text-align:right;'>");
@@ -83,7 +69,10 @@ class SuppliesFormAction extends AdminAction {
 
         if (!isset($this->params['grups'])) {
             //Estat inicial
-            $this->_creaGrup($form, $ret['grups'], $last_group);
+            $values = ['connector_grup' => $this->params["connector_grup_0"],
+                       'projecttype_grup' => $this->params["projecttype_grup_0"],
+                       'checkbox_grup' => $this->params["checkbox_grup_0"]];
+            $this->_creaGrup($form, $ret['grups'], $last_group, $values);
             $this->_creaCondició($form, $ret['grups'], "0", "", $last_group);
             $form->addElement("<p></p>");
         }
@@ -145,7 +134,10 @@ class SuppliesFormAction extends AdminAction {
         foreach ($grups as $G => $grup) {
             $g = explode("_", $G)[1];
             if (is_numeric($g)) {
-                $this->_creaGrup($form, $ret, $g);
+                $values = ['connector_grup' => (empty($this->params["connector_grup_$g"])) ? $ret["grup_$g"]['connector'] : $this->params["connector_grup_$g"],
+                           'projecttype_grup' => (empty($this->params["projecttype_grup_$g"])) ? $ret["grup_$g"]['projecttype'] : $this->params["projecttype_grup_$g"],
+                           'checkbox_grup' => (empty($this->params["checkbox_grup_$g"])) ? $ret["grup_$g"]['checkbox'] : $this->params["checkbox_grup_$g"]];
+                $this->_creaGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
@@ -169,16 +161,16 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaElement($form, $ret, $value, $attrs, $grup);
     }
 
-    private function _creaGrup(&$form, &$ret, $grup="0") {
+    private function _creaGrup(&$form, &$ret, $grup="0", $values=[]) {
         $form->addElement(self::DIVGRUP);
         $form->addElement("<div style='float:left;margin:0 0 10px 0;'><b>Grup $grup</b></div>");
         $form->addElement('<div style="float:right;text-align:right;margin:0 0 10px 0;">');
         $this->_creaBotóNovaCondició($form, $grup);
         $form->addElement('</div>');
         $form->addElement("<div style='clear:left;text-align:left;margin:0 0 10px 0;'>connector:&nbsp;");
-        $this->_creaConnectorGrup($form, $ret, $this->params["connector_grup_$grup"], $grup);
-        $this->_creaLlistaTipusDeProjecte($form, $ret, $this->params["projecttype_grup_$grup"], $grup);
-        $this->_creaCheckBox($form, $ret, $this->params["checkbox_grup_$grup"], $grup);
+        $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
+        $this->_creaLlistaTipusDeProjecte($form, $ret, $values['projecttype_grup'], $grup);
+        $this->_creaCheckBox($form, $ret, $values['checkbox_grup'], $grup);
         $form->addElement('</div>');
     }
 
@@ -231,7 +223,7 @@ class SuppliesFormAction extends AdminAction {
                   'name' => "projecttype_grup_$grup"];
         $attrs['_options'][] = ['', ''];
         foreach ($aListProjectTypes as $v) {
-            $selected = ($v['name']==$valor) ? "select" : "";
+            $selected = ($v['id']==$valor) ? "select" : "";
             $attrs['_options'][] = [$v['id'], $v['name'], $selected, false]; //'value','text','select','disabled'
         }
         $form->addElement(self::OBRE_SPAN);
