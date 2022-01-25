@@ -302,7 +302,7 @@ class ProjectMetaDataQuery extends DataQuery {
      * @return array correspondiente a la clave $action real o apuntada por el shortcut
      */
     public function getMetaDataActionWorkflowFile($estat, $action) {
-        $ret;
+        $ret = NULL;
         $workflow = $this->getMetaDataJsonFile(FALSE, "workflow.json");
         if (($shortcut = $workflow[$estat]['actions'][$action]['shortcut'])) {
             $ret = $workflow[$shortcut]['actions'][$action];
@@ -342,9 +342,9 @@ class ProjectMetaDataQuery extends DataQuery {
         return json_encode($ret['typesDefinition'][$type]['keys']);
     }
 
-    //["""overwrite""" (más bien suplantación de nombre, dado que son distintas] copia de MetaDataDaoConfig.php
-    public function getMetaDataStructure() {
-        return $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE);
+
+    public function getMetaDataStructure($subset=FALSE, $projectType=FALSE) {
+        return $this->getMetaDataDefinition(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType, $subset);
     }
 
     //Retorna el contenido de la subclave $metaDataSubset de la clave 'metaDataFtpSender' del configMain.json
@@ -413,8 +413,8 @@ class ProjectMetaDataQuery extends DataQuery {
      * Se usa cuando todavía no hay datos en el fichero de proyecto, entonces se recoge la lista de campos del tipo de proyecto
      * @return JSON conteniendo el conjunto de campos del subset
      */
-    public function getStructureMetaDataConfig() {
-        $metaStructure = $this->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE);
+    public function getStructureMetaDataConfig($subSet=FALSE, $projectType=FALSE) {
+        $metaStructure = $this->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType, $subSet);
 
         if ($metaStructure) {
             $content = json_decode($metaStructure, TRUE);
@@ -435,12 +435,15 @@ class ProjectMetaDataQuery extends DataQuery {
         }
         $projectTypeDir = $this->getProjectTypeDir($projectType);
         $view = @file_get_contents($projectTypeDir . self::PATH_METADATA_CONFIG . "$viewConfig.json");
-        if ($view == false) {
-            $view = @file_get_contents($projectTypeDir . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
-            if ($view == false) {
-                $view = @file_get_contents(self::DEFAULT_PROJECT_TYPE_DIR . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
-            }
-        }
+
+        // Mai utilitzat un nom per defecte, s'ha d'indicar o deixar en blanc
+//        if ($view == false && $viewConfig !== "#blank#") {
+//            $view = @file_get_contents($projectTypeDir . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
+//            if ($view == false) {
+//                $view = @file_get_contents(self::DEFAULT_PROJECT_TYPE_DIR . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
+//            }
+//        }
+
         $viewArray = json_decode($view, true);
         return $viewArray;
     }

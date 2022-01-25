@@ -24,6 +24,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $draftDataQuery;
     protected $lockDataQuery;
     protected $dokuPageModel;
+    protected $viewConfigKey;
     protected $viewConfigName;
     protected $roleProperties;
     protected $needGenerateAction;
@@ -34,7 +35,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
-        $this->viewConfigName = "defaultView";
+
+        $this->viewConfigKey = ProjectKeys::KEY_VIEW_DEFAULTVIEW;
         $this->needGenerateAction=TRUE;
         $this->externalCallMethods = [];
     }
@@ -55,7 +57,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigKey=ProjectKeys::KEY_VIEW_DEFAULTVIEW, $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
         if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
@@ -63,7 +65,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : ProjectKeys::VAL_DEFAULTSUBSET;
             $this->actionCommand  = $params[ProjectKeys::KEY_ACTION];
             if ($params[ProjectKeys::VIEW_CONFIG_NAME]){
-                $this->viewConfigName = $params[ProjectKeys::VIEW_CONFIG_NAME];
+                $this->viewConfigKey = $params[ProjectKeys::VIEW_CONFIG_NAME];
             }
             $this->isOnView = $params[ProjectKeys::KEY_ISONVIEW];
         }else {
@@ -72,7 +74,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->rev = $rev;
             $this->metaDataSubSet = $metaDataSubSet;
             $this->actionCommand = $actionCommand;
-            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
+            $this->viewConfigKey = $viewConfigKey;
+//            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
             $this->isOnView = $isOnView;
         }
         $this->projectMetaDataQuery->init($this->id);
@@ -331,8 +334,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataService->getMeta($query, FALSE)[0];
 
-        if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW){  //CANVIAR $viewConfigName a VALOR NUMÊRIC
-            $struct = $this->projectMetaDataQuery->getMetaDataStructure();
+
+        // TODO: demanar el del subset, passar per paràmetre!
+        $struct = $this->projectMetaDataQuery->getMetaDataStructure($subSet);
+
+
+        //if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW) {  //CANVIAR $viewConfigName a VALOR NUMÊRIC
+            //$struct = $this->projectMetaDataQuery->getMetaDataStructure();
+
             if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
                 //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
                 $typeDef = $struct['mainType']['typeDef'];
@@ -342,11 +351,26 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 }
                 $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
             }
-            if ($struct['viewfiles'][0]) {
-                $this->viewConfigName = $struct['viewfiles'][0];
-            }
+
+//            if ($struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW]) {
+//                $this->viewConfigName = $struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW];
+//            }
+        //}
+//        } else {
+//            $this->viewConfigName = $struct['viewfiles'][$this->viewConfigName];
+//        }
+
+        $viewConfigName = NULL;
+        // ALERTA!
+        if ($struct['viewfiles'][$this->viewConfigKey]) {
+            // ALERTA! Això ha de ser el viewConfigName!!
+            $viewConfigName = $struct['viewfiles'][$this->viewConfigKey];
+        } else {
+            $viewConfigName = NULL;
+            $this->viewConfigKey = NULL;
         }
-        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
+
+        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($viewConfigName);
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
         $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
@@ -765,9 +789,19 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->viewConfigName;
     }
 
-    public function setViewConfigName($viewConfigName) {
-        $this->viewConfigName = $viewConfigName;
+    public function setViewConfigKey($viewConfigKey) {
+        $this->viewConfigKey = $viewConfigKey;
     }
+
+
+    public function getViewConfigKey() {
+        return $this->viewConfigKey;
+    }
+
+    // No s'utilitza, el nom s'assigna al getData segons la key
+//    public function setViewConfigName($viewConfigName) {
+//        $this->viewConfigName = $viewConfigName;
+//    }
 
     /**
      * Guarda los datos
@@ -895,6 +929,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if($originalDataKeyValue){
             $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
         }
+        $aRenderables = $this->getRenderableFieldList();
+        $values = $this->_trimData($values, $aRenderables);
         $values = $this->updateCalculatedFieldsOnSave($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
@@ -912,31 +948,169 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     // Hace trim, recursivamente, a los valores de todos los campos de $data
-    private function _trimData($data) {
+    private function _trimData($data, $blackList=array()) {
         if(is_string($data)){
             $data = trim($data);
             if($data[0]==="[" && $data[strlen($data)-1]==="]" || $data[0]==="{" && $data[strlen($data)-1]==="}"){
                 $dData = json_decode($data, TRUE);
-                $dData= $this->_trimData($dData);
+                $dData= $this->_trimData($dData, $blackList);
                 $data = json_encode($dData);
             }            
         }else if(is_array($data)){
+            $seq = $this->isSequentialArray($data);
             foreach ($data as $key => $value) {
-                $data[$key] = $this->_trimData($value);
+                if(!array_key_exists($key, $blackList) || is_array($blackList[$key])){
+                    if($seq){
+                       $data[$key] = $this->_trimData($value, $blackList);
+                    }else{
+                        $data[$key] = $this->_trimData($value, $blackList[$key]);
+                    }
+                }
             }
         }
         return $data;
     }
+    
+    private function isSequentialArray($array){
+        return (array_keys($array) === range(0, count($array) - 1));
+    }
+        
 
     public function updateCalculatedFieldsOnSave($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
-        // A implementar a les subclasses, per defecte només fa trim als valors dels camps
-        return $this->_trimData($data);
+        // A implementar a les subclasses, per defecte no es fa res
+        return $data;
     }
 
     public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
         // A implementar a les subclasses, per defecte no es fa res
         return $data;
     }
+    
+    public function getRenderableFieldList($subset=FALSE){
+        $ret=array();
+        $configStructure = $this->projectMetaDataQuery->getMetaDataStructure($subset);
+        $viewConfigName = $configStructure["viewfiles"][$this->viewConfigKey]; //Versió correcte, quan funcioni els canvis del Xavi
+        $viewStructure = $this->getProjectViewStructure($viewConfigName);
+        
+        $mainStruc = $configStructure["typesDefinition"][$configStructure["mainType"]["typeDef"]];
+        $ret = $this->_getRenderableFieldListFromType($mainStruc, $configStructure["typesDefinition"]);
+        $this->_getRenderableFieldListFromView($ret, $viewStructure["fields"]);
+        return $ret;
+    }
+    
+    private function _getRenderableFieldListFromView(&$bl, $viewStructure){
+        foreach ($viewStructure as $key => $def) {
+            if(!key_exists($key, $bl)){
+                if(isset($def["config"]["renderable"]) && $def["config"]["renderable"]){
+                    if(strpos($key, "#")!==FALSE||strpos($key, ".")!==FALSE){
+                         $blitem = &$bl;
+                         $akeys = preg_split("/[#.]/", $key);
+                         $pos=0;
+                         $last = count($akeys)-1;
+                         $exit=FALSE;
+                         while(!$exit){
+                            if($pos==$last){
+                                $exit = true;
+                                $blitem[$akeys[$pos]]=TRUE;
+                            }else{
+                                if(!isset($blitem[$akeys[$pos]])){
+                                    $blitem[$akeys[$pos]]=array();
+                                }
+                                $blitem = &$blitem[$akeys[$pos]];
+                            }                            
+                            $pos++;
+                         }
+                    }else{
+                        $bl[$key]=TRUE;
+                    }                    
+                }
+            }
+        }        
+    }
+        
+    private function _getRenderableFieldListFromType($type, $types){
+        $def = $this->_getKeyDefFromField($type, $types);
+        $ret=FALSE;
+        if(isset($def["parseOnView"]) && $def["parseOnView"]){
+            $ret = TRUE;
+        }elseif(isset($def["config"]["renderable"]) && $def["config"]["renderable"]){
+            $ret = TRUE;
+        }elseif(isset($def["keys"])){
+            $ret = array();
+            foreach ($def["keys"] as $key => $keyDef) {
+                $v = $this->_getRenderableFieldListFromType($keyDef, $types);
+                if($v){
+                    $ret[$key] = $v;
+                }
+            }
+        }elseif(isset($def["rowKeys"])){
+            $ret = array();
+            foreach ($def["rowKeys"] as $key => $keyDef) {
+                $v = $this->_getRenderableFieldListFromType($keyDef, $types);
+                if($v){
+                    $ret[$key] = $v;
+                }
+            }
+        }
+        return $ret;
+    }
+    
+    private function _getKeyDefFromField($type, $types){
+        $ret= array_merge(array(), $type);
+        switch ($type["type"]){
+            case "date":
+            case "bool":
+            case "boolean":
+            case "number":
+            case "decimal":
+            case "string":
+            case "textarea":
+            case "array":
+            case "table":
+                break;
+            case "object":
+                $ret["keys"] = $this->_getKeyDefFromObjectFieldType($type, $types);
+                break;
+            case "objectArray":
+                $ret["rowKeys"] = $this->_getKeyDefFromObjecArraytFieldType($type, $types);
+                break;
+            default:
+                if(array_key_exists($ret['type'], $types)){
+                    $typeDef = $ret['type'];
+                    $ret['type']=$types[$ret['type']]['type'] ;
+//                    if(isset($types[$properties['type']]['typeDef'])){
+                    if(isset($types[$typeDef]['typeDef'])){
+                        $ret['typeDef']=$types[$typeDef]['typeDef'];
+                    }else if(isset($types[$typeDef]['keys'])){
+                        $ret['keys']=$types[$typeDef]['keys'];
+                    }
+                    $ret = $this->_getKeyDefFromField($ret, $types);
+                }else{
+                    throw new \IncorrectParametersException();
+                }
+                break;
+        }
+        return $ret;
+    }
+    
+    private function _getKeyDefFromObjecArraytFieldType($type, $types){
+        if(isset($type["typeDef"])){
+            $def = $this->_getKeyDefFromField($types[$type["typeDef"]], $types)["keys"];
+        }else{
+            throw new \IncorrectParametersException();
+        }
+        return $def;
+    }
+    
+    private function _getKeyDefFromObjectFieldType($type, $types){
+        if(isset($type["keys"])){
+            $def = $type["keys"];
+        }else{
+            $def = $this->_getKeyDefFromObjecArraytFieldType($type, $types);
+        }
+        return $def;
+    }
+
 
     /**
      * Permet fer validació de les dades que es volen emmagatzmar. En cas de
@@ -1423,4 +1597,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function canDocumentBeEdited($documentId){
         return true;
     }
+    
+    public function getProjectViewStructure($file="defaultView") {
+        return $this->projectMetaDataQuery->getMetaViewConfig($file);
+    }
+
 }

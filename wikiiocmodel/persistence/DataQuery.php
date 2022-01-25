@@ -144,7 +144,7 @@ abstract class DataQuery {
      * @param array $listfiles lista de terminaciones de fichero
      * @return boolean|string TRUE si ha ido bien, "ruta del fichero" si se ha producido error al renombrar
      */
-    private function _renameRenderGeneratedFiles($path, $old_base_name, $new_base_name, $listfiles, $recursive=FALSE) {
+    protected function _renameRenderGeneratedFiles($path, $old_base_name, $new_base_name, $listfiles, $recursive=FALSE) {
         $ret = TRUE;
         if (($scan = @scandir($path)))
             $scan = array_diff($scan, [".", ".."]);
