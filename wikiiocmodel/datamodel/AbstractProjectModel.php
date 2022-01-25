@@ -360,17 +360,17 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 //            $this->viewConfigName = $struct['viewfiles'][$this->viewConfigName];
 //        }
 
+        $viewConfigName = NULL;
         // ALERTA!
         if ($struct['viewfiles'][$this->viewConfigKey]) {
             // ALERTA! Això ha de ser el viewConfigName!!
-            $this->viewConfigName = $struct['viewfiles'][$this->viewConfigKey];
+            $viewConfigName = $struct['viewfiles'][$this->viewConfigKey];
         } else {
-            $this->viewConfigName = NULL;
+            $viewConfigName = NULL;
             $this->viewConfigKey = NULL;
-
         }
 
-        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
+        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($viewConfigName);
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
         $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
