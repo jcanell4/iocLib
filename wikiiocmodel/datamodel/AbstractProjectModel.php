@@ -24,6 +24,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $draftDataQuery;
     protected $lockDataQuery;
     protected $dokuPageModel;
+    protected $viewConfigKey;
     protected $viewConfigName;
     protected $roleProperties;
     protected $needGenerateAction;
@@ -34,7 +35,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
-        $this->viewConfigName = "defaultView";
+
+        $this->viewConfigKey = ProjectKeys::KEY_VIEW_DEFAULTVIEW;
         $this->needGenerateAction=TRUE;
         $this->externalCallMethods = [];
     }
@@ -55,7 +57,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->dokuPageModel;
     }
 
-    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigName="defaultView", $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
+    public function init($params, $projectType=NULL, $rev=NULL, $viewConfigKey=ProjectKeys::KEY_VIEW_DEFAULTVIEW, $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
         if (is_array($params)) {
             $this->id          = $params[ProjectKeys::KEY_ID];
             $this->projectType = $params[ProjectKeys::KEY_PROJECT_TYPE];
@@ -63,7 +65,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->metaDataSubSet = ($params[ProjectKeys::KEY_METADATA_SUBSET]) ? $params[ProjectKeys::KEY_METADATA_SUBSET] : ProjectKeys::VAL_DEFAULTSUBSET;
             $this->actionCommand  = $params[ProjectKeys::KEY_ACTION];
             if ($params[ProjectKeys::VIEW_CONFIG_NAME]){
-                $this->viewConfigName = $params[ProjectKeys::VIEW_CONFIG_NAME];
+                $this->viewConfigKey = $params[ProjectKeys::VIEW_CONFIG_NAME];
             }
             $this->isOnView = $params[ProjectKeys::KEY_ISONVIEW];
         }else {
@@ -72,7 +74,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->rev = $rev;
             $this->metaDataSubSet = $metaDataSubSet;
             $this->actionCommand = $actionCommand;
-            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
+            $this->viewConfigKey = $viewConfigKey;
+//            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
             $this->isOnView = $isOnView;
         }
         $this->projectMetaDataQuery->init($this->id);
@@ -331,8 +334,14 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataService->getMeta($query, FALSE)[0];
 
-        if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW){  //CANVIAR $viewConfigName a VALOR NUMÊRIC
-            $struct = $this->projectMetaDataQuery->getMetaDataStructure();
+
+        // TODO: demanar el del subset, passar per paràmetre!
+        $struct = $this->projectMetaDataQuery->getMetaDataStructure($subSet);
+
+
+        //if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW) {  //CANVIAR $viewConfigName a VALOR NUMÊRIC
+            //$struct = $this->projectMetaDataQuery->getMetaDataStructure();
+
             if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
                 //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
                 $typeDef = $struct['mainType']['typeDef'];
@@ -342,11 +351,26 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                 }
                 $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
             }
-            if ($struct['viewfiles'][0]) {
-                $this->viewConfigName = $struct['viewfiles'][0];
-            }
+
+//            if ($struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW]) {
+//                $this->viewConfigName = $struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW];
+//            }
+        //}
+//        } else {
+//            $this->viewConfigName = $struct['viewfiles'][$this->viewConfigName];
+//        }
+
+        $viewConfigName = NULL;
+        // ALERTA!
+        if ($struct['viewfiles'][$this->viewConfigKey]) {
+            // ALERTA! Això ha de ser el viewConfigName!!
+            $viewConfigName = $struct['viewfiles'][$this->viewConfigKey];
+        } else {
+            $viewConfigName = NULL;
+            $this->viewConfigKey = NULL;
         }
-        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($this->viewConfigName);
+
+        $ret[ProjectKeys::KEY_PROJECT_VIEWDATA] = $this->projectMetaDataQuery->getMetaViewConfig($viewConfigName);
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
         $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
@@ -765,9 +789,19 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->viewConfigName;
     }
 
-    public function setViewConfigName($viewConfigName) {
-        $this->viewConfigName = $viewConfigName;
+    public function setViewConfigKey($viewConfigKey) {
+        $this->viewConfigKey = $viewConfigKey;
     }
+
+
+    public function getViewConfigKey() {
+        return $this->viewConfigKey;
+    }
+
+    // No s'utilitza, el nom s'assigna al getData segons la key
+//    public function setViewConfigName($viewConfigName) {
+//        $this->viewConfigName = $viewConfigName;
+//    }
 
     /**
      * Guarda los datos
@@ -955,8 +989,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getRenderableFieldList($subset=FALSE){
         $ret=array();
         $configStructure = $this->projectMetaDataQuery->getMetaDataStructure($subset);
-        $viewConfigName = $this->viewConfigName;
-        //$viewConfigName = $configStructure["viewfiles"][$this->viewConfigKey]; //Versió correcte, quan funcioni els canvis del Xavi
+        $viewConfigName = $configStructure["viewfiles"][$this->viewConfigKey]; //Versió correcte, quan funcioni els canvis del Xavi
         $viewStructure = $this->getProjectViewStructure($viewConfigName);
         
         $mainStruc = $configStructure["typesDefinition"][$configStructure["mainType"]["typeDef"]];
