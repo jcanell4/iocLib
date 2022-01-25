@@ -31,7 +31,7 @@ abstract class abstract_project_command_class extends abstract_command_class {
         $roles = $this->getModelManager()->getProjectRoleData($id,
                                                                 $this->params[ProjectKeys::KEY_PROJECT_TYPE],
                                                                 $this->params[ProjectKeys::KEY_REV],
-                                                                "",
+                                                                $this->params[ProjectKeys::KEY_VIEW] ? $this->params[ProjectKeys::KEY_VIEW] : "#blank#",
                                                                 $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
         $this->dataProject = $roles["roleData"];
         $this->roleProperties = $roles["roleProperties"];

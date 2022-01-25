@@ -435,12 +435,13 @@ class ProjectMetaDataQuery extends DataQuery {
         }
         $projectTypeDir = $this->getProjectTypeDir($projectType);
         $view = @file_get_contents($projectTypeDir . self::PATH_METADATA_CONFIG . "$viewConfig.json");
-        if ($view == false) {
+        if ($view == false && $viewConfig !== "#blank#") {
             $view = @file_get_contents($projectTypeDir . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
             if ($view == false) {
                 $view = @file_get_contents(self::DEFAULT_PROJECT_TYPE_DIR . self::PATH_METADATA_CONFIG . self::FILE_DEFAULTVIEW);
             }
         }
+
         $viewArray = json_decode($view, true);
         return $viewArray;
     }
