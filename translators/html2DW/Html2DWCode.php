@@ -28,20 +28,42 @@ class Html2DWCode extends Html2DWInstruction {
 
 
         } catch (Exception $e) {
-            // Es code
-            $type = 'code';
 
-            $pre = '<code';
+            $subtype = false;
             try {
-                $lang = $this->extractVarName($this->currentToken['raw'], 'data-dw-lang');
-                $pre .= ' ' . $lang;
+                // Comprobar si és indented
+                $subtype = $this->extractVarName($this->currentToken['raw'], 'data-code-type');
             } catch (Exception $e) {
-                // No fem res
-
+                //No fem res
             }
 
-            $pre .= '>';
-            $post = "\n</code>";
+
+            switch ($subtype) {
+                case 'indented':
+
+                    $pre = '  ';
+                    $post = "\n";
+                    break;
+
+                default:
+
+                    // Es code
+//                    $type = 'code';
+
+                    $pre = '<code';
+                    try {
+                        $lang = $this->extractVarName($this->currentToken['raw'], 'data-dw-lang');
+                        $pre .= ' ' . $lang;
+                    } catch (Exception $e) {
+                        // No fem res
+
+                    }
+
+                    $pre .= '>';
+                    $post = "\n</code>";
+            }
+
+
 
         }
 
