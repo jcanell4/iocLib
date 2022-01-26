@@ -12,7 +12,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         // Extrerure els camps
         // ^::tipus:ID$
-        $typePattern = '/^::(.*?):(.*)$/m';
+        $typePattern = '/^(?:\[\/?ref=\d*\])*::(.*?):(.*)$/m';
         $type = 'unknown';
         $id = 'none';
 
@@ -150,7 +150,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
     protected function getContent($token) {
-        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*):::$/ms";
+        $typeContent = "/^(?:\[\/?ref=\d*\])*(?:::.*?:.*?\n)(?:  :.*?:.*?\n)*(.*):::$/ms";
+        //$typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*):::$/ms";
         if (preg_match($typeContent, $token['raw'], $matches)) {
 
             $content = $matches[1];
@@ -209,7 +210,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     protected function parseTable($content) {
 
         // Dividim el contingut en files
-        preg_match_all('/^(.*?)$/ms', $content, $matchesRow);
+        preg_match_all('/^(.*?[\|\^])]?$/ms', $content, $matchesRow);
+//        preg_match_all('/^(.*?)$/ms', $content, $matchesRow);
 
         $rows = $matchesRow[1];
 
