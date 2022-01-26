@@ -413,8 +413,8 @@ class ProjectMetaDataQuery extends DataQuery {
      * Se usa cuando todavía no hay datos en el fichero de proyecto, entonces se recoge la lista de campos del tipo de proyecto
      * @return JSON conteniendo el conjunto de campos del subset
      */
-    public function getStructureMetaDataConfig() {
-        $metaStructure = $this->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE);
+    public function getStructureMetaDataConfig($subSet=FALSE, $projectType=FALSE) {
+        $metaStructure = $this->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE, $projectType, $subSet);
 
         if ($metaStructure) {
             $content = json_decode($metaStructure, TRUE);
