@@ -52,29 +52,15 @@ class SuppliesFormAction extends AdminAction {
                   'size' => "18",
                   'value' => $this->params['filtre']];
         $this->_creaElement($form, $ret['grups'], IocCommon::nz($this->params["filtre"], ""), $attrs, "F");
-        $this->_creaBotó($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
+        $this->_creaBoto($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
         $form->addElement("</div>");
 
         //GRUPS
-        //Botó de creació d'un grup de primer nivell
-        $form->addElement("<p>&nbsp;</p><p style='text-align:right;'>");
-        $this->_creaBotóNouGrup($form);
-        $form->addElement("</p>");
-        $form->addElement("<p style='text-align:right;'>");
-        $this->_creaBotóCondicióGrup($form);
-        $this->_creaConnectorGrups($form);
-        $form->addElement("</p>");
-
+        $this->_creacioGestioDeGrups($form);
         $last_group = "0";
 
         if (!isset($this->params['grups'])) {
-            //Estat inicial
-            $values = ['connector_grup' => $this->params["connector_grup_0"],
-                       'projecttype_grup' => $this->params["projecttype_grup_0"],
-                       'checkbox_grup' => $this->params["checkbox_grup_0"]];
-            $this->_creaGrup($form, $ret['grups'], $last_group, $values);
-            $this->_creaCondició($form, $ret['grups'], "0", "", $last_group);
-            $form->addElement("<p></p>");
+            $this->_creacioGrupInicial($form, $ret, $last_group);
         }
         else {
             //Arbre de GRUPS
@@ -83,35 +69,18 @@ class SuppliesFormAction extends AdminAction {
 
             //S'ha pulsat el botó [nou Grup]
             if (isset($this->params['do']["nou_grup"])) {
-                $last_group++;
-                $grups["grup_$last_group"] = ['connector' => "",
-                                              'projecttype' => "",
-                                              'checkbox' => "",
-                                              'elements' => [""]];
+                $this->_tractamentBotoNouGrup($grups, $last_group);
             }
 
             $ret['grups']['agrupacions'] = $grups['agrupacions'];
             //S'ha pulsat el botó [connecta grups]
             if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
-                for ($i=0; $i<100; $i++) {
-                    if (isset($this->params["checkbox_grup_$i"])) {
-                        $e .= "$i " . $this->params['connector_de_grups'] . " ";
-                    }
-                }
-                if (!empty($e)) {
-                    $e = trim($e, " a..z");
-                    $ret['grups']["agrupacions"][] = $e;
-                }
+                $this->_tractamentBotoConnectaGrups($form, $ret);
             }
+            $this->_creaEspaiConnexionsDeGrup($form, $ret);
 
-            //Elements de CONDICIONS
-            for ($i=0; $i<100; $i++) {
-                if (isset($this->params['do']["nova_condicio_grup_$i"])) {
-                    //S'ha pulsat el botó [nova Condició]
-                    $grups["grup_$i"]['elements'][] = "";
-                    break;
-                }
-            }
+            //Mira si s'ha pulsat algun botó [nova Condició]
+            $this->_tractamentBotoNovaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
@@ -122,13 +91,80 @@ class SuppliesFormAction extends AdminAction {
 
         //BOTÓ CERCA
         $form->addElement("<p>&nbsp;</p>");
-        $this->_creaBotó($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
+        $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
 
         $form->addHidden('grups', json_encode($ret['grups']));
 
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
         return $ret;
+    }
+
+    //Creació del grup inicial
+    private function _creacioGrupInicial(&$form, &$ret, $last_group) {
+        $ret['grups'] = [];
+        $values = ['connector_grup' => $this->params["connector_grup_0"],
+                   'projecttype_grup' => $this->params["projecttype_grup_0"],
+                   'checkbox_grup' => $this->params["checkbox_grup_0"]];
+        $this->_creaGrup($form, $ret['grups'], $last_group, $values);
+        $this->_creaCondicio($form, $ret['grups'], "0", "", $last_group);
+        $form->addElement("<p></p>");
+    }
+
+    //Creació dels elements per a la gestió de grups
+    private function _creacioGestioDeGrups(&$form) {
+        $form->addElement("<p>&nbsp;</p><p style='text-align:right;'>");
+        $this->_creaBotoNouGrup($form);
+        $form->addElement("</p>");
+        $form->addElement("<p style='text-align:right;'>");
+        $this->_creaBotoCondicioGrup($form);
+        $this->_creaConnectorGrups($form);
+        $form->addElement("</p>");
+    }
+
+    //S'ha pulsat el botó [nou Grup]
+    private function _tractamentBotoNouGrup(&$grups, &$last_group) {
+        $last_group++;
+        $grups["grup_$last_group"] = ['connector' => "",
+                                      'projecttype' => "",
+                                      'checkbox' => "",
+                                      'elements' => [""]];
+    }
+
+    //S'ha pulsat el botó [connecta grups]
+    private function _tractamentBotoConnectaGrups(&$form, &$ret) {
+        for ($i=0; $i<100; $i++) {
+            if (isset($this->params["checkbox_grup_$i"])) {
+                $e .= "$i " . $this->params['connector_de_grups'] . " ";
+            }
+        }
+        if (!empty($e)) {
+            $e = trim($e, " a..z");
+            $ret['grups']["agrupacions"][] = $e;
+        }
+    }
+
+    //Creació d'un espai per mostrar les connexions de grup actualment establertes
+    private function _creaEspaiConnexionsDeGrup(&$form, $ret) {
+        if (!empty($ret['grups']["agrupacions"])) {
+            $form->addElement(self::DIVGRUP);
+            $form->addElement("<p><b>Connexions de grups actualment establertes</b></p>");
+            foreach ($ret['grups']["agrupacions"] as $value) {
+                $conn = preg_replace("/([0-9])/", "Grup $1", $value);
+                $form->addElement("<p>$conn</p>");
+            }
+            $form->addElement("</div>");
+        }
+    }
+
+    //S'ha pulsat algun botó [nova Condició]
+    private function _tractamentBotoNovaCondicio(&$grups) {
+        for ($i=0; $i<100; $i++) {
+            if (isset($this->params['do']["nova_condicio_grup_$i"])) {
+                $grups["grup_$i"]['elements'][] = "";
+                break;
+            }
+        }
     }
 
     // Reconstrueix els elements HTML a partir de l'arbre
@@ -143,7 +179,7 @@ class SuppliesFormAction extends AdminAction {
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
-                            $this->_creaCondició($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
+                            $this->_creaCondicio($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -153,7 +189,7 @@ class SuppliesFormAction extends AdminAction {
         }
     }
 
-    private function _creaCondició(&$form, &$ret, $n="0", $value="", $grup="0") {
+    private function _creaCondicio(&$form, &$ret, $n="0", $value="", $grup="0") {
         $value = IocCommon::nz($value, "");
         $attrs = ['_text' => "condició ${n}:&nbsp;",
                   'name' => "condicio_${n}_grup_${grup}",
@@ -167,7 +203,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::DIVGRUP);
         $form->addElement("<div style='float:left;margin:0 0 10px 0;'><b>Grup $grup</b></div>");
         $form->addElement('<div style="float:right;text-align:right;margin:0 0 10px 0;">');
-        $this->_creaBotóNovaCondició($form, $grup);
+        $this->_creaBotoNovaCondicio($form, $grup);
         $form->addElement('</div>');
         $form->addElement("<div style='clear:left;text-align:left;margin:0 0 10px 0;'>connector:&nbsp;");
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
@@ -183,8 +219,8 @@ class SuppliesFormAction extends AdminAction {
         $ret["grup_$grup"]['elements'][] = $value;
     }
 
-    private function _creaBotóNovaCondició(&$form, $grup="0") {
-        $this->_creaBotó($form, "nova_condicio_grup_$grup", "nova Condició", ['id'=>"btn__nova_condicio_grup_$grup"]);
+    private function _creaBotoNovaCondicio(&$form, $grup="0") {
+        $this->_creaBoto($form, "nova_condicio_grup_$grup", "nova Condició", ['id'=>"btn__nova_condicio_grup_$grup"]);
     }
 
     private function _creaConnectorGrups(&$form) {
@@ -198,12 +234,12 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</span>");
     }
 
-    private function _creaBotóCondicióGrup(&$form) {
-        $this->_creaBotó($form, "connecta_grups", "connecta grups", ['id'=>"btn__connecta_grups"]);
+    private function _creaBotoCondicioGrup(&$form) {
+        $this->_creaBoto($form, "connecta_grups", "connecta grups", ['id'=>"btn__connecta_grups"]);
     }
 
-    private function _creaBotóNouGrup(&$form) {
-        $this->_creaBotó($form, "nou_grup", "nou Grup", ['id'=>"btn__nou_grup"]);
+    private function _creaBotoNouGrup(&$form) {
+        $this->_creaBoto($form, "nou_grup", "nou Grup", ['id'=>"btn__nou_grup"]);
     }
 
     private function _creaConnectorGrup(&$form, &$ret, $valor="", $grup="0") {
@@ -240,7 +276,7 @@ class SuppliesFormAction extends AdminAction {
         $ret["grup_$grup"]["checkbox"] = IocCommon::nz($valor);
     }
 
-    private function _creaBotó(&$form, $action, $title='', $attrs=array(), $type='submit') {
+    private function _creaBoto(&$form, $action, $title='', $attrs=array(), $type='submit') {
         $button = form_makeButton($type, $action, $title, $attrs);
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_button($button));
