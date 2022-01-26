@@ -19,16 +19,20 @@ class SuppliesFormAction extends AdminAction {
     protected function responseProcess() {
         if (isset($this->params['do']['cerca'])) {
             $command = "select_projects";
+            $title = "Llistat de projectes seleccionats";
+            $type = "html_response_form";
         }else {
             $command = $this->params[AjaxKeys::KEY_ID];
+            $title = "Selecció de projectes";
+            $type = "html_supplies_form";
         }
         $content = $this->creaForm();
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
-                           PageKeys::KEY_TITLE => "Selecció de projectes",
+                           PageKeys::KEY_TITLE => $title,
                            PageKeys::KEY_CONTENT => $content,
                            AjaxKeys::KEY_ACTION_COMMAND => $command,
-                           PageKeys::KEY_TYPE => "html_supplies_form"
+                           PageKeys::KEY_TYPE => $type
                           ];
         return $this->response;
     }
