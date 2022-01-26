@@ -76,10 +76,10 @@ class SuppliesFormAction extends AdminAction {
                 $this->_tractamentBotoNouGrup($grups, $last_group);
             }
 
-            $ret['grups']['agrupacions'] = $grups['agrupacions'];
+            $ret['grups']['grup_G'] = $grups['grup_G'];
             //S'ha pulsat el botó [connecta grups]
             if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
-                $this->_tractamentBotoConnectaGrups($form, $ret);
+                $this->_tractamentBotoConnectaGrups($ret);
             }
             $this->_creaEspaiConnexionsDeGrup($form, $ret);
 
@@ -89,15 +89,14 @@ class SuppliesFormAction extends AdminAction {
             //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
         }
+        
         $ret['grups']['last_group'] = $last_group;
-
+        $form->addHidden('grups', json_encode($ret['grups']));
         $form->addElement("</div>");
 
         //BOTÓ CERCA
         $form->addElement("<p>&nbsp;</p>");
         $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
-
-        $form->addHidden('grups', json_encode($ret['grups']));
 
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
@@ -136,26 +135,40 @@ class SuppliesFormAction extends AdminAction {
     }
 
     //S'ha pulsat el botó [connecta grups]
-    private function _tractamentBotoConnectaGrups(&$form, &$ret) {
+    private function _tractamentBotoConnectaGrups(&$ret) {
+        $gs = [];
         for ($i=0; $i<100; $i++) {
             if (isset($this->params["checkbox_grup_$i"])) {
-                $e .= "$i " . $this->params['connector_de_grups'] . " ";
+                $gs[] = $i;
             }
         }
-        if (!empty($e)) {
-            $e = trim($e, " a..z");
-            $ret['grups']["agrupacions"][] = $e;
+        if (count($gs) >= 2) {
+            $ret['grups']["grup_G"][] = ['connector' => $this->params['connector_de_grups'],
+                                         'elements' => $gs];
         }
     }
 
     //Creació d'un espai per mostrar les connexions de grup actualment establertes
     private function _creaEspaiConnexionsDeGrup(&$form, $ret) {
-        if (!empty($ret['grups']["agrupacions"])) {
+        if (!empty($ret['grups']["grup_G"])) {
             $form->addElement(self::DIVGRUP);
             $form->addElement("<p><b>Connexions de grups actualment establertes</b></p>");
-            foreach ($ret['grups']["agrupacions"] as $value) {
-                $conn = preg_replace("/([0-9])/", "Grup $1", $value);
-                $form->addElement("<p>$conn</p>");
+            foreach ($ret['grups']["grup_G"] as $G) {
+                foreach ($G as $key => $connector) {
+                    if ($key == 'connector') break;
+                }
+                if (!empty($connector)) {
+                    foreach ($G as $key => $value) {
+                        if ($key == 'elements') {
+                            foreach ($value as $element) {
+                                $connexio .= "Grup $element $connector ";
+                            }
+                            break;
+                        }
+                    }
+                }
+                $connexio = substr($connexio, 0, -1*(strlen($connector)+2));
+                $form->addElement("<p>$connexio</p>");
             }
             $form->addElement("</div>");
         }
