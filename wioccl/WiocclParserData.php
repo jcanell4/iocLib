@@ -1,6 +1,5 @@
 <?php
 
-include_once(DOKU_LIB_IOC.'/common/utility/_ParserDataInterface.php');
 class WiocclParserData implements ParserDataInterface
 {
 

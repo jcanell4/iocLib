@@ -66,7 +66,7 @@ class IocCommon {
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
-                        $persistence = $this->getPersistenceEngineFromPlugincontroller();
+                        $persistence = static::getPersistenceEngineFromPlugincontroller();
                     }
                     $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE);
                 }

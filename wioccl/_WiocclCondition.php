@@ -1,5 +1,4 @@
 <?php
-include_once(DOKU_LIB_IOC . '/common/utility/_AbstractConditions.php');
 
 class _WiocclCondition extends _BaseCondition
 {
