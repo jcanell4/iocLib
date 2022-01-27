@@ -5,7 +5,7 @@ class _BaseCondition {
     public $logicOp;
 
     // Classe a partir de la qual s'invoquen els mètodes estàtics getValue() i parse()
-    public ParserDataInterface $parser;
+    public $parser;
 
     public function __construct($strCondition, $parser) {
         $this->strCondition = empty($strCondition) ? 'false' : $strCondition;
