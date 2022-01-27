@@ -10,6 +10,9 @@ include_once(DOKU_INC.'/inc/form.php');
 class SuppliesFormAction extends AdminAction {
 
     const DIVGRUP = '<div style="text-align:left; margin:7px; padding:10px; border:1px solid blue; border-radius:8px;">';
+    const DIVGRUPNAME = '<div style="float:left;margin:0 0 10px 0;">';
+    const DIVGRUPBOTO = '<div style="float:right;text-align:right;margin:0 0 10px 0;">';
+    const DIVGRUPCONN = '<div style="clear:left;text-align:left;margin:0 0 10px 0;">connector:&nbsp;';
     const OBRE_SPAN = '<span style="margin:0 20px 10px 0;">';
 
     public function init($modelManager=NULL) {
@@ -48,22 +51,24 @@ class SuppliesFormAction extends AdminAction {
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
 
-        $form->addElement(self::DIVGRUP);
-        //FILTRE
-        $attrs = ['_text' => "Filtre pels tipus de projecte:&nbsp;",
-                  'name' => "filtre",
-                  'type' => "text",
-                  'size' => "18",
-                  'value' => $this->params['filtre']];
-        $this->_creaElement($form, $ret['grups'], IocCommon::nz($this->params["filtre"], ""), $attrs, "F");
-        $this->_creaBoto($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
-        $form->addElement("</div>");
+//        $form->addElement(self::DIVGRUP);
+//        //FILTRE
+//        $attrs = ['_text' => "Filtre pels tipus de projecte:&nbsp;",
+//                  'name' => "filtre",
+//                  'type' => "text",
+//                  'size' => "18",
+//                  'value' => $this->params['filtre']];
+//        $this->_creaElement($form, $ret['grups'], IocCommon::nz($this->params["filtre"], ""), $attrs, "F");
+//        $this->_creaBoto($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
+//        $form->addElement("</div>");
 
         //GRUPS
         $this->_creacioGestioDeGrups($form);
         $last_group = "0";
+        $lastGgroup = "0";
 
         if (!isset($this->params['grups'])) {
+            $this->_creacioGrupGInicial($form, $ret, $lastGgroup);
             $this->_creacioGrupInicial($form, $ret, $last_group);
         }
         else {
@@ -76,7 +81,6 @@ class SuppliesFormAction extends AdminAction {
                 $this->_tractamentBotoNouGrup($grups, $last_group);
             }
 
-            $ret['grups']['grup_G'] = $grups['grup_G'];
             //S'ha pulsat el botó [connecta grups]
             if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
                 $this->_tractamentBotoConnectaGrups($ret);
@@ -103,9 +107,17 @@ class SuppliesFormAction extends AdminAction {
         return $ret;
     }
 
-    //Creació del grup inicial
+    //Creació del grup de grups inicial
+    private function _creacioGrupGInicial(&$form, &$ret, $lastGgroup) {
+        $values = ['connector_grup' => $this->params["connector_grup_G_$lastGgroup"],
+                   'elements_grup' => [""]];
+        $this->_creaGGrup($form, $ret['grups'], "G_$lastGgroup", $values);
+        $this->_creaGCondicio($form, $ret['grups'], "0", "", "G_$lastGgroup");
+        $form->addElement("</div>");
+    }
+
+    //Creació del grup simple inicial
     private function _creacioGrupInicial(&$form, &$ret, $last_group) {
-        $ret['grups'] = [];
         $values = ['connector_grup' => $this->params["connector_grup_0"],
                    'projecttype_grup' => $this->params["projecttype_grup_0"],
                    'checkbox_grup' => $this->params["checkbox_grup_0"]];
@@ -121,7 +133,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</p>");
         $form->addElement("<p style='text-align:right;'>");
         $this->_creaBotoCondicioGrup($form);
-        $this->_creaConnectorGrups($form);
+//        $this->_creaConnectorGrups($form);
         $form->addElement("</p>");
     }
 
@@ -153,10 +165,11 @@ class SuppliesFormAction extends AdminAction {
         if (!empty($ret['grups']["grup_G"])) {
             $form->addElement(self::DIVGRUP);
             $form->addElement("<p><b>Connexions de grups actualment establertes</b></p>");
-            foreach ($ret['grups']["grup_G"] as $G) {
+            foreach ($ret['grups']["grup_G"] as $K => $G) {
                 foreach ($G as $key => $connector) {
                     if ($key == 'connector') break;
                 }
+                $connexio = "";
                 if (!empty($connector)) {
                     foreach ($G as $key => $value) {
                         if ($key == 'elements') {
@@ -166,9 +179,11 @@ class SuppliesFormAction extends AdminAction {
                             break;
                         }
                     }
+                    $connexio = substr($connexio, 0, -1*(strlen($connector)+2));
+                    $form->addElement("<p>$connexio &nbsp;");
+                    $this->_creaBoto($form, "elimina_connexio_grup_$K", "elimina Connexió", ['id'=>"btn__elimina_connexio_grup_$K"]);
+                    $form->addElement("</p>");
                 }
-                $connexio = substr($connexio, 0, -1*(strlen($connector)+2));
-                $form->addElement("<p>$connexio</p>");
             }
             $form->addElement("</div>");
         }
@@ -176,12 +191,9 @@ class SuppliesFormAction extends AdminAction {
 
     //S'ha pulsat algun botó [nova Condició]
     private function _tractamentBotoNovaCondicio(&$grups) {
-        for ($i=0; $i<100; $i++) {
-            if (isset($this->params['do']["nova_condicio_grup_$i"])) {
-                $grups["grup_$i"]['elements'][] = "";
-                break;
-            }
-        }
+        $k = key($this->params['do']);
+        $i = end(explode("_", $k));
+        $grups["grup_$i"]['elements'][] = "";
     }
 
     // Reconstrueix els elements HTML a partir de l'arbre
@@ -203,7 +215,36 @@ class SuppliesFormAction extends AdminAction {
                 }
                 $form->addElement("</div>");
             }
+            elseif ($g=="G") {
+                $g .= "_".explode("_", $G)[2];
+                $values = ['connector_grup' => (empty($this->params["connector_grup_$g"])) ? $ret["grup_$g"]['connector'] : $this->params["connector_grup_$g"]];
+                $this->_creaGGrup($form, $ret, $g, $values);
+                foreach ($grup as $key => $value) {
+                    if ($key == "elements") {
+                        foreach ($value as $k => $element) {
+                            $this->_creaCondicio($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
+                            $form->addElement("<p></p>");
+                        }
+                    }
+                }
+                $form->addElement("</div>");
+            }
         }
+    }
+
+    private function _creaGCondicio(&$form, &$ret, $n="0", $valor="", $grup="0") {
+        $valor = IocCommon::nz($valor, "");
+        $aListGrups = array_keys($ret);
+        $attrs = ['_text' => "condició ${n}:&nbsp;",
+                  'name' => "condicio_${n}_grup_${grup}"];
+        $attrs['_options'][] = ['', ''];
+        foreach ($aListGrups as $v) {
+            $selected = ($v['id']==$valor) ? "select" : "";
+            $attrs['_options'][] = [$v['id'], $v['name'], $selected, false]; //'value','text','select','disabled'
+        }
+        $form->addElement(self::OBRE_SPAN);
+        $form->addElement(form_listboxfield($attrs));
+        $form->addElement("</span>");
     }
 
     private function _creaCondicio(&$form, &$ret, $n="0", $value="", $grup="0") {
@@ -216,13 +257,24 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaElement($form, $ret, $value, $attrs, $grup);
     }
 
-    private function _creaGrup(&$form, &$ret, $grup="0", $values=[]) {
+    private function _creaGGrup(&$form, &$ret, $grup="G_0", $values=[]) {
         $form->addElement(self::DIVGRUP);
-        $form->addElement("<div style='float:left;margin:0 0 10px 0;'><b>Grup $grup</b></div>");
-        $form->addElement('<div style="float:right;text-align:right;margin:0 0 10px 0;">');
+        $form->addElement(self::DIVGRUPNAME."<b>Agrupació $grup</b></div>");
+        $form->addElement(self::DIVGRUPBOTO);
         $this->_creaBotoNovaCondicio($form, $grup);
         $form->addElement('</div>');
-        $form->addElement("<div style='clear:left;text-align:left;margin:0 0 10px 0;'>connector:&nbsp;");
+        $form->addElement(self::DIVGRUPCONN);
+        $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
+        $form->addElement('</div>');
+    }
+
+    private function _creaGrup(&$form, &$ret, $grup="0", $values=[]) {
+        $form->addElement(self::DIVGRUP);
+        $form->addElement(self::DIVGRUPNAME."<b>Grup $grup</b></div>");
+        $form->addElement(self::DIVGRUPBOTO);
+        $this->_creaBotoNovaCondicio($form, $grup);
+        $form->addElement('</div>');
+        $form->addElement(self::DIVGRUPCONN);
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
         $this->_creaLlistaTipusDeProjecte($form, $ret, $values['projecttype_grup'], $grup);
         $this->_creaCheckBox($form, $ret, $values['checkbox_grup'], $grup);
