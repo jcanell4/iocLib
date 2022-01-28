@@ -69,16 +69,12 @@ class SuppliesFormAction extends AdminAction {
             //Arbre de GRUPS
             $grups = json_decode($this->params['grups'], true);
             $main_group = $grups['main_group'];
+            $lastGgroup = $grups['lastGgroup'];
             $last_group = $grups['last_group'];
 
-            //Mira si s'ha pulsat el botó [nou Grup]
             $this->_tractamentBotoNouGrup($grups, $last_group);
-
-            //Mira si s'ha pulsat el botó [connecta grups]
-            $this->_tractamentBotoConnectaGrups($ret);
+            $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
 //            $this->_creaEspaiConnexionsDeGrup($form, $ret);
-
-            //Mira si s'ha pulsat algun botó [nova Condició]
             $this->_tractamentBotoNovaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
@@ -86,6 +82,7 @@ class SuppliesFormAction extends AdminAction {
         }
         
         $ret['grups']['main_group'] = $main_group;
+        $ret['grups']['lastGgroup'] = $lastGgroup;
         $ret['grups']['last_group'] = $last_group;
         $form->addHidden('grups', json_encode($ret['grups']));
         $form->addElement("</div>");
@@ -123,7 +120,7 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaBotoNouGrup($form);
         $form->addElement("</p>");
         $form->addElement("<p style='text-align:right;'>");
-        $this->_creaBotoCondicioGrup($form);
+        $this->_creaBotoNovaAgrupacio($form);
         $form->addElement("</p>");
     }
 
@@ -137,19 +134,12 @@ class SuppliesFormAction extends AdminAction {
         }
     }
 
-    //S'ha pulsat el botó [connecta grups]
-    private function _tractamentBotoConnectaGrups(&$ret) {
-        if (isset($this->params['do']["connecta_grups"]) && isset($this->params['connector_de_grups'])) {
-            $gs = [];
-            for ($i=0; $i<100; $i++) {
-                if (isset($this->params["checkbox_grup_$i"])) {
-                    $gs[] = $i;
-                }
-            }
-            if (count($gs) >= 2) {
-                $ret['grups']["grup_G"][] = ['connector' => $this->params['connector_de_grups'],
-                                             'elements' => $gs];
-            }
+    //S'ha pulsat el botó [nova Agrupació]
+    private function _tractamentBotoNovaAgrupacio(&$grups, &$lastGgroup) {
+        if (isset($this->params['do']["nova_agrupacio"])) {
+            $lastGgroup++;
+            $grups["grup_G_$lastGgroup"] = ['connector' => "",
+                                            'elements' => [""]];
         }
     }
 
@@ -300,8 +290,8 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</span>");
     }
 
-    private function _creaBotoCondicioGrup(&$form) {
-        $this->_creaBoto($form, "connecta_grups", "connecta grups", ['id'=>"btn__connecta_grups"]);
+    private function _creaBotoNovaAgrupacio(&$form) {
+        $this->_creaBoto($form, "nova_agrupacio", "nova Agrupació", ['id'=>"btn__nova_agrupacio"]);
     }
 
     private function _creaBotoNouGrup(&$form) {
