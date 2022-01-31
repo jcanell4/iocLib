@@ -76,7 +76,6 @@ class SuppliesFormAction extends AdminAction {
             $this->_tractamentMainGroup($grups, $main_group);
             $this->_tractamentBotoNouGrup($grups, $last_group);
             $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
-//            $this->_creaEspaiConnexionsDeGrup($form, $ret);
             $this->_tractamentBotoNovaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
@@ -155,7 +154,7 @@ class SuppliesFormAction extends AdminAction {
         foreach ($grups as $G => $grup) {
             if (preg_match("/grup_(G.*)/", $G, $match)) {
                 foreach ($grup['elements'] as $e) {
-                    if ($e == $main_group) {
+                    if ($e == "grup_$main_group") {
                         $main_group = $match[1];
                         break 2;
                     }
@@ -180,35 +179,6 @@ class SuppliesFormAction extends AdminAction {
             $lastGgroup++;
             $grups["grup_G_$lastGgroup"] = ['connector' => "",
                                             'elements' => [""]];
-        }
-    }
-
-    //Creació d'un espai per mostrar les connexions de grup actualment establertes
-    private function _creaEspaiConnexionsDeGrup(&$form, $ret) {
-        if (!empty($ret['grups']["grup_G"])) {
-            $form->addElement(self::DIVGRUP);
-            $form->addElement("<p><b>Connexions de grups actualment establertes</b></p>");
-            foreach ($ret['grups']["grup_G"] as $K => $G) {
-                foreach ($G as $key => $connector) {
-                    if ($key == 'connector') break;
-                }
-                $connexio = "";
-                if (!empty($connector)) {
-                    foreach ($G as $key => $value) {
-                        if ($key == 'elements') {
-                            foreach ($value as $element) {
-                                $connexio .= "Grup $element $connector ";
-                            }
-                            break;
-                        }
-                    }
-                    $connexio = substr($connexio, 0, -1*(strlen($connector)+2));
-                    $form->addElement("<p>$connexio &nbsp;");
-                    $this->_creaBoto($form, "elimina_connexio_grup_$K", "elimina Connexió", ['id'=>"btn__elimina_connexio_grup_$K"]);
-                    $form->addElement("</p>");
-                }
-            }
-            $form->addElement("</div>");
         }
     }
 
@@ -263,10 +233,9 @@ class SuppliesFormAction extends AdminAction {
                   'name' => "condicio_${n}_grup_${grup}"];
         $attrs['_options'][] = ['', '- Selecciona un grup -'];
         foreach ($aListGrups as $v) {
-            if (strpos($v, "grup")===0) {
-                $id = trim($v,"grup_");
-                $selected = ($id==$valor) ? "select" : "";
-                $attrs['_options'][] = [$id, $v, $selected, false]; //'value','text','select','disabled'
+            if (strpos($v, "grup_") === 0 && $v != "grup_$grup" ) {
+                $selected = ($v==$valor) ? "select" : "";
+                $attrs['_options'][] = [$v, $v, $selected, false]; //'value','text','select','disabled'
             }
         }
         $form->addElement(self::OBRE_SPAN);
@@ -317,17 +286,6 @@ class SuppliesFormAction extends AdminAction {
 
     private function _creaBotoNovaCondicio(&$form, $grup="0") {
         $this->_creaBoto($form, "nova_condicio_grup_$grup", "nova Condició", ['id'=>"btn__nova_condicio_grup_$grup"]);
-    }
-
-    private function _creaConnectorGrups(&$form) {
-        $valor = IocCommon::nz($valor, "");
-        $values = ['' => "- Selecciona un connector -",
-                   'and' => "I",
-                   'or' => "O"];
-        $connector = form_makeMenuField("connector_de_grups", $values, "", "", "connector de grups:", "idconnector_de_grups");
-        $form->addElement(self::OBRE_SPAN);
-        $form->addElement(form_menufield($connector));
-        $form->addElement("</span>");
     }
 
     private function _creaBotoNovaAgrupacio(&$form) {
