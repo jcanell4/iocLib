@@ -52,14 +52,13 @@ class SuppliesFormAction extends AdminAction {
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
-
 //        $this->_creaFiltre($form, $ret['grups']);
 
         //GRUPS
         $this->_creacioGestioDeGrups($form);
         $main_group = "0";
-        $last_group = "0";
         $lastGgroup = "0";
+        $last_group = "0";
 
         if (!isset($this->params['grups'])) {
             $this->_creacioGrupGInicial($form, $ret, $lastGgroup);
@@ -77,6 +76,7 @@ class SuppliesFormAction extends AdminAction {
             $this->_tractamentBotoNouGrup($grups, $last_group);
             $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
             $this->_tractamentBotoNovaCondicio($grups);
+            $this->_tractamentBotoEliminaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
             $this->_recreaArbre($form, $ret['grups'], $grups);
@@ -119,8 +119,7 @@ class SuppliesFormAction extends AdminAction {
     private function _creacioGestioDeGrups(&$form) {
         $form->addElement("<p style='text-align:right;'>");
         $this->_creaBotoNouGrup($form);
-        $form->addElement("</p>");
-        $form->addElement("<p style='text-align:right;'>");
+        $form->addElement("<span>&nbsp;</span>");
         $this->_creaBotoNovaAgrupacio($form);
         $form->addElement("</p>");
     }
@@ -191,6 +190,16 @@ class SuppliesFormAction extends AdminAction {
         }
     }
 
+    //S'ha pulsat algun botó [nova Condició]
+    private function _tractamentBotoEliminaCondicio(&$grups) {
+        $k = key($this->params['do']);
+        $pat = "/elimina_condicio_([0-9]+)_grup_(G_)?(.*)/";
+        if (preg_match($pat, $k, $g)) {
+            $grupo = "grup_${g[2]}${g[3]}"
+            //$grups["grup_${g[1]}"]['elements'][] = "";
+        }
+    }
+
     // Reconstrueix els elements HTML a partir de l'arbre
     private function _recreaArbre(&$form, &$ret, $grups) {
         foreach ($grups as $G => $grup) {
@@ -240,6 +249,8 @@ class SuppliesFormAction extends AdminAction {
         }
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_listboxfield($attrs));
+        $form->addElement("<span>&nbsp;&nbsp;</span>");
+        $this->_creaBotoEliminaCondicio($form, $n, $grup, "Grup");
         $form->addElement("</span>");
         $ret["grup_$grup"]['elements'][] = $valor;
     }
@@ -252,6 +263,7 @@ class SuppliesFormAction extends AdminAction {
                   'size' => "35",
                   'value' => $value];
         $this->_creaElement($form, $ret, $value, $attrs, $grup);
+        $this->_creaBotoEliminaCondicio($form, $n, $grup, "Condició");
     }
 
     private function _creaGGrup(&$form, &$ret, $grup="G_0", $values=[]) {
@@ -286,6 +298,10 @@ class SuppliesFormAction extends AdminAction {
 
     private function _creaBotoNovaCondicio(&$form, $grup="0") {
         $this->_creaBoto($form, "nova_condicio_grup_$grup", "nova Condició", ['id'=>"btn__nova_condicio_grup_$grup"]);
+    }
+
+    private function _creaBotoEliminaCondicio(&$form, $n="0", $grup="0", $text="Condició") {
+        $this->_creaBoto($form, "elimina_condicio_${n}_grup_${grup}", "elimina $text", ['id'=>"btn__nova_condicio_${n}_grup_${grup}"]);
     }
 
     private function _creaBotoNovaAgrupacio(&$form) {
