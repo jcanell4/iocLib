@@ -47,7 +47,7 @@ class SuppliesFormAction extends AdminAction {
         $ret = [];
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Selecció de projectes</h1>'
-                      .'<div class="level1"><p>Selecciona les condicions per fer la cerca als projectes.</p></div>'
+                      //.'<div class="level1"><p>Selecciona les condicions per fer la cerca als projectes.</p></div>'
                       .'<div style="text-align:center; padding:10px; width:70%; border:1px solid gray; border-radius:10px;">';
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
@@ -72,6 +72,8 @@ class SuppliesFormAction extends AdminAction {
             $lastGgroup = $grups['lastGgroup'];
             $last_group = $grups['last_group'];
 
+            $this->_tractamentParams($grups);
+            $this->_tractamentMainGroup($grups, $main_group);
             $this->_tractamentBotoNouGrup($grups, $last_group);
             $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
 //            $this->_creaEspaiConnexionsDeGrup($form, $ret);
@@ -122,6 +124,44 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("<p style='text-align:right;'>");
         $this->_creaBotoNovaAgrupacio($form);
         $form->addElement("</p>");
+    }
+
+    //Recull els nous paràmetres arribats des del client i els introdueix a la matriu de grups
+    private function _tractamentParams(&$grups) {
+        foreach ($grups as $GR => $grup) {
+            if (preg_match("/grup_(.*)/", $GR, $g)) {
+                foreach ($grup as $key => $elements) {
+                    if ($key == "connector") {
+                        if (!empty($this->params["connector_grup_${g[1]}"])) {
+                            $grups[$GR]['connector'] = $this->params["connector_grup_${g[1]}"];
+                        }
+                    }elseif ($key == "projecttype") {
+                        if (!empty($this->params["projecttype_grup_${g[1]}"])) {
+                            $grups[$GR]['projecttype'] = $this->params["projecttype_grup_${g[1]}"];
+                        }
+                    }elseif ($key == "elements") {
+                        foreach ($elements as $n => $e) {
+                            if (!empty($this->params["condicio_${n}_grup_${g[1]}"])) {
+                                $grups[$GR]['elements'][$n] = $this->params["condicio_${n}_grup_${g[1]}"];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private function _tractamentMainGroup($grups, &$main_group) {
+        foreach ($grups as $G => $grup) {
+            if (preg_match("/grup_(G.*)/", $G, $match)) {
+                foreach ($grup['elements'] as $e) {
+                    if ($e == $main_group) {
+                        $main_group = $match[1];
+                        break 2;
+                    }
+                }
+            }
+        }
     }
 
     //S'ha pulsat el botó [nou Grup]
