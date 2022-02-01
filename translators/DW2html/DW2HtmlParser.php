@@ -78,6 +78,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'gif'
         ],
 
+        "{{(?:page|section>).*?}}" => [
+            'state' => 'include'
+        ],
+
         "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>.*?}}" => [
             'state' => 'video'
         ],
@@ -206,6 +210,8 @@ class DW2HtmlParser extends IocParser {
 //        "^::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
+        "{{(?:page|section>)(.*?)}}" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlInclude', 'action' => 'self-contained',
+            'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         "[\^\|](.*?)*[\|\^]\n" => ['state' => 'row', 'type' => 'row', 'class' => 'DW2HtmlRow', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],

@@ -43,7 +43,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 return $this->getValueText($token, $type);
 
             case 'include':
-                return $this->getInclude($token);
+                return $this->getValueInclude($token);
 
         }
 
@@ -134,7 +134,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
         return $pre . $value . $post;
     }
 
-    protected function getInclude($token)
+    protected function getValueInclude($token)
     {
 
 
@@ -152,8 +152,10 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         $post = "</div>";
 
-        $pre = "<div class=\"iocinclude\" data-dw-include=\"$content\" data-dw-include-type=\"$type\" contenteditable=\"false\">";
-        $value = "incloent $content";
+        $pre = "<div class=\"iocinclude\" data-dw-include=\"$content\" data-dw-include-type=\"$type\"" .
+            "contenteditable=\"false\" data-dw-highlighted=\"true\">";
+
+        $value = "<span>incloent [$type]: $content</span>";
 
         return $pre . $value . $post;
     }

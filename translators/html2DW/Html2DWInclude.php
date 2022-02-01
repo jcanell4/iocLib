@@ -10,11 +10,21 @@ class Html2DWInclude extends Html2DWMarkup {
         try {
             $value = $this->extractVarName($this->currentToken['raw'], 'data-dw-include');
             $type = $this->extractVarName($this->currentToken['raw'], 'data-dw-include-type');
+
+            // Si no està ressaltat es llençarà la excepció
+            $highlighted = $this->extractVarName($this->currentToken['raw'], 'data-dw-highlighted') == "true";
         } catch (Exception $e) {
-            $value = "Error";
-            $type = "Error";
+            $value = $value ? $value : "Error";
+            $type = $type ? $type : "Error";
+
+            $highlighted = FALSE;
         }
 
-        return "::include:\n{{{$type}>{$value}}}\n:::";
+        if ($highlighted) {
+            return "::include:\n{{{$type}>{$value}}}\n:::";
+        } else {
+            return "{{{$type}>{$value}}}\n";
+        }
+
     }
 }
