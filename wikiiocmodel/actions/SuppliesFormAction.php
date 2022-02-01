@@ -151,10 +151,10 @@ class SuppliesFormAction extends AdminAction {
 
     private function _tractamentMainGroup($grups, &$main_group) {
         foreach ($grups as $G => $grup) {
-            if (preg_match("/grup_(G.*)/", $G, $match)) {
+            if (preg_match("/grup_(G.*)/", $G, $g)) {
                 foreach ($grup['elements'] as $e) {
                     if ($e == "grup_$main_group") {
-                        $main_group = $match[1];
+                        $main_group = $g[1];
                         break 2;
                     }
                 }
@@ -195,8 +195,7 @@ class SuppliesFormAction extends AdminAction {
         $k = key($this->params['do']);
         $pat = "/elimina_condicio_([0-9]+)_grup_(G_)?(.*)/";
         if (preg_match($pat, $k, $g)) {
-            $grupo = "grup_${g[2]}${g[3]}"
-            //$grups["grup_${g[1]}"]['elements'][] = "";
+            unset($grups["grup_${g[2]}${g[3]}"]['elements']["${g[1]}"]);
         }
     }
 
@@ -401,73 +400,4 @@ class SuppliesFormAction extends AdminAction {
         return ($a['name'] > $b['name']) ? 1 : (($a['name'] < $b['name']) ? -1 : 0);
     }
 
-    /* Construeix un formulari amb un element Select que conté la llista de tipus de projecte
-     * i un element Text per a la construcció d'un filtre basat en un atribut (camp de l'array de dades)
-     */
-    /*
-    private function setFormProjectTypes($filtre="") {
-        $ret = [];
-        $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
-        $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Selecció de projectes</h1>'
-                      .'<div class="level1"><p>Selecciona el tipus de projecte i les condicions de cerca.</p></div>'
-                      .'<div style="text-align:left; padding:10px; width:35%; border:1px solid gray">';
-
-        $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
-        $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
-
-        //FILTRE
-        $attrs = ['_text' => "Filtre pels tipus de projecte:&nbsp;",
-                  'name' => "filtre",
-                  'type' => "text",
-                  'size' => "18",
-                  'value' => $filtre];
-        $form->addElement(self::OBRE_SPAN);
-        $form->addElement(form_field($attrs));
-        $form->addElement("</span>");
-        $form->addElement(self::OBRE_SPAN);
-        $button = form_makeButton('submit', "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
-        $form->addElement(form_button($button));
-        $form->addElement("</span>");
-        $form->addElement("<p></p>");
-
-        //LLISTA DE TIPUS DE PROJECTE
-        $aListProjectTypes = $this->getListPtypes($filtre);
-        $attrs = ['_text' => "Tipus de projecte:&nbsp;",
-                  'name' => "projectType"];
-        //$attrs['_options'][] = ["", "", "", false]; //'value','text','select','disabled' (primer elemento nulo)
-        foreach ($aListProjectTypes as $v) {
-            $attrs['_options'][] = [$v['id'],$v['name'],"",false]; //'value','text','select','disabled'
-        }
-        $form->addElement(self::OBRE_SPAN);
-        $form->addElement(form_listboxfield($attrs));
-        $form->addElement("</span>");
-
-        $this->_creaConnectorGrup($form, $ret['grups'], "0");
-        $form->addElement("<p></p>");
-
-        //CONSULTA
-        $attrs = ['_text' => "condicions:&nbsp;",
-                  'name' => "condicio",
-                  'type' => "text",
-                  'size' => "35",
-                  'value' => ""];
-        $form->addElement(self::OBRE_SPAN);
-        $form->addElement(form_field($attrs));
-        $form->addElement("</span>");
-
-        $this->_creaBotóNovaCondició($form);
-
-        $form->addElement("<p></p>");
-
-        //BOTÓ CERCA
-        $button = form_makeButton('submit', "cerca", WikiIocLangManager::getLang('btn_search'), ['form' => $formId]);
-        $form->addElement("<div style='margin-top:25px;'>");
-        $form->addElement(form_button($button));
-        $form->addElement("</div>");
-
-        $ret['list'] .= $form->getForm();
-        $ret['list'] .= "</div> ";
-        return $ret;
-    }
-    */
 }
