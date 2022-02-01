@@ -15,7 +15,7 @@ class SuppliesFormAction extends AdminAction {
     const DIVGRUPCONN = '<div style="clear:left;text-align:left;margin:0 0 10px 0;">connector:&nbsp;';
     const OBRE_SPAN = '<span style="margin:0 20px 10px 0;">';
 
-    private $command;
+    private $datacall = "select_projects";
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
@@ -23,11 +23,11 @@ class SuppliesFormAction extends AdminAction {
 
     protected function responseProcess() {
         if (isset($this->params['do']['cerca'])) {
-            $this->command = "select_projects";
+            $command = "select_projects";
             $title = "Llistat de projectes seleccionats";
             $type = "html_response_form";
         }else {
-            $this->command = $this->params[AjaxKeys::KEY_ID];
+            $command = $this->params[AjaxKeys::KEY_ID];
             $title = "Selecció de projectes";
             $type = "html_supplies_form";
         }
@@ -36,7 +36,7 @@ class SuppliesFormAction extends AdminAction {
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
                            PageKeys::KEY_TITLE => $title,
                            PageKeys::KEY_CONTENT => $content,
-                           AjaxKeys::KEY_ACTION_COMMAND => $this->command,
+                           AjaxKeys::KEY_ACTION_COMMAND => $command,
                            PageKeys::KEY_TYPE => $type
                           ];
         return $this->response;
@@ -90,7 +90,7 @@ class SuppliesFormAction extends AdminAction {
 
         //BOTÓ CERCA
         $form->addElement("<p>&nbsp;</p>");
-        $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['form'=> $formId, 'data-call'=> $this->command]);
+        $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['id'=> "btn_cerca", 'action'=> $this->datacall]);
 
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
