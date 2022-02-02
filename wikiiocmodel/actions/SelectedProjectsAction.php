@@ -15,6 +15,7 @@ class SelectedProjectsAction extends AdminAction {
 
     protected function responseProcess() {
         $model = $this->getModel();
+        $parser = $this->parser($this->params['grups']);
         /**
          * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
          * @param array $dades : array de dades del projecte
@@ -28,13 +29,18 @@ class SelectedProjectsAction extends AdminAction {
 //                    };
 //        $callback = ['function' => $function,
 //                     'params' => explode(":", $this->params['consulta'])];
-//
-//        $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
-        $llista = $this->parser($this->params['grups']);
+//        $llista = $model->selectProjectsByField([$this->params['projectType']], $callback);
+//        
+//        $function = function($d=NULL, $p=NULL) {return TRUE;};
+//        $callback = ['function' => $function];
+//        $llista1 = $model->selectProjectsByField($parser['listProjects'], $callback);
+        $llista = $model->selectProjectsByType($parser['listProjects']);
+
+        //getDataProject (@return array Con los datos del proyecto (.mdpr en mdprojects/) correspondientes a la clave '$metaDataSubSet')
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
                            PageKeys::KEY_TITLE => "Llista de projectes seleccionats i filtrats",
-                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista['listProjects']),
+                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista),
                            PageKeys::KEY_TYPE => "html_response_form"
                           ];
         return $this->response;

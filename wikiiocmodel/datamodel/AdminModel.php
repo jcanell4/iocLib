@@ -40,12 +40,20 @@ class AdminModel extends AbstractWikiModel {
     }
 
     /** Obtiene la lista de proyectos del tipo indicado filtrados por la función callback
-     * @param string $projectType tipus de projecte
+     * @param array $projectsType tipus de projecte
      * @param array $callback funció de filtre per a la selecció de projectes: ['function'=>, 'params'=>]
      * @return array
      */
-    public function selectProjectsByField($projectType, $callback) {
-        return $this->getProjectMetaDataQuery()->selectProjectsByField($callback, [$projectType]);
+    public function selectProjectsByField($projectsType, $callback) {
+        return $this->getProjectMetaDataQuery()->selectProjectsByField($callback, $projectsType);
+    }
+
+    /** Obtiene la lista de proyectos del tipo indicado
+     * @param array $projectsType tipus de projecte
+     * @return array
+     */
+    public function selectProjectsByType($projectsType) {
+        return $this->getProjectMetaDataQuery()->selectProjectsByType($projectsType);
     }
 
     //Obtiene un array [key, value] con los datos del proyecto solicitado

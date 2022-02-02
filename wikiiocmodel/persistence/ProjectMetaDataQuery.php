@@ -1160,6 +1160,52 @@ class ProjectMetaDataQuery extends DataQuery {
         return $selected;
     }
 
+
+    /**
+     * Cerca els projectes dels tipus especificats
+     * @param array $projectTypes : llista de projectes on cal fer la cerca
+     * @return array : llista dels projectes
+     */
+    public function selectProjectsByType($projectTypes=[]) {
+        $basedir = WikiGlobalConfig::getConf('mdprojects');
+        $pos = strlen($basedir)+1;
+        $ret = $this->_selectProjectsByType($basedir, $pos, $projectTypes);
+        return $ret;
+    }
+
+    /**
+     * Cerca recursivament els projectes dels tipus especificats
+     * @param string $dir : directori inicial on es fa la cerca
+     * @param integer $pos : longitud del directori base dins de l'string $dir
+     * @param array $projectTypes : llista de projectes on cal fer la cerca
+     * @return array : llista dels projectes
+     */
+    private function _selectProjectsByType($dir, $pos, $projectTypes=[]) {
+        $selected = [];
+        $scan = @scandir($dir);
+        if ($scan) $scan = array_diff($scan, [".", ".."]);
+        if ($scan) {
+            $metaDataSubSet = "main";
+            $id = str_replace("/", ":", substr($dir, $pos));
+            foreach ($scan as $file) {
+                if (is_dir("$dir/$file")) {
+                    if (empty($projectTypes) || in_array($file, $projectTypes)) {
+                        $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
+                        if (is_file("$dir/$file/$projectFileName")) {
+                            $selected[] = $id;
+                        }
+                    }else {
+                        $ret = $this->_selectProjectsByType("$dir/$file", $pos, $projectTypes);
+                        if (!empty($ret)) {
+                            $selected = array_merge($selected, $ret);
+                        }
+                    }
+                }
+            }
+        }
+        return $selected;
+    }
+
     public function changeFieldValueInProjects($field, $new_value, $projectes, $summary, $callback) {
         $ret = TRUE;
         $basedir = WikiGlobalConfig::getConf('mdprojects');
