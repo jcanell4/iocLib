@@ -1,13 +1,13 @@
 <?php
 /**
- * Class SelectProjectsAction: Crea una pàgina amb un formulari per seleccionar els projectes
+ * Class SelectedProjectsAction: Crea una pàgina amb un formulari per seleccionar els projectes
  *                             d'un tipus i una propietat específics.
  * @culpable <rclaver@xtec.cat>
  */
 if (!defined("DOKU_INC")) die();
 include_once(DOKU_INC.'/inc/form.php');
 
-class SelectProjectsAction extends AdminAction {
+class SelectedProjectsAction extends AdminAction {
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
@@ -21,21 +21,39 @@ class SelectProjectsAction extends AdminAction {
          * @param array $params : ['field', 'value']
          * @return boolean
          */
-        $function = function($dades, $params) {
-                        $field = $params[0];
-                        $value = $params[1];
-                        return (is_array($dades) && !empty($dades[$field]));
-                    };
-        $callback = ['function' => $function,
-                     'params' => explode(":", $this->params['consulta'])];
+//        $function = function($dades, $params) {
+//                        $field = $params[0];
+//                        $value = $params[1];
+//                        return (is_array($dades) && !empty($dades[$field]));
+//                    };
+//        $callback = ['function' => $function,
+//                     'params' => explode(":", $this->params['consulta'])];
+//
+//        $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
+        $llista = $this->parser($this->params['grups']);
 
-        $llista = $model->selectProjectsByField($this->params['projectType'], $callback);
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
                            PageKeys::KEY_TITLE => "Llista de projectes seleccionats i filtrats",
-                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista),
+                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista['listProjects']),
                            PageKeys::KEY_TYPE => "html_response_form"
                           ];
         return $this->response;
+    }
+
+    private function parser($G) {
+        $listProjects = [];
+        $grups = (is_string($G)) ? json_decode($G, true) : $G;
+        $mainGroup = $grups["grup_${grups['main_group']}"];
+        foreach ($grups as $key => $grup) {
+            if (preg_match("/grup_(.*)/", $key, $g)) {
+                if ($grup['projecttype']) {
+                    $listProjects[] = $grup['projecttype'];
+                }
+            }else {
+                unset($grups[$key]);
+            }
+        }
+        return ['mainGroup' => $mainGroup, 'grups' => $grups, 'listProjects' => $listProjects];
     }
 
     private function setSelectedProjectsList($llista="") {

@@ -15,7 +15,7 @@ class SuppliesFormAction extends AdminAction {
     const DIVGRUPCONN = '<div style="clear:left;text-align:left;margin:0 0 10px 0;">connector:&nbsp;';
     const OBRE_SPAN = '<span style="margin:0 20px 10px 0;">';
 
-    private $datacall = "call=select_projects";
+    private $datacall = "call=selected_projects";
 
     public function init($modelManager=NULL) {
         parent::init($modelManager);
