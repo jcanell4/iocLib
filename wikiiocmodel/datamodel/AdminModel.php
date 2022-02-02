@@ -39,8 +39,8 @@ class AdminModel extends AbstractWikiModel {
         return $this->getProjectMetaDataQuery()->getListProjectTypes($all);
     }
 
-    /** Obtiene la lista de proyectos del tipo indicado filtrados por la función callback
-     * @param array $projectsType tipus de projecte
+    /** Obtiene la lista de proyectos de los tipos indicados filtrados por la función callback
+     * @param array $projectsType tipus de projectes
      * @param array $callback funció de filtre per a la selecció de projectes: ['function'=>, 'params'=>]
      * @return array
      */
@@ -48,9 +48,9 @@ class AdminModel extends AbstractWikiModel {
         return $this->getProjectMetaDataQuery()->selectProjectsByField($callback, $projectsType);
     }
 
-    /** Obtiene la lista de proyectos del tipo indicado
-     * @param array $projectsType tipus de projecte
-     * @return array
+    /** Obtiene la lista de proyectos de los tipos indicados
+     * @param array $projectsType tipus de projectes
+     * @return array : llista dels projectes ['ns', 'projectType']
      */
     public function selectProjectsByType($projectsType) {
         return $this->getProjectMetaDataQuery()->selectProjectsByType($projectsType);
@@ -58,8 +58,12 @@ class AdminModel extends AbstractWikiModel {
 
     //Obtiene un array [key, value] con los datos del proyecto solicitado
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
-        $values = $this->getProjectMetaDataQuery()->getDataProject($id, $projectType, $metaDataSubSet);
-        return $values;
+        return $this->getProjectMetaDataQuery()->getDataProject($id, $projectType, $metaDataSubSet);
+    }
+
+    // Obtiene un array Con todos los datos del proyecto (.mdpr en mdprojects/)
+    public function getAllDataProject($id=FALSE, $projectType=FALSE) {
+        return $this->getProjectMetaDataQuery()->getAllDataProject($id, $projectType);
     }
 
     public function getData() {

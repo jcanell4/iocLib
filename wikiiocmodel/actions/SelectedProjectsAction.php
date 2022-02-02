@@ -16,27 +16,15 @@ class SelectedProjectsAction extends AdminAction {
     protected function responseProcess() {
         $model = $this->getModel();
         $parser = $this->parser($this->params['grups']);
-        /**
-         * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
-         * @param array $dades : array de dades del projecte
-         * @param array $params : ['field', 'value']
-         * @return boolean
-         */
-//        $function = function($dades, $params) {
-//                        $field = $params[0];
-//                        $value = $params[1];
-//                        return (is_array($dades) && !empty($dades[$field]));
-//                    };
-//        $callback = ['function' => $function,
-//                     'params' => explode(":", $this->params['consulta'])];
-//        $llista = $model->selectProjectsByField([$this->params['projectType']], $callback);
-//        
-//        $function = function($d=NULL, $p=NULL) {return TRUE;};
-//        $callback = ['function' => $function];
-//        $llista1 = $model->selectProjectsByField($parser['listProjects'], $callback);
-        $llista = $model->selectProjectsByType($parser['listProjects']);
+        $listProjects = $model->selectProjectsByType($parser['listProjectTypes']);
 
-        //getDataProject (@return array Con los datos del proyecto (.mdpr en mdprojects/) correspondientes a la clave '$metaDataSubSet')
+        foreach ($listProjects as $project) {
+            $data_main = $model->getDataProject($project['ns'], $project['projectType'], "main");
+            $data_all = $model->getAllDataProject($project['ns'], $project['projectType']);
+//            if (SuperParser($data_main, $data_all, $parser['mainGroup'], $parser['grups'])) {
+                $llista[] = $project['ns'];
+//            }
+        }
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
                            PageKeys::KEY_TITLE => "Llista de projectes seleccionats i filtrats",
@@ -47,19 +35,19 @@ class SelectedProjectsAction extends AdminAction {
     }
 
     private function parser($G) {
-        $listProjects = [];
+        $listProjectTypes = [];
         $grups = (is_string($G)) ? json_decode($G, true) : $G;
         $mainGroup = $grups["grup_${grups['main_group']}"];
         foreach ($grups as $key => $grup) {
             if (preg_match("/grup_(.*)/", $key, $g)) {
                 if ($grup['projecttype']) {
-                    $listProjects[] = $grup['projecttype'];
+                    $listProjectTypes[] = $grup['projecttype'];
                 }
             }else {
                 unset($grups[$key]);
             }
         }
-        return ['mainGroup' => $mainGroup, 'grups' => $grups, 'listProjects' => $listProjects];
+        return ['mainGroup' => $mainGroup, 'grups' => $grups, 'listProjectTypes' => $listProjectTypes];
     }
 
     private function setSelectedProjectsList($llista="") {

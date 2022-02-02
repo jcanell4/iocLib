@@ -563,22 +563,23 @@ class ProjectMetaDataQuery extends DataQuery {
                                    [ProjectKeys::KEY_REV => $revision,
                                     ProjectKeys::KEY_PROJECT_TYPE => $this->getProjectType(),
                                     ProjectKeys::KEY_METADATA_SUBSET => $subSet]);
-        return $this->_getMeta($subSet, $file);
+        return $this->_getMeta($file, $subSet);
     }
+
     /**
      * Extrae, del contenido del fichero, los datos correspondientes a la clave
-     * @param string $subSet : clave del contenido
      * @param string $filename : fichero de datos del proyecto / ruta completa para las revisiones
+     * @param string $subSet : clave del contenido
      * @return JSON conteniendo el array de la clave 'metadatasubset' con los datos del proyecto
      */
-    private function _getMeta($subSet, $filename) {
+    private function _getMeta($filename, $subSet=NULL) {
         $metaDataReturn = null;
         $contentFile = io_readFile($filename, false);
 
         if ($contentFile != false) {
             $contentMainArray = $this->controlMalFormedJson($contentFile, "array");
             foreach ($contentMainArray as $clave => $valor) {
-                if ($clave == $subSet) {
+                if (is_null($subSet) || $clave == $subSet) {
                     if (is_array($valor)) {
                         $metaDataReturn = json_encode($valor);
                         break;
@@ -1164,7 +1165,7 @@ class ProjectMetaDataQuery extends DataQuery {
     /**
      * Cerca els projectes dels tipus especificats
      * @param array $projectTypes : llista de projectes on cal fer la cerca
-     * @return array : llista dels projectes
+     * @return array : llista dels projectes ['ns', 'projectType']
      */
     public function selectProjectsByType($projectTypes=[]) {
         $basedir = WikiGlobalConfig::getConf('mdprojects');
@@ -1178,7 +1179,7 @@ class ProjectMetaDataQuery extends DataQuery {
      * @param string $dir : directori inicial on es fa la cerca
      * @param integer $pos : longitud del directori base dins de l'string $dir
      * @param array $projectTypes : llista de projectes on cal fer la cerca
-     * @return array : llista dels projectes
+     * @return array : llista dels projectes ['ns', 'projectType']
      */
     private function _selectProjectsByType($dir, $pos, $projectTypes=[]) {
         $selected = [];
@@ -1192,7 +1193,7 @@ class ProjectMetaDataQuery extends DataQuery {
                     if (empty($projectTypes) || in_array($file, $projectTypes)) {
                         $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
                         if (is_file("$dir/$file/$projectFileName")) {
-                            $selected[] = $id;
+                            $selected[] = ['ns' => $id, 'projectType' => $file];
                         }
                     }else {
                         $ret = $this->_selectProjectsByType("$dir/$file", $pos, $projectTypes);
@@ -1246,7 +1247,24 @@ class ProjectMetaDataQuery extends DataQuery {
             $metaDataSubSet = $this->getProjectSubset();
 
         $filename = $this->getFileName($id, [ProjectKeys::KEY_PROJECT_TYPE=>$projectType, ProjectKeys::KEY_METADATA_SUBSET=>$metaDataSubSet]);
-        $jsonData = $this->_getMeta($metaDataSubSet, $filename);
+        $jsonData = $this->_getMeta($filename, $metaDataSubSet);
+        if ($jsonData!==NULL) {
+            return json_decode($jsonData, TRUE);
+        }else {
+            return NULL;
+        }
+    }
+
+    /**
+     * @return array Con todos los datos del proyecto (.mdpr en mdprojects/)
+     */
+    public function getAllDataProject($id=FALSE, $projectType=FALSE) {
+        if (!$id)
+            $id = $this->getProjectId();
+        if (!$projectType)
+            $projectType = $this->getProjectType();
+        $filename = $this->getFileName($id, [ProjectKeys::KEY_PROJECT_TYPE=>$projectType, ProjectKeys::KEY_METADATA_SUBSET=>"main"]);
+        $jsonData = $this->_getMeta($filename);
         if ($jsonData!==NULL) {
             return json_decode($jsonData, TRUE);
         }else {
