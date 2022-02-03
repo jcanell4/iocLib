@@ -1256,20 +1256,23 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
-     * @return array Con todos los datos del proyecto (.mdpr en mdprojects/)
+     * @return array Con todos los datos, de todos los subsets, del proyecto (.mdpr en mdprojects/)
      */
     public function getAllDataProject($id=FALSE, $projectType=FALSE) {
+        $data = [];
         if (!$id)
             $id = $this->getProjectId();
         if (!$projectType)
             $projectType = $this->getProjectType();
-        $filename = $this->getFileName($id, [ProjectKeys::KEY_PROJECT_TYPE=>$projectType, ProjectKeys::KEY_METADATA_SUBSET=>"main"]);
-        $jsonData = $this->_getMeta($filename);
-        if ($jsonData!==NULL) {
-            return json_decode($jsonData, TRUE);
-        }else {
-            return NULL;
+        $subSets = $this->getListMetaDataSubSets($projectType);
+        foreach ($subSets as $subset) {
+            $filename = $this->getFileName($id, [ProjectKeys::KEY_PROJECT_TYPE=>$projectType, ProjectKeys::KEY_METADATA_SUBSET=>$subset]);
+            $jsonData = $this->_getMeta($filename);
+            if ($jsonData!==NULL) {
+                $data = array_merge($data, json_decode($jsonData, TRUE));
+            }
         }
+        return $data;
     }
 
     public function hasDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
