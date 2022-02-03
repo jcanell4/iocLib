@@ -1,18 +1,20 @@
 <?php
 require_once "DW2HtmlParser.php";
 
-class DW2HtmlBox extends DW2HtmlInstruction {
+class DW2HtmlBox extends DW2HtmlInstruction
+{
 
     protected $parsingContent = false;
 
-    public function open() {
+    public function open()
+    {
 
         $token = $this->currentToken;
 
 
         // Extrerure els camps
         // ^::tipus:ID$
-        $typePattern = '/^::(.*?):(.*)$/m';
+        $typePattern = '/^(?:\[\/?ref=\d*\])*::(.*?):(.*)$/m';
         $type = 'unknown';
         $id = 'none';
 
@@ -40,13 +42,16 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             case 'quote':
                 return $this->getValueText($token, $type);
 
+            case 'include':
+                return $this->getValueInclude($token);
 
         }
 
 
     }
 
-    protected function getValueText($token, $type) {
+    protected function getValueText($token, $type)
+    {
         $fields = $this->getFields($token);
 
         $large = FALSE;
@@ -86,7 +91,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
 
-    protected function getValueTable($token, $id, $type) {
+    protected function getValueTable($token, $id, $type)
+    {
 
 
         $fields = $this->getFields($token);
@@ -103,7 +109,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $pre . $value . $post;
     }
 
-    protected function getValueFigure($token, $id) {
+    protected function getValueFigure($token, $id)
+    {
 
         $type = 'figure';
 
@@ -118,23 +125,50 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         $post = "</div>";
 
         if (substr($content, -1) == "\n") {
-            $content = substr_replace($content ,"",-1);
+            $content = substr_replace($content, "", -1);
         }
 
         $value = $this->parseContent($content);
 
 
+        return $pre . $value . $post;
+    }
+
+    protected function getValueInclude($token)
+    {
+
+
+        // És page o section?
+        $matches = null;
+        $type = null;
+        if (preg_match('/^{{(page|section)>/m', $token['raw'], $matches)) {
+            $type = $matches[1];
+        }
+
+        $content = null;
+        if (preg_match('/^{{.*>(.*?)}}$/m', $token['raw'], $matches)) {
+            $content = $matches[1];
+        }
+
+        $post = "</div>";
+
+        $pre = "<div class=\"iocinclude\" data-dw-include=\"$content\" data-dw-include-type=\"$type\"" .
+            "contenteditable=\"false\" data-dw-highlighted=\"true\">";
+
+        $value = "<span>incloent [$type]: $content</span>";
 
         return $pre . $value . $post;
     }
 
-    public function isClosing($token) {
+    public function isClosing($token)
+    {
 
         return !$this->parsingContent;
 
     }
 
-    protected function getFields($token) {
+    protected function getFields($token)
+    {
         $fieldPattern = "/^  :(.*?):(.*)$/m";
         $fields = [];
         if (preg_match_all($fieldPattern, $token['raw'], $matches)) {
@@ -149,8 +183,10 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $fields;
     }
 
-    protected function getContent($token) {
-        $typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*):::$/ms";
+    protected function getContent($token)
+    {
+        $typeContent = "/^(?:\[\/?ref=\d*\])*(?:::.*?:.*?\n)(?:  :.*?:.*?\n)*(.*):::$/ms";
+        //$typeContent = "/(?:^::.*?:.*?\n)(?:^  :.*?:.*?\n)*(.*):::$/ms";
         if (preg_match($typeContent, $token['raw'], $matches)) {
 
             $content = $matches[1];
@@ -161,7 +197,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $content;
     }
 
-    protected function getPreContent($fields, $id, $type, $realType = false) {
+    protected function getPreContent($fields, $id, $type, $realType = false)
+    {
         if (!$realType) {
             $realType = $type;
         }
@@ -176,8 +213,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 //        $result .= '<span data-wioccl-ref="'. $refId.'">'. $item->getContent($currentToken) . '</span>';
 
 
-
-        $pre ='<div ';
+        $pre = '<div ';
 
         if ($refId > 0) {
             $pre .= 'data-wioccl-ref="' . $refId . '" ';
@@ -206,10 +242,12 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $pre;
     }
 
-    protected function parseTable($content) {
+    protected function parseTable($content)
+    {
 
         // Dividim el contingut en files
-        preg_match_all('/^(.*?)$/ms', $content, $matchesRow);
+        preg_match_all('/^(.*?[\|\^])]?$/ms', $content, $matchesRow);
+//        preg_match_all('/^(.*?)$/ms', $content, $matchesRow);
 
         $rows = $matchesRow[1];
 
@@ -222,7 +260,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         //      solucionat eliminant tots els refs de tipus content.
         //  - Per files:
         //      L'apertura es troba al principi de la línia però el tancament es troba al principi de la següent
-
 
 
         //$teststructure = WiocclParser::getStructure();
@@ -269,7 +306,6 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
 
 
-
             if ($rowIndex < count($rows) && preg_match($patternOpen, $rows[$rowIndex], $match)) {
 
                 $refId = $match[1];
@@ -297,14 +333,12 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
                 // ALERTA! EXCEPCIÓ: pot ser  un foreach-buit que es troba com a últim element d'una taula
 
-                if ($rowIndex == count($rows)-1) {
+                if ($rowIndex == count($rows) - 1) {
                     $foundClose = preg_match($patternClose, $rows[$rowIndex], $matchClose);
                     if ($foundClose) {
                         $closingIndex = $i;
                     }
                 }
-
-
 
 
                 if ($closingIndex !== -1) {
@@ -317,7 +351,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
 
                     // La fila on s'ha trobat el tancament no s'inclou
-                    for ($i = $rowIndex; $i<$closingIndex; $i++) {
+                    for ($i = $rowIndex; $i < $closingIndex; $i++) {
 
                         // Canvi de sistema, desem només la última referència
 //                        if (!isset($rowAttrs[$i]['data-wioccl-ref'])) {
@@ -345,7 +379,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             array_pop($cols);
             array_shift($cols);
 
-            if (count($cols)==0) {
+            if (count($cols) == 0) {
                 continue;
             }
 
@@ -458,7 +492,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
     }
 
 
-    protected function makeTable($tableData, $rowAttrs) {
+    protected function makeTable($tableData, $rowAttrs)
+    {
 
         $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
 
@@ -487,7 +522,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         //      - el ref de totes les files és el mateix, això no és important perquè es reconstrueixen a partir del pare
 
 
-        for ($rowIndex = 0; $rowIndex<$len; $rowIndex++) {
+        for ($rowIndex = 0; $rowIndex < $len; $rowIndex++) {
 
             // TODO: comprovar si és correcte en tots els casos
             if (!isset($tableData[0][$rowIndex])) {
@@ -503,7 +538,7 @@ class DW2HtmlBox extends DW2HtmlInstruction {
             //            $cell = $tableData[$rowIndex];
 
             //        foreach ($tableData[0] as $rowIndex => $cell ) {
-        //for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
+            //for ($rowIndex = 0; $rowIndex <= $len; $rowIndex++) {
 
 
 //            if ($tableData[0][$rowIndex]) {
@@ -592,7 +627,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
         return $table;
     }
 
-    protected function findRowCount($tableData, $rowAttrs) {
+    protected function findRowCount($tableData, $rowAttrs)
+    {
         // El nombre d'elements a cada fila no sempre correspon al nombre de files ja que pot haver cel·les amb rowspan
 
         $rows = 0;
@@ -609,8 +645,8 @@ class DW2HtmlBox extends DW2HtmlInstruction {
 
         foreach ($rowAttrs as $key => $value) {
             // Posem el cursor de l'array a la última posició
-            if ($key +1 > $rows) {
-                $rows = $key +1;
+            if ($key + 1 > $rows) {
+                $rows = $key + 1;
             }
         }
 

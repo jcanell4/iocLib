@@ -78,6 +78,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'gif'
         ],
 
+        "{{(?:page|section>).*?}}" => [
+            'state' => 'include'
+        ],
+
         "{{(?:" . SharedConstants::ONLINE_VIDEO_PARTIAL_PATTERN . ")>.*?}}" => [
             'state' => 'video'
         ],
@@ -86,8 +90,8 @@ class DW2HtmlParser extends IocParser {
             'state' => 'image'
         ],
 
-        "^::.*?:.*?:::\n?$" => [
-//        "::.*?:.*?:::" => [
+        "^(?:\[\/?ref=\d*\])*::.*?:.*?:::\n?$" => [
+//        "^::.*?:.*?:::\n?$" => [
             'state' => 'box'
         ],
 
@@ -202,9 +206,12 @@ class DW2HtmlParser extends IocParser {
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
 
-        "^::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+        "^(?:\[\/?ref=\d*\])*::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+//        "^::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
+        "{{(?:page|section>)(.*?)}}" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlInclude', 'action' => 'self-contained',
+            'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         "[\^\|](.*?)*[\|\^]\n" => ['state' => 'row', 'type' => 'row', 'class' => 'DW2HtmlRow', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
@@ -239,8 +246,8 @@ class DW2HtmlParser extends IocParser {
         " {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
         " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
-        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
-
+        "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre data-code-type='indented'><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
+        
         '**' => ['state' => 'bold', 'type' => 'bold', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<b>", "</b>"], 'exact' => TRUE]],
 
         '//' => ['state' => 'italic', 'type' => 'italic', 'class' => 'DW2HtmlMarkup', 'action' => 'open-close', 'extra' => ['replacement' => ["<i>", "</i>"], 'exact' => TRUE]],

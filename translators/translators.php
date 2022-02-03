@@ -318,7 +318,10 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         }
 
         $header = '';
-        if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])) {
+        // ALERTA[Xavi]! Ara la capçalera arribarà buida perquè no tots els camps ~~ es troben a la capçalera
+        // podem trobar-se en qualsevol lloc, per tant no els esborrem
+        if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])
+            && count($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'])>0) {
             $header .= ":###\n";
             foreach ($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'] as $data) {
                 $header .= "~~" . $data ."~~\n";
@@ -363,16 +366,29 @@ class DW2HtmlTranslator extends AbstractTranslator {
         }
 
         $headerData = [];
-        if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
-            $headerData = $matches[1];
-        }
+//
+//        if (preg_match_all("/~~(.*?)~~/ms", $text, $matches)) {
+//            $headerData = $matches[1];
+//        }
+//
+//        // Només formen part de la capçalera els elements anteriors al USE:WIOCCL inclòs
+//        $trobat = FALSE;
+//        for ($i=count($headerData)-1; $i>=0; $i--) {
+//            if ($headerData[$i] == "USE:WIOCCL") {
+//                break;
+//            }
+//            unset($headerData[$i]);
+//        }
+//
+//        $text = preg_replace("/:###.*?~~.*?~~\n?###:\n/ms", "", $text, 1, $counter);
+//
+//
+//        // Hi ha com a mínim un cas en que hi ha USE:WIOCCL sense tancar el readonly: al ptfplogse
+//        if ($counter===0) {
+//            $text = preg_replace("/:###.*?~~USE:WIOCCL~~\n/ms", "", $text, 1, $counter);
+//        }
 
-        $text = preg_replace("/:###.*?~~.*?~~\n?###:\n/ms", "", $text, 1, $counter);
-
-        // Hi ha com a mínim un cas en que hi ha USE:WIOCCL sense tancar el readonly: al ptfplogse
-        if ($counter===0) {
-            $text = preg_replace("/:###.*?~~USE:WIOCCL~~\n/ms", "", $text, 1, $counter);
-        }
+        $counter = preg_match("/~~USE:WIOCCL~~/ms", $text);
 
         if ($counter > 0 || isset($params['generateStructure']) && $params['generateStructure']) {
 
@@ -474,11 +490,17 @@ class DW2HtmlTranslator extends AbstractTranslator {
 
 
         // Reconstruim la capçalera
-        $meta = ":###\n";
-        foreach ($header as $value) {
-            $meta .= '~~' . $value . "~~\n";
+
+        // ALERTA[Xavi] això es feia al principi, ara no discriminem la capçalera
+        // perquè hi ha múltiples camps ~~FIELD~~ i no sempre són a la capçalera!
+        if (count($header)>0) {
+            $meta = ":###\n";
+            foreach ($header as $value) {
+                $meta .= '~~' . $value . "~~\n";
+            }
+            $meta .= "###:\n";
         }
-        $meta .= "###:\n";
+
 
 
         // Provem a reconstruir el document a partir dels nodes
