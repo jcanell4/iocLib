@@ -1,11 +1,10 @@
 <?php
 /**
- * Class SelectedProjectsAction: Crea una pàgina amb un formulari per seleccionar els projectes
- *                             d'un tipus i una propietat específics.
+ * Class SelectedProjectsAction: Crea una pàgina amb la llista de projectes que compleixen
+ *                               les condicions selccionades.
  * @culpable <rclaver@xtec.cat>
  */
 if (!defined("DOKU_INC")) die();
-include_once(DOKU_INC.'/inc/form.php');
 
 class SelectedProjectsAction extends AdminAction {
 
