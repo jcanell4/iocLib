@@ -20,9 +20,10 @@ class SelectedProjectsAction extends AdminAction {
         foreach ($listProjects as $project) {
             $data_main = $model->getDataProject($project['ns'], $project['projectType'], "main");
             $data_all = $model->getAllDataProject($project['ns'], $project['projectType']);
-//            if (SuperParser($data_main, $data_all, $parser['mainGroup'], $parser['grups'])) {
+            $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
+            if ($root->getValue()) {
                 $llista[] = $project['ns'];
-//            }
+            }
         }
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ACTION_COMMAND],
@@ -36,7 +37,7 @@ class SelectedProjectsAction extends AdminAction {
     private function parser($G) {
         $listProjectTypes = [];
         $grups = (is_string($G)) ? json_decode($G, true) : $G;
-        $mainGroup = $grups["grup_${grups['main_group']}"];
+        $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
             if (preg_match("/grup_(.*)/", $key, $g)) {
                 if ($grup['projecttype']) {

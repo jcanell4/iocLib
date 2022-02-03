@@ -32,7 +32,7 @@ class _NodeAggregation extends _AbstractNode
         $primer = TRUE;
         $resultat = NULL;
 
-        $operator = $this->node['operator'];
+        $operator = $this->node['connector'];
 
         foreach ($this->getChildren() as $child) {
             if ($primer) {
@@ -59,8 +59,8 @@ class _NodeAggregation extends _AbstractNode
     function getChildren()
     {
 
-        if (count($this->children) == 0 && count($this->node['items']) > 0) {
-            foreach ($this->node['items'] as $key) {
+        if (count($this->children) == 0 && count($this->node['elements']) > 0) {
+            foreach ($this->node['elements'] as $key) {
                 $children = NodeFactory::getNode($this->tree, $key, $this->arrays, $this->datasource);
                 $this->children[] = $children;
             }
@@ -79,9 +79,9 @@ class _NodeCondition extends _AbstractNode
         $primer = TRUE;
         $resultat = NULL;
 
-        $operator = $this->node['operator'];
+        $operator = $this->node['connector'];
 
-        foreach ($this->node['items'] as $strCondition) {
+        foreach ($this->node['elements'] as $strCondition) {
 
             $condition = $this->getCondition($strCondition);
 

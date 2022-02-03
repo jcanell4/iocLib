@@ -94,7 +94,8 @@ class SuppliesFormAction extends AdminAction {
 
     //Creació del grup de grups inicial
     private function _creacioGrupGInicial(&$form, &$ret, $lastGgroup) {
-        $values = ['connector_grup' => $this->params["connector_grup_G_$lastGgroup"],
+        $values = ['type' => "aggregation",
+                   'connector_grup' => $this->params["connector_grup_G_$lastGgroup"],
                    'elements_grup' => [""]];
         $this->_creaGGrup($form, $ret['grups'], "G_$lastGgroup", $values);
         $this->_creaGCondicio($form, $ret['grups'], $ret['grups'], "0", "", "G_$lastGgroup");
@@ -103,7 +104,8 @@ class SuppliesFormAction extends AdminAction {
 
     //Creació del grup simple inicial
     private function _creacioGrupInicial(&$form, &$ret, $last_group) {
-        $values = ['connector_grup' => $this->params["connector_grup_0"],
+        $values = ['type' => "condition",
+                   'connector_grup' => $this->params["connector_grup_0"],
                    'projecttype_grup' => $this->params["projecttype_grup_0"]];
         $this->_creaGrup($form, $ret['grups'], $last_group, $values);
         $this->_creaCondicio($form, $ret['grups'], "0", "", $last_group);
@@ -161,7 +163,8 @@ class SuppliesFormAction extends AdminAction {
     private function _tractamentBotoNouGrup(&$grups, &$last_group) {
         if (isset($this->params['do']["nou_grup"])) {
             $last_group++;
-            $grups["grup_$last_group"] = ['connector' => "",
+            $grups["grup_$last_group"] = ['type' => "condition",
+                                          'connector' => "",
                                           'projecttype' => "",
                                           'elements' => [""]];
         }
@@ -171,7 +174,8 @@ class SuppliesFormAction extends AdminAction {
     private function _tractamentBotoNovaAgrupacio(&$grups, &$lastGgroup) {
         if (isset($this->params['do']["nova_agrupacio"])) {
             $lastGgroup++;
-            $grups["grup_G_$lastGgroup"] = ['connector' => "",
+            $grups["grup_G_$lastGgroup"] = ['type' => "aggregation",
+                                            'connector' => "",
                                             'elements' => [""]];
         }
     }
@@ -199,7 +203,8 @@ class SuppliesFormAction extends AdminAction {
         foreach ($grups as $G => $grup) {
             $g = explode("_", $G)[1];
             if (is_numeric($g)) {
-                $values = ['connector_grup' => IocCommon::nz($this->params["connector_grup_$g"]),
+                $values = ['type' => "condition",
+                           'connector_grup' => IocCommon::nz($this->params["connector_grup_$g"]),
                            'projecttype_grup' => IocCommon::nz($this->params["projecttype_grup_$g"])];
                 $this->_creaGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
@@ -214,7 +219,8 @@ class SuppliesFormAction extends AdminAction {
             }
             elseif ($g=="G") {
                 $g .= "_".explode("_", $G)[2];
-                $values = ['connector_grup' => IocCommon::nz($this->params["connector_grup_$g"])];
+                $values = ['type' => "aggregation",
+                           'connector_grup' => IocCommon::nz($this->params["connector_grup_$g"])];
                 $this->_creaGGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
@@ -267,6 +273,7 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaBotoNovaCondicio($form, $grup);
         $form->addElement('</div>');
         $form->addElement(self::DIVGRUPCONN);
+        $ret["grup_$grup"]["type"] = "aggregation";
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
         $form->addElement('</div>');
     }
@@ -278,6 +285,7 @@ class SuppliesFormAction extends AdminAction {
         $this->_creaBotoNovaCondicio($form, $grup);
         $form->addElement('</div>');
         $form->addElement(self::DIVGRUPCONN);
+        $ret["grup_$grup"]["type"] = "condition";
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
         $this->_creaLlistaTipusDeProjecte($form, $ret, $values['projecttype_grup'], $grup);
         $form->addElement('</div>');
