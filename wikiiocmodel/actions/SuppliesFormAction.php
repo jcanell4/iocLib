@@ -78,9 +78,14 @@ class SuppliesFormAction extends AdminAction {
         $form->addHidden('grups', json_encode($ret['grups']));
         $form->addElement("</div>");
 
-        //BOTÓ CERCA
         $form->addElement("<p>&nbsp;</p>");
-        $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['id'=> "btn_cerca", 'data-query'=> $this->datacall]);
+        if (isset($this->params['do']["actualitza"])) {
+            //BOTÓ CERCA
+            $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['id'=> "btn__cerca", 'data-query'=> $this->datacall]);
+        }else {
+            //BOTÓ ACTUALITZA
+            $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('btn_update'), ['id'=> "btn__actualitza"]);
+        }
 
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
