@@ -1193,7 +1193,7 @@ class ProjectMetaDataQuery extends DataQuery {
                     if (empty($projectTypes) || in_array($file, $projectTypes)) {
                         $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
                         if (is_file("$dir/$file/$projectFileName")) {
-                            $selected[] = ['ns' => $id, 'projectType' => $file];
+                            $selected[] = ['id' => $id, 'projectType' => $file];
                         }
                     }else {
                         $ret = $this->_selectProjectsByType("$dir/$file", $pos, $projectTypes);
@@ -1282,6 +1282,16 @@ class ProjectMetaDataQuery extends DataQuery {
         }else {
             return NULL;
         }
+    }
+
+    // Averigua si el tipo de proyecto $projectType es de tipo workflow
+    public function isProjectTypeWorkflow($projectType=NULL) {
+        global $plugin_controller;
+        if (!$projectType) {
+            $projectType = $this->getProjectType();
+        }
+        $projectDir = $plugin_controller->getProjectTypeDir($projectType);
+        return file_exists($projectDir."metadata/config/workflow.json");
     }
 
     /**

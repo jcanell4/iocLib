@@ -66,6 +66,11 @@ class AdminModel extends AbstractWikiModel {
         return $this->getProjectMetaDataQuery()->getAllDataProject($id, $projectType);
     }
 
+    // Averigua si el proyecto $id es de tipo workflow
+    public function isProjectTypeWorkflow($projectType=NULL) {
+        return $this->getProjectMetaDataQuery()->isProjectTypeWorkflow($projectType);
+    }
+
     public function getData() {
         throw new UnavailableMethodExecutionException();
     }

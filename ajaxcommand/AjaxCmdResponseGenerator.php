@@ -1196,11 +1196,12 @@ class AjaxCmdResponseGenerator {
      * @param string $content
      * @param array $extra
      */
-    public function addHtmlRsponseForm($id, $title, $content, $extra) {
+    public function addHtmlRsponseForm($id, $title, $content, $requestLinkArgs, $extra) {
         $contentData = array(
             'id' => $id,
             'title' => $title,
             'content' => $content,
+            'requestLinkArgs' => $requestLinkArgs,
             'extra' => $extra
         );
 
