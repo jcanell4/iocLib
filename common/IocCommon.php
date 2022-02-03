@@ -278,4 +278,11 @@ class IocCommon {
         return $has;
     }
 
+    /*
+     * Devuelve un valor no nulo.
+     */
+    public function nz($param=NULL, $default="") {
+        return ($param==NULL || empty($param) || !isset($param)) ? $default : $param;
+    }
+
 }
