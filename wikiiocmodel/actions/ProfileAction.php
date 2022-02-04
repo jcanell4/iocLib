@@ -139,11 +139,11 @@ class ProfileAction extends DokuAction{
             ptln("<td><label for='modify_oldpass'>".WikiIocLangManager::getLang('oldpass').": </label></td>");
             ptln("<td><input id='modify_oldpass' name='oldpass' class='edit' type='password' size='30' value=''></td>");
             ptln("</tr><tr>");
-            ptln("<td><label for='modify_userpass'>".WikiIocLangManager::getLang('pass').": </label></td>");
+            ptln("<td><label for='modify_userpass'>".WikiIocLangManager::getLang('newpass').": </label></td>");
             ptln("<td><input id='modify_userpass' name='userpass' class='edit' type='password' size='30' value=''></td>");
             ptln("</tr><tr>");
-            ptln("<td><label for='modify_newpass'>".WikiIocLangManager::getLang('newpass').": </label></td>");
-            ptln("<td><input id='modify_newpass' name='newpass' class='edit' type='password' size='30' value=''></td>");
+            ptln("<td><label for='modify_userpass2'>".WikiIocLangManager::getLang('passchk').": </label></td>");
+            ptln("<td><input id='modify_userpass2' name='userpass2' class='edit' type='password' size='30' value=''></td>");
         }
         ptln("</tr></tbody>");
         ptln("<thead><tr><th colspan=2></th></tr></thead>");
