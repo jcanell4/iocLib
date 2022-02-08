@@ -59,41 +59,43 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
      * @return string HTML per a les metadades
      */
     public function get_ftpsend_metadata($useSavedTime=TRUE) {
-        $mdFtpSender = $this->getMetaDataFtpSender();
-        $connData = $this->getFtpConfigData($mdFtpSender[ProjectKeys::KEY_FTPID]);
         $html = '';
-        $ruta = str_replace(':', '/', $this->id)."/";
-        $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
+        $mdFtpSender = $this->getMetaDataFtpSender();
+        if (!empty($mdFtpSender) && isset($mdFtpSender['files'])) {
+            $connData = $this->getFtpConfigData($mdFtpSender[ProjectKeys::KEY_FTPID]);
+            $ruta = str_replace(':', '/', $this->id)."/";
+            $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
 
-        $n = 0;
-        foreach ($mdFtpSender['files'] as $ofile) {
-            $filename = $fileNames[$n];
-            $path = ($ofile['local']==='mediadir') ? WikiGlobalConfig::getConf('mediadir')."/$ruta" : $ofile['local'];
-            $file = "$path$filename";
-            if (@file_exists($file)) {
-                $savedtime = $this->projectMetaDataQuery->getProjectSystemStateAttr("ftpsend_timestamp");
-                $filetime = filemtime($file);
-                $fileexists = (!$useSavedTime || ($savedtime === $filetime));
-            }
-            if ($fileexists) {
-                $unzip = in_array(1, $ofile['action']);  //0:action tipo copy, 1:action tipo unzip
-                $data = date("d/m/Y H:i:s", $filetime);
-                $index = $filename;
-                $linkRef = $filename;
-                $class = "mf_".pathinfo($index, PATHINFO_EXTENSION);
-                $rDir = (empty($ofile['remoteDir'])) ? (empty($mdFtpSender['remoteDir'])) ? $connData["remoteDir"] : $mdFtpSender['remoteDir'] : $ofile['remoteDir'];
-                $rDir .= ($unzip) ? $ruta.pathinfo($file, PATHINFO_FILENAME)."/" : $ruta;
-                $url = "{$connData['remoteUrl']}{$rDir}{$index}";
-                $html.= '<p><span id="ftpsend" style="word-wrap: break-word;">';
-                $html.= '<a class="media mediafile '.$class.'" href="'.$url.'" target="_blank">'.$linkRef.'</a> ';
-                $html.= '<span style="white-space: nowrap;">'.$data.'</span>';
-                $html.= '</span></p>';
-                $n++;
-            }else {
-                $html.= '<span id="ftpsend">';
-                $html.= '<p class="media mediafile '.$class.'">No hi ha cap fitxer pujat al FTP</p>';
-                $html.= '</span>';
-                break;
+            $n = 0;
+            foreach ($mdFtpSender['files'] as $ofile) {
+                $filename = $fileNames[$n];
+                $path = ($ofile['local']==='mediadir') ? WikiGlobalConfig::getConf('mediadir')."/$ruta" : $ofile['local'];
+                $file = "$path$filename";
+                if (@file_exists($file)) {
+                    $savedtime = $this->projectMetaDataQuery->getProjectSystemStateAttr("ftpsend_timestamp");
+                    $filetime = filemtime($file);
+                    $fileexists = (!$useSavedTime || ($savedtime === $filetime));
+                }
+                if ($fileexists) {
+                    $unzip = in_array(1, $ofile['action']);  //0:action tipo copy, 1:action tipo unzip
+                    $data = date("d/m/Y H:i:s", $filetime);
+                    $index = $filename;
+                    $linkRef = $filename;
+                    $class = "mf_".pathinfo($index, PATHINFO_EXTENSION);
+                    $rDir = (empty($ofile['remoteDir'])) ? (empty($mdFtpSender['remoteDir'])) ? $connData["remoteDir"] : $mdFtpSender['remoteDir'] : $ofile['remoteDir'];
+                    $rDir .= ($unzip) ? $ruta.pathinfo($file, PATHINFO_FILENAME)."/" : $ruta;
+                    $url = "{$connData['remoteUrl']}{$rDir}{$index}";
+                    $html.= '<p><span id="ftpsend" style="word-wrap: break-word;">';
+                    $html.= '<a class="media mediafile '.$class.'" href="'.$url.'" target="_blank">'.$linkRef.'</a> ';
+                    $html.= '<span style="white-space: nowrap;">'.$data.'</span>';
+                    $html.= '</span></p>';
+                    $n++;
+                }else {
+                    $html.= '<span id="ftpsend">';
+                    $html.= '<p class="media mediafile '.$class.'">No hi ha cap fitxer pujat al FTP</p>';
+                    $html.= '</span>';
+                    break;
+                }
             }
         }
         return $html;

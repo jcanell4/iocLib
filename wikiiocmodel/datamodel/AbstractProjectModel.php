@@ -374,7 +374,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
         $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
-        $this->mergeFieldNameToLayout($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
+        if (isset($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields'])) {
+            $this->mergeFieldNameToLayout($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
+        }
 
         return $ret;
     }
