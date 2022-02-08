@@ -102,10 +102,16 @@ abstract class _LogicOperation
             return true;
         } else if (strtolower(trim($arg)) == 'false') {
             return false;
-        } else if (is_int($arg)) {
-            return intval($arg);
+            // ALERTA[Xavi] Això no era correcte, intval retorna fals per estrings
+//        } else if (is_int($arg)) {
+//            return intval($arg);
         } else if (is_numeric($arg)) {
-            return floatval($arg);
+            if (strpos($arg, '.')) {
+                return floatval($arg);
+            } else {
+                return intval($arg);
+            }
+
         } else if (preg_match("/^\s*''(.*?)''\s*$/", $arg, $matches) === 1) {
             return $this->normalizeArg($matches[1]);
         } else {
