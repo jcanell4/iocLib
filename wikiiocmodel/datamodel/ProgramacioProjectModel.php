@@ -50,5 +50,36 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
         $data = $this->getDataProject($this->getId(), $this->getProjectType(), "management");
         return $data['workflow']['currentState'] && ($data['workflow']['currentState']=="creating" || $data['workflow']['currentState']=="modifiying");
     }
+
+    public function stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet) {
+        $actionCommand = $this->getModelAttributes(AjaxKeys::KEY_ACTION);
+        $metaDataManagement = $metaDataQuery->getDataProject($id);
+        $currentState = $metaDataManagement['workflow']['currentState'];
+
+        if ($currentState !== $newState) {
+            $newMetaData['changeDate'] = date("Y-m-d");
+            $newMetaData['oldState'] = $currentState;
+            $newMetaData['newState'] = $newState;
+            $newMetaData['changeAction'] = $actionCommand;
+            $newMetaData['user'] = WikiIocInfoManager::getInfo("userinfo")['name'];
+            $newMetaData['remarks'] = $remarks;
+
+            $metaDataManagement['stateHistory'][] = $newMetaData;
+            $metaDataManagement['workflow']['currentState'] = $newState;
+
+            $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
+        }
+        return $currentState;
+    }
+
+    public function getCurrentWorkflowActionAttributes($currentState, $actionCommand){
+        $workflowJson = $this->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
+        if(isset($workflowJson['actions'][$actionCommand]["shortcut"])){
+            $workflowJson = $this->getMetaDataJsonFile(FALSE, "workflow.json", $workflowJson['actions'][$actionCommand]["shortcut"]);
+        }
+        return $workflowJson['actions'][$actionCommand];
+
+    }
+
 }
 

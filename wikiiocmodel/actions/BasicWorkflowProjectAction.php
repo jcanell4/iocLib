@@ -76,40 +76,22 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
 
-        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
-
+        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataManagement = $metaDataQuery->getDataProject($id);
         $currentState = $metaDataManagement['workflow']['currentState'];
-        $workflowJson = $this->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
+        $workflowJson = $model->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
+        $remarks = $projectMetaData['projectMetaData']['cc_raonsModificacio'];
+        $this->model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
 
         $msgState = WikiIocLangManager::getLang('workflowState')[$newState];
         if ($currentState !== $newState) {
-            $newMetaData['changeDate'] = date("Y-m-d");
-            $newMetaData['oldState'] = $currentState;
-            $newMetaData['newState'] = $newState;
-            $newMetaData['changeAction'] = $actionCommand;
-            $newMetaData['user'] = WikiIocInfoManager::getInfo("userinfo")['name'];
-
-            $metaDataManagement['stateHistory'][] = $newMetaData;
-            $metaDataManagement['workflow']['currentState'] = $newState;
-
-            $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
             $message = self::generateInfo("info", "El canvi d'estat a '{$msgState}' ha finalitzat correctament.", $id);
             $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
         $message = self::generateInfo("info", "L'estat actual és: '{$msgState}'.", $id);
         $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
-    }
-    
-    protected function getCurrentWorkflowActionAttributes($currentState, $actionCommand){
-        $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
-        if(isset($workflowJson['actions'][$actionCommand]["shortcut"])){
-            $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $workflowJson['actions'][$actionCommand]["shortcut"]);
-        }        
-        return $workflowJson['actions'][$actionCommand];
-
     }
 
     protected function postResponseProcess(&$response) {
