@@ -961,7 +961,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }else if(is_array($data)){
             $seq = $this->isSequentialArray($data);
             foreach ($data as $key => $value) {
-                if(!array_key_exists($key, $blackList) || is_array($blackList[$key])){
+                if($blackList && !array_key_exists($key, $blackList) || is_array($blackList[$key])){
                     if($seq){
                        $data[$key] = $this->_trimData($value, $blackList);
                     }else{
