@@ -64,7 +64,7 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
             $newMetaData['user'] = WikiIocInfoManager::getInfo("userinfo")['name'];
             $newMetaData['remarks'] = $remarks;
 
-            $metaDataManagement['stateHistory'][] = $newMetaData;
+            $metaDataManagement['workflow']['stateHistory'][] = $newMetaData;
             $metaDataManagement['workflow']['currentState'] = $newState;
 
             $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
