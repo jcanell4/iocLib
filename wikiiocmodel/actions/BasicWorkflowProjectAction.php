@@ -83,7 +83,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $workflowJson = $model->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
         $remarks = $projectMetaData['projectMetaData']['cc_raonsModificacio'];
-        $this->model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
+        $model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
 
         $msgState = WikiIocLangManager::getLang('workflowState')[$newState];
         if ($currentState !== $newState) {
