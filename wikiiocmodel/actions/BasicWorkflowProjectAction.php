@@ -13,7 +13,14 @@ class BasicWorkflowProjectAction extends ProjectAction {
         }        
         $response = $action->get($this->params);
         $response["alternativeResponseHandler"] = $this->getAlternativeResponseHandler();
-        $this->stateProcess($response);
+        
+        $remarks = "canvi d'estat";
+        if ($this->params['data_validacio']) {
+            $remarks = "Data de validació: ".$this->params['data_validacio'];
+        }elseif ($this->params['motiu_rebuig']) {
+            $remarks = "Motiu del rebuig: ".$this->params['motiu_rebuig'];
+        }
+        $this->stateProcess($response, $remarks);
         return $response;
     }
     
@@ -67,7 +74,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         }
     }
 
-    protected function stateProcess(&$projectMetaData) {
+    protected function stateProcess(&$projectMetaData, $remarks="") {
         $model = $this->getModel();
         if ($this->params[ProjectKeys::KEY_ACTION] === ProjectKeys::KEY_RENAME && $this->params[ProjectKeys::KEY_NEWNAME]) {
             $path = substr($this->params[ProjectKeys::KEY_ID], 0, strrpos($this->params[ProjectKeys::KEY_ID], ":"));
@@ -82,7 +89,6 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $currentState = $metaDataManagement['workflow']['currentState'];
         $workflowJson = $model->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
-        $remarks = $projectMetaData['projectMetaData']['cc_raonsModificacio'];
         $model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
 
         $msgState = WikiIocLangManager::getLang('workflowState')[$newState];
