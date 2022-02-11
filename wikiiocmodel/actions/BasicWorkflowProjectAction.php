@@ -14,6 +14,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $response = $action->get($this->params);
         $response["alternativeResponseHandler"] = $this->getAlternativeResponseHandler();
         
+        //això bno pot estar aquí. És especific del workflow de programacions!
         $remarks = "canvi d'estat";
         if ($this->params['data_validacio']) {
             $remarks = "Data de validació: ".$this->params['data_validacio'];
