@@ -63,9 +63,7 @@ class WiocclFunction extends WiocclInstruction
     protected function resolveOnClose($result, $tokenEnd) {
         $this->init($result, $tokenEnd);
 
-        $sourceObject = new IocCommonFunctions();
-
-        $method = array($sourceObject, $this->functionName);
+        $method = array("IocCommonFunctions", $this->functionName);
         if(is_callable($method)){
             try{
                 $result = call_user_func_array($method, $this->arguments);

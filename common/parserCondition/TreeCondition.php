@@ -465,10 +465,7 @@ class FunctionInstruction extends AbstractInstruction
             $parsedParams[] = $this->parser->parse($params[$i], $arrays, $dataSource);
         }
 
-        $sourceObject = new IocCommonFunctions();
-
-
-        $method = array($sourceObject, $funcName);
+        $method = array("IocCommonFunctions", $funcName);
         if(is_callable($method)){
             try{
                 $result = call_user_func_array($method, $parsedParams);
