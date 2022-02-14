@@ -235,19 +235,19 @@ class ArrayInstruction extends AbstractInstruction
 
             // ALERTA!! Això no és correcte, si es troba una coma dins d'un literal també faria el explode!
 
-            $array = [];
+            $array = IocCommonFunctions::extractComaSeparatedValues($matches[1]);
 
-            $patternParams =  '/ ?(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)/m';
-            if (preg_match_all($patternParams, $matches[1], $matchParams,  PREG_SET_ORDER)) {
-
-                // El darrer element sempre és buit
-                for ($i =0; $i<count($matchParams)-1; $i++) {
-                    $value = $matchParams[$i][count($matchParams[$i])-1];
-                    if (count($matchParams[$i])>1 ) {
-                        $array[] = $value;
-                    }
-                }
-            }
+//            $patternParams =  '/ ?(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)/m';
+//            if (preg_match_all($patternParams, $matches[1], $matchParams,  PREG_SET_ORDER)) {
+//
+//                // El darrer element sempre és buit
+//                for ($i =0; $i<count($matchParams)-1; $i++) {
+//                    $value = $matchParams[$i][count($matchParams[$i])-1];
+//                    if (count($matchParams[$i])>1 ) {
+//                        $array[] = $value;
+//                    }
+//                }
+//            }
 
 
             //$array = explode(',', str_replace(', ', ',', $matches[1]));
@@ -457,20 +457,13 @@ class FunctionInstruction extends AbstractInstruction
 
         $funcName = $matches[1];
         // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
-        $parsedParams = $this->parser->parse($matches[2], $arrays, $dataSource);
-//        $params = explode(",", $matches[2]);
-//
-//        $parsedParams = [];
-//
-//        foreach ($params as $param) {
-//            $parsedParams[] = $this->parser->parse(trim($param), $arrays, $dataSource);
-//        }
 
-        // TODO: cridar a la funció amb els paràmetres
-        //call_user_func_array(callable $callback, array $param_arr): mixed
+        $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
-
-        //$aux = implode(",", $parsedParams);
+        $parsedParams = [];
+        for ($i =0; $i<count($params); $i++) {
+            $parsedParams[] = $this->parser->parse($params[$i], $arrays, $dataSource);
+        }
 
         $sourceObject = new IocCommonFunctions();
 
@@ -478,16 +471,13 @@ class FunctionInstruction extends AbstractInstruction
         $method = array($sourceObject, $funcName);
         if(is_callable($method)){
             try{
-                $result = call_user_func_array($method, [$parsedParams]);
-//                $result = call_user_func_array($method, $params);
+                $result = call_user_func_array($method, $parsedParams);
             } catch (Error $e){
                 $result = $e->getMessage();
             }
         }else{
             $result = "[ERROR! No existeix la funció ${$method[1]}]";
         }
-
-
 
         return $result;
 
