@@ -201,8 +201,10 @@ class LiteralInstruction extends AbstractInstruction
             $index = count($matches) - 1;
             $content = $matches[$index];
 
-            // Al normalizeArg() ja es fa la conversió dels strings a boolean, int o float
+            // ALERTA! encara que a normalizeArg() ja es fa la conversió dels strings a boolean, int o float
+            // es necessari fer aquí el tractament perquè si no no s'aplica als arrays
 
+            $content = IocCommonFunctions::normalizeArg($content);
 
             return $content;
 
@@ -231,6 +233,9 @@ class ArrayInstruction extends AbstractInstruction
             // ALERTA! la versió original retornava el mateix text, aquesta separa els elements
             // fa el parse de cadascun i retorna el string amb els valors finals
 
+            // ALERTA!! Això no és correcte, si es troba una coma dins d'un literal també faria el explode!
+
+
             $array = explode(',', str_replace(', ', ',', $matches[1]));
 
             $elements = [];
@@ -239,7 +244,8 @@ class ArrayInstruction extends AbstractInstruction
                 $elements[] = $this->parser->parse($element, $arrays, $dataSource);
             }
 
-            return "[" . implode(",", $elements) . "]";
+            return $elements;
+            //return "[" . implode(",", $elements) . "]";
 
         } else {
             return "[Bad Format: Array]";
@@ -436,20 +442,40 @@ class FunctionInstruction extends AbstractInstruction
         }
 
         $funcName = $matches[1];
-        $params = explode(",", $matches[2]);
-
-        $parsedParams = [];
-
-        foreach ($params as $param) {
-            $parsedParams[] = $this->parser->parse(trim($param), $arrays, $dataSource);
-        }
+        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
+        $parsedParams = $this->parser->parse($matches[2], $arrays, $dataSource);
+//        $params = explode(",", $matches[2]);
+//
+//        $parsedParams = [];
+//
+//        foreach ($params as $param) {
+//            $parsedParams[] = $this->parser->parse(trim($param), $arrays, $dataSource);
+//        }
 
         // TODO: cridar a la funció amb els paràmetres
         //call_user_func_array(callable $callback, array $param_arr): mixed
 
 
-        $aux = implode(",", $parsedParams);
-        return "[TODO: invocar funció -> $funcName($aux)";
+        //$aux = implode(",", $parsedParams);
+
+        $sourceObject = new IocCommonFunctions();
+
+
+        $method = array($sourceObject, $funcName);
+        if(is_callable($method)){
+            try{
+                $result = call_user_func_array($method, [$parsedParams]);
+//                $result = call_user_func_array($method, $params);
+            } catch (Error $e){
+                $result = $e->getMessage();
+            }
+        }else{
+            $result = "[ERROR! No existeix la funció ${$method[1]}]";
+        }
+
+
+
+        return $result;
 
     }
 

@@ -98,25 +98,27 @@ abstract class _LogicOperation
 
     protected function normalizeArg($arg)
     {
-        if (strtolower(trim($arg)) == 'true') {
-            return true;
-        } else if (strtolower(trim($arg)) == 'false') {
-            return false;
-            // ALERTA[Xavi] Això no era correcte, intval retorna fals per estrings
-//        } else if (is_int($arg)) {
-//            return intval($arg);
-        } else if (is_numeric($arg)) {
-            if (strpos($arg, '.')) {
-                return floatval($arg);
-            } else {
-                return intval($arg);
-            }
+        return IocCommonFunctions::normalizeArg($arg);
 
-        } else if (preg_match("/^\s*''(.*?)''\s*$/", $arg, $matches) === 1) {
-            return $this->normalizeArg($matches[1]);
-        } else {
-            return $arg;
-        }
+//        if (strtolower(trim($arg)) == 'true') {
+//            return true;
+//        } else if (strtolower(trim($arg)) == 'false') {
+//            return false;
+//            // ALERTA[Xavi] Això no era correcte, intval retorna fals per estrings
+////        } else if (is_int($arg)) {
+////            return intval($arg);
+//        } else if (is_numeric($arg)) {
+//            if (strpos($arg, '.')) {
+//                return floatval($arg);
+//            } else {
+//                return intval($arg);
+//            }
+//
+//        } else if (preg_match("/^\s*''(.*?)''\s*$/", $arg, $matches) === 1) {
+//            return $this->normalizeArg($matches[1]);
+//        } else {
+//            return $arg;
+//        }
 
     }
 }
@@ -336,8 +338,13 @@ class _ConditionOperation extends _LogicOperation
                 return $arg1 != $arg2;
 
             case 'in':
-                // el arg2 ha de ser un array
-                return in_array($arg1, json_decode($arg2));
+
+                // El array pot arribar com array o com string JSON
+                if (!is_array($arg2)) {
+                    $arg2 = json_decode($arg2);
+                }
+
+                return in_array($arg1, $arg2);
 
             default:
                 return $arg1 && $arg2;
