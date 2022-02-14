@@ -128,6 +128,36 @@ class CommonUpgrader {
     }
 
     /**
+     * Añade una nueva fila en un multirregistro
+     * @param array $data : array de datos original
+     * @param string $field : campo de tipo multirregistro
+     * @param string $newrow : nueva fila [clave=>valor, clave=>valor, ...]
+     * @return array de datos con la nueva fila añadida
+     */
+    public function addRowInMultiRow($data, $field, $newrow) {
+        $rama = (is_array($data[$field])) ? $data[$field] : json_decode($data[$field], TRUE);
+        $fila = (is_array($newrow)) ? $newrow : json_decode($newrow, TRUE);
+        if (!empty($fila)) {
+            $rama[] = $newrow;
+            $data[$field] = $rama;
+        }
+        return $data;
+    }
+
+    /**
+     * Añade una nueva fila en el multirregistro "cc_historic"
+     * @param array $dataProject : array de datos original
+     * @return array de datos con la nueva fila añadida
+     */
+    public function addRowUpgradeDocumentVersion($dataProject) {
+        $newrow = ['data' => date("Y-m-d"),
+                   'autor' => "by upgrade",
+                   'modificacions' => "actualització del document versió ${dataProject['documentVersion']}"];
+        $dataProject = $this->addRowInMultiRow($dataProject, "cc_historic", $newrow);
+        return $dataProject;
+    }
+
+    /**
      * Actualitza els camps calculats notaMinima??? a partir dels valors de la taula 'taulaInstrumentsAvaluacio'
      * @param array $data dades del projecte
      * @return dades del projecte amb les notaMinima??? actualitzades

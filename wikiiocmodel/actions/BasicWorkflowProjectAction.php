@@ -13,7 +13,15 @@ class BasicWorkflowProjectAction extends ProjectAction {
         }        
         $response = $action->get($this->params);
         $response["alternativeResponseHandler"] = $this->getAlternativeResponseHandler();
-        $this->stateProcess($response);
+        
+        //això bno pot estar aquí. És especific del workflow de programacions!
+        $remarks = "canvi d'estat";
+        if ($this->params['data_validacio']) {
+            $remarks = "Data de validació: ".$this->params['data_validacio'];
+        }elseif ($this->params['motiu_rebuig']) {
+            $remarks = "Motiu del rebuig: ".$this->params['motiu_rebuig'];
+        }
+        $this->stateProcess($response, $remarks);
         return $response;
     }
     
@@ -67,7 +75,7 @@ class BasicWorkflowProjectAction extends ProjectAction {
         }
     }
 
-    protected function stateProcess(&$projectMetaData) {
+    protected function stateProcess(&$projectMetaData, $remarks="") {
         $model = $this->getModel();
         if ($this->params[ProjectKeys::KEY_ACTION] === ProjectKeys::KEY_RENAME && $this->params[ProjectKeys::KEY_NEWNAME]) {
             $path = substr($this->params[ProjectKeys::KEY_ID], 0, strrpos($this->params[ProjectKeys::KEY_ID], ":"));
@@ -76,40 +84,21 @@ class BasicWorkflowProjectAction extends ProjectAction {
         $id = $this->params[ProjectKeys::KEY_ID];
         $subSet = "management";
 
-        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataQuery = $model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $this->params[ProjectKeys::KEY_PROJECT_TYPE]);
-
+        $actionCommand = $model->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataManagement = $metaDataQuery->getDataProject($id);
         $currentState = $metaDataManagement['workflow']['currentState'];
-        $workflowJson = $this->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
+        $workflowJson = $model->getCurrentWorkflowActionAttributes($currentState, $actionCommand);
         $newState = ($workflowJson['changeStateTo']) ? $workflowJson['changeStateTo'] : $currentState;
+        $model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
 
         $msgState = WikiIocLangManager::getLang('workflowState')[$newState];
         if ($currentState !== $newState) {
-            $newMetaData['changeDate'] = date("Y-m-d");
-            $newMetaData['oldState'] = $currentState;
-            $newMetaData['newState'] = $newState;
-            $newMetaData['changeAction'] = $actionCommand;
-            $newMetaData['user'] = WikiIocInfoManager::getInfo("userinfo")['name'];
-
-            $metaDataManagement['stateHistory'][] = $newMetaData;
-            $metaDataManagement['workflow']['currentState'] = $newState;
-
-            $metaDataQuery->setMeta(json_encode($metaDataManagement), $subSet, "canvi d'estat", NULL);
             $message = self::generateInfo("info", "El canvi d'estat a '{$msgState}' ha finalitzat correctament.", $id);
             $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
         }
         $message = self::generateInfo("info", "L'estat actual és: '{$msgState}'.", $id);
         $projectMetaData['info'] = self::addInfoToInfo($projectMetaData['info'], $message);
-    }
-    
-    protected function getCurrentWorkflowActionAttributes($currentState, $actionCommand){
-        $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $currentState);
-        if(isset($workflowJson['actions'][$actionCommand]["shortcut"])){
-            $workflowJson = $this->getModel()->getMetaDataJsonFile(FALSE, "workflow.json", $workflowJson['actions'][$actionCommand]["shortcut"]);
-        }        
-        return $workflowJson['actions'][$actionCommand];
-
     }
 
     protected function postResponseProcess(&$response) {
