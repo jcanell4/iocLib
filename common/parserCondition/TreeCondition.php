@@ -235,8 +235,22 @@ class ArrayInstruction extends AbstractInstruction
 
             // ALERTA!! Això no és correcte, si es troba una coma dins d'un literal també faria el explode!
 
+            $array = [];
 
-            $array = explode(',', str_replace(', ', ',', $matches[1]));
+            $patternParams =  '/ ?(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)/m';
+            if (preg_match_all($patternParams, $matches[1], $matchParams,  PREG_SET_ORDER)) {
+
+                // El darrer element sempre és buit
+                for ($i =0; $i<count($matchParams)-1; $i++) {
+                    $value = $matchParams[$i][count($matchParams[$i])-1];
+                    if (count($matchParams[$i])>1 ) {
+                        $array[] = $value;
+                    }
+                }
+            }
+
+
+            //$array = explode(',', str_replace(', ', ',', $matches[1]));
 
             $elements = [];
 
