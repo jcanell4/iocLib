@@ -8,7 +8,6 @@ if (!defined("DOKU_INC")) die();
 
 class SelectedProjectsAction extends AdminAction {
 
-    const OBRE_SPAN = '<span style="margin:20px;">';
     const OBRE_LI = '<li style="list-style-type:none; margin-left:20px;">';
 
     public function init($modelManager=NULL) {
@@ -33,7 +32,7 @@ class SelectedProjectsAction extends AdminAction {
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
                            PageKeys::KEY_TITLE => "Llista de projectes seleccionats i filtrats",
-                           PageKeys::KEY_CONTENT => $this->creaForm($llista)['html'],
+                           PageKeys::KEY_CONTENT => $this->setSelectedProjectsList($llista)['html'],
                            PageKeys::KEY_TYPE => "html_response_form"
                           ];
         return $this->response;
@@ -52,27 +51,11 @@ class SelectedProjectsAction extends AdminAction {
                 unset($grups[$key]);
             }
         }
-        return ['mainGroup' => $mainGroup, 'grups' => $grups, 'listProjectTypes' => $listProjectTypes];
-    }
-
-    private function setSelectedProjectsList($llista="") {
-        $html = '<h1 class="sectionedit1" id=dw__"'.$this->params[AjaxKeys::KEY_ID].'">Llista de projectes seleccionats</h1>'
-               .'<div class="level1"><p>Llista de projectes seleccionats amb condicions específiques</p></div>'
-               .'<div style="padding:10px; width:50%;"><ul>';
-        foreach ($llista as $elem) {
-            $id = $elem['id'];
-            $workflow = ($elem['workflow']) ? "workflow&action=view" : "view";
-            $html .= "<li>";
-            $html .= "<input name='checkbox_$id' type='checkbox' \>&nbsp;&nbsp;";
-            $html .= "<a href='lib/exe/ioc_ajax.php?call=project&do=$workflow&id=$id' data-call='project'>$id</a>";
-            $html .= "</li>";
-        }
-        $html .= "</ul></div>";
-        return $html;
+        return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes];
     }
 
     /** Construeix un formulari a partir d'una llista d'elements */
-    private function creaForm($llista="") {
+    private function setSelectedProjectsList($llista="") {
         $ret = [];
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['html'] = '<h1 class="sectionedit1" id=dw__"'.$this->params[AjaxKeys::KEY_ID].'">Llista de projectes seleccionats</h1>'
@@ -91,8 +74,6 @@ class SelectedProjectsAction extends AdminAction {
             $form->addElement("</li>");
         }
         $form->addElement("<div><p>&nbsp;</p>");
-        //$this->_creaBoto($form, "aplica", WikiIocLangManager::getLang('btn_apply'), ['id'=> "btn__aplica", 'data-query'=> $this->datacall]);
-        $this->_creaBoto($form, "aplica", "No toquis aquest botó", ['id'=> "btn__aplica", 'data-query'=> $this->datacall]);
         $form->addElement("</div>");
 
         $ret['html'] .= $form->getForm();
@@ -104,13 +85,6 @@ class SelectedProjectsAction extends AdminAction {
         $name = str_replace(":", "__", $name);
         $checkbox = form_makeCheckboxField("checkbox_$name", $valor, "");
         $form->addElement(form_checkboxfield($checkbox));
-    }
-
-    private function _creaBoto(&$form, $action, $title='', $attrs=array(), $type='submit') {
-        $button = form_makeButton($type, $action, $title, $attrs);
-        $form->addElement(self::OBRE_SPAN);
-        $form->addElement(form_button($button));
-        $form->addElement("</span>");
     }
 
 }
