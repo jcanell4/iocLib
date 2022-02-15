@@ -1070,6 +1070,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             case "array":
             case "table":
             case "any":
+            case "tree": // Nou tipus
                 break;
             case "object":
                 $ret["keys"] = $this->_getKeyDefFromObjectFieldType($type, $types);

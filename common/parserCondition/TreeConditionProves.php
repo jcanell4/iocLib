@@ -410,6 +410,13 @@ $tree = [
                 'IN_ARRAY(19, [1, 2, 3])'
             ]
         ],
+        "f16" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY("")'
+            ]
+        ],
         "array-x1" => [
             "type" => "conditions",
             "connector" => "",
@@ -796,6 +803,10 @@ updateCount('f14', $finalResult, TRUE, $success, $fail);
 $root = NodeFactory::getNode($tree['grups'], 'f15', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f15', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'f16', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f16', $finalResult, TRUE, $success, $fail);
 
 
 $total = $success + $fail;
