@@ -210,7 +210,8 @@ class LiteralInstruction extends AbstractInstruction
 
 
         } else {
-            return "[Bad Format: Literal]";
+//            return "[Bad Format: Literal]";
+            return null;
         }
 
     }
@@ -262,7 +263,8 @@ class ArrayInstruction extends AbstractInstruction
             //return "[" . implode(",", $elements) . "]";
 
         } else {
-            return "[Bad Format: Array]";
+//            return "[Bad Format: Array]";
+            return null;
         }
 
     }
@@ -284,7 +286,8 @@ class DateInstruction extends AbstractInstruction
             return $text;
 
         } else {
-            return "[Bad Format: Date]";
+//            return "[Bad Format: Date]";
+            return null;
         }
 
     }
@@ -308,7 +311,8 @@ class FieldInstruction extends AbstractInstruction
         if ($field !== NULL) {
             return $field;
         } else {
-            return "[Unknown Field: $text]";
+            return null;
+//            return "[Unknown Field: $text]";
         }
 
     }
@@ -326,7 +330,8 @@ class SubsetInstruction extends AbstractInstruction
     public function getValue($text = null, $arrays = [], $dataSource = [])
     {
         if (strpos($text, ".") === FALSE) {
-            return "[Bad Format: Subset]";
+            return null;
+//            return "[Bad Format: Subset]";
         }
 
         $tokens = explode(".", $text);
@@ -361,7 +366,8 @@ class ObjectInstruction extends AbstractInstruction
     public function getValue($text = null, $arrays = [], $dataSource = [])
     {
         if (strpos($text, "#") === FALSE) {
-            return "[Bad Format: Object]";
+//            return "[Bad Format: Object]";
+            return null;
         }
 
         $tokens = explode("#", $text);
@@ -374,7 +380,8 @@ class ObjectInstruction extends AbstractInstruction
         $prop = substr($prop, 1, strlen($prop)-2);
 
         if (!isset($arrays[$obj])) {
-            return "[Unknown Field: $obj]";
+            return null;
+//            return "[Unknown Field: $obj]";
         }
 
         $json = json_decode($arrays[$obj], true);
@@ -385,7 +392,8 @@ class ObjectInstruction extends AbstractInstruction
             // TODO: Determinar si hem de fer un parse del contingut?
             return $field;
         } else {
-            return "[Unknown Prop: $prop]";
+            return null;
+//            return "[Unknown Prop: $prop]";
         }
 
     }
@@ -407,14 +415,16 @@ class RowInstruction extends AbstractInstruction
     {
 
         if (!preg_match(self::$pattern, $text, $matches)) {
-            return "[Bad Format: Row]";
+            return null;
+//            return "[Bad Format: Row]";
         }
 
         $field = $matches[1];
         $index = is_numeric($matches[2]) ? intval($matches[2]) : $matches[2];
 
         if (!isset($arrays[$field])) {
-            return "[Unknown Field: $text]";
+            return null;
+//            return "[Unknown Field: $text]";
         }
 
         $value = $arrays[$field][$index];
@@ -429,7 +439,8 @@ class RowInstruction extends AbstractInstruction
 
         $json = json_decode($value, true);
 
-        $content = isset($json[$prop]) ? $json[$prop] : "[Unknown Prop: $prop]";
+        $content = isset($json[$prop]) ? $json[$prop] : null;
+//        $content = isset($json[$prop]) ? $json[$prop] : "[Unknown Prop: $prop]";
 
         return $content;
 
@@ -452,7 +463,8 @@ class FunctionInstruction extends AbstractInstruction
     {
 
         if (!preg_match(self::$pattern, $text, $matches)) {
-            return "[Bad Format: Function]";
+//            return "[Bad Format: Function]";
+            return null;
         }
 
         $funcName = $matches[1];
@@ -473,7 +485,8 @@ class FunctionInstruction extends AbstractInstruction
                 $result = $e->getMessage();
             }
         }else{
-            $result = "[ERROR! No existeix la funció ${$method[1]}]";
+//            $result = "[ERROR! No existeix la funció ${$method[1]}]";
+            $result = null;
         }
 
         return $result;
@@ -517,7 +530,8 @@ class _TreeParserCondition implements ParserDataInterface
             }
         }
 
-        return "[Unknown instruction for: $text]";
+//        return "[Unknown instruction for: $text]";
+        return null;
 
     }
 
