@@ -341,7 +341,8 @@ class SubsetInstruction extends AbstractInstruction
 
 
         if (!isset($dataSource[$subset])) {
-            return "[Unknown Subset : $subset]";
+            return null;
+            //return "[Unknown Subset : $subset]";
         }
 
         // TODO: El parse del subset fa un parse de la següent part,
@@ -537,8 +538,10 @@ class _TreeParserCondition implements ParserDataInterface
 
     public function getValue($text = null, $arrays = [], $dataSource = [], &$resetables = NULL, $generateRoot = TRUE)
     {
-        // ALERTA! Aquest no es fa servir, sembla que només el crida el Wioccl (a la classe original)
-        return "TODO value\n";
+        // Es crida quan a la condició la expressió s'avalua com un literal, per exemple en el cas de les funcions
+        // sense operador ni segón argument.
+        return $this->parse($text, $arrays, $dataSource, $resetables, $generateRoot);
+//        return "TODO value\n";
     }
 }
 
