@@ -326,6 +326,48 @@ $tree = [
                 'SUMA(2, 3)===5'
             ]
         ],
+        "f4" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(camp1)===true'
+            ]
+        ],
+        "f5" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(empty)===true'
+            ]
+        ],
+        "f6" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(camp1)===false'
+            ]
+        ],
+        "f7" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(empty)===false'
+            ]
+        ],
+        "f8" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(camp1)'
+            ]
+        ],
+        "f9" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(empty)'
+            ]
+        ],
         "array-x1" => [
             "type" => "conditions",
             "connector" => "",
@@ -355,6 +397,7 @@ $arrays = [
     'camp1' => 'valor1',
     'camp5' => 'valor3',
     'camp3' => 'valor2',
+    'empty' => '',
     'camp10' => 10,
     'camp12' => 5,
     'camp20' => 100,
@@ -644,6 +687,39 @@ updateCount('array-x2', $finalResult, TRUE, $success, $fail);
 $root = NodeFactory::getNode($tree['grups'], 'array-x3', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('array-x3', $finalResult, FALSE, $success, $fail);
+
+
+
+/// Test 46: funcions. Esperat TRUE
+$root = NodeFactory::getNode($tree['grups'], 'f4', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f4', $finalResult, FALSE, $success, $fail);
+
+/// Test 46: funcions. Esperat TRUE
+$root = NodeFactory::getNode($tree['grups'], 'f5', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f5', $finalResult, TRUE, $success, $fail);
+
+
+/// Test 46: funcions. Esperat TRUE
+$root = NodeFactory::getNode($tree['grups'], 'f6', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f6', $finalResult, TRUE, $success, $fail);
+
+/// Test 46: funcions. Esperat TRUE
+$root = NodeFactory::getNode($tree['grups'], 'f7', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f7', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'f8', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f8', $finalResult, FALSE, $success, $fail);
+
+/// Test 46: funcions. Esperat TRUE
+$root = NodeFactory::getNode($tree['grups'], 'f9', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('f9', $finalResult, TRUE, $success, $fail);
+
 
 
 $total = $success + $fail;
