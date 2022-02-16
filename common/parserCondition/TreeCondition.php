@@ -160,7 +160,7 @@ abstract class AbstractInstruction
 
     public function __construct($parser)
     {
-        $this->parser = $parser;
+            $this->parser = $parser;
     }
 
     abstract static public function match($text);
@@ -296,7 +296,6 @@ class DateInstruction extends AbstractInstruction
 class FieldInstruction extends AbstractInstruction
 {
     static public $className = "FieldInstruction";
-    protected $pattern = "/\d\d\d\d-\d\d-\d\d/ms";
 
     static public function match($text)
     {
@@ -309,6 +308,14 @@ class FieldInstruction extends AbstractInstruction
         $field = $arrays[$text];
 
         if ($field !== NULL) {
+
+            // Només fem parse si es tracta d'un array
+            if (substr($text,0, 1) == "[" && substr($text, -1, 1) =="]") {
+                $field = $this->parser->parse($field, $arrays, $dataSource);
+            } else if ($field==="[]") {
+                $field = [];
+            }
+
             return $field;
         } else {
             return null;
@@ -371,14 +378,12 @@ class ObjectInstruction extends AbstractInstruction
             return null;
         }
 
-        $tokens = explode("#", $text);
+        $tokens = explode("#", $text, 2);
         // fem servir el datasource, el primer token és el camp
         $obj = $tokens[0];
         $prop = $tokens[1];
 
-        // La clau sempre ha d'anar entre cometes dobles (JSON), per tant s'ha de treure
-        // el primer i el darrer caràcter de la clau
-        $prop = substr($prop, 1, strlen($prop)-2);
+        $prop = substr($prop, 0, strlen($prop));
 
         if (!isset($arrays[$obj])) {
             return null;
@@ -428,7 +433,20 @@ class RowInstruction extends AbstractInstruction
 //            return "[Unknown Field: $text]";
         }
 
-        $value = $arrays[$field][$index];
+        $content = $arrays[$field];
+
+        if ($content === "[]") {
+            $content = [];
+        } else if (is_string($content) && substr($content,0, 1) == "[" && substr($content, -1, 1) =="]") {
+            // si no era un array ha de ser un string amb fomra "[...]"
+            $content = $this->parser->parse($content, $arrays, $dataSource);
+        } else if (!is_array($content)){
+            // es erroni
+            return null;
+        }
+
+        $value = $content[$index];
+
 
         $propPos = strpos($text, "#");
         if ($propPos === FALSE){

@@ -52,14 +52,14 @@ $tree = [
             "connector" => "or",
             "elements" => [
                 "camp1==='valor1'",
-                'camp5!="valor3"',
+                'camp5!=="valor3"',
             ]
         ],
         "g1" => [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'camp3!="valor2"'
+                'camp3!=="valor2"'
             ]
         ],
         "ag0" => [
@@ -133,21 +133,21 @@ $tree = [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'obj1#"unitat formativa"==="1"'
+                'obj1#unitat formativa==="1"'
             ]
         ],
         "object2" => [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'obj1#"nom"==="Introducció al programari de base i a la virtualització"'
+                'obj1#nom==="Introducció al programari de base i a la virtualització"'
             ]
         ],
         "object3" => [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'obj1#"nom"==="null"'
+                'obj1#nom==="null"'
             ]
         ],
         "aObject1" => [
@@ -168,14 +168,14 @@ $tree = [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'obj1#"nom"===main.obj1#"nom"'
+                'obj1#nom===main.obj1#nom'
             ]
         ],
         "object5" => [
             "type" => "conditions",
             "connector" => "",
             "elements" => [
-                'obj1#"nom"===s2.obj2#"nom"'
+                'obj1#nom===s2.obj2#nom'
             ]
         ],
         "l1" => [
@@ -438,7 +438,83 @@ $tree = [
                 '"no" in ["no, adeu", "3", 4, camp12]'
             ]
         ],
-
+        "not-1" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY("")!=true'
+            ]
+        ],
+        "not-2" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY("aaa")!==true'
+            ]
+        ],
+        "not-3" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY("")!==true'
+            ]
+        ],
+        "not-4" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY("aaa")!==true'
+            ]
+        ],
+        "workflow-1" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'management.workflow#currentState!=="validated"'
+            ]
+        ],
+        "workflow-2" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'management.workflow#currentState!=="foobar"'
+            ],
+        ],
+        "workflow-3" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'management.workflow#currentState==="validated"'
+            ]
+        ],
+        "sr1" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'camp300[0]===10'
+            ]
+        ],
+        "sr2" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'camp300[1]===10'
+            ]
+        ],
+        "sr3" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(camp300)!==true'
+            ]
+        ],
+        "sr4" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'IS_STR_EMPTY(array_buit)!==true'
+            ]
+        ],
     ]
 
 ];
@@ -452,13 +528,18 @@ $arrays = [
     'camp20' => 100,
     'camp21' => TRUE,
     'camp30' => [10, 20, 30],
+    'camp300' => "[10, 20, 30]",
     'obj1' => '{"unitat formativa":"1","nucli formatiu":"1","nom":"Introducció al programari de base i a la virtualització","hores":"16","unitat al pla de treball":"1"}',
     'obj30' => [
-    '{"unitat formativa":"1","nucli formatiu":"1","nom":"Introducció al programari de base i a la virtualització","hores":"16","unitat al pla de treball":"1"}',
-    '{"unitat formativa":"1","nucli formatiu":"3","nom":"Administració de programari de base lliure","hores":"30","unitat al pla de treball":"3"}',
+        '{"unitat formativa":"1","nucli formatiu":"1","nom":"Introducció al programari de base i a la virtualització","hores":"16","unitat al pla de treball":"1"}',
+        '{"unitat formativa":"1","nucli formatiu":"3","nom":"Administració de programari de base lliure","hores":"30","unitat al pla de treball":"3"}',
     ],
+    'array_buit' => "[]",
 ];
 $datasource = [
+    'management' => [
+        'workflow' => '{"currentState":"validated"}'
+    ],
     'main' => [
         'camp1' => 1,
         'camp5' => 'valor2',
@@ -738,24 +819,21 @@ $finalResult = $root->getValue();
 updateCount('array-x3', $finalResult, FALSE, $success, $fail);
 
 
-
-/// Test 46: funcions. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f4', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f4', $finalResult, FALSE, $success, $fail);
 
-/// Test 46: funcions. Esperat TRUE
+
 $root = NodeFactory::getNode($tree['grups'], 'f5', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f5', $finalResult, TRUE, $success, $fail);
 
 
-/// Test 46: funcions. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f6', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f6', $finalResult, TRUE, $success, $fail);
 
-/// Test 46: funcions. Esperat TRUE
+
 $root = NodeFactory::getNode($tree['grups'], 'f7', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f7', $finalResult, FALSE, $success, $fail);
@@ -764,49 +842,94 @@ $root = NodeFactory::getNode($tree['grups'], 'f8', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f8', $finalResult, FALSE, $success, $fail);
 
-/// Test 46: funcions. Esperat TRUE
+
 $root = NodeFactory::getNode($tree['grups'], 'f9', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f9', $finalResult, TRUE, $success, $fail);
 
 
-/// Test 46: funcions. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f10', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f10', $finalResult, TRUE, $success, $fail);
 
 
-/// Test 46: funcions. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f11', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f11', $finalResult, FALSE, $success, $fail);
 
 
-/// Test 46: funcions. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f12', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f12', $finalResult, TRUE, $success, $fail);
 
 
-/// Test 46: funcions ARRAY BUIT. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f13', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f13', $finalResult, FALSE, $success, $fail);
 
-/// Test 46: funcions. Esperat TRUE
+
 $root = NodeFactory::getNode($tree['grups'], 'f14', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f14', $finalResult, TRUE, $success, $fail);
 
 
-/// Test 46: funcions ARRAY BUIT. Esperat TRUE
 $root = NodeFactory::getNode($tree['grups'], 'f15', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f15', $finalResult, FALSE, $success, $fail);
 
+
 $root = NodeFactory::getNode($tree['grups'], 'f16', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('f16', $finalResult, TRUE, $success, $fail);
+
+
+$root = NodeFactory::getNode($tree['grups'], 'not-1', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('not-1', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'not-2', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('not-2', $finalResult, TRUE, $success, $fail);
+
+
+$root = NodeFactory::getNode($tree['grups'], 'not-3', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('not-3', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'not-4', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('not-4', $finalResult, TRUE, $success, $fail);
+
+
+$root = NodeFactory::getNode($tree['grups'], 'workflow-1', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('workflow-1', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'workflow-2', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('workflow-2', $finalResult, TRUE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'workflow-3', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('workflow-3', $finalResult, TRUE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'sr1', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('sr1', $finalResult, TRUE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'sr2', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('sr2', $finalResult, FALSE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'sr3', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('sr3', $finalResult, TRUE, $success, $fail);
+
+
+$root = NodeFactory::getNode($tree['grups'], 'sr4', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('sr4', $finalResult, FALSE, $success, $fail);
+
 
 
 $total = $success + $fail;
