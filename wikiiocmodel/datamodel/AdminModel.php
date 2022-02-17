@@ -71,6 +71,21 @@ class AdminModel extends AbstractWikiModel {
         return $this->getProjectMetaDataQuery()->isProjectTypeWorkflow($projectType);
     }
 
+    /**
+     * Obtiene la lista usuarios del proyecto que tienen los roles indicados
+     * @param array $rols : lista de roles a buscar
+     * @return string Lista de usuarios del proyecto correspondientes a los roles indicados
+     */
+    public function getUserRol($rols, $id=NULL, $projectType=NULL) {
+        $id = empty($id) ? $this->getId(): $id;
+        $projectType = empty($projectType) ? $this->getProjectType($id): $projectType;
+        $data = $this->projectMetaDataQuery->getDataProject($id, $projectType, NULL);
+        foreach ($rols as $rol) {
+            $users .= $data[$rol] . ",";
+        }
+        return trim($users, ",");
+    }
+
     public function getData() {
         throw new UnavailableMethodExecutionException();
     }
