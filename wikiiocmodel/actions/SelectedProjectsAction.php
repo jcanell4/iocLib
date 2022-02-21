@@ -40,7 +40,7 @@ class SelectedProjectsAction extends AdminAction {
 
     private function parser($G) {
         $listProjectTypes = [];
-        $grups = (is_string($G)) ? json_decode($G, true) : $G;
+        $grups = (is_string($G)) ? json_decode(str_replace("'", '"', $G), true) : $G;
         $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
             if (preg_match("/grup_(.*)/", $key, $g)) {
