@@ -144,7 +144,7 @@ class _TreeCondition extends _BaseCondition
 
     public function __construct($strCondition)
     {
-        $parser = new _TreeParserCondition();
+        $parser = new TreeParserCondition();
         parent::__construct($strCondition, $parser);
     }
 
@@ -312,11 +312,10 @@ class FieldInstruction extends AbstractInstruction
             // Només fem parse si es tracta d'un array
             if (substr($text,0, 1) == "[" && substr($text, -1, 1) =="]") {
                 $field = $this->parser->parse($field, $arrays, $dataSource);
-            } else if ($field==="[]") {
-                $field = [];
             }
 
             return $field;
+
         } else {
             return null;
 //            return "[Unknown Field: $text]";
@@ -435,9 +434,7 @@ class RowInstruction extends AbstractInstruction
 
         $content = $arrays[$field];
 
-        if ($content === "[]") {
-            $content = [];
-        } else if (is_string($content) && substr($content,0, 1) == "[" && substr($content, -1, 1) =="]") {
+        if (is_string($content) && substr($content,0, 1) == "[" && substr($content, -1, 1) =="]") {
             // si no era un array ha de ser un string amb fomra "[...]"
             $content = $this->parser->parse($content, $arrays, $dataSource);
         } else if (!is_array($content)){
@@ -508,13 +505,15 @@ class FunctionInstruction extends AbstractInstruction
             $result = null;
         }
 
+        $result = TreeParserCondition::normalizeValue($result);
+
         return $result;
 
     }
 
 }
 
-class _TreeParserCondition implements ParserDataInterface
+class TreeParserCondition implements ParserDataInterface
 {
 
     private $instructions;
@@ -539,13 +538,16 @@ class _TreeParserCondition implements ParserDataInterface
             FieldInstruction::$className,
 
         ];
+
+
     }
 
     public function parse($text = null, $arrays = [], $dataSource = [], &$resetables = NULL, $generateRoot = TRUE)
     {
         foreach ($this->instructions as $instruction) {
             if (call_user_func([$instruction, 'match'], $text)) {
-                return (new $instruction($this))->getValue($text, $arrays, $dataSource);
+//                return (new $instruction($this))->getValue($text, $arrays, $dataSource);
+                return self::normalizeValue((new $instruction($this))->getValue($text, $arrays, $dataSource));
             }
         }
 
@@ -559,7 +561,17 @@ class _TreeParserCondition implements ParserDataInterface
         // Es crida quan a la condició la expressió s'avalua com un literal, per exemple en el cas de les funcions
         // sense operador ni segón argument.
         return $this->parse($text, $arrays, $dataSource, $resetables, $generateRoot);
-//        return "TODO value\n";
+
+    }
+
+    public static function normalizeValue($text = null)
+    {
+
+        if ($text==="[]") {
+            return [];
+        }
+
+        return $text;
     }
 }
 

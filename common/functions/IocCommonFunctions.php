@@ -2,6 +2,23 @@
 
 class IocCommonFunctions
 {
+    public static function extractComaSeparatedValues($text)
+    {
+        $array = [];
+        $patternParams =  '/ ? ?(\[.*?\])|(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)|/m';
+        if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
+
+            // El darrer element sempre és buit
+            for ($i =0; $i<count($matchParams)-1; $i++) {
+                $value = $matchParams[$i][count($matchParams[$i])-1];
+                if (count($matchParams[$i])>1 ) {
+                    $array[] = $value;
+                }
+            }
+        }
+
+        return $array;
+    }
 
     protected function COUNTINARRAY($array, $fields, $values = NULL, $strict = false)
     {
@@ -106,8 +123,11 @@ class IocCommonFunctions
             }
         } else {
             $ret = $array[$key];
+
+
         }
-        return self::_normalizeValue($ret);
+        return $ret;
+//        return self::_normalizeValue($ret);
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -164,7 +184,8 @@ class IocCommonFunctions
         } else {
             $key = array_search($toSearch, $array);
         }
-        return self::_normalizeValue($key);
+        return $key;
+//        return self::_normalizeValue($key);
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -184,7 +205,9 @@ class IocCommonFunctions
             }
         }
         $ret = isset($array[$key]) ? $array[$key] : $defaultValue;
-        return self::_normalizeValue($ret);
+
+        return $ret;
+//        return self::_normalizeValue($ret);
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
@@ -240,17 +263,17 @@ class IocCommonFunctions
         return static::formatItem($array[count($array) - 1], 'LAST', $template);
     }
 
-    private static function _normalizeValue($ret)
-    {
-        if (is_array($ret) || is_object($ret)) {
-            $ret = json_encode($ret);
-        } else if (is_bool($ret)) {
-            $ret = $ret ? "true" : "false";
-//        }else if(is_string($ret)){
-//            $ret = "\"$ret\"";
-        }
-        return $ret;
-    }
+//    private static function _normalizeValue($ret)
+//    {
+//        if (is_array($ret) || is_object($ret)) {
+//            $ret = json_encode($ret);
+//        } else if (is_bool($ret)) {
+//            $ret = $ret ? "true" : "false";
+////        }else if(is_string($ret)){
+////            $ret = "\"$ret\"";
+//        }
+//        return $ret;
+//    }
 
     private static function _arrayFilter($element, $value, $field = false, $strict = false)
     {
@@ -472,7 +495,7 @@ class IocCommonFunctions
                 }
             }
         }
-        $ret = self::_normalizeValue($ret);
+//        $ret = self::_normalizeValue($ret);
         return $ret;
     }
 
@@ -606,6 +629,9 @@ class IocCommonFunctions
             return true;
         } else if (strtolower(trim($arg)) == 'false') {
             return false;
+            // ALERTA[Xavi] Això no era correcte, intval retorna fals per estrings
+//        } else if (is_int($arg)) {
+//            return intval($arg);
         } else if (is_numeric($arg)) {
             if (strpos($arg, '.')) {
                 return floatval($arg);
@@ -620,23 +646,4 @@ class IocCommonFunctions
         }
 
     }
-
-    public static function extractComaSeparatedValues($text)
-    {
-        $array = [];
-        $patternParams =  '/ ? ?(\[.*?\])|(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)|/m';
-        if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
-
-            // El darrer element sempre és buit
-            for ($i =0; $i<count($matchParams)-1; $i++) {
-                $value = $matchParams[$i][count($matchParams[$i])-1];
-                if (count($matchParams[$i])>1 ) {
-                    $array[] = $value;
-                }
-            }
-        }
-
-        return $array;
-    }
-
 }
