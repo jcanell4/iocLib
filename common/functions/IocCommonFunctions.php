@@ -20,7 +20,7 @@ class IocCommonFunctions
         return $array;
     }
 
-    protected function COUNTINARRAY($array, $fields, $values = NULL, $strict = false)
+    public static function COUNTINARRAY($array, $fields, $values = NULL, $strict = false)
     {
         if ($values == NULL) {
             $values = $fields;
