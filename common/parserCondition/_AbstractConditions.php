@@ -299,13 +299,11 @@ class _ConditionOperation extends _LogicOperation
         if (preg_match('/(.*?)([><=!]={0,2}| in )(.*)/', $value, $matches) === 1) {
             // ALERTA: Actualment el token amb > arriba tallat perquè l'identifica com a tancament del token d'apertura
 
-            $arg1 = $matches[1];
-            $arg2 = $matches[3];
+            $arg1 = trim($matches[1]);
+            $arg2 = trim($matches[3]);
             $operator = trim($matches[2]);
 
-
             return [$arg1, $operator, $arg2];
-//            throw new Exception("Incorrect condition structure");
         };
         return null;
     }

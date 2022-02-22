@@ -1269,7 +1269,7 @@ class ProjectMetaDataQuery extends DataQuery {
             $filename = $this->getFileName($id, [ProjectKeys::KEY_PROJECT_TYPE=>$projectType, ProjectKeys::KEY_METADATA_SUBSET=>$subset]);
             $jsonData = $this->_getMeta($filename);
             if ($jsonData!==NULL) {
-                $data = array_merge($data, json_decode($jsonData, TRUE));
+                $data[$subset] = json_decode($jsonData, TRUE);
             }
         }
         return $data;
