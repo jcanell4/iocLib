@@ -295,6 +295,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
         $rows = $newRows;
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
+
             // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
             // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
 
@@ -305,65 +306,20 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
             // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
 
-
             if ($rowIndex < count($rows) && preg_match($patternOpen, $rows[$rowIndex], $match)) {
 
                 $refId = $match[1];
-//                $mainRefId = $refId;
+                $refOpen = '[ref=' . $refId . ']';
+                $refClose = '[/ref=' . $refId . ']';
 
-                // S'ha de fer una comprovació similar a l'anterior però cercant el tancament
-                //$patternClose = "/^(?:\[\/ref=\d+\])*\[\/ref=" . $refId . "\]/ms";
-                $patternClose = "/\[\/ref=" . $refId . "\]/ms";
-
-
-                // ALERTA! Un foreach pot inclorue múltiples files per iteració, cerquem el tancament en totes les línies posteriors
-                // ALERTA! si no es troba el tancament no cal fer res, no és un foreach
-
-                $closingIndex = -1;
-                for ($i = $rowIndex + 1; $i < count($rows); $i++) {
-                    $foundClose = preg_match($patternClose, $rows[$i], $matchClose);
-
-                    // ALERTA! Problema detectat! quan hi ha més d'un element al foreach el tancament s'ha de fer a
-                    // la última i no a la primera! així doncs s'han de recorrer tots els elements de la taula
-                    if ($foundClose) {
-                        $closingIndex = $i;
-//                        break;
-                    }
-                }
-
-                // ALERTA! EXCEPCIÓ: pot ser  un foreach-buit que es troba com a últim element d'una taula
-
-                if ($rowIndex == count($rows) - 1) {
-                    $foundClose = preg_match($patternClose, $rows[$rowIndex], $matchClose);
-                    if ($foundClose) {
-                        $closingIndex = $i;
-                    }
-                }
+                $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
 
 
-                if ($closingIndex !== -1) {
-                    $refOpen = '[ref=' . $refId . ']';
-                    $refClose = '[/ref=' . $refId . ']';
-
-                    $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
-                    $rows[$closingIndex] = str_replace($refClose, '', $rows[$closingIndex]);
-//                    $rowAttrs[$rowIndex]['data-wioccl-ref'] = $refId;
-
-
-                    // La fila on s'ha trobat el tancament no s'inclou
-                    for ($i = $rowIndex; $i < $closingIndex; $i++) {
-
-                        // Canvi de sistema, desem només la última referència
-//                        if (!isset($rowAttrs[$i]['data-wioccl-ref'])) {
-//                            $rowAttrs[$i]['data-wioccl-ref'] = [];
-//                        } else {
-//                            // ALERTA! ja existeix, això sempre ha de contenir només 1 referència (la idea anterior era fer servir una llista de ids separada per comes però ho vam canviar)
-//                            $test = false;
-//                        }
-//                        $rowAttrs[$i]['data-wioccl-ref'][] = $refId;
-
-                        $rowAttrs[$i]['data-wioccl-ref'] = $refId;
-                    }
+                // S'afegeix l'atribut a cada fila. Ja no controlem si hi ha tancament perquè hi ha casos
+                // en que el tancament es fa al final d'un bloc de files, per exemple un subset o una taula
+                // amb múltiples foreach
+                for ($i = $rowIndex; $i < count($rows); $i++) {
+                    $rowAttrs[$i]['data-wioccl-ref'] = $refId;
                 }
 
             }

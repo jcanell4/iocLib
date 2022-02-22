@@ -931,8 +931,6 @@ $finalResult = $root->getValue();
 updateCount('sr4', $finalResult, FALSE, $success, $fail);
 
 
-echo "PROVA! afegir [] al que arribi i fer un json_decode, el primer element ha de estar parsejat";
-
 
 
 
