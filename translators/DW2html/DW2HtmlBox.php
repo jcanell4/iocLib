@@ -227,13 +227,21 @@ class DW2HtmlBox extends DW2HtmlInstruction
         $pre .= '<b contenteditable="false" data-dw-field="id">ID:</b> ' . $this->parseContent($id) . "<br>\n";
         $pre .= '</a>';
 
-        if (isset($fields['title'])) {
-            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $this->parseContent($fields['title']) . "<br>\n";
+        $replacements = ["title" => "Títol", "footer" => "Peu", "width" => "Amplada de columna"];
+
+        foreach ($fields as $key => $field) {
+            $label = in_array($key, $replacements) ? $replacements[$key] : $key;
+            $pre .= '<b contenteditable="false" data-dw-field="' . $key. '">' . $label. ':</b> ' . $this->parseContent($field) . "<br>\n";
         }
 
-        if (isset($fields['footer'])) {
-            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $this->parseContent($fields['footer']) . "<br>\n";
-        }
+//        if (isset($fields['title'])) {
+//            $pre .= '<b contenteditable="false" data-dw-field="title">Títol:</b> ' . $this->parseContent($fields['title']) . "<br>\n";
+//        }
+//
+//        if (isset($fields['footer'])) {
+//            $pre .= '<b contenteditable="false" data-dw-field="footer">Peu:</b> ' . $this->parseContent($fields['footer']) . "<br>\n";
+//        }
+
 
         $pre .= '</div>';
 
@@ -338,6 +346,9 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         $rowAttrs = [];
 
+        $preRows = [];
+        $postRows = [];
+
 //        $mainRefId = -1;
 
         // ALERTA! el ^ es clau perquè volem ignorar el tancament de ref que pertany a la línia anterior
@@ -373,13 +384,14 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
 
-            // Fem el parse del prefref si hi ha
-            if (isset($preRefs[$rowIndex])) {
-                // només es processen per actualitzar l'stack, no cal retornar res
-                $discard = $this->parseContent($preRefs[$rowIndex], false);
-            }
+            $preRow = '';
+            $postRow = '';
+
 
             // si escau desem el top del stack de la estructura com atribut
+
+
+
 
             $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
             if ($refId>0) {
@@ -422,6 +434,15 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
             // dividim les files en cel.les
             $cols = preg_split("/[\|\^]/", $rows[$rowIndex]);
+
+            // Fem el parse del prefref si hi ha
+            if (isset($preRefs[$rowIndex])) {
+                // el retorn serà spans, però ha de ser un tr amb totes les cel·les
+                $preRow = $this->parseContent($preRefs[$rowIndex], false);
+                $preRow = '<tr class="discardable"><td = colspan="'.count($cols).'">' . $preRow.'</td></tr>';
+            }
+
+
 
 
             array_pop($cols);
@@ -528,9 +549,13 @@ class DW2HtmlBox extends DW2HtmlInstruction
             // Processem els postrefs per actualitzar els tancaments
             if (isset($postRefs[$rowIndex])) {
                 // només es processen per actualitzar l'stack, no cal retornar res
-                $discard = $this->parseContent($postRefs[$rowIndex], false);
+                $postRow = $this->parseContent($postRefs[$rowIndex], false);
+                $postRow = '<tr class="discardable"><td colspan="'.count($cols).'">' . $postRow .'</td></tr>';
             }
 
+            $preRows[] = $preRow;
+            $postRows[] = $postRow;
+            // TODO: Com s'afegeix el postrow i prerow  a la taula??
         }
 
         $this->parsingContent = false;
@@ -542,11 +567,11 @@ class DW2HtmlBox extends DW2HtmlInstruction
 //        }
 
 //        return $this->makeTable($table, $rowAttrs, $mainRefId);
-        return $this->makeTable($table, $rowAttrs);
+        return $this->makeTable($table, $rowAttrs, $preRows, $postRows);
     }
 
 
-    protected function makeTable($tableData, $rowAttrs)
+    protected function makeTable($tableData, $rowAttrs, $preRows, $postRows)
     {
 
         $table = '<table data-dw-cols="' . count($tableData[0]) . '">';
@@ -577,6 +602,8 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
 
         for ($rowIndex = 0; $rowIndex < $len; $rowIndex++) {
+
+            $table .= $preRows[$rowIndex];
 
             // TODO: comprovar si és correcte en tots els casos
             if (!isset($tableData[0][$rowIndex])) {
@@ -675,6 +702,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
             $table .= '</tr>';
 
+            $table .= $postRows[$rowIndex];
         }
 
         $table .= '</table>';
