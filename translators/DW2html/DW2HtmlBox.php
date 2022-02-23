@@ -246,14 +246,86 @@ class DW2HtmlBox extends DW2HtmlInstruction
     {
 
         // Dividim el contingut en files
-        preg_match_all('/^(.*?[\|\^])]?$/ms', $content, $matchesRow);
-//        preg_match_all('/^(.*?)$/ms', $content, $matchesRow);
+        // Aquesta no captura les files que només contenen refs
+//        preg_match_all('/^(.*?[\|\^])]?$/ms', $content, $matchesRow);
 
-        $rows = $matchesRow[1];
+        preg_match_all('/^(.*?[\|\^])$]?|(\[.*?\])$/ms', $content, $matchesRow);
+
+        // a $matchesRow[1] es troben les línies de taula
+        // a $matchesRow[2] es troben les línies que només contenen refs
+
+        $rows = [];
+        $preRefs = [];
+        $postRefs = [];
+
+        if (count($matchesRow)==2) {
+            $rows = $matchesRow[1];
+        } else if (count($matchesRow)==3) {
+            for ($i =0; $i<count($matchesRow[1]); $i++) {
+                if (empty($matchesRow[1][$i])) {
+                    // És una fila que només conté $refs
+                    $rows[$i] = $matchesRow[2][$i];
+                    $preRefs[$i] = $matchesRow[2][$i]; // només es processaran com $prerefs
+                } else {
+                    // LA fila pot contenir prefrefs i postrefs
+                    $raw = $matchesRow[1][$i];
+                    $len = strlen($raw);
+
+                    $startPos = 0;
+                    $endPos = 0;
+                    if (preg_match_all ("/\||\^/ms", $raw, $posMatches, PREG_OFFSET_CAPTURE)) {
+                        $startPos = $posMatches[0][0][1];
+                        // TODO: a quin index correspon el darrer element trobat?? assignar al $end
+
+                        $endPos = $posMatches[0][count($posMatches[0])-1][1];
+                    }
+
+                    if ($startPos > 0) {
+                        // TODO: s'ha de capturar el contingut fins la posició $start i afegir-la al prerefs
+                        $preRefs[$i] = substr($raw, 0, $startPos);
+                    }
+
+                    if ($endPos<$len-1) {
+                        // TODO: capturar el contingut des de $endpos fins al final i afegir-la al postrefs
+                        $endLen = $len - $endPos -1;
+                        $postRefs[$i] = substr($raw, $endPos, $endLen);
+                    } else {
+                        $endLen = 0;
+                    }
+
+                    // TODO: retallem el contingut
+
+                    $cropLen = $len - $startPos - $endLen;
+                    $raw = substr($raw, $startPos, $cropLen);
+
+                    $rows[$i] = $raw;
+                }
+            }
+        } else {
+            // El cas restant es que no s'hagi trobat cap fila
+        }
+
+//        $rows = $matchesRow[1];
 
         $table = [];
 
         $this->parsingContent = true;
+
+
+        // PROBLEMES AMB ELS REFS: S'han de processar els que hi han al principi i al final de cada fila
+        //  tots els refs que hi hagin des-del principi de la fila fins al primer | o ^
+        //  tots els refs que hi hagin des-del darrer | o ^ fins al final de la fila <-- compte amb les files amb
+        //      multi línia! els refs s'han de trobar com |[ref=000][ref=...]$
+
+        // Pas 1: capturem els refs anteriors al primer ^ o | <-- s'elimina del contingut a la cel·la, s'han de processar abans de la fila
+        // Pas 2: capturem els refs a continuació del darrer a ^ o | <-- s'han de processar després de la fila
+
+        // ALERTA! cal tenir en compte els casos en que tota la línia són refs, aquestes les podem processar directament
+
+
+
+
+
 
         // Problema amb els ref=
         //  - Per contingut: els caràcters que delimiten la taula com ^ i | es troben envoltats per [ref] i [/ref],
@@ -275,26 +347,46 @@ class DW2HtmlBox extends DW2HtmlInstruction
         // ALERTA! hi ha algun cas en que el tancament de la caixa ::: va seguida del wioccl
 //        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])[|\^\n]/ms";
 
-        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])$/ms";
 
-        $newRows = [];
+
+        // TODO: Això sembla que no serà necessari amb el processamen de refs anteriors i posteriors
+
+//        $pureRefPattern = "/^(\[\/ref=\d+\]+\[ref=.*?\])$/ms";
+//
+//        $newRows = [];
+//
+//
+//        for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
+//            if (preg_match($pureRefPattern, $rows[$rowIndex], $match)) {
+//                // Afegim una fila de referències pures
+//                $newRows[] = $match[1];
+//            } else {
+//                // No cal modificar la fila original perquè totes les referències anteriores a | o ^ són descartades
+//                $newRows[] = $rows[$rowIndex];
+//            }
+//
+//
+//        }
+//
+//        // Reassignem per no modificar la resta del codi
+//        $rows = $newRows;
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
-            if (preg_match($pureRefPattern, $rows[$rowIndex], $match)) {
-                // Afegim una fila de referències pures
-                $newRows[] = $match[1];
-            } else {
-                // No cal modificar la fila original perquè totes les referències anteriores a | o ^ són descartades
-                $newRows[] = $rows[$rowIndex];
+
+            // Fem el parse del prefref si hi ha
+            if (isset($preRefs[$rowIndex])) {
+                // només es processen per actualitzar l'stack, no cal retornar res
+                $discard = $this->parseContent($preRefs[$rowIndex], false);
             }
 
+            // si escau desem el top del stack de la estructura com atribut
 
-        }
+            $refId = WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
+            if ($refId>0) {
+                $rowAttrs[$rowIndex]['data-wioccl-ref'] = $refId;
+            }
 
-        // Reassignem per no modificar la resta del codi
-        $rows = $newRows;
-
-        for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
+            // TODO: comprovar que es pot eliminar, ja no hi han refs abans de cada fila
 
             // ALERTA! les notes incluen un enllaç a la signatura per tant s'inclou un | que es interpretat com
             // una columna. Per aquest motiu fem aquí una substitució del | de la signatura per & i ho restaurem després
@@ -306,23 +398,23 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
             // Reorganització dels ref de fila, només es pot donar si al principi hi ha un ref i no és la última línia
 
-            if ($rowIndex < count($rows) && preg_match($patternOpen, $rows[$rowIndex], $match)) {
-
-                $refId = $match[1];
-                $refOpen = '[ref=' . $refId . ']';
-                $refClose = '[/ref=' . $refId . ']';
-
-                $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
-
-
-                // S'afegeix l'atribut a cada fila. Ja no controlem si hi ha tancament perquè hi ha casos
-                // en que el tancament es fa al final d'un bloc de files, per exemple un subset o una taula
-                // amb múltiples foreach
-                for ($i = $rowIndex; $i < count($rows); $i++) {
-                    $rowAttrs[$i]['data-wioccl-ref'] = $refId;
-                }
-
-            }
+//            if ($rowIndex < count($rows) && preg_match($patternOpen, $rows[$rowIndex], $match)) {
+//
+//                $refId = $match[1];
+//                $refOpen = '[ref=' . $refId . ']';
+//                $refClose = '[/ref=' . $refId . ']';
+//
+//                $rows[$rowIndex] = str_replace($refOpen, '', $rows[$rowIndex]);
+//
+//
+//                // S'afegeix l'atribut a cada fila. Ja no controlem si hi ha tancament perquè hi ha casos
+//                // en que el tancament es fa al final d'un bloc de files, per exemple un subset o una taula
+//                // amb múltiples foreach
+//                for ($i = $rowIndex; $i < count($rows); $i++) {
+//                    $rowAttrs[$i]['data-wioccl-ref'] = $refId;
+//                }
+//
+//            }
 
 
             $rows[$rowIndex] = preg_replace('/\[\[(.*?)\|(.*?)\]\]/ms', '[[$1&$2]]', $rows[$rowIndex]);
@@ -431,6 +523,12 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 // Hi havia una fila però no hi havia res, comprovem si hi ha $refId, si es troba s'ha de ficar
                 // una fila buida
                 // ALERTA[Xavi] es gestiona control·lant la existencia de l'atribut al makeTable()
+            }
+
+            // Processem els postrefs per actualitzar els tancaments
+            if (isset($postRefs[$rowIndex])) {
+                // només es processen per actualitzar l'stack, no cal retornar res
+                $discard = $this->parseContent($postRefs[$rowIndex], false);
             }
 
         }

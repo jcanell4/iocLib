@@ -28,6 +28,7 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
             if ($top !== $this->refId) {
                 // TODO: llençar excepció?
+                $stack = WiocclParser::$structureStack;
             }
 
 
