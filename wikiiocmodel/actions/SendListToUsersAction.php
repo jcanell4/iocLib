@@ -8,10 +8,10 @@ if (!defined("DOKU_INC")) die();
 class SendListToUsersAction extends NotifyAction {
 
     protected function responseProcess() {
-        $this->params['message'] .= ".<br>Llista de projectes: ";
+        $this->params['message'] .= ".\\\\ Llista de projectes: ";
         $checked_items = json_decode($this->params['checked_items'], true);
         foreach ($checked_items as $ns) {
-            $this->params['message'] .= "<br>- <a href=".DOKU_URL."doku.php?id=$ns>$ns</a>";
+            $this->params['message'] .= "\\\\ - [[$ns|$ns]]";
         }
         $this->params["data-call"] = "selected_projects&grups=".str_replace('"', "'", $this->params['grups']);
 
