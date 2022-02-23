@@ -78,7 +78,14 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
             $workflowJson = $this->getMetaDataJsonFile(FALSE, "workflow.json", $workflowJson['actions'][$actionCommand]["shortcut"]);
         }
         return $workflowJson['actions'][$actionCommand];
+    }
 
+    public function getCurrentState($subSet="management") {
+        $id = $this->getId();
+        $projectType = $this->getProjectType();
+        $metaDataQuery = $this->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $projectType);
+        $currentState = $metaDataQuery->getDataProject($id)['workflow']['currentState'];
+        return $currentState;
     }
 
 }
