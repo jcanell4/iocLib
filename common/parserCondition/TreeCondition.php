@@ -337,7 +337,6 @@ class SubsetInstruction extends AbstractInstruction
     {
         if (strpos($text, ".") === FALSE) {
             return null;
-//            return "[Bad Format: Subset]";
         }
 
         $tokens = explode(".", $text);
@@ -345,18 +344,13 @@ class SubsetInstruction extends AbstractInstruction
         $subset = $tokens[0];
         $field = $tokens[1];
 
-
         if (!isset($dataSource[$subset])) {
             return null;
-            //return "[Unknown Subset : $subset]";
         }
 
         // TODO: El parse del subset fa un parse de la següent part,
         // però passant com a $array el $datasource!!
         return $this->parser->parse($field, $dataSource[$subset], $dataSource);
-
-
-//        return $dataSource[$subset][$field];
     }
 
 }
@@ -373,7 +367,6 @@ class ObjectInstruction extends AbstractInstruction
     public function getValue($text = null, $arrays = [], $dataSource = [])
     {
         if (strpos($text, "#") === FALSE) {
-//            return "[Bad Format: Object]";
             return null;
         }
 
@@ -382,23 +375,18 @@ class ObjectInstruction extends AbstractInstruction
         $obj = $tokens[0];
         $prop = $tokens[1];
 
-        $prop = substr($prop, 0, strlen($prop));
-
         if (!isset($arrays[$obj])) {
             return null;
-//            return "[Unknown Field: $obj]";
         }
 
-        $json = json_decode($arrays[$obj], true);
-        $field = $json[$prop];
-        // És un json, el deserialitzem
+        $arr = is_array($arrays[$obj]) ? $arrays[$obj] : json_decode($arrays[$obj], true);
+        $field = $arr[$prop];
 
         if ($field !== NULL) {
             // TODO: Determinar si hem de fer un parse del contingut?
             return $field;
         } else {
             return null;
-//            return "[Unknown Prop: $prop]";
         }
 
     }

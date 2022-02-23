@@ -182,19 +182,23 @@ class SuppliesFormAction extends AdminAction {
 
     //S'ha pulsat algun botó [nova Condició]
     private function _tractamentBotoNovaCondicio(&$grups) {
-        $k = key($this->params['do']);
-        $pat = "/nova_condicio_grup_(.*)/";
-        if (preg_match($pat, $k, $g)) {
-            $grups["grup_${g[1]}"]['elements'][] = "";
+        if (isset($this->params['do'])) {
+            $k = key($this->params['do']);
+            $pat = "/nova_condicio_grup_(.*)/";
+            if (preg_match($pat, $k, $g)) {
+                $grups["grup_${g[1]}"]['elements'][] = "";
+            }
         }
     }
 
     //S'ha pulsat algun botó [nova Condició]
     private function _tractamentBotoEliminaCondicio(&$grups) {
-        $k = key($this->params['do']);
-        $pat = "/elimina_condicio_([0-9]+)_grup_(G_)?(.*)/";
-        if (preg_match($pat, $k, $g)) {
-            unset($grups["grup_${g[2]}${g[3]}"]['elements']["${g[1]}"]);
+        if (isset($this->params['do'])) {
+            $k = key($this->params['do']);
+            $pat = "/elimina_condicio_([0-9]+)_grup_(G_)?(.*)/";
+            if (preg_match($pat, $k, $g)) {
+                unset($grups["grup_${g[2]}${g[3]}"]['elements']["${g[1]}"]);
+            }
         }
     }
 
