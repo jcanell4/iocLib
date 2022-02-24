@@ -3,6 +3,10 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlRef extends DW2HtmlMarkup {
 
+    // TODO: Aplicar aquest sistema a la excepció de les etiquetes de tancament
+    // però agafar la configuració d'algun altre lloc!
+    const THROW_EXCEPTION = false;
+
     protected $refId = -1;
 
     public function setTokens($tokens, $next) {
@@ -26,7 +30,7 @@ class DW2HtmlRef extends DW2HtmlMarkup {
             $top = array_pop(WiocclParser::$structureStack);
 
 
-            if ($top !== $this->refId) {
+            if ($top !== $this->refId && self::THROW_EXCEPTION) {
                 $stack = WiocclParser::$structureStack;
                 var_dump($top, $this->refId, $stack);
                 throw new MissingClosingTranslatorException(htmlspecialchars($top . " -> " . $this->refId));
