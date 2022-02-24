@@ -27,8 +27,9 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 
 
             if ($top !== $this->refId) {
-                // TODO: llençar excepció?
                 $stack = WiocclParser::$structureStack;
+                var_dump($top, $this->refId, $stack);
+                throw new MissingClosingTranslatorException(htmlspecialchars($top . " -> " . $this->refId));
             }
 
 

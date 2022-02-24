@@ -57,6 +57,25 @@ class IocParser {
 //        die();
 
         return $instruction->parseTokens($tokens); // això retorna un únic valor amb els valor dels tokens concatenats
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     protected static function getPattern() {
