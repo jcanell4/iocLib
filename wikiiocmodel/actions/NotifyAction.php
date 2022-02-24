@@ -132,7 +132,7 @@ class NotifyAction extends AbstractWikiAction {
         $message = $this->buildMessage($this->params['message'], $senderId, $this->params['id'], $receiversList, null, $this->params['rev'], $this->params["data-call"]);
         $notification = $this->dokuNotifyModel->notifyMessageToFrom($message ['content'], $senderId, null, NotifyDataQuery::MAILBOX_SEND, true);
 
-        $response['info'] = self::generateInfo('success', sprintf(WikiIocLangManager::getLang("notifation_send_success"), $receiversList));
+        $response['info'] = self::generateInfo('success', sprintf(WikiIocLangManager::getLang("notifation_send_success"), $receiversList), NULL, 30);
         $response['notifications']['params']['notification'] = $notification;
         $response['notifications']['action'] = 'notification_sent';
 
