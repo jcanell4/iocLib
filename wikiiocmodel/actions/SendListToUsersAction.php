@@ -11,7 +11,7 @@ class SendListToUsersAction extends NotifyAction {
         $this->params['message'] .= ".\\\\ Llista de projectes: ";
         $checked_items = json_decode($this->params['checked_items'], true);
         foreach ($checked_items as $ns) {
-            $this->params['message'] .= "\\\\ - [[$ns|$ns]]";
+            $this->params['message'] .= "\\\\ - [[".DOKU_URL."doku.php?id=$ns|$ns]]";
         }
         $this->params["data-call"] = "selected_projects&grups=".str_replace('"', "'", $this->params['grups']);
 

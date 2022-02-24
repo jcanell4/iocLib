@@ -86,6 +86,10 @@ class AdminModel extends AbstractWikiModel {
         return trim($users, ",");
     }
 
+    public function getProjectType($id) {
+        return $this->getProjectMetaDataQuery()->getProjectType($id);
+    }
+
     public function getData() {
         throw new UnavailableMethodExecutionException();
     }
