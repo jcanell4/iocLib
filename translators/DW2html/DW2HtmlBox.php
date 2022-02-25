@@ -14,25 +14,34 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         // Extrerure els camps
         // ^::tipus:ID$
-        $typePattern = '/^(?:\[\/?ref=\d*\])*::(.*?):(.*)$/m';
+//        $typePattern = '/^(?:\[\/?ref=\d*\])*::(.*?):(.*)$/m';
+        $typePattern = '/^(?P<prebox>(\[\/?ref=\d*\])*)::(?P<type>.*?):(?P<id>.*)$/m';
         $type = 'unknown';
         $id = 'none';
 
         if (preg_match($typePattern, $token['raw'], $matches)) {
 //            var_dump($matches);
+            $prebox = $matches['prebox'];
+            $type = $matches['type'];
+            $id = $matches['id'];
+        }
 
-            $type = $matches[1];
-            $id = $matches[2];
+        if ($prebox) {
+            $preboxContent = $this->parseContent($prebox, false);
+        } else {
+            $preboxContent = "";
         }
 
 
         switch ($type) {
             case 'table':
             case 'accounting':
-                return $this->getValueTable($token, $id, $type);
+                $result = $this->getValueTable($token, $id, $type);
+                break;
 
             case 'figure':
-                return $this->getValueFigure($token, $id);
+                $result =  $this->getValueFigure($token, $id);
+                break;
 
             case 'text':
             case 'example':
@@ -40,14 +49,15 @@ class DW2HtmlBox extends DW2HtmlInstruction
             case 'reference':
             case 'important':
             case 'quote':
-                return $this->getValueText($token, $type);
+                $result = $this->getValueText($token, $type);
+                break;
 
             case 'include':
-                return $this->getValueInclude($token);
-
+                $result = $this->getValueInclude($token);
+                break;
         }
 
-
+        return $preboxContent . $result;
     }
 
     protected function getValueText($token, $type)
