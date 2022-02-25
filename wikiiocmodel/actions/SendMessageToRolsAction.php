@@ -18,24 +18,26 @@ class SendMessageToRolsAction extends NotifyAction {
     }
 
     protected function responseProcess() {
+        $id = $this->params['id'];
         $rols = explode(",", trim($this->params['rols'], ","));
-        $this->params['message'] .= ".\\\\ Llista de projectes: ";
         $checked_items = json_decode($this->params['checked_items'], true);
         foreach ($checked_items as $ns) {
-            $this->params['message'] .= "\\\\ - [[".DOKU_URL."doku.php?id=$ns|$ns]]";
-            $users .= $this->model->getUserRol($rols, $ns) . ",";
+            $users = $this->model->getUserRol($rols, $ns);
+            if (!empty($users)) {
+                $this->params['id'] = $ns;
+                $this->params['to'] = implode(",", $users);
+                $workflow = $this->model->isProjectTypeWorkflow($this->model->getProjectType($ns));
+                $this->params["data-call"] = ($workflow) ? "project&do=workflow&action=view" : "project&do=view";
+                $response['notifications'] = [];
+                $notifyResponse = $this->notifyMessageToFrom();
+                $response['notifications'][] = $notifyResponse['notifications'];
+                $response['info'] = $notifyResponse['info'];
+            }
         }
-        $users = explode(",",  trim($users, ","));
-        $users = array_unique($users);
-        $this->params['to'] = implode(",", $users);
-        if (!empty($this->params['to'])) {
-            $response['notifications'] = [];
-            $notifyResponse = $this->notifyMessageToFrom();
-            $response['notifications'][] = $notifyResponse['notifications'];
-            $response['info'] = $notifyResponse['info'];
-        }else {
+        if (empty($this->params['to'])) {
             $response['info'] = self::generateInfo("warning", "No hi ha cap destinatari", $this->params[ProjectKeys::KEY_ID], 15);
         }
+        $this->params['id'] = $id;
         return $response;
     }
 
