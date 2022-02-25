@@ -42,7 +42,6 @@ class SuppliesFormAction extends AdminAction {
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
-//        $this->_creaFiltre($form, $ret['grups']);
 
         //GRUPS
         $this->_creacioGestioDeGrups($form);
@@ -130,6 +129,10 @@ class SuppliesFormAction extends AdminAction {
                         if (!empty($this->params["connector_grup_${g[1]}"])) {
                             $grups[$GR]['connector'] = $this->params["connector_grup_${g[1]}"];
                         }
+                    }elseif ($key == "branca") {
+                        if (!empty($this->params["branca_grup_${g[1]}"])) {
+                            $grups[$GR]['branca'] = $this->params["branca_grup_${g[1]}"];
+                        }
                     }elseif ($key == "projecttype") {
                         if (!empty($this->params["projecttype_grup_${g[1]}"])) {
                             $grups[$GR]['projecttype'] = $this->params["projecttype_grup_${g[1]}"];
@@ -209,6 +212,7 @@ class SuppliesFormAction extends AdminAction {
             if (is_numeric($g)) {
                 $values = ['type' => "condition",
                            'connector_grup' => IocCommon::nz($this->params["connector_grup_$g"]),
+                           'branca_grup' => IocCommon::nz($this->params["branca_grup_$g"]),
                            'projecttype_grup' => IocCommon::nz($this->params["projecttype_grup_$g"])];
                 $this->_creaGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
@@ -291,6 +295,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::DIVGRUPCONN);
         $ret["grup_$grup"]["type"] = "condition";
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
+        $this->_creaBrancaGrup($form, $ret, $values['connector_grup'], $grup);
         $this->_creaLlistaTipusDeProjecte($form, $ret, $values['projecttype_grup'], $grup);
         $form->addElement('</div>');
     }
@@ -330,16 +335,17 @@ class SuppliesFormAction extends AdminAction {
         $ret["grup_$grup"]["connector"] = $valor;
     }
 
-    private function _creaFiltre(&$form, &$ret) {
-        $form->addElement(self::DIVGRUP);
-        $attrs = ['_text' => "Filtre pels tipus de projecte:&nbsp;",
-                  'name' => "filtre",
+    private function _creaBrancaGrup(&$form, &$ret, $valor="", $grup="0") {
+        $valor = IocCommon::nz($valor, "");
+        $attrs = ['_text' => "Branca de l'arbre:&nbsp;",
+                  'name' => "branca_grup_$grup",
                   'type' => "text",
                   'size' => "18",
-                  'value' => $this->params['filtre']];
-        $this->_creaElement($form, $ret['grups'], IocCommon::nz($this->params["filtre"], ""), $attrs, "F");
-        $this->_creaBoto($form, "filtre", "filtre", ['id'=>'btn__filtre', 'tabindex'=>'1']);
-        $form->addElement("</div>");
+                  'value' => $this->params["branca_grup_$grup"]];
+        $form->addElement(self::OBRE_SPAN);
+        $form->addElement(form_field($attrs));
+        $form->addElement("</span>");
+        $ret["grup_$grup"]['branca'] = IocCommon::nz($this->params["branca_grup_$grup"]);
     }
 
     private function _creaLlistaTipusDeProjecte(&$form, &$ret, $valor="", $grup="0") {
