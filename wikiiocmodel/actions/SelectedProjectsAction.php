@@ -69,7 +69,7 @@ class SelectedProjectsAction extends AdminAction {
             $id = $elem['id'];
             $workflow = ($elem['workflow']) ? "workflow&action=view" : "view";
             $form->addElement(self::OBRE_LI);
-            $this->_creaCheckBox($form, $id, $valor="");
+            $this->_creaCheckBox($form, $id, $checked);
             $form->addElement("<a href='lib/exe/ioc_ajax.php?call=project&do=$workflow&id=$id' data-call='project'>$id</a>");
             $form->addElement("</li>");
         }
@@ -81,9 +81,12 @@ class SelectedProjectsAction extends AdminAction {
         return $ret;
     }
 
-    private function _creaCheckBox(&$form, $name, $valor="") {
-        $name = str_replace(":", "__", $name);
-        $checkbox = form_makeCheckboxField("checkbox_$name", $valor, "");
+    private function _creaCheckBox(&$form, $id, $checked=FALSE) {
+        $attr['alt'] = $id;
+        if ($checked)
+            $attr['checked'] = TRUE;
+        $id = str_replace(":", "__", $id);
+        $checkbox = form_makeCheckboxField("checkbox_$id", "0", "", $id, "", $attr);
         $form->addElement(form_checkboxfield($checkbox));
     }
 

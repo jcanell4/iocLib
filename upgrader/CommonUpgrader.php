@@ -27,6 +27,17 @@ class CommonUpgrader {
         return $ret;
     }
 
+    // Actualiza la versión del documento establecido en el sistema de calidad del IOC (Visible en el pie del documento)
+    // Sólo se debe actualizar si el coordinador de calidad lo indica!!!!!!
+    protected function upgradeDocumentVersion($ver) {
+        $dataProject = $this->model->getCurrentDataProject($this->metaDataSubSet);
+        if (!is_array($dataProject))
+            $dataProject = json_decode($dataProject, TRUE);
+        $dataProject['documentVersion'] = $dataProject['documentVersion']+1;
+        $summary = "actualització del document versió ${dataProject['documentVersion']}";
+        return $this->model->setDataProject(json_encode($dataProject), "upgrade $ver. $summary", '{"documentVersion":'.$dataProject['documentVersion'].'}');
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                    Actualización de nombres de campo del formulario
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -132,29 +143,23 @@ class CommonUpgrader {
      * @param array $data : array de datos original
      * @param string $field : campo de tipo multirregistro
      * @param string $newrow : nueva fila [clave=>valor, clave=>valor, ...]
+     * @param boolean $penultima : indica que hay que insertar la fila en penúltimo lugar (si es FALSE insertar en último lugar)
      * @return array de datos con la nueva fila añadida
      */
-    public function addRowInMultiRow($data, $field, $newrow) {
+    public function addRowInMultiRow($data, $field, $newrow, $penultima) {
         $rama = (is_array($data[$field])) ? $data[$field] : json_decode($data[$field], TRUE);
         $fila = (is_array($newrow)) ? $newrow : json_decode($newrow, TRUE);
         if (!empty($fila)) {
-            $rama[] = $newrow;
+            if ($penultima) {
+                $ultim = array_pop($rama);
+                $rama[] = $newrow;
+                $rama[] = $ultim;
+            }else {
+                $rama[] = $newrow;
+            }
             $data[$field] = $rama;
         }
         return $data;
-    }
-
-    /**
-     * Añade una nueva fila en el multirregistro "cc_historic"
-     * @param array $dataProject : array de datos original
-     * @return array de datos con la nueva fila añadida
-     */
-    public function addRowUpgradeDocumentVersion($dataProject) {
-        $newrow = ['data' => date("Y-m-d"),
-                   'autor' => "by upgrade",
-                   'modificacions' => "actualització del document versió ${dataProject['documentVersion']}"];
-        $dataProject = $this->addRowInMultiRow($dataProject, "cc_historic", $newrow);
-        return $dataProject;
     }
 
     /**
@@ -715,5 +720,62 @@ class CommonUpgrader {
         }
         return null;
     }
+
+}
+
+class ProgramacionsCommonUpgrader extends CommonUpgrader{
+    public function __construct($model) {
+        parent::__construct($model);
+    }
+
+    
+    protected function upgradeDocumentVersion($ver) {
+        $dataProject = $this->model->getCurrentDataProject($this->metaDataSubSet);
+        if (!is_array($dataProject))
+            $dataProject = json_decode($dataProject, TRUE);
+
+        $ret = $this->_upgradeDocumentVersion($dataProject, $ver);
+        if ($ret) {
+            $currentState = $this->stateProcess($dataProject, "upgrading");
+            $this->stateProcess($dataProject, $currentState);
+        }
+        return $ret;
+    }
+
+    protected function _upgradeDocumentVersion(&$dataProject, $ver) {
+        $dataProject['documentVersion'] = $dataProject['documentVersion']+1;
+        $currentState = $this->model->getCurrentState("management");
+        $summary = "actualització del document versió ${dataProject['documentVersion']}";
+        if ($currentState=="validated") {
+            $dataProject['cc_raonsModificacio'] = $summary;
+        }
+        $dataProject = $this->addRowUpgradeDocumentVersion($dataProject, $currentState!="validated");
+        return $this->model->setDataProject(json_encode($dataProject), "upgrade $ver. $summary", '{"documentVersion":'.$dataProject['documentVersion'].'}');
+    }
+
+    protected function stateProcess($dataProject, $newState) {
+        $id = $this->model->getId();
+        $projectType = $this->model->getProjectType();
+        $subSet = "management";
+        $metaDataQuery = $this->model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $projectType);
+        $remarks = "actualització del document versió ".$dataProject['documentVersion'];
+        $currentState = $this->model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
+        return $currentState;
+    }
+    
+    /**
+     * Añade una nueva fila en el multirregistro "cc_historic"
+     * @param array $dataProject : array de datos original
+     * @param boolean $penultima : indica que hay que insertar la fila en penúltimo lugar (si es FALSE insertar en último lugar)
+     * @return array de datos con la nueva fila añadida
+     */
+    public function addRowUpgradeDocumentVersion($dataProject, $penultima=TRUE) {
+        $newrow = ['data' => date("Y-m-d"),
+                   'autor' => "by upgrade",
+                   'modificacions' => "actualització del document versió ${dataProject['documentVersion']}"];
+        $dataProject = $this->addRowInMultiRow($dataProject, "cc_historic", $newrow, $penultima);
+        return $dataProject;
+    }
+
 
 }
