@@ -117,7 +117,7 @@ class DW2HtmlInstruction extends IocInstruction
 
 
         // Alerta, això de tancar automàticament és necessari per les llistes amb mùltiples nivells
-        // Detectat problema només amb el <readonly></readonly> quan es embolcallat per altre readonly, afegit com a cas especial
+        // Detectat problema només amb el <readonly></readonly> quan es embolcallat per altre readonly, afegit com a cas especial <-- ALERTA aquestes etiquetes crec que ja no existeixen, utilitzem :### i ###:
         while ($top && $top['instruction']->isClosing($currentToken)) {
 
             $result .= $top['instruction']->Close();
@@ -462,6 +462,8 @@ class DW2HtmlInstruction extends IocInstruction
         }
 
         $refId = $this->getRefId();
+
+        $top = WiocclParser::getStructure()[$refId];
 
         if ($refId != NULL && $refId !== "0") {
 

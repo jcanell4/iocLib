@@ -320,14 +320,14 @@ class Hmtl2DWTranslator extends AbstractTranslator {
         $header = '';
         // ALERTA[Xavi]! Ara la capçalera arribarà buida perquè no tots els camps ~~ es troben a la capçalera
         // podem trobar-se en qualsevol lloc, per tant no els esborrem
-        if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])
-            && count($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'])>0) {
-            $header .= ":###\n";
-            foreach ($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'] as $data) {
-                $header .= "~~" . $data ."~~\n";
-            }
-            $header .= "###:\n";
-        }
+//        if (isset($params[PageKeys::KEY_WIOCCL_STRUCTURE])
+//            && count($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'])>0) {
+//            $header .= ":###\n";
+//            foreach ($params[PageKeys::KEY_WIOCCL_STRUCTURE]['header'] as $data) {
+//                $header .= "~~" . $data ."~~\n";
+//            }
+//            $header .= "###:\n";
+//        }
         // si s'inclou estructura, cal afegir la capçalera
 
         // TODO: com passem la estructura? -> la fiquem directament al Html2DWParser?

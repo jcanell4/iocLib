@@ -22,7 +22,20 @@ class DW2HtmlParagraph extends DW2HtmlInstruction {
             return is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
         }
 
-        return parent::getReplacement($position);
+        //return parent::getReplacement($position);
+
+        // EXCEPCIÓ: Si l'element corresponent és de tipus field, no afegim la refèrencia al paràgraf, només
+        // s'ha d'eliminar el content que ja estarà marcat en un spawn amb el wioccl
+        $refId = $this->getRefId();
+        $top = WiocclParser::getStructure()[$refId];
+
+        $tag = is_array($this->extra['replacement']) ? $this->extra['replacement'][$position] : $this->extra['replacement'];
+
+        if ($position === self::OPEN && $top->type !=='field') {
+            $this->addRefId($tag);
+        }
+
+        return $tag;
     }
 
     public function isClosing($token) {

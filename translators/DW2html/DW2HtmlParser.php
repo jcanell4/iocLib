@@ -92,6 +92,7 @@ class DW2HtmlParser extends IocParser {
 
         "^(?:\[\/?ref=\d*\])*::.*?:.*?:::\n?$" => [
 //        "^::.*?:.*?:::\n?$" => [
+//        "::.*?:.*?:::\n?$" => [
             'state' => 'box'
         ],
 
@@ -206,8 +207,9 @@ class DW2HtmlParser extends IocParser {
         "----\n" => ['state' => 'hr', 'type' => 'hr', 'class' => 'DW2HtmlBlockReplacement', 'action' => 'open', 'extra' => ['replacement' => "<hr>\n", 'block' => TRUE, 'regex' => TRUE]],
 
 
-        "^(?:\[\/?ref=\d*\])*::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+//        "^(?:\[\/?ref=\d*\])*::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
 //        "^::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
+        "::(.*?):(.*?):::\n?" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlBox', 'action' => 'self-contained',
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         "{{(?:page|section>)(.*?)}}" => ['state' => 'box', 'type' => 'box', 'class' => 'DW2HtmlInclude', 'action' => 'self-contained',

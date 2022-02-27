@@ -25,7 +25,9 @@ class Html2DWTable extends Html2DWMarkup {
 
 
         // extraiem les files
-        $rowPattern = '/<tr>(.*?)<\/tr>|<span data-wioccl-ref.*?<\/span>/ms';
+
+//        $rowPattern = '/<tr>(.*?)<\/tr>|<span data-wioccl-ref.*?<\/span>/ms';
+        $rowPattern = '/<tr>(.*?)<\/tr>|(<span data-wioccl-ref.*?<\/span>)/ms';
         preg_match_all($rowPattern, $tableHtml, $rowMatches);
 //        var_dump($rowMatches);
         $rows = $rowMatches[0];
@@ -182,9 +184,18 @@ class Html2DWTable extends Html2DWMarkup {
                 // perquè l'editor ACE pot afegir espais adicionals quan formateja la visualització
 
                 $align = $tableData[$col][$row]['align'];
-                if ($align === 'center' || $align === 'left') {
+
+
+                if ($align === 'center') {
+//                if ($align === 'center' || $align === 'left') {
                     // s'han d'afegir els caràcters d'alineació
                     $value = '  ' . ltrim($value);
+                }
+
+                if ($align === 'left') {
+                    // valor per defecte, en lloc d'afegir el doble espai simplement esborrem qualsevol
+                    // possible espai a la dreta
+                    $value = '  ' . trim($value);
                 }
 
                 if ($align === 'center' || $align === 'right') {
