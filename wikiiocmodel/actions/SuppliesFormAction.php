@@ -45,6 +45,7 @@ class SuppliesFormAction extends AdminAction {
 
         //GRUPS
         $this->_creacioGestioDeGrups($form);
+        $this->_creaSeleccioConsulta($form, $ret, $this->params['seleccio_consulta']);
         $main_group = "0";
         $lastGgroup = "0";
         $last_group = "0";
@@ -60,7 +61,7 @@ class SuppliesFormAction extends AdminAction {
             $lastGgroup = $grups['lastGgroup'];
             $last_group = $grups['last_group'];
 
-            $this->_tractamentParams($grups);
+            $this->_tractamentParams($grups, $ret, $this->params['seleccio_consulta']);
             $this->_tractamentMainGroup($grups, $main_group);
             $this->_tractamentBotoNouGrup($grups, $last_group);
             $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
@@ -68,7 +69,7 @@ class SuppliesFormAction extends AdminAction {
             $this->_tractamentBotoEliminaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
-            $this->_recreaArbre($form, $ret['grups'], $grups);
+            $this->_recreaArbre($form, $ret['grups'], $grups, !empty($this->params['seleccio_consulta']));
         }
         
         $ret['grups']['main_group'] = $main_group;
@@ -89,6 +90,23 @@ class SuppliesFormAction extends AdminAction {
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
         return $ret;
+    }
+
+    private function _creaSeleccioConsulta(&$form, &$ret, $valor="") {
+        $form->addElement(self::DIVGRUP);
+        $form->addElement(self::OBRE_SPAN."<b>Selecció de consulta predefinida</b></span>");
+        $valor = IocCommon::nz($valor, "");
+        $values = ['' => "- Selecciona una consulta -"];
+        $lista = WikiGlobalConfig::getConf('consultes');
+        foreach ($lista as $value) {
+            $values[$value['value']] = $value['name'];
+        }
+        $consulta = form_makeMenuField("seleccio_consulta", $values, $valor, "", "consulta:", "idconsulta");
+        $form->addElement(self::OBRE_SPAN);
+        $form->addElement(form_menufield($consulta));
+        $form->addElement("</span>");
+        $form->addElement("</div>");
+        $ret["seleccio_consulta"] = $valor;
     }
 
     //Creació del grup de grups inicial
@@ -121,26 +139,30 @@ class SuppliesFormAction extends AdminAction {
     }
 
     //Recull els nous paràmetres arribats des del client i els introdueix a la matriu de grups
-    private function _tractamentParams(&$grups) {
-        foreach ($grups as $GR => $grup) {
-            if (preg_match("/grup_(.*)/", $GR, $g)) {
-                foreach ($grup as $key => $elements) {
-                    if ($key == "connector") {
-                        if (!empty($this->params["connector_grup_${g[1]}"])) {
-                            $grups[$GR]['connector'] = $this->params["connector_grup_${g[1]}"];
-                        }
-                    }elseif ($key == "branca") {
-                        if (!empty($this->params["branca_grup_${g[1]}"])) {
-                            $grups[$GR]['branca'] = $this->params["branca_grup_${g[1]}"];
-                        }
-                    }elseif ($key == "projecttype") {
-                        if (!empty($this->params["projecttype_grup_${g[1]}"])) {
-                            $grups[$GR]['projecttype'] = $this->params["projecttype_grup_${g[1]}"];
-                        }
-                    }elseif ($key == "elements") {
-                        foreach ($elements as $n => $e) {
-                            if (!empty($this->params["condicio_${n}_grup_${g[1]}"])) {
-                                $grups[$GR]['elements'][$n] = $this->params["condicio_${n}_grup_${g[1]}"];
+    private function _tractamentParams(&$grups, &$ret, $consulta) {
+        if (!empty($consulta)) {
+            $grups = json_decode($consulta, true);
+        }else {
+            foreach ($grups as $GR => $grup) {
+                if (preg_match("/grup_(.*)/", $GR, $g)) {
+                    foreach ($grup as $key => $elements) {
+                        if ($key == "connector") {
+                            if (!empty($this->params["connector_grup_${g[1]}"])) {
+                                $grups[$GR]['connector'] = $this->params["connector_grup_${g[1]}"];
+                            }
+                        }elseif ($key == "branca") {
+                            if (!empty($this->params["branca_grup_${g[1]}"])) {
+                                $grups[$GR]['branca'] = $this->params["branca_grup_${g[1]}"];
+                            }
+                        }elseif ($key == "projecttype") {
+                            if (!empty($this->params["projecttype_grup_${g[1]}"])) {
+                                $grups[$GR]['projecttype'] = $this->params["projecttype_grup_${g[1]}"];
+                            }
+                        }elseif ($key == "elements") {
+                            foreach ($elements as $n => $e) {
+                                if (!empty($this->params["condicio_${n}_grup_${g[1]}"])) {
+                                    $grups[$GR]['elements'][$n] = $this->params["condicio_${n}_grup_${g[1]}"];
+                                }
                             }
                         }
                     }
@@ -206,19 +228,23 @@ class SuppliesFormAction extends AdminAction {
     }
 
     // Reconstrueix els elements HTML a partir de l'arbre
-    private function _recreaArbre(&$form, &$ret, $grups) {
+    private function _recreaArbre(&$form, &$ret, $grups, $consulta) {
         foreach ($grups as $G => $grup) {
             $g = explode("_", $G)[1];
             if (is_numeric($g)) {
+                $connector = ($consulta) ? $grups["grup_$g"]["connector"] : $this->params["connector_grup_$g"];
+                $branca = ($consulta) ? $grups["grup_$g"]["branca"] : $this->params["branca_grup_$g"];
+                $projecttype = ($consulta) ? $grups["grup_$g"]["projecttype"] : $this->params["projecttype_grup_$g"];
                 $values = ['type' => "condition",
-                           'connector_grup' => IocCommon::nz($this->params["connector_grup_$g"]),
-                           'branca_grup' => IocCommon::nz($this->params["branca_grup_$g"]),
-                           'projecttype_grup' => IocCommon::nz($this->params["projecttype_grup_$g"])];
+                           'connector_grup' => IocCommon::nz($connector),
+                           'branca_grup' => IocCommon::nz($branca),
+                           'projecttype_grup' => IocCommon::nz($projecttype)];
                 $this->_creaGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
-                            $this->_creaCondicio($form, $ret, $k, $this->params["condicio_${k}_grup_$g"], $g);
+                            $valor = ($consulta) ? $grups["grup_$g"]["elements"][$k] : $this->params["condicio_${k}_grup_$g"];
+                            $this->_creaCondicio($form, $ret, $k, $valor, $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -227,13 +253,15 @@ class SuppliesFormAction extends AdminAction {
             }
             elseif ($g=="G") {
                 $g .= "_".explode("_", $G)[2];
+                $connector = ($consulta) ? $grups["grup_$g"]["connector"] : $this->params["connector_grup_$g"];
                 $values = ['type' => "aggregation",
-                           'connector_grup' => IocCommon::nz($this->params["connector_grup_$g"])];
+                           'connector_grup' => IocCommon::nz($connector)];
                 $this->_creaGGrup($form, $ret, $g, $values);
                 foreach ($grup as $key => $value) {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
-                            $this->_creaGCondicio($form, $ret, $grups, $k, $this->params["condicio_${k}_grup_$g"], $g);
+                            $valor = ($consulta) ? $grups["grup_$g"]["elements"][$k] : $this->params["condicio_${k}_grup_$g"];
+                            $this->_creaGCondicio($form, $ret, $grups, $k, $valor, $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -295,7 +323,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::DIVGRUPCONN);
         $ret["grup_$grup"]["type"] = "condition";
         $this->_creaConnectorGrup($form, $ret, $values['connector_grup'], $grup);
-        $this->_creaBrancaGrup($form, $ret, $values['connector_grup'], $grup);
+        $this->_creaBrancaGrup($form, $ret, $values['branca_grup'], $grup);
         $this->_creaLlistaTipusDeProjecte($form, $ret, $values['projecttype_grup'], $grup);
         $form->addElement('</div>');
     }
@@ -341,16 +369,16 @@ class SuppliesFormAction extends AdminAction {
                   'name' => "branca_grup_$grup",
                   'type' => "text",
                   'size' => "18",
-                  'value' => $this->params["branca_grup_$grup"]];
+                  'value' => $valor];
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_field($attrs));
         $form->addElement("</span>");
-        $ret["grup_$grup"]['branca'] = IocCommon::nz($this->params["branca_grup_$grup"]);
+        $ret["grup_$grup"]['branca'] = IocCommon::nz($valor);
     }
 
     private function _creaLlistaTipusDeProjecte(&$form, &$ret, $valor="", $grup="0") {
         $valor = IocCommon::nz($valor, "");
-        $aListProjectTypes = $this->getListPtypes($this->params['filtre']);
+        $aListProjectTypes = $this->getListPtypes();
         $attrs = ['_text' => "Tipus de projecte:&nbsp;",
                   'name' => "projecttype_grup_$grup"];
         $attrs['_options'][] = ['', "- Selecciona un tipus de projecte -"];
@@ -361,7 +389,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_listboxfield($attrs));
         $form->addElement("</span>");
-        $ret["grup_$grup"]['projecttype'] = IocCommon::nz($this->params["projecttype_grup_$grup"]);
+        $ret["grup_$grup"]['projecttype'] = IocCommon::nz($valor);
     }
 
     private function _creaCheckBox(&$form, &$ret, $valor="", $grup="0") {
