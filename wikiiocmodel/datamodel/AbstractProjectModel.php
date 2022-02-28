@@ -292,7 +292,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $values;
     }
 
-    //Obtiene un array [key, value] con los datos del proyecto solicitado
+    /** 
+     * Obtiene un array [key, value] con los datos del proyecto solicitado
+     * @param string $id : id del proyecto solicitado
+     * @param string $projectType : tipo de proyecto
+     * @param string $metaDataSubSet : subset solicitado
+     */
     public function getDataProject($id=FALSE, $projectType=FALSE, $metaDataSubSet=FALSE) {
         //Actualitzar a aquí els camps calculats
         $values = $this->projectMetaDataQuery->getDataProject($id, $projectType, $metaDataSubSet);
@@ -678,6 +683,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->changeOldPathInDuplicateContentFiles($base_dir, $new_name, $old_path, $old_name);
         $this->projectMetaDataQuery->duplicateOldPathInACLFile($old_path, $old_name, $base_dir, $new_name);
         $this->projectMetaDataQuery->duplicateOldPathProjectInShortcutFiles($this->sGlue([$base_dir,$new_name],":"), $persons);
+        $data = $this->getDataProject($ns);
+        if (isset($data['nsProgramacio'])) {
+            $data['nsProgramacio'] = "";
+            $this->setDataDuplicateProject(json_encode($data), ProjectKeys::VAL_DEFAULTSUBSET);
+        }
 
         $new_ns = preg_replace("/:[^:]*$/", ":$new_name", $ns);
         $this->setProjectId($new_ns);
@@ -844,6 +854,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function setDataReversionProject($dataProject, $metaDataSubSet, $summary="", $upgrade="", $revision=FALSE) {
         return $this->projectMetaDataQuery->setMeta($dataProject, $metaDataSubSet, $summary, $upgrade, $revision);
+    }
+
+    /**
+     * Guarda los datos modificados del proyecto durante el proceso de Duplicar Proyecto
+     * @param JSON $dataProject Nou contingut de l'arxiu de dades del projecte
+     * @param string $metaDataSubSet
+     * @param string $summary
+     */
+    public function setDataDuplicateProject($dataProject, $metaDataSubSet, $summary="") {
+        return $this->projectMetaDataQuery->setMeta($dataProject, $metaDataSubSet, $summary, FALSE, FALSE);
     }
 
     private function processAutoFieldsOnSave($data) {
