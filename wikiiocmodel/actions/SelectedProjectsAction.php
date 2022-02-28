@@ -16,8 +16,8 @@ class SelectedProjectsAction extends AdminAction {
 
     protected function responseProcess() {
         $model = $this->getModel();
-        $parser = $this->parser($this->params['grups']);
-        $listProjects = $model->selectProjectsByType($parser['listProjectTypes']);
+        $parser = $this->parser($this->params['grups'], $model);
+        $listProjects = $model->selectProjectsByType($parser['listProjectTypes'], $parser['branques']);
 
         foreach ($listProjects as $project) {
             $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
@@ -38,20 +38,29 @@ class SelectedProjectsAction extends AdminAction {
         return $this->response;
     }
 
-    private function parser($G) {
+    private function parser($G, $model) {
         $listProjectTypes = [];
         $grups = (is_string($G)) ? json_decode(str_replace("'", '"', $G), true) : $G;
         $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
             if (preg_match("/grup_(.*)/", $key, $g)) {
                 if ($grup['projecttype']) {
-                    $listProjectTypes[] = $grup['projecttype'];
+                    if (!empty($grup['projecttype'])) {
+                        $listProjectTypes[] = $grup['projecttype'];
+                    }else {
+                        $listProjectTypes = $model->getListProjectTypes(true);
+                    }
+                    if (!empty($grup['branca']) && $branques !== "root") {
+                        $branques[] = $grup['branca'];
+                    }else {
+                        $branques = "root";
+                    }
                 }
             }else {
                 unset($grups[$key]);
             }
         }
-        return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes];
+        return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes, 'branques'=>$branques];
     }
 
     /** Construeix un formulari a partir d'una llista d'elements */
@@ -70,7 +79,8 @@ class SelectedProjectsAction extends AdminAction {
             $workflow = ($elem['workflow']) ? "workflow&action=view" : "view";
             $form->addElement(self::OBRE_LI);
             $this->_creaCheckBox($form, $id, $checked);
-            $form->addElement("<a href='lib/exe/ioc_ajax.php?call=project&do=$workflow&id=$id' data-call='project'>$id</a>");
+            //$form->addElement("<a href='lib/exe/ioc_ajax.php?call=project&do=$workflow&id=$id' data-call='project'>$id</a>");
+            $form->addElement("<a href='".DOKU_URL."doku.php?call=project&do=$workflow&id=$id' data-call='project'>$id</a>");
             $form->addElement("</li>");
         }
         $form->addElement("<div><p>&nbsp;</p>");

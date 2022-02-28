@@ -1189,12 +1189,22 @@ class ProjectMetaDataQuery extends DataQuery {
     /**
      * Cerca els projectes dels tipus especificats
      * @param array $projectTypes : llista de projectes on cal fer la cerca
+     * @param array $branques : llista de branques de l'arbre de directoris on cal fer la cerca
      * @return array : llista dels projectes ['ns', 'projectType']
      */
-    public function selectProjectsByType($projectTypes=[]) {
+    public function selectProjectsByType($projectTypes=[], $branques="root") {
         $basedir = WikiGlobalConfig::getConf('mdprojects');
-        $pos = strlen($basedir)+1;
-        $ret = $this->_selectProjectsByType($basedir, $pos, $projectTypes);
+        if ($branques==="root") {
+            $pos = strlen($basedir)+1;
+            $ret = $this->_selectProjectsByType($basedir, $pos, $projectTypes);
+        }elseif (is_array($branques)) {
+            $ret= [];
+            foreach ($branques as $branca) {
+                $dir = "$basedir/$branca";
+                $pos = strlen($dir)+1;
+                $ret = array_merge($ret, $this->_selectProjectsByType($dir, $pos, $projectTypes));
+            }
+        }
         return $ret;
     }
 

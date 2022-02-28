@@ -50,10 +50,11 @@ class AdminModel extends AbstractWikiModel {
 
     /** Obtiene la lista de proyectos de los tipos indicados
      * @param array $projectsType tipus de projectes
+     * @param array $branques : llista de branques de l'arbre de directoris on cal fer la cerca
      * @return array : llista dels projectes ['ns', 'projectType']
      */
-    public function selectProjectsByType($projectsType) {
-        return $this->getProjectMetaDataQuery()->selectProjectsByType($projectsType);
+    public function selectProjectsByType($projectsType, $branques="root") {
+        return $this->getProjectMetaDataQuery()->selectProjectsByType($projectsType, $branques);
     }
 
     //Obtiene un array [key, value] con los datos del proyecto solicitado
