@@ -45,7 +45,7 @@ class SuppliesFormAction extends AdminAction {
 
         //GRUPS
         $this->_creacioGestioDeGrups($form);
-        $this->_creaSeleccioConsulta($form, $ret, $this->params['seleccio_consulta']);
+        $this->_creaSeleccioConsulta($form, $this->params['seleccio_consulta']);
         $main_group = "0";
         $lastGgroup = "0";
         $last_group = "0";
@@ -58,10 +58,16 @@ class SuppliesFormAction extends AdminAction {
             //Arbre de GRUPS
             $grups = json_decode($this->params['grups'], true);
             $main_group = $grups['main_group'];
-            $lastGgroup = $grups['lastGgroup'];
-            $last_group = $grups['last_group'];
+            if (!isset($grups['lastGgroup']) || !isset($grups['last_group'])) {
+                $g = $this->_getLastGroups($grups);
+                $lastGgroup = $g['lastGgroup'];
+                $last_group = $g['last_group'];
+            }else {
+                $lastGgroup = $grups['lastGgroup'];
+                $last_group = $grups['last_group'];
+            }
 
-            $this->_tractamentParams($grups, $ret, $this->params['seleccio_consulta']);
+            $this->_tractamentParams($grups, $this->params['seleccio_consulta'], isset($this->params['do']['actualitza_consulta']));
             $this->_tractamentMainGroup($grups, $main_group);
             $this->_tractamentBotoNouGrup($grups, $last_group);
             $this->_tractamentBotoNovaAgrupacio($grups, $lastGgroup);
@@ -69,7 +75,7 @@ class SuppliesFormAction extends AdminAction {
             $this->_tractamentBotoEliminaCondicio($grups);
 
             //Recontrueix el formulari a partir de l'arbre
-            $this->_recreaArbre($form, $ret['grups'], $grups, !empty($this->params['seleccio_consulta']));
+            $this->_recreaArbre($form, $ret['grups'], $grups, isset($this->params['do']['actualitza_consulta']));
         }
         
         $ret['grups']['main_group'] = $main_group;
@@ -79,7 +85,7 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement("</div>");
 
         $form->addElement("<p>&nbsp;</p>");
-        if (isset($this->params['do']["actualitza"])) {
+        if (isset($this->params['do']['actualitza'])) {
             //BOTÓ CERCA
             $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['id'=> "btn__cerca", 'data-query'=> $this->datacall]);
         }else {
@@ -92,7 +98,7 @@ class SuppliesFormAction extends AdminAction {
         return $ret;
     }
 
-    private function _creaSeleccioConsulta(&$form, &$ret, $valor="") {
+    private function _creaSeleccioConsulta(&$form, $valor="") {
         $form->addElement(self::DIVGRUP);
         $form->addElement(self::OBRE_SPAN."<b>Selecció de consulta predefinida</b></span>");
         $valor = IocCommon::nz($valor, "");
@@ -105,8 +111,10 @@ class SuppliesFormAction extends AdminAction {
         $form->addElement(self::OBRE_SPAN);
         $form->addElement(form_menufield($consulta));
         $form->addElement("</span>");
+        $form->addElement(self::OBRE_SPAN);
+        $this->_creaBotoConsulta($form);
+        $form->addElement("</span>");
         $form->addElement("</div>");
-        $ret["seleccio_consulta"] = $valor;
     }
 
     //Creació del grup de grups inicial
@@ -139,8 +147,8 @@ class SuppliesFormAction extends AdminAction {
     }
 
     //Recull els nous paràmetres arribats des del client i els introdueix a la matriu de grups
-    private function _tractamentParams(&$grups, &$ret, $consulta) {
-        if (!empty($consulta)) {
+    private function _tractamentParams(&$grups, $consulta, $actualitza_consulta) {
+        if (!empty($actualitza_consulta && $consulta)) {
             $grups = json_decode($consulta, true);
         }else {
             foreach ($grups as $GR => $grup) {
@@ -244,7 +252,7 @@ class SuppliesFormAction extends AdminAction {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
                             $valor = ($consulta) ? $grups["grup_$g"]["elements"][$k] : $this->params["condicio_${k}_grup_$g"];
-                            $this->_creaCondicio($form, $ret, $k, $valor, $g);
+                            $this->_creaCondicio($form, $ret, $k, IocCommon::nz($valor), $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -261,7 +269,7 @@ class SuppliesFormAction extends AdminAction {
                     if ($key == "elements") {
                         foreach ($value as $k => $element) {
                             $valor = ($consulta) ? $grups["grup_$g"]["elements"][$k] : $this->params["condicio_${k}_grup_$g"];
-                            $this->_creaGCondicio($form, $ret, $grups, $k, $valor, $g);
+                            $this->_creaGCondicio($form, $ret, $grups, $k, IocCommon::nz($valor), $g);
                             $form->addElement("<p></p>");
                         }
                     }
@@ -349,6 +357,10 @@ class SuppliesFormAction extends AdminAction {
 
     private function _creaBotoNouGrup(&$form) {
         $this->_creaBoto($form, "nou_grup", "nou Grup", ['id'=>"btn__nou_grup"]);
+    }
+
+    private function _creaBotoConsulta(&$form) {
+        $this->_creaBoto($form, "actualitza_consulta", "Actualitza", ['id'=>"btn__actualitza_consulta"]);
     }
 
     private function _creaConnectorGrup(&$form, &$ret, $valor="", $grup="0") {
@@ -439,6 +451,25 @@ class SuppliesFormAction extends AdminAction {
 
     static private function ordena($a, $b) {
         return ($a['name'] > $b['name']) ? 1 : (($a['name'] < $b['name']) ? -1 : 0);
+    }
+
+    /**
+     * Recupera el valor de last_grup fent un recorregut per l'arbre
+     * @param array $grups : array de grups
+     * @return array valor de l'última agregació i l'últim grup
+     */
+    private function _getLastGroups($grups) {
+        foreach ($grups as $G => $grup) {
+            $g = explode("_", $G)[1];
+            if (is_numeric($g)) {
+                $ret['last_group'] = $g;
+            }
+            elseif ($g=="G") {
+                $g = explode("_", $G)[2];
+                $ret['lastGgroup'] = $g;
+            }
+        }
+        return $ret;
     }
 
 }
