@@ -1200,6 +1200,7 @@ class ProjectMetaDataQuery extends DataQuery {
         }elseif (is_array($branques)) {
             $ret= [];
             foreach ($branques as $branca) {
+                $branca = str_replace(":", "/", $branca);
                 $ret = array_merge($ret, $this->_selectProjectsByType("$basedir/$branca", $pos, $projectTypes));
             }
         }
