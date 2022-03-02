@@ -616,6 +616,27 @@ class IocCommonFunctions
         return $suma;
     }
 
+    /**
+     * Ordena una taula per una coluna determinada
+     * @param array $taula : taula que es vol ordenar
+     * @param string $field : columna per la qual es vol ordenar la taula
+     * @return array
+     */
+    public static function ARRAY_SORT($taula, $field) {
+        $sorted_table = [];
+        $aux = [];
+        if (!empty($taula)) {
+            foreach($taula as $key => $row) {
+                $aux[$key] = $row[$field];
+            }
+            asort($aux);
+            foreach ($aux as $key => $value) {
+                $sorted_table[] = $taula[$key];
+            }
+        }
+        return $sorted_table;
+    }
+
     public static function GET_PERCENT($suma = 0, $valor = 0, $redondeo = 2)
     {
         return ($suma > 0 && $valor > 0) ? round($valor / $suma * 100, $redondeo) : 0;
