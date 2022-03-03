@@ -15,19 +15,23 @@ class SelectedProjectsAction extends AdminAction {
     }
 
     protected function responseProcess() {
+//        $listId = [];
         $model = $this->getModel();
         $parser = $this->parser($this->params['grups'], $model);
         $listProjects = $model->selectProjectsByType($parser['listProjectTypes'], $parser['branques']);
 
         foreach ($listProjects as $project) {
-            $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
-            $data_all = $model->getAllDataProject($project['id'], $project['projectType']);
-            $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
-            if ($root->getValue()) {
-                $workflow = $model->isProjectTypeWorkflow($project['projectType']);
-                $llista[] = ['id' => $project['id'],
-                             'workflow' => $workflow];
-            }
+//            if (!in_array($project['id'], $listId)) { //evitar los proyectos duplicados
+//                $listId[] = $project['id'];
+                $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
+                $data_all = $model->getAllDataProject($project['id'], $project['projectType']);
+                $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
+                if ($root->getValue()) {
+                        $workflow = $model->isProjectTypeWorkflow($project['projectType']);
+                        $llista[] = ['id' => $project['id'],
+                                     'workflow' => $workflow];
+                }
+//            }
         }
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
@@ -60,6 +64,8 @@ class SelectedProjectsAction extends AdminAction {
                 unset($grups[$key]);
             }
         }
+        $listProjectTypes = array_unique($listProjectTypes);
+
         return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes, 'branques'=>$branques];
     }
 
