@@ -51,7 +51,7 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
         return $data['workflow']['currentState'] && ($data['workflow']['currentState']=="creating" || $data['workflow']['currentState']=="modifiying");
     }
 
-    public function stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet) {
+    public function stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet, $user=FALSE) {
         $actionCommand = $this->getModelAttributes(AjaxKeys::KEY_ACTION);
         $metaDataManagement = $metaDataQuery->getDataProject($id);
         $currentState = $metaDataManagement['workflow']['currentState'];
@@ -61,7 +61,7 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
             $newMetaData['oldState'] = $currentState;
             $newMetaData['newState'] = $newState;
             $newMetaData['changeAction'] = $actionCommand;
-            $newMetaData['user'] = WikiIocInfoManager::getInfo("userinfo")['name'];
+            $newMetaData['user'] = ($user) ? $user : WikiIocInfoManager::getInfo("userinfo")['name'];
             $newMetaData['remarks'] = $remarks;
 
             $metaDataManagement['workflow']['stateHistory'][] = $newMetaData;

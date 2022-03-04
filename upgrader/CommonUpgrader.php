@@ -759,7 +759,7 @@ class ProgramacionsCommonUpgrader extends CommonUpgrader{
         $subSet = "management";
         $metaDataQuery = $this->model->getPersistenceEngine()->createProjectMetaDataQuery($id, $subSet, $projectType);
         $remarks = "actualització del document versió ".$dataProject['documentVersion'];
-        $currentState = $this->model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet);
+        $currentState = $this->model->stateProcess($id, $metaDataQuery, $newState, $remarks, $subSet, "by upgrade");
         return $currentState;
     }
     
