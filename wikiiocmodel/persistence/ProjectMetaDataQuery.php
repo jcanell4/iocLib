@@ -504,9 +504,9 @@ class ProjectMetaDataQuery extends DataQuery {
         return $data[$att];
     }
 
-    public function getProjectSystemSubSetAttr($att, $subset=FALSE) {
+    public function getProjectSystemSubSetAttr($att, $subset=FALSE, $defaultValue=NULL) {
         $data = $this->getSystemData($subset);
-        return $data[$att];
+        return isset($data[$att])?$data[$att]:$defaultValue;
     }
 
     /**

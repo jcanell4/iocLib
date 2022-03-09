@@ -28,8 +28,11 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
     public static function stIsUpdatedDate($obj, $metaDataSubSet) {
         $isUpdated = self::FORA_FINESTRA;
         $projectModel = $obj->getModel();
+        
+        $updatedDate = $projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet, 0);
 
-        if ($projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet) !== NULL) {
+//        if ($projectModel->getProjectSystemSubSetAttr("updatedDate", $metaDataSubSet) !== NULL) {
+        if ($updatedDate !== NULL) {
 
             $confProjectType = $obj->modelManager->getConfigProjectType();
             //obtenir la ruta de la configuració per a aquest tipus de projecte
@@ -82,7 +85,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
                 }
 
                 if ($finestraOberta) {
-                    $updatedDate = $projectModel->getProjectSystemSubSetAttr("updatedDate");
+//                    $updatedDate = $projectModel->getProjectSystemSubSetAttr("updatedDate");
                     $isUpdated = ($updatedDate && $updatedDate >= $inici_semestre->getTimestamp()) ? self::IS_UPDATED : self::NO_IS_UPDATED;
                 }
             }
