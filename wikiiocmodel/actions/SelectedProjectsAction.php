@@ -61,6 +61,7 @@ class SelectedProjectsAction extends AdminAction {
             }
         }
         $listProjectTypes = array_unique($listProjectTypes);
+        $branques = array_unique($branques);
 
         return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes, 'branques'=>$branques];
     }
