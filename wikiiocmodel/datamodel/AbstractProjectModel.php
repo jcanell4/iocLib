@@ -1372,13 +1372,35 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $ret;
     }
 
-    public function preUpgradeProject($subSet) {
-        if(class_exists("systemUpgrader")){
+    public function preUpgradeProject($subSet, $semaphoreName) {
+        if (class_exists("systemUpgrader")){
             $ret = systemUpgrader::preUpgrade($this, $subSet);
-        }else{
+        }else {
             $ret = true;
         }
+        if ($this->getSemaphore($semaphoreName)) {
+            throw new Exception ("El sistema està ocupat. Prova-ho més tard amb un sol clic.");
+        }
         return $ret;
+    }
+
+    /**
+     * Crea un semáforo para el control de acceso
+     * @param string $id : string para la construcción del nombre del archivo de semáforo
+     * @param boolean $set : indica TRUE: si debe crearse el archivo de semáforo o FALSE: sólo el nombre del archivo
+     * @return string : ruta completa del archivo de semáforo
+     */
+    public function setSemaphore($id="", $set=FALSE) {
+        $semaphoreName = $this->projectMetaDataQuery->setSemaphore($id, $set);
+        return $semaphoreName;
+    }
+
+    public function getSemaphore($name) {
+        return $this->projectMetaDataQuery->getSemaphore($name);
+    }
+
+    public function removeSemaphore($name) {
+        $this->projectMetaDataQuery->removeSemaphore($name);
     }
 
     public function createTemplateDocument($data=NULL){

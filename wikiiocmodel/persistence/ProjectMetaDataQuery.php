@@ -708,6 +708,29 @@ class ProjectMetaDataQuery extends DataQuery {
         return $content;
     }
 
+    /**
+     * Crea un semáforo para el control de acceso
+     * @param string $id : string para la construcción del nombre del archivo de semáforo
+     * @param boolean $set : indica TRUE: si debe crearse el archivo de semáforo o FALSE: sólo el nombre del archivo
+     * @return string : ruta completa del archivo de semáforo o false en caso de error
+     */
+    public function setSemaphore($id="", $set=FALSE) {
+        global $conf;
+        $name = $conf['lockdir'].'/'.md5("semàfor$id");
+        if ($set) {
+            $ret = touch($name);
+        }
+        return ($ret || !$set) ? $name : $ret;
+    }
+
+    public function getSemaphore($name) {
+        return file_exists($name);
+    }
+
+    public function removeSemaphore($name) {
+        unlink($name);
+    }
+
     public function setSystemData($data, $metaDataSubSet=FALSE) {
         if (!$metaDataSubSet){
             $metaDataSubSet = $this->getProjectSubset();
