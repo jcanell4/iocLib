@@ -11,24 +11,26 @@
  *
  * @author josep
  */
-class ProjectModelQualityMethods {
-    public function addHistoricGestioDocument(&$data, $date=false) {
-        $data['cc_historic'] = $this->getCurrentDataProject(FALSE, FALSE)['cc_historic'];
-        $hist['data'] = $date?$date:date("Y-m-d");
-        $hist['autor'] = $this->getUserName($data['autor']);
-        $hist['modificacions'] = $data['cc_raonsModificacio'];
-        $data['cc_historic'][] = $hist;
+class ProjectModelQualityMethods extends AbstractMethodsClass{
+    public static function setMethodToObject($object) {
+//        $object->addHistoricGestioDocument = function(&$data, $date=false) {
+//            $data['cc_historic'] = $this->getCurrentDataProject(FALSE, FALSE)['cc_historic'];
+//            $hist['data'] = $date?$date:date("Y-m-d");
+//            $hist['autor'] = $this->getUserName($data['autor']);
+//            $hist['modificacions'] = $data['cc_raonsModificacio'];
+//            $data['cc_historic'][] = $hist;
+//        }->bind($object);
+//        
+//        $object->getUserName = function($users) {
+//            global $auth;
+//            $retUser = "";
+//            $u = explode(",", $users);
+//            foreach ($u as $user) {
+//                $retUser .= $auth->getUserData($user)['name'] . ", ";
+//            }
+//            return trim($retUser, ", ");
+//        };
+//        
     }
-
-    private function getUserName($users) {
-        global $auth;
-        $retUser = "";
-        $u = explode(",", $users);
-        foreach ($u as $user) {
-            $retUser .= $auth->getUserData($user)['name'] . ", ";
-        }
-        return trim($retUser, ", ");
-    }
-
 
 }
