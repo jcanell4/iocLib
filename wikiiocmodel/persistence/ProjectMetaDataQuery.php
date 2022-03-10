@@ -729,7 +729,7 @@ class ProjectMetaDataQuery extends DataQuery {
      * @return boolean : TRUE si el semàfor és vigent, FALSE si ha caducat
      */
     public function getSemaphore($name) {
-        $ret = filemtime($name);
+        $ret = file_exists($name) && filemtime($name);
         if ($ret) {
             $ret = ($ret + 61 > time());
         }
