@@ -1395,10 +1395,19 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $semaphoreName;
     }
 
+    /**
+     * Comprova l'existència del fitxer de semàfor i la seva antiguitat
+     * @param string $name : ruta sencera de l'arxiu de semàfor
+     * @return boolean : TRUE si el semàfor és vigent, FALSE si ha caducat
+     */
     public function getSemaphore($name) {
         return $this->projectMetaDataQuery->getSemaphore($name);
     }
 
+    /**
+     * Elimina el fitxer de semàfor
+     * @param string $name : ruta sensera de l'arxiu de semàfor
+     */
     public function removeSemaphore($name) {
         $this->projectMetaDataQuery->removeSemaphore($name);
     }

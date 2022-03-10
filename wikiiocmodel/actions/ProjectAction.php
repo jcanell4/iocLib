@@ -54,7 +54,8 @@ abstract class ProjectAction extends AbstractWikiAction {
         if (!isset($this->params[ProjectKeys::KEY_REV]) || $this->params[ProjectKeys::KEY_REV]==NULL) {
             if ($this->projectModel->hasDataProject($this->params[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_PROJECT_TYPE], $this->params[ProjectKeys::KEY_METADATA_SUBSET])) {
                 //Actualiza el la estructura y datos del archivo de sistema del proyecto
-                $semaphoreName = $this->projectModel->setSemaphore($this->params[ProjectKeys::KEY_ID], FALSE);
+                $sname = "upgrade{$this->params[ProjectKeys::KEY_ID]}";
+                $semaphoreName = $this->projectModel->setSemaphore($sname, FALSE);
                 if (!$this->projectModel->preUpgradeProject($this->params[ProjectKeys::KEY_METADATA_SUBSET], $semaphoreName)) {
                     throw new Exception ("Error en l'actualització de la versió de l'arxiu de sistema del projecte");
                 }
@@ -62,7 +63,7 @@ abstract class ProjectAction extends AbstractWikiAction {
                 //colección de versiones guardada en el subset del fichero system del proyecto
                 $versions_project = $this->projectModel->getProjectSystemSubSetAttr("versions", $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
 
-                $semaphoreName = $this->projectModel->setSemaphore($this->params[ProjectKeys::KEY_ID], TRUE);
+                $semaphoreName = $this->projectModel->setSemaphore($sname, TRUE);
                 if (!$semaphoreName) {
                     throw new Exception ("El sistema està ocupat. Prova-ho més tard.");
                 }

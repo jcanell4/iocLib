@@ -710,23 +710,36 @@ class ProjectMetaDataQuery extends DataQuery {
 
     /**
      * Crea un semáforo para el control de acceso
-     * @param string $id : string para la construcción del nombre del archivo de semáforo
+     * @param string $name : string para la construcción del nombre del archivo de semáforo
      * @param boolean $set : indica TRUE: si debe crearse el archivo de semáforo o FALSE: sólo el nombre del archivo
      * @return string : ruta completa del archivo de semáforo o false en caso de error
      */
-    public function setSemaphore($id="", $set=FALSE) {
+    public function setSemaphore($name="", $set=FALSE) {
         global $conf;
-        $name = $conf['lockdir'].'/'.md5("semàfor$id");
+        $name = $conf['lockdir'].'/'.md5("semàfor$name");
         if ($set) {
             $ret = touch($name);
         }
         return ($ret || !$set) ? $name : $ret;
     }
 
+    /**
+     * Comprova l'existència del fitxer de semàfor i la seva antiguitat
+     * @param string $name : ruta sencera de l'arxiu de semàfor
+     * @return boolean : TRUE si el semàfor és vigent, FALSE si ha caducat
+     */
     public function getSemaphore($name) {
-        return file_exists($name);
+        $ret = filemtime($name);
+        if ($ret) {
+            $ret = ($ret + 61 > time());
+        }
+        return $ret;
     }
 
+    /**
+     * Elimina el fitxer de semàfor
+     * @param string $name : ruta sensera de l'arxiu de semàfor
+     */
     public function removeSemaphore($name) {
         unlink($name);
     }
