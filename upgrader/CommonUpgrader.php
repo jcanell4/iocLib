@@ -214,6 +214,25 @@ class CommonUpgrader {
         return TRUE;
     }
 
+    /**
+     * Omple seqüencialment el camp 'ordreImparticio' de la taula 'taulaDadesU?'
+     * @param array $data dades del projecte
+     * @param string $taula nom de la taula
+     * @return dades del projecte amb el camp bloc actualitzat
+     */
+    public function updateOrdreImparticioInTaulaDadesUX(&$data, $taula) {
+        $taulaDades = is_array($data[$taula]) ? $data[$taula] : json_decode($data[$taula], TRUE);
+        if (is_array($taulaDades)) {
+            foreach ($taulaDades as $k => $item) {
+                if (!$item['ordreImparticio']) {
+                    $taulaDades[$k]['ordreImparticio'] = $k+1;
+                }
+            }
+            $data[$taula] = json_encode($taulaDades);
+        }
+        return TRUE;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
