@@ -40,6 +40,7 @@ class ProjectPermission extends BasicPermission {
      * @return string|array : rol de mayor precedencia o un array con todos los roles
      */
     public function getRol($all=FALSE) {
+        $ret=array();
         if (!empty($this->rol)) {
             if ($all) {
                 foreach ($this->rol as $order) {

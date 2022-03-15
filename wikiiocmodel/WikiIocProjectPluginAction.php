@@ -90,7 +90,7 @@ class WikiIocProjectPluginAction extends WikiIocPluginAction {
                 if ($aRoles) {
                     $rolButtonVisible = "is${id}ButtonVisible = is${id}ButtonVisible || (";
                     foreach ($aRoles as $value) {
-                        $rolButtonVisible .= "page.rolList.includes('${value}') || ";
+                        $rolButtonVisible .= "page.rolList && page.rolList.includes('${value}') || ";
                     }
                     $rolButtonVisible = substr($rolButtonVisible, 0, -4) . ");";
                 }
