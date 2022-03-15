@@ -196,6 +196,24 @@ class CommonUpgrader {
         return TRUE;
     }
 
+    /**
+     * Omple a 0 el camp bloc de la taula 'taulaInstrumentsAvaluacio'
+     * @param array $data dades del projecte
+     * @return dades del projecte amb el camp bloc actualitzat
+     */
+    public function updateBlocInProgramacions(&$data) {
+        $taulaInstrumentsAvaluacio = is_array($data['taulaInstrumentsAvaluacio']) ? $data['taulaInstrumentsAvaluacio'] : json_decode($data['taulaInstrumentsAvaluacio'], TRUE);
+        if (is_array($taulaInstrumentsAvaluacio)) {
+            foreach ($taulaInstrumentsAvaluacio as $k => $item) {
+                if (!$item['bloc']) {
+                    $taulaInstrumentsAvaluacio[$k]['bloc'] = 0;
+                }
+            }
+            $data['taulaInstrumentsAvaluacio'] = json_encode($taulaInstrumentsAvaluacio);
+        }
+        return TRUE;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                              Actualización de plantillas
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
