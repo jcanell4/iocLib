@@ -76,8 +76,22 @@ class _NodeCondition extends _AbstractNode
     /** @override */
     public function getValue()
     {
+        // TODO: Comprovar si el project type i la branca corresponent, en cas contrari retornar false
+
         $primer = TRUE;
         $resultat = NULL;
+
+        // Si el projectType no es correspon avaluem a false automàticament
+        if (isset($this->node['projecttype']) && isset($this->datasource['__meta__'])
+            && $this->datasource['__meta__']['__projectType__'] !== $this->node['projecttype']) {
+            return false;
+        }
+
+        // Si la branca no es correspon avaluem a false automàticament
+        if (isset($this->node['branca']) && isset($this->datasource['__meta__'])
+            && $this->node['branca'] !== substr($this->datasource['__meta__']['__ns__'], 0, strlen($this->node['branca']))) {
+            return false;
+        }
 
         $operator = $this->node['connector'];
 
@@ -160,7 +174,7 @@ abstract class AbstractInstruction
 
     public function __construct($parser)
     {
-            $this->parser = $parser;
+        $this->parser = $parser;
     }
 
     abstract static public function match($text);
@@ -172,7 +186,7 @@ class DefaultInstruction extends AbstractInstruction
 {
 
     static public $className = "DefaultInstruction";
-    
+
     public function getValue($text = null, $arrays = [], $dataSource = [])
     {
         return $text;
@@ -188,6 +202,7 @@ class LiteralInstruction extends AbstractInstruction
 {
     static public $className = "LiteralInstruction";
     static protected $pattern = "/^(true)$|^(TRUE)$|^(FALSE)$|^(false)$|^'(.*?)'$|^\"(.*?)\"$|^\d+\.?\d*$/ms";
+
     //static protected $pattern = "/^'(.*?)'$|^\"(.*?)\"$/ms";
 
     static public function match($text)
@@ -310,7 +325,7 @@ class FieldInstruction extends AbstractInstruction
         if ($field !== NULL) {
 
             // Només fem parse si es tracta d'un array
-            if (substr($text,0, 1) == "[" && substr($text, -1, 1) =="]") {
+            if (substr($text, 0, 1) == "[" && substr($text, -1, 1) == "]") {
                 $field = $this->parser->parse($field, $arrays, $dataSource);
             }
 
@@ -422,10 +437,10 @@ class RowInstruction extends AbstractInstruction
 
         $content = $arrays[$field];
 
-        if (is_string($content) && substr($content,0, 1) == "[" && substr($content, -1, 1) =="]") {
+        if (is_string($content) && substr($content, 0, 1) == "[" && substr($content, -1, 1) == "]") {
             // si no era un array ha de ser un string amb fomra "[...]"
             $content = $this->parser->parse($content, $arrays, $dataSource);
-        } else if (!is_array($content)){
+        } else if (!is_array($content)) {
             // es erroni
             return null;
         }
@@ -434,12 +449,12 @@ class RowInstruction extends AbstractInstruction
 
 
         $propPos = strpos($text, "#");
-        if ($propPos === FALSE){
+        if ($propPos === FALSE) {
             return $value;
         }
 
         // És un objecte
-        $prop = substr($text, $propPos+1, strlen($text)-1);
+        $prop = substr($text, $propPos + 1, strlen($text) - 1);
 
         $json = json_decode($value, true);
 
@@ -477,18 +492,18 @@ class FunctionInstruction extends AbstractInstruction
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
         $parsedParams = [];
-        for ($i =0; $i<count($params); $i++) {
+        for ($i = 0; $i < count($params); $i++) {
             $parsedParams[] = $this->parser->parse($params[$i], $arrays, $dataSource);
         }
 
         $method = array("IocCommonFunctions", $funcName);
-        if(is_callable($method)){
-            try{
+        if (is_callable($method)) {
+            try {
                 $result = call_user_func_array($method, $parsedParams);
-            } catch (Error $e){
+            } catch (Error $e) {
                 $result = $e->getMessage();
             }
-        }else{
+        } else {
 //            $result = "[ERROR! No existeix la funció ${$method[1]}]";
             $result = null;
         }
@@ -555,7 +570,7 @@ class TreeParserCondition implements ParserDataInterface
     public static function normalizeValue($text = null)
     {
 
-        if ($text==="[]") {
+        if ($text === "[]") {
             return [];
         }
 

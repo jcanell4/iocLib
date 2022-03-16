@@ -22,7 +22,7 @@ class SelectedProjectsAction extends AdminAction {
         foreach ($listProjects as $project) {
             $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
             $data_all = $model->getAllDataProject($project['id'], $project['projectType']);
-            $data_all['__meta__'] = ['__proyectType__' => $project['projectType'],
+            $data_all['__meta__'] = ['__projectType__' => $project['projectType'],
                                      '__ns__' => $project['id'],
                                      '__name__' => substr(strrchr($project['id'], ":"), 1)];
             $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
