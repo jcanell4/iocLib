@@ -47,6 +47,9 @@ class SelectedProjectsAction extends AdminAction {
         $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
             if (preg_match("/grup_(.*)/", $key, $g)) {
+                if (empty($branques) && empty($grup['branca'])) {
+                    $branques = "root";
+                }
                 if ($grup['projecttype']) {
                     if (!empty($grup['projecttype'])) {
                         $listProjectTypes[] = $grup['projecttype'];
@@ -58,13 +61,15 @@ class SelectedProjectsAction extends AdminAction {
                     }else {
                         $branques = "root";
                     }
+                }else {
+                    $listProjectTypes = $model->getListProjectTypes(true);
                 }
             }else {
                 unset($grups[$key]);
             }
         }
         $listProjectTypes = array_unique($listProjectTypes);
-        $branques = array_unique($branques);
+        if (is_array($branques)) $branques = array_unique($branques);
 
         return ['mainGroup'=>$mainGroup, 'grups'=>$grups, 'listProjectTypes'=>$listProjectTypes, 'branques'=>$branques];
     }
