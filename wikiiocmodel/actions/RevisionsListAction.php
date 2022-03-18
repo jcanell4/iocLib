@@ -22,7 +22,8 @@ class RevisionsListAction extends HtmlPageAction {
     }
 
     protected function responseProcess(){
-        return $this->getRevisionList($this->params[PageKeys::KEY_OFFSET]);;
+        $response = $this->getRevisionList();
+        return $response;
     }
 
 }
