@@ -82,13 +82,13 @@ class _NodeCondition extends _AbstractNode
         $resultat = NULL;
 
         // Si el projectType no es correspon avaluem a false automàticament
-        if (isset($this->node['projecttype']) && isset($this->datasource['__meta__'])
+        if (isset($this->node['projecttype']) && !empty($this->node['projecttype']) && isset($this->datasource['__meta__'])
             && $this->datasource['__meta__']['__projectType__'] !== $this->node['projecttype']) {
             return false;
         }
 
         // Si la branca no es correspon avaluem a false automàticament
-        if (isset($this->node['branca']) && isset($this->datasource['__meta__'])
+        if (isset($this->node['branca']) && !empty($this->node['branca']) && isset($this->datasource['__meta__'])
             && $this->node['branca'] !== substr($this->datasource['__meta__']['__ns__'], 0, strlen($this->node['branca']))) {
             return false;
         }

@@ -8,6 +8,7 @@ if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC."lib/plugins/");
 if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN."wikiiocmodel/");
 
 require_once (DOKU_INC."inc/JSON.php");
+require_once (DOKU_PLUGIN . 'wikiiocmodel/metadata/MetaDataExceptions.php');
 
 class ProjectMetaDataQuery extends DataQuery {
 
