@@ -45,24 +45,24 @@ class WiocclSubset extends WiocclInstruction {
     protected function generateSubset() {
         $subset = [];
 
+        if ($this->fullArray && is_array($this->fullArray)) {
+            foreach ($this->fullArray as $row) {
 
-        foreach ($this->fullArray as $row) {
+                // TODO: Extreure a una funció a part per poder reutilizar al foreach, if i subset
+                $this->arrays[$this->itemName] = $row;
 
-            // TODO: Extreure a una funció a part per poder reutilizar al foreach, if i subset
-            $this->arrays[$this->itemName] = $row;
-            
-            $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
-            if ($this->filter->validate()) {
+                $this->filter->parseData($this->arrays, $this->dataSource, $this->resetables);
+                if ($this->filter->validate()) {
 
-                if ($this->fieldName) {
-                    $subset[] = $row[$this->fieldName];
-                } else {
-                    $subset[] = $row;
+                    if ($this->fieldName) {
+                        $subset[] = $row[$this->fieldName];
+                    } else {
+                        $subset[] = $row;
+                    }
+
                 }
-
             }
         }
-
         unset($this->arrays[$this->itemName]);
 
         return $subset;

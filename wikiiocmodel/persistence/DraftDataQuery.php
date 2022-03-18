@@ -126,16 +126,18 @@ class DraftDataQuery extends DataQuery
             $oldDraft = [];
         }
 
-        // Recorrem la llista de headers de old drafts
-        foreach ($oldDraft as $header => $chunk) {
+        if (!empty($oldDraft)) {
+            // Recorrem la llista de headers de old drafts
+            foreach ($oldDraft as $header => $chunk) {
 
-            if (array_key_exists($header, $draft) && $chunk != $draft[$header]) {
-                $chunk['content'] = $draft[$chunk[$header]];
-                $newDraft['content'][$header] = $draft[$header];
-                unset($draft[$header]);
+                if (array_key_exists($header, $draft) && $chunk != $draft[$header]) {
+                    $chunk['content'] = $draft[$chunk[$header]];
+                    $newDraft['content'][$header] = $draft[$header];
+                    unset($draft[$header]);
 
-            } else {
-                $newDraft['content'][$header] = $chunk;
+                } else {
+                    $newDraft['content'][$header] = $chunk;
+                }
             }
         }
 

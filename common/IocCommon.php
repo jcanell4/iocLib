@@ -265,7 +265,7 @@ class IocCommon {
     }
 
     // Busca si algún elemento de $array1 está incluido en $array2
-    public function array_in_array($array1, $array2) {
+    public static function array_in_array($array1, $array2) {
         $has = FALSE;
         if (!is_array($array1)) $array1 = array($array1);
         if (!is_array($array2)) $array2 = array($array2);
@@ -278,11 +278,36 @@ class IocCommon {
         return $has;
     }
 
-    /*
+    /**
      * Devuelve un valor no nulo.
+     * @param mixed $param : valor d'entrada a evaluar
+     * @param mixed $default : valor per defecte a assignar si el valor d'entrada és null
+     * @return mixed : valor no nul
      */
-    public function nz($param=NULL, $default="") {
+    public static function nz($param=NULL, $default="") {
         return ($param==NULL || empty($param) || !isset($param)) ? $default : $param;
     }
 
+    /**
+     * Evalua el valor d'entrada per verificar si es tracta d'un array o un json convertible en array i intenta retornar un array
+     * @param mixed $value : valor d'entrada a examinar
+     * @param string $returnType : tipus de dada retornada després de l'avaluació: string, array, null
+     * @param string $returnValue : valor de retorn per defecte en al cas que el valor d'entrada es transformi a null
+     */
+    public static function toArrayThroughArrayOrJson($value, $returnType="array", $returnValue=0) {
+        if (is_array($value)) {
+            $ret = $value;
+        }else {
+            $ret = json_decode($value, true);
+            if ($ret == NULL) {
+                switch ($returnType) {
+                    case "array": $ret = []; break;
+                    case "string": $ret = ""; break;
+                    case "boolean":
+                    case "number": $ret = $returnValue; break;
+                }
+            }
+        }
+        return $ret;
+    }
 }
