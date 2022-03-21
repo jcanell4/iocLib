@@ -24,6 +24,7 @@ class RevisionsProjectListAction extends ProjectAction {
     protected function runProcess(){
         $response[ProjectKeys::KEY_REV] = $this->getModel()->getProjectRevisionList(0, $this->params[PageKeys::KEY_OFFSET]);
         $response[ProjectKeys::KEY_ID] = $this->idToRequestId($this->params[ProjectKeys::KEY_ID]);
+        $response[ProjectKeys::KEY_PROJECT_TYPE] = $this->params[ProjectKeys::KEY_PROJECT_TYPE];
         return $response;
     }
 
