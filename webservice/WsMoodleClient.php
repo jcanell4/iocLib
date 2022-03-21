@@ -333,9 +333,15 @@ class WsMoodleClient {
         }else{
             $context = $this->getContext("GET");
         }
-        $resp = json_decode(file_get_contents($url, false, $context));      
-        if($resp->exception){
-            $this->requestError = $resp;
+        try {
+            $content = file_get_contents($url, false, $context);
+            $resp = json_decode($content);
+            if ($resp->exception){
+                $this->requestError = $resp;
+            }
+        }catch (Exception $ex) {
+            $resp = $ex;
+            $this->requestError = $ex;
         }
         return $resp;
     }
