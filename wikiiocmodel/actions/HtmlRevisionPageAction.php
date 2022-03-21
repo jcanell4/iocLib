@@ -36,7 +36,7 @@ class HtmlRevisionPageAction extends HtmlPageAction {
 
         $this->addMetaTocResponse($response);
 
-        $response['revs'] = $this->getRevisionList();
+        $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
 
         $this->addNotificationsMetaToResponse($response, $response['ns']);
 

@@ -37,7 +37,7 @@ class CancelPartialEditPageAction extends CancelEditPageAction {
             // TODO: afegir el 'meta' que correspongui perquè si va al requiring dialog, el content tool es crerà de nou
             $this->addMetaTocResponse($response);
             // TODO: afegir les revisions
-            $response['revs'] = $this->getRevisionList();
+            $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
         }
         $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('chunk_closed'), $this->params[PageKeys::KEY_ID]);
         return $response;

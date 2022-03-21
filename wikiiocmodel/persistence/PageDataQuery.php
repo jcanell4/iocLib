@@ -171,12 +171,8 @@ class PageDataQuery extends DataQuery {
          if (count($revisions)>$maxAmount) {
              $ret['show_more_button'] = true;
              array_pop($revisions);
-             $ta = $offset+$maxAmount;
-             //$ret['totalamount'] = "+ de $ta";
         }else{
              $amount = count($revisions);
-             $ta = $offset+$amount;
-             //$ret['totalamount'] = "$ta";
          }
 
         foreach ($revisions as $revision) {

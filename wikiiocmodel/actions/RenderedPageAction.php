@@ -20,7 +20,7 @@ abstract class RenderedPageAction extends PageAction{
         $response = $obj->getModel()->getData();
 
         $obj->addMetaTocResponse($response);
-        $response['revs'] = $obj->getRevisionList();
+        $response[PageKeys::KEY_REVISIONS] = $obj->getRevisionList();
         $obj->addNotificationsMetaToResponse($response);
 
         $meta = WikiIocInfoManager::getInfo('meta');

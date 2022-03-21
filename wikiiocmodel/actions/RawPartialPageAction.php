@@ -79,7 +79,7 @@ class RawPartialPageAction extends EditPageAction {
             $response = $this->_getSelfLockedDialog($data); // <-- acció equivalent al RawPageAction
 //            $response['meta'] = $this->addMetaTocResponse();
             $this->addMetaTocResponse($response);
-            $response['revs'] = $this->getRevisionList();
+            $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
 
         } else {
 
@@ -108,7 +108,7 @@ class RawPartialPageAction extends EditPageAction {
 //                       $response['meta'][] = $this->addMetaTocResponse();
                        $this->addMetaTocResponse($response);
                         // TODO: afegir les revisions
-                       $response['revs'] = $this->getRevisionList();
+                       $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
                    }
                 }
 
@@ -122,7 +122,7 @@ class RawPartialPageAction extends EditPageAction {
 //                $response['meta'][] = $this->addMetaTocResponse();
                 $this->addMetaTocResponse($response);
                 // TODO: afegir les revisions
-                $response['revs'] = $this->getRevisionList();
+                $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
 
             }
         }

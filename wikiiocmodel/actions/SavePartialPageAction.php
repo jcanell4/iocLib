@@ -65,7 +65,7 @@ class SavePartialPageAction extends SavePageAction{
 
             $this->addMetaTocResponse($response);
 
-            $response['revs'] = $this->getRevisionList();
+            $response[PageKeys::KEY_REVISIONS] = $this->getRevisionList();
             $response["lockInfo"] = $this->lockStruct["info"];
 
             return $response;
