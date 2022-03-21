@@ -1558,12 +1558,12 @@ class ProjectMetaDataQuery extends DataQuery {
 
     /**
      * Retorna un array con las líneas del archivo de log .changes
-     * @param string $projectId
-     * @param int    $num        Número de registros solicitados
-     * @param int    $chunk_size Máximo número de bytes que van a leerse del fichero de log
+     * @param int $num : Número de registros solicitados
+     * @param int $offset : inicio del subconjunto de registros a retornar
+     * @param int $chunk_size : Máximo número de bytes que van a leerse del fichero de log
      * @return array
      */
-    public function getProjectRevisionList($num=1, $chunk_size=1024) {
+    public function getProjectRevisionList($num=1, $offset=0, $chunk_size=8192) {
         $revs = array();
         $actrev = $this->getActualRevision(); //¿A QUE MOLA MUCHO?
         $this->setActualRevision(TRUE);
@@ -1587,7 +1587,7 @@ class ProjectMetaDataQuery extends DataQuery {
                     fclose($fh);
                 }
             }
-            for ($i=0; $i<$num; $i++) {
+            for ($i=$offset; $i<$num; $i++) {
                 if (!empty(trim($lines[$i]))) {
                     $registre = explode("\t", $lines[$i]);
                     $revs[$registre[0]]['date'] = date("d-m-Y h:i:s", $registre[0]);

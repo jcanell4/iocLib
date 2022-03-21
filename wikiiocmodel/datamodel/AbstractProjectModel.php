@@ -1252,7 +1252,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $a[$subSet];
     }
 
-    //TODO PEL RAFA: AIXÒ HA DE PASSAR AL ProjectDataQuery
     //Obtiene la fecha de una revisión específica del proyecto solicitado
     public function getDateRevisionProject($rev) {
         $file_revision = $this->projectMetaDataQuery->getFileName($this->id, [ProjectKeys::KEY_REV => $rev]);
@@ -1332,8 +1331,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @param integer $num Número de revisiones solicitadas El valor 0 significa obtener todas las revisiones
      * @return array  Contiene $num elementos de la lista de revisiones del fichero de proyecto obtenidas del log .changes
      */
-    public function getProjectRevisionList($num=0) {
-        $revs = $this->projectMetaDataQuery->getProjectRevisionList($num);
+    public function getProjectRevisionList($num=0, $offset=0) {
+        $revs = $this->projectMetaDataQuery->getProjectRevisionList($num, $offset);
         if ($revs) {
             $amount = WikiGlobalConfig::getConf('revision-lines-per-page', 'wikiiocmodel');
             if (($revs["totalamount"] = count($revs)) > $amount) {
