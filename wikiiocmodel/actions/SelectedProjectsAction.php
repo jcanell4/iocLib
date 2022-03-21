@@ -20,16 +20,21 @@ class SelectedProjectsAction extends AdminAction {
         $listProjects = $model->selectProjectsByType($parser['listProjectTypes'], $parser['branques']);
 
         foreach ($listProjects as $project) {
-            $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
-            $data_all = $model->getAllDataProject($project['id'], $project['projectType']);
-            $data_all['__meta__'] = ['__projectType__' => $project['projectType'],
-                                     '__ns__' => $project['id'],
-                                     '__name__' => substr(strrchr($project['id'], ":"), 1)];
-            $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
-            if ($root->getValue()) {
-                    $workflow = $model->isProjectTypeWorkflow($project['projectType']);
-                    $llista[] = ['id' => $project['id'],
-                                 'workflow' => $workflow];
+            try{
+                $data_main = $model->getDataProject($project['id'], $project['projectType'], "main");
+                $data_all = $model->getAllDataProject($project['id'], $project['projectType']);
+                $data_all['__meta__'] = ['__projectType__' => $project['projectType'],
+                                         '__ns__' => $project['id'],
+                                         '__name__' => substr(strrchr($project['id'], ":"), 1)];
+                $root = NodeFactory::getNode($parser['grups'], $parser['mainGroup'], $data_main, $data_all);
+                if ($root->getValue()) {
+                        $workflow = $model->isProjectTypeWorkflow($project['projectType']);
+                        $llista[] = ['id' => $project['id'],
+                                     'workflow' => $workflow];
+                }
+            } catch (MalFormedJSON $er){
+                //error
+                $llista[] = ["id" => "Error MalFormedJSON in {$project['id']}", "workflow" => false];
             }
         }
 
@@ -46,6 +51,9 @@ class SelectedProjectsAction extends AdminAction {
         $grups = (is_string($G)) ? json_decode(str_replace("'", '"', $G), true) : $G;
         $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
+            if($grup['type']=='aggregation'){
+                continue;
+            }
             if (preg_match("/grup_(.*)/", $key, $g)) {
                 if (empty($branques) && empty($grup['branca'])) {
                     $branques = "root";
