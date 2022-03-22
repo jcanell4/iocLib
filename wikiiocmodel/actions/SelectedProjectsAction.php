@@ -51,7 +51,7 @@ class SelectedProjectsAction extends AdminAction {
         $grups = (is_string($G)) ? json_decode(str_replace("'", '"', $G), true) : $G;
         $mainGroup = "grup_${grups['main_group']}";
         foreach ($grups as $key => $grup) {
-            if($grup['type']=='aggregation'){
+            if (is_array($grup) && $grup['type']=='aggregation'){
                 continue;
             }
             if (preg_match("/grup_(.*)/", $key, $g)) {
