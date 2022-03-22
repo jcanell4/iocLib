@@ -22,19 +22,17 @@ abstract class abstract_project_command_class extends abstract_command_class {
     public function init( $modelManager = NULL ) {
         parent::init($modelManager);
         if ($this->params[ProjectKeys::KEY_PROJECT_ID]) {
-            $id = ($this->params[ProjectKeys::KEY_PROJECT_ID]);
+            $id = $this->params[ProjectKeys::KEY_PROJECT_ID];
         }else if($this->params[ProjectKeys::KEY_NS]) {
             $id = $this->params[ProjectKeys::KEY_NS];
         }else {
             $id = $this->params[ProjectKeys::KEY_ID];
         }
         $roles = $this->getModelManager()->getProjectRoleData($id,
-                                                                $this->params[ProjectKeys::KEY_PROJECT_TYPE],
-                                                                $this->params[ProjectKeys::KEY_REV],
-                                                                "",  // Es deixa en blanc perque aquesta classe només
-                                                                     // s'instància per obtenir els roles i desprès es
-                                                                     // descarta!
-                                                                $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
+                                                              $this->params[ProjectKeys::KEY_PROJECT_TYPE],
+                                                              NULL, // Es deixa en blanc perque aquesta classe només
+                                                              "",   // s'instància per obtenir els rols i desprès es descarta
+                                                              $this->params[ProjectKeys::KEY_METADATA_SUBSET]);
         $this->dataProject = $roles["roleData"];
         $this->roleProperties = $roles["roleProperties"];
     }
