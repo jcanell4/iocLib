@@ -200,18 +200,20 @@ class ArrayFieldProjectUpdateProcessor{
         if (is_string($projectMetaData[$field])){
             $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
         }
-        for ($i=0; $i<count($projectMetaData[$field]); $i++) {
-            $condition = TRUE;
-            if (is_array($conditions) && !empty($conditions)) {
-                $condition = self::_evalCondition($projectMetaData[$field][$i], $conditions);
-            }
-            if ($condition) {
-                $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
-                if ($obj->hasParam("concat")){
-                    $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+        if ($projectMetaData[$field] && is_array($projectMetaData[$field])) {
+            for ($i=0; $i<count($projectMetaData[$field]); $i++) {
+                $condition = TRUE;
+                if (is_array($conditions) && !empty($conditions)) {
+                    $condition = self::_evalCondition($projectMetaData[$field][$i], $conditions);
                 }
-                if ($obj->hasParam("returnType")){
-                    $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
+                if ($condition) {
+                    $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
+                    if ($obj->hasParam("concat")){
+                        $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
+                    }
+                    if ($obj->hasParam("returnType")){
+                        $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
+                    }
                 }
             }
         }
