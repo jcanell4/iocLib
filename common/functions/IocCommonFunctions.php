@@ -603,12 +603,12 @@ class IocCommonFunctions
             if ($filter_field !== NULL && $filter_value !== NULL) {
                 foreach ($taula as $fila) {
                     if (self::_arrayFilter($fila, $filter_value, $filter_field, $strict)) {
-                        $suma += IocCommon::nz($fila[$camp], 0);
+                        $suma += (is_string($fila[$camp]) && $fila[$camp]=="null") ? 0 : $fila[$camp];
                     }
                 }
             } else {
                 foreach ($taula as $fila) {
-                    $suma += IocCommon::nz($fila[$camp], 0);
+                    $suma += (is_string($fila[$camp]) && $fila[$camp]=="null") ? 0 : $fila[$camp];
                 }
             }
         }
