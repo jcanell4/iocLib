@@ -1227,20 +1227,22 @@ class BasicPdfRenderer {
 
     private function getImgReduction($file, $p) {
         list($w, $h) = getimagesize($file);
-        if ($w > $this->getMaxImgSize()) {
-            $wreduc = $this->getMaxImgSize() / $w;
+        $maxImgSize = $this->getMaxImgSize();
+        $wreduc = $hreduc = 1;
+        if ($w > $maxImgSize) {
+            $wreduc = $maxImgSize / $w;
         }
-        if ($h > $this->getMaxImgSize()) {
-            $hreduc = $this->getMaxImgSize() / $h;
+        if ($h > $maxImgSize) {
+            $hreduc = $maxImgSize / $h;
         }
         $r0 = ($wreduc < $hreduc) ? $wreduc : $hreduc;
 
         $wreduc = $hreduc = 1;
-        if ($p['w'] && $p['w'] > $this->getMaxImgSize()) {
-            $wreduc = $this->getMaxImgSize() / $p['w'];
+        if ($p['w'] && $p['w'] > $maxImgSize) {
+            $wreduc = $maxImgSize / $p['w'];
         }
-        if ($p['h'] && $p['h'] > $this->getMaxImgSize()) {
-            $hreduc = $this->getMaxImgSize() / $p['h'];
+        if ($p['h'] && $p['h'] > $maxImgSize) {
+            $hreduc = $maxImgSize / $p['h'];
         }
         $r1 = ($wreduc < $hreduc) ? $wreduc : $hreduc;
 
@@ -1436,22 +1438,17 @@ class BasicPdfRenderer {
                 break;
 
             case ImageNodeDoc::IMAGE_TYPE:
-                if (preg_match("|\.gif$|", $content["src"], $t)) {
-                    //El formato GIF no está soportado
-                    $ret = " {$content["title"]} ";
-                }else {
-                    preg_match("|.*".DOKU_BASE."(.*)|", $content["src"], $t);
-                    $reduc = $this->getImgReduction($content["src"], ['w'=>$content["width"], 'h'=>$content["height"]]);
+                preg_match("|.*".DOKU_BASE."(.*)|", $content["src"], $t);
+                $reduc = $this->getImgReduction($content["src"], ['w'=>$content["width"], 'h'=>$content["height"]]);
 
-                    $ret = ' <img src="'.DOKU_BASE.$t[1].'"';
-                    if ($content["title"])
-                        $ret.= ' alt="'.$content["title"].'"';
-                    if ($content["width"])
-                        $ret.= ' width="' . $content["width"]*$reduc . '"';
-                    if ($content["height"])
-                        $ret.= ' height="' . $content["height"]*$reduc . '"';
-                    $ret.= '> ';
-                }
+                $ret = ' <img src="'.DOKU_BASE.$t[1].'"';
+                if ($content["title"])
+                    $ret.= ' alt="'.$content["title"].'"';
+                if ($content["width"])
+                    $ret.= ' width="' . $content["width"]*$reduc . '"';
+                if ($content["height"])
+                    $ret.= ' height="' . $content["height"]*$reduc . '"';
+                $ret.= '> ';
                 break;
 
             case LeafNodeDoc::ACRONYM_TYPE:
