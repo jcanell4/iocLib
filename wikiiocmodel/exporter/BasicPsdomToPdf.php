@@ -1438,17 +1438,28 @@ class BasicPdfRenderer {
                 break;
 
             case ImageNodeDoc::IMAGE_TYPE:
-                preg_match("|.*".DOKU_BASE."(.*)|", $content["src"], $t);
-                $reduc = $this->getImgReduction($content["src"], ['w'=>$content["width"], 'h'=>$content["height"]]);
+                if (preg_match("|\.gif$|", $content["src"], $t)) {
+                    //El formato GIF no está soportado
+                    preg_match("|.*".DOKU_BASE."(.*)|", $content["src"], $t);
+                    $link = ($content["linking"]) ? $content["linking"] : str_replace(":", "/", "../img/${content['id']}");
+                    $ret = ' <a href="'.$link.'">';
+                    $ret .= '<img src="'.DOKU_BASE.'lib/images/fileicons/gif.png"';
+                    if ($content["title"])
+                        $ret.= ' alt="'.$content["title"].'"';
+                    $ret.= '> '.$content["title"].'</a> ';
+                }else {
+                    preg_match("|.*".DOKU_BASE."(.*)|", $content["src"], $t);
+                    $reduc = $this->getImgReduction($content["src"], ['w'=>$content["width"], 'h'=>$content["height"]]);
 
-                $ret = ' <img src="'.DOKU_BASE.$t[1].'"';
-                if ($content["title"])
-                    $ret.= ' alt="'.$content["title"].'"';
-                if ($content["width"])
-                    $ret.= ' width="' . $content["width"]*$reduc . '"';
-                if ($content["height"])
-                    $ret.= ' height="' . $content["height"]*$reduc . '"';
-                $ret.= '> ';
+                    $ret = ' <img src="'.DOKU_BASE.$t[1].'"';
+                    if ($content["title"])
+                        $ret.= ' alt="'.$content["title"].'"';
+                    if ($content["width"])
+                        $ret.= ' width="' . $content["width"]*$reduc . '"';
+                    if ($content["height"])
+                        $ret.= ' height="' . $content["height"]*$reduc . '"';
+                    $ret.= '> ';
+                }
                 break;
 
             case LeafNodeDoc::ACRONYM_TYPE:
