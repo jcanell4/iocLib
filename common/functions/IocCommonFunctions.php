@@ -596,20 +596,19 @@ class IocCommonFunctions
      * @param type $filter_value : valor del filtre que cal comparar
      * @return numeric : suma total de los valores del campo $camp
      */
-    public static function ARRAY_GET_SUM($taula, $camp, $filter_field = NULL, $filter_value = NULL, $strict = false)
+    public static function ARRAY_GET_SUM($taula, $camp, $filter_field=NULL, $filter_value=NULL, $strict=false)
     {
         $suma = 0;
         if (!empty($taula)) {
             if ($filter_field !== NULL && $filter_value !== NULL) {
                 foreach ($taula as $fila) {
-//                    if ($fila[$filter_field] == $filter_value) {
                     if (self::_arrayFilter($fila, $filter_value, $filter_field, $strict)) {
-                        $suma += $fila[$camp];
+                        $suma += IocCommon::nz($fila[$camp], 0);
                     }
                 }
             } else {
                 foreach ($taula as $fila) {
-                    $suma += $fila[$camp];
+                    $suma += IocCommon::nz($fila[$camp], 0);
                 }
             }
         }
