@@ -128,8 +128,69 @@ class EventMoodle{
     }
 }
 
+class WsMoodleSession extends WsMoodleClient {
+
+    //Keep the users session alive
+    function refreshUserSession($user) {
+        $this->setWsFunction("core_user_get_users_by_field");
+        $params = ['field' => "username",
+                   'values' => [$user]
+                  ];
+        $json = $this->sendRequest($params, "core_user_get_users_by_field");
+
+        if ($this->requestError != NULL){
+            throw new Exception($json->message);
+        }else{
+            $ret = $json[0]->id;
+        }
+
+//        $this->setWsFunction("core_competency_count_competencies_in_course ");
+//        $params = ['id' => 0];
+//        $json = $this->sendRequest($params, "core_competency_count_competencies_in_course ");
+//
+//        if ($this->requestError != NULL){
+//            throw new Exception($json->message);
+//        }else{
+//            $ret = $json;
+//        }
+
+        return $ret;
+    }
+
+    //Keep the users session alive
+    function keepUserSessionAlive($id=0) {
+        //https://docs.moodle.org/all/es/Manejo_de_la_sesi%C3%B3n#File_session_driver
+        //https://docs.moodle.org/dev/Web_service_API_functions
+        $this->setWsFunction("core_session_touch");
+        $params = ['userid' => $id];
+        $json = $this->sendRequest($params, "core_session_touch");
+
+        if ($this->requestError != NULL){
+            throw new Exception($json->message);
+        }else{
+            $ret = $json;
+        }
+        return $ret;
+    }
+
+    //Count the seconds remaining in this session
+    function timeSessionRemaining($id=0) {
+        $this->setWsFunction("core_session_time_remaining");
+        $params = ['userid' => $id];
+        $json = $this->sendRequest($params, "core_session_time_remaining");
+
+        if ($this->requestError != NULL){
+            throw new Exception($json->message);
+        }else{
+            $ret = $json;
+        }
+        return $ret;
+    }
+
+}
+
 class WsMoodleCalendar extends WsMoodleClient{
-    
+
     public function getEventsForCourseId($courseId){
         $params = [
             "events" =>[
