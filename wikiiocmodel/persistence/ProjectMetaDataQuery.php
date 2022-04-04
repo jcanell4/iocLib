@@ -314,7 +314,7 @@ class ProjectMetaDataQuery extends DataQuery {
             }
         }else{
             $ret = $workflow[$estat]['actions'][$action];
-        }        
+        }
         return $ret;
     }
 
@@ -1628,5 +1628,25 @@ class ProjectMetaDataQuery extends DataQuery {
     //$mabit = es refereix al lloc on es troba el fitxer (data, media, attic, etc.)
     public function renameFile($nsParcial, $ambit="data"){
         throw new UnavailableMethodExecutionException("renameFile");
+    }
+
+    /**
+     * Carrega la configuració de vistes
+     */
+    public function getMetaDataActionViews() {
+        $ret = NULL;
+        $views = $this->getMetaDataJsonFile(FALSE, "configViews.json");
+//        if (($shortcut = $views[$estat]['actions'][$action]['shortcut'])) {
+//            $ret = $workflow[$shortcut]['actions'][$action];
+//            foreach ($workflow[$estat]['actions'][$action] as $key => $value) {
+//                if($key!=='shortcut'){
+//                    $ret[$key] = $value;
+//                }
+//            }
+//        }else{
+//            $ret = $workflow[$estat]['actions'][$action];
+//        }
+//        return $ret;
+        return $views['views'];
     }
 }
