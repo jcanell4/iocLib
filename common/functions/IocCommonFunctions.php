@@ -189,6 +189,7 @@ class IocCommonFunctions
     }
 
     // ALERTA: El paràmetre de la funció no ha d'anar entre cometes, ja es tracta d'un JSON vàlid
+    // És alias de OBJECT_GET_VALUE
     public static function ARRAY_GET_VALUE($key, $array, $defaultValue = FALSE){ //Alias de Object_GET_VALUE
         return IocCommonFunctions::OBJECT_GET_VALUE($key, $array);
     }
