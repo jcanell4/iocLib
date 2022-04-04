@@ -144,20 +144,11 @@ class WsMoodleSession extends WsMoodleClient {
             $ret = $json[0]->id;
         }
 
-//        $this->setWsFunction("core_competency_count_competencies_in_course ");
-//        $params = ['id' => 0];
-//        $json = $this->sendRequest($params, "core_competency_count_competencies_in_course ");
-//
-//        if ($this->requestError != NULL){
-//            throw new Exception($json->message);
-//        }else{
-//            $ret = $json;
-//        }
-
         return $ret;
     }
 
     //Keep the users session alive
+    // ALERT: Aquest webservice no està implementat al moodle
     function keepUserSessionAlive($id=0) {
         //https://docs.moodle.org/all/es/Manejo_de_la_sesi%C3%B3n#File_session_driver
         //https://docs.moodle.org/dev/Web_service_API_functions
@@ -174,6 +165,7 @@ class WsMoodleSession extends WsMoodleClient {
     }
 
     //Count the seconds remaining in this session
+    // ALERT: Aquest webservice no està implementat al moodle
     function timeSessionRemaining($id=0) {
         $this->setWsFunction("core_session_time_remaining");
         $params = ['userid' => $id];
