@@ -1494,22 +1494,23 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     public function filesToExportList() {
         $ret = array();
-        $connData = $this->getFtpConfigData();
         $metadata = $this->getMetaDataFtpSender();
         if (!empty($metadata["files"])) {
-            foreach ($metadata["files"] as $n => $objFile) {
+            foreach ($metadata["files"] as $f => $objFile) {
                 $suff = (empty($objFile['suffix'])) ? "" : "_{$objFile['suffix']}";
                 $path = ($objFile['local']==='mediadir') ? WikiGlobalConfig::getConf('mediadir')."/".str_replace(':', '/', $this->id)."/" : $objFile['local'];
                 if (($dir = @opendir($path))) {
                     while ($file = readdir($dir)) {
                         if (!is_dir("$path/$file") && preg_match("/.+${suff}\.{$objFile['type']}$/", $file) ) {
-                            $ret[$n]['file'] = $file;
-                            $ret[$n]['local'] = $path;
-                            $ret[$n]['action'] = $objFile['action'];
+                            $ret[$f]['file'] = $file;
+                            $ret[$f]['local'] = $path;
+                            $ret[$f]['action'] = $objFile['action'];
+                            $ret[$f]['ftpId'] = (empty($objFile['ftpId'])) ? $metadata['ftpId'] : $objFile['ftpId'];
+                            $connData = $this->getFtpConfigData($ret[$f]['ftpId']);
                             $rBase = (empty($objFile['remoteBase'])) ? (empty($metadata['remoteBase'])) ? $connData["remoteBase"] : $metadata['remoteBase'] : $objFile['remoteBase'];
                             $rDir  = (empty($objFile['remoteDir'])) ? (empty($metadata['remoteDir'])) ? $connData["remoteDir"] : $metadata['remoteDir'] : $objFile['remoteDir'];
-                            $ret[$n]['remoteBase'] = $rBase;
-                            $ret[$n]['remoteDir'] = $rDir;
+                            $ret[$f]['remoteBase'] = $rBase;
+                            $ret[$f]['remoteDir'] = $rDir;
                         }
                     }
                 }
@@ -1561,7 +1562,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @return string HTML per a les metadades
      */
     public function get_ftpsend_metadata($useSavedTime=TRUE) {
-        $connData = $this->getFtpConfigData();
         $mdFtpSender = $this->getMetaDataFtpSender();
         $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
 
@@ -1575,6 +1575,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
         if ($fileexists && (!$useSavedTime || ($savedtime === $filetime))) {
             foreach ($mdFtpSender['files'] as $objFile) {
+                $ftpId = (empty($objFile[ProjectKeys::KEY_FTPID])) ? $mdFtpSender[ProjectKeys::KEY_FTPID] : $objFile[ProjectKeys::KEY_FTPID];
+                $connData = $this->getFtpConfigData($ftpId);
+                
                 $index = (empty($objFile['remoteIndex'])) ? $mdFtpSender['remoteIndex'] : $objFile['remoteIndex'];
                 if (empty($index)) {
                     $outfile = str_replace(":", "_", $this->id);

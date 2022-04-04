@@ -62,7 +62,6 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
         $html = '';
         $mdFtpSender = $this->getMetaDataFtpSender();
         if (!empty($mdFtpSender) && isset($mdFtpSender['files'])) {
-            $connData = $this->getFtpConfigData($mdFtpSender[ProjectKeys::KEY_FTPID]);
             $ruta = str_replace(':', '/', $this->id)."/";
             $fileNames = $this->_constructArrayFileNames($this->id, $mdFtpSender['files']);
 
@@ -77,6 +76,9 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
                     $fileexists = (!$useSavedTime || ($savedtime === $filetime));
                 }
                 if ($fileexists) {
+                    $ftpId = (empty($ofile[ProjectKeys::KEY_FTPID])) ? $mdFtpSender[ProjectKeys::KEY_FTPID] : $ofile[ProjectKeys::KEY_FTPID];
+                    $connData = $this->getFtpConfigData($ftpId);
+
                     $unzip = in_array(1, $ofile['action']);  //0:action tipo copy, 1:action tipo unzip
                     $data = date("d/m/Y H:i:s", $filetime);
                     $index = $filename;
@@ -123,25 +125,26 @@ abstract class UniqueContentFileProjectModel extends AbstractProjectModel{
      */
     public function filesToExportList() {
         $ret = array();
-        $connData = $this->getFtpConfigData();
         $metadata = $this->getMetaDataFtpSender();
         $ruta = str_replace(':', '/', $this->id)."/";
         if (!empty($metadata["files"])) {
-            foreach ($metadata["files"] as $n => $objFile) {
+            foreach ($metadata["files"] as $f => $objFile) {
                 $suff = (empty($objFile['suffix'])) ? "" : "_{$objFile['suffix']}";
                 $path = ($objFile['local']==='mediadir') ? WikiGlobalConfig::getConf('mediadir')."/$ruta" : $objFile['local'];
                 if (($dir = @opendir($path))) {
                     while ($file = readdir($dir)) {
                         if (!is_dir("$path/$file") && preg_match("/.+${suff}\.{$objFile['type']}$/", $file) ) {
-                            $ret[$n]['file'] = $file;
-                            $ret[$n]['local'] = $path;
-                            $ret[$n]['action'] = $objFile['action'];
+                            $ret[$f]['file'] = $file;
+                            $ret[$f]['local'] = $path;
+                            $ret[$f]['action'] = $objFile['action'];
                             $unzip = in_array(1, $objFile['action']);  //0:action tipo copy, 1:action tipo unzip
+                            $ret[$f]['ftpId'] = (empty($objFile['ftpId'])) ? $metadata['ftpId'] : $objFile['ftpId'];
+                            $connData = $this->getFtpConfigData($ret[$f]['ftpId']);
                             $rBase = (empty($objFile['remoteBase'])) ? (empty($metadata['remoteBase'])) ? $connData["remoteBase"] : $metadata['remoteBase'] : $objFile['remoteBase'];
                             $rDir  = (empty($objFile['remoteDir'])) ? (empty($metadata['remoteDir'])) ? $connData["remoteDir"] : $metadata['remoteDir'] : $objFile['remoteDir'];
                             $rDir .= ($unzip) ? $ruta.pathinfo($file, PATHINFO_FILENAME)."/" : $ruta;
-                            $ret[$n]['remoteBase'] = $rBase;
-                            $ret[$n]['remoteDir'] = $rDir;
+                            $ret[$f]['remoteBase'] = $rBase;
+                            $ret[$f]['remoteDir'] = $rDir;
                         }
                     }
                 }
