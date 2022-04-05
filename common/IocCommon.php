@@ -126,6 +126,9 @@ class IocCommon {
             return $infoB;
         elseif (!$infoB)
             return $infoA;
+        
+        if (!is_array($infoA)) $infoA = [];
+        if (!is_array($infoB)) $infoB = [];
 
         if ( $infoA['type'] == 'debug' || $infoB['type'] == 'debug' ) {
             $info['type'] = 'debug';
@@ -145,20 +148,20 @@ class IocCommon {
         }
 
         // El $id i el timestamp ha de ser el mateix per a tots dos
-        $info ['timestamp'] = $infoA['timestamp'];
-        $info ['id']        = $infoA['id'];
+        $info['timestamp'] = $infoA['timestamp'];
+        $info['id']        = $infoA['id'];
 
         $messageStack = [ ];
 
-        if ( is_string( $infoA ['message'] ) ) {
+        if ( is_string($infoA['message']) ) {
             $messageStack[] = $infoA['message'];
-        } else if ( is_array( $infoA['message'] ) ) {
+        } else if ( is_array($infoA['message']) ) {
             $messageStack = $infoA['message'];
         }
 
-        if ( is_string( $infoB ['message'] ) ) {
+        if ( is_string($infoB['message']) ) {
             $messageStack[] = $infoB['message'];
-        } else if ( is_array( $infoB['message'] ) ) {
+        } else if (is_array($infoB['message']) ) {
             $messageStack = array_merge($messageStack, $infoB['message']);
         }
 
