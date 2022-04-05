@@ -25,7 +25,11 @@ class ViewMediaDetailsAction extends MediaAction {
         }else if ($MSG[0] && $MSG[0]['lvl'] == 'error') {
             throw new HttpErrorCodeException($MSG[0]['msg'], 404);
         }
-        $JSINFO = array(MediaKeys::KEY_ID => $image, MediaKeys::KEY_NAMESPACE => $NS);
+
+        if (!$JSINFO) {
+            $JSINFO = [];
+        }
+
 
         $image = ($mdpp['newImage']) ? $mdpp['newImage'] : $this->params[MediaKeys::KEY_IMAGE];
         $response = array(
@@ -41,6 +45,10 @@ class ViewMediaDetailsAction extends MediaAction {
         if ($this->params[MediaKeys::KEY_MEDIA_DO] === MediaKeys::KEY_DIFF) {
             $response[MediaKeys::KEY_MEDIA_DO] = $this->params[MediaKeys::KEY_MEDIA_DO];
         }
+
+        $JSINFO[MediaKeys::KEY_ID]  = $image;
+        $JSINFO[MediaKeys::KEY_NAMESPACE]  = $NS;
+
         return $response;
     }
 

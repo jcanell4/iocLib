@@ -31,8 +31,13 @@ class ViewMediaAction extends MediaAction {
             "modifyImageLabel" => $lang['img_manager'],
             "closeDialogLabel" => $lang['img_backto']
         );
-        $JSINFO = [MediaKeys::KEY_ID => MediaKeys::KEY_MEDIA,
-                   MediaKeys::KEY_NAMESPACE => $NS];
+
+        if (!$JSINFO) {
+            $JSINFO = [];
+        }
+        $JSINFO[MediaKeys::KEY_ID] = MediaKeys::KEY_MEDIA;
+        $JSINFO[MediaKeys::KEY_NAMESPACE] = $NS;
+
         return $response;
     }
 
