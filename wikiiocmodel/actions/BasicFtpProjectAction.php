@@ -20,10 +20,9 @@ class BasicFtpProjectAction extends ProjectAction{
         $filesToSend = $this->getModel()->filesToExportList(); //crear la funció filesToExportList a cada projectModel amb les dades a tractar
 
         if ($filesToSend) {
-            $connectionData = $this->getModel()->getFtpConfigData();  //datos de conexión de local.protected
-            $this->ftpSender->setConnectionData($connectionData);
-
             foreach ($filesToSend as $afile) {
+                $connectionData = $this->getModel()->getFtpConfigData($afile[ProjectKeys::KEY_FTPID]);  //datos de conexión de local.protected
+                $this->ftpSender->setConnectionData($connectionData);
                 $this->ftpSender->addObjectToSendList($afile['file'], $afile['local'], $afile['remoteBase'], $afile['remoteDir'], $afile['action']);
             }
         }
