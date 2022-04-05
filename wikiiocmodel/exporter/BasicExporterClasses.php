@@ -559,26 +559,10 @@ class BasicRenderDocument extends BasicRenderObject{
     }
 
     public function cocinandoLaPlantillaConDatos($data) {
-        $ret = "";
         $isArray = is_array($data);
         $isObject = $isArray && array_keys($data) !== range(0, count($arr) - 1);
-//        $fl = true;
-        if($isObject){
-//            foreach ($data as $k => $v){
-//                $sep = $fl?"":", ";
-//                $value = $this->cocinandoLaPlantillaConDatos($v);
-//                $ret .= "$sep$k: $value";
-//                $fl=false;
-//            }
+        if ($isObject || $isArray){
             $ret = json_encode($data);
-        }else if($isArray){
-//            foreach ($data as $v){
-//                $sep = $fl?"":",";
-//                $value = $this->cocinandoLaPlantillaConDatos($v);
-//                $ret .= "$sep$k: $value";
-//                $fl=false;
-//            }
-            $ret = json_encode($data);            
         }else{
             $ret = $data;
         }
@@ -616,12 +600,6 @@ class BasicRenderLatexDocument extends BasicRenderDocument{
 }
 
 class BasicRenderHtmlDocument extends BasicRenderDocument{
-//    protected $max_menu;
-//    protected $max_navmenu;
-//    protected $media_path = 'lib/exe/fetch.php?media=';
-//    protected $menu_html = '';
-    //protected $tree_names = array();
-//    protected $web_folder = 'WebContent';
     protected $time_start;
     protected $ioclangcontinue;
     protected $initialized = FALSE;
@@ -662,6 +640,18 @@ class BasicRenderHtmlDocument extends BasicRenderDocument{
             }
         }
     }    
+
+    /**
+     * Genera un JSON a partir de un template WIOCCL y los datos del proyecto
+     * @param array $data : Datos del proyecto
+     * @param type $file : ruta del fichero template
+     * @return JSON
+     */
+    protected function replaceInJsonTemplate($data, $file) {
+        $tmplt = $this->loadTemplateFile($file);
+        $document = WiocclParser::getValue($tmplt, [], $data);
+        return "{".trim($document, " \n,")."}";
+    }
     
     protected function getDirFiles($dir){
         $files = array();
