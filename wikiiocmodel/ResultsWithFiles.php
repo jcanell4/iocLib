@@ -115,6 +115,16 @@ class ResultsWithFiles {
         return $ok;
     }
 
+    public static function putFileToMedia($data, $ns, $ext){
+        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.preg_replace('/:/', '/', $ns);
+        if (!file_exists($path_dest)){
+            mkdir($path_dest, 0755, TRUE);
+        }
+        $path_dest .= "/".preg_replace('/:/', '_', $ns) . $ext;
+        $ok = file_put_contents($path_dest, $data);
+        return $ok;
+    }
+
     /**
      * Remove specified dir
      * @param string $directory
