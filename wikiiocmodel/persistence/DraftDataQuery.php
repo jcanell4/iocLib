@@ -131,8 +131,6 @@ class DraftDataQuery extends DataQuery
             foreach ($oldDraft as $header => $chunk) {
 
                 if (array_key_exists($header, $draft) && $chunk != $draft[$header]) {
-                    // TODO[Xavi] Es fa servir el $chunk per alguna raó?? fer el seguiment, sembla incorrecte
-                    $chunk['content'] = $draft[$chunk[$header]];
                     $newDraft['content'][$header] = $draft[$header];
                     unset($draft[$header]);
 
