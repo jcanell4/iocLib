@@ -650,7 +650,7 @@ class BasicRenderHtmlDocument extends BasicRenderDocument{
     protected function replaceInJsonTemplate($data, $file) {
         $tmplt = $this->loadTemplateFile($file);
         $document = WiocclParser::getValue($tmplt, [], $data);
-        return "{".trim($document, " \n,")."}";
+        return trim($document, " \n,");
     }
     
     protected function getDirFiles($dir){
