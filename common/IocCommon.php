@@ -52,23 +52,23 @@ class IocCommon {
     }
 
 
-    public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values, $persistence=NULL) {
+    public static function getCalculateFieldFromFunction($calcDefProp, $projectId, $values, $persistence=NULL, $defaultValue=NULL) {
         if (isset($calcDefProp)) {
             $className = $calcDefProp['class'];
             $calculator = new $className;
             if ($calculator) {
                 //init
                 if($calculator->isCalculatorOfTypeData(ICalculateWithProjectId::WITH_PROJECT_ID_TYPE)){
-                    $calculator->init($projectId, ICalculateWithProjectId::WITH_PROJECT_ID_TYPE);
+                    $calculator->init($projectId, ICalculateWithProjectId::WITH_PROJECT_ID_TYPE, $defaultValue);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateFromValues::FROM_VALUES_TYPE)){
-                    $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE);
+                    $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE, $defaultValue);
                 }
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
                         $persistence = static::getPersistenceEngineFromPlugincontroller();
                     }
-                    $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE);
+                    $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE, $defaultValue);
                 }
                 $value = $calculator->calculate($calcDefProp['data']);
             }

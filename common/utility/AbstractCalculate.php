@@ -9,9 +9,12 @@ abstract class AbstractCalculate implements ICalculate{
     private $typeDatas=array();
     private $variables=array();
     private $typeDatasToInitParamsMap=array();
+    private $initDefaultValue=NULL;
+    
 
-    public function init($values, $calculatorType){
+    public function init($values, $calculatorType, $defaultValue=NULL){
         $this->variables[$this->typeDatasToInitParamsMap[$calculatorType]]=$values;
+        $this->initDefaultValue = $defaultValue;
     }
 
     protected function getInitParams($calculatorType){
@@ -129,7 +132,11 @@ abstract class AbstractCalculate implements ICalculate{
         if (!isset($ret) && $defaultValue!==NULL){
             $ret = $defaultValue;
         }elseif(!isset($ret)){
-            throw new Exception("Error: No s'ha trobat {$field} definit a configMain");
+            if($this->initDefaultValue!==NULL){
+                $ret = $this->initDefaultValue;
+            }else{
+                throw new Exception("Error: No s'ha trobat {$field} definit a configMain");
+            }
         }
         return $ret;
     }

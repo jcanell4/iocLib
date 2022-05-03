@@ -897,7 +897,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $isOnView = $this->getModelAttributes(ProjectKeys::KEY_ISONVIEW);
         foreach ($configStructure as $key => $def) {
             if (isset($def["calculateOnRead"])) {
-                $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine());
+                $d = isset($def["default"])?$def["default"]:NULL;
+                $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnRead"], $this->id, $values, $this->getPersistenceEngine(), $d);
                 $values[$key] = $value;
             }
             if (isset($def["parseOnView"]) && $def["parseOnView"] && $isOnView) {

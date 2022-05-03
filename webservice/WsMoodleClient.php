@@ -318,15 +318,16 @@ class WsMoodleCalendar extends WsMoodleClient{
     
 }
 
-class WsMoodleClient {
+class WsMoodleClient extends AbstractWs {
     const MOODLEWSRESTFORMAT= "json";
     protected $token = NULL;
-    protected $wsFunction;
-    protected $urlBase = "https://ioc.xtec.cat/campus";
     protected $furlToken = "/login/token.php";
-    protected $furl ="/webservice/rest/server.php";
-    protected $urlParams=array();
     protected $requestError = NULL;
+    
+    public function __construct() {
+        $this->urlBase = "https://ioc.xtec.cat/campus";
+        $this->furl ="/webservice/rest/server.php";
+    }
 
     public function init($urlBase, $furlToken, $furl, $urlParams=false){
         $this->urlBase = $urlBase;
@@ -341,29 +342,6 @@ class WsMoodleClient {
         $this->token=$token;
     }
 
-    public function setWsFunction($wsFunction){
-        $this->wsFunction = $wsFunction;
-    }
-
-    public function setUrlParams(array $urlParams){
-        if(is_array($urlParams)){
-            $this->urlParams = array_merge([], $urlParams);
-        }
-    }
-
-    public function sendRequest(array $wsParams, $wsFunction=FALSE){
-        $url = $this->urlBase.$this->furl;
-        if(!$wsFunction){
-            $wsFunction = $this->wsFunction;
-        }
-        $query = http_build_query(["wstoken" => $this->token, "wsfunction" => $wsFunction, "moodlewsrestformat" => self::MOODLEWSRESTFORMAT], "", "&");
-
-        $postData = $this->getStrData($wsParams);
-
-        return $this->_sendRequest($url, "", $query."&".$postData);
-
-    }
-
     public function updateToken($user, $pass){
         $url = $this->urlBase. $this->furlToken;
         $query = http_build_query(["username" => $user, "password" => $pass, "service" => "moodle_mobile_app"], "", "&");
@@ -375,7 +353,73 @@ class WsMoodleClient {
     public function getToken(){
         return $this->token;
     }
+    
+    public function sendRequest(array $wsParams, $wsFunction=FALSE){
+        $url = $this->urlBase.$this->furl;
+        if(!$wsFunction){
+            $wsFunction = $this->wsFunction;
+        }
+        $query = http_build_query(["wstoken" => $this->token, "wsfunction" => $wsFunction, "moodlewsrestformat" => self::MOODLEWSRESTFORMAT], "", "&");
 
+        $postData = $this->getStrData($wsParams);
+
+        return $this->_sendRequest($url, "", $query."&".$postData);
+
+    }   
+}
+
+class WsMixClient extends AbstractWs {
+    protected $token = NULL;
+    
+    public function setToken($token){
+        $this->token=$token;
+    }
+
+    public function getToken(){
+        return $this->token;
+    }
+
+        
+    public function sendRequest(array $wsParams, $wsFunction = FALSE) {
+        $url = $this->urlBase.$this->furl;
+        if(!$wsFunction){
+            $wsFunction = $this->wsFunction;
+        }
+        $query = http_build_query(["token" => $this->token], "", "&");
+
+        $postData = $this->getStrData($wsParams);
+
+        return $this->_sendRequest($url, "", $query."&".$postData);        
+    }
+}
+
+
+abstract class AbstractWs{
+    protected $wsFunction;
+    protected $urlBase;
+    protected $furl;
+    protected $urlParams=array();
+    
+    public function init($urlBase, $furl, $urlParams=false){
+        $this->urlBase = $urlBase;
+        $this->furl= $furl;
+        if(is_array($urlParams)){
+            $this->urlParams = array_merge([], $urlParams);
+        }
+    }
+
+    public function setWsFunction($wsFunction){
+        $this->wsFunction = $wsFunction;
+    }
+
+    public function setUrlParams(array $urlParams){
+        if(is_array($urlParams)){
+            $this->urlParams = array_merge([], $urlParams);
+        }
+    }
+
+    abstract public function sendRequest(array $wsParams, $wsFunction=FALSE);
+    
     protected function _sendRequest($url, $query="", $postData=FALSE){
         $this->requestError = NULL;
         if ($query){
@@ -426,7 +470,7 @@ class WsMoodleClient {
         }
 
         return stream_context_create($context);
-    }
+    }    
 }
 
 
