@@ -101,4 +101,7 @@ $events[] = EventMoodle::newInstanceFromAssociative(array(
 $ws->createEventsForCourseId("2077", $events);
 
 
+//MIX
+
+//courseid=10714
 
