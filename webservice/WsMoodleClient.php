@@ -371,6 +371,10 @@ class WsMoodleClient extends AbstractWs {
 class WsMixClient extends AbstractWs {
     protected $token = NULL;
     
+    public function __construct() {
+        $this->urlBase = "https://adaint.ioc.cat/iocmixback/ws/get_lessons_by_course";
+    }
+
     public function setToken($token){
         $this->token=$token;
     }
@@ -397,7 +401,7 @@ class WsMixClient extends AbstractWs {
 abstract class AbstractWs{
     protected $wsFunction;
     protected $urlBase;
-    protected $furl;
+    protected $furl="";
     protected $urlParams=array();
     
     public function init($urlBase, $furl, $urlParams=false){

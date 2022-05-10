@@ -226,14 +226,138 @@ class ArrayFieldProjectUpdateProcessor{
             if (is_numeric($key) && is_array($value)) {
                 $andcondition = TRUE;
                 foreach ($value as $k => $v) {
-                    $andcondition &= ($field[$k] === $v);
+                    //$andcondition &= ($field[$k] === $v);
+                    $andcondition &= self::__equalCompare__($field[$k], $v);
                 }
                 $orcondition |= $andcondition;
             }else {
-                $condition &= ($field[$key] === $value);
+                //$condition &= ($field[$key] === $value);
+                $condition &= self::__equalCompare__($field[$key], $value);
             }
         }
         return (isset($andcondition)) ? $orcondition : $condition;
+    }
+    
+    /**
+     * Compara si dos valors són iguals o no. Els valors han de ser de tipus string però 
+     * si algun d'ells es troba tancat entre els caracters [] o els caracters (), es consierarà 
+     * que conté multivalors separats per comes. Si el caracter de tancament és [], la comparació 
+     * serà certa si hi ha conincidència amb algun del múltiples valors. Per contra si el 
+     * els caràcters de tancament són (), la comparació només serà certa si l'altre valor és 
+     * també multivalor i coincideixen tots els seus elements.
+     * Exemples:
+     * - $v1 = "Cadena única"
+     * - $v2 = "Cadena única"
+     *  Resultat = true
+     * - $v1 = "Cadena única"
+     * - $v2 = "Una altre cadena"
+     *  Resultat = false
+     * - $v1 = "Cadena única"
+     * - $v2 = "[Cadena única, Una altre cadena]"
+     *  Resultat = true perquè hi ha un valor a $v2 coincident
+     * - $v1 = "Cadena única"
+     * - $v2 = "(Cadena única, Una altre cadena)"
+     *  Resultat = false perquè hi ha un valor a $v2 que no coeincidex amb $v1
+     * - $v1 = "Cadena única"
+     * - $v2 = "(Cadena única)"
+     *  Resultat = true perquè tots els valors de $v2 coincidexen amb la cadena de $v1
+     * - $v1 = "Cadena única"
+     * - $v2 = "(Cadena única, Cadena única)"
+     *  Resultat = true perquè tots els valors de $v2 coincidexen amb la cadena de $v1
+     * - $v1 = "[cadena 1, cadena 2]"
+     * - $v2 = "[cadena 3, cadena 4]"
+     *  Resultat = false perquè cap dels valors de $v1 conicideix amb cap dels valors de $v2
+     * - $v1 = "[cadena 1, cadena 2]"
+     * - $v2 = "[cadena 3, cadena 4, cadena 1]"
+     *  Resultat = True perquè almenys un dels valors de $v1 conicideix amb un dels valors de $v2
+     * - $v1 = "(cadena 1, cadena 2)"
+     * - $v2 = "[cadena 3, cadena 2, cadena 1]"
+     *  Resultat = True perquè tots els valors de $v1 conicideixen amb algun dels valors de $v2
+     * - $v1 = "(cadena 1, cadena 2)"
+     * - $v2 = "[cadena 3, cadena 4, cadena 1]"
+     *  Resultat = False perquè no tots els valors de $v1 conicideixen amb algun dels valors de $v2
+     * - $v1 = "(cadena 1, cadena 2)"
+     * - $v2 = "(cadena 3, cadena 2, cadena 1)"
+     *  Resultat = False perquè hi ha un element de $v2 al que no li correcpon cap element de $v1
+     * - $v1 = "(cadena 1, cadena 2)"
+     * - $v2 = "(cadena 2, cadena 2, cadena 1)"
+     *  Resultat = True perquè tots els valors de $v1 i $v2 tenen una correspondència
+     * 
+     * És una funció commutativa. Ésa a dir és indiferent fer ::__equalCompare__($v1, $v2) 
+     * que ::__equalCompare__($v2, $v1)
+     * @param type $v1
+     * @param type $v2
+     */
+    private static function __equalCompare__($v1, $v2){
+        $v1Type=0;
+        $v2Type=0;
+        $v1Value = trim($v1);
+        $v2Value = trim($v2);
+        if($v1Value[0]=="[" && $v1Value[-1]=="]"){
+            $v1Type = 1;
+            $v1Value = prg_split("/ *\, */", substr($v1Value, 1, -1));
+        }elseif($v1Value[0]=="(" && $v1Value[-1]==")"){
+            $v1Type = 2;    
+            $v1Value = prg_split("/ *\, */", substr($v1Value, 1, -1));
+        }
+        if($v2Value[0]=="[" && $v2Value[-1]=="]"){
+            $v2Type = 1;
+            $v2Value = prg_split("/ *\, */", substr($v2Value, 1, -1));
+        }elseif($v2Value[0]=="(" && $v2Value[-1]==")"){
+            $v2Type = 2;    
+            $v2Value = prg_split("/ *\, */", substr($v2Value, 1, -1));
+        }
+        if($v1Type==0){
+            if($v2Type==0){
+                $ret = self::__equalCompareStringToString__($v1Value, $v2Value);
+            }else{
+                $ret = self::__equalCompareStringToArray__($v1Value, $v2Value, $v2Type);
+            }
+        }else{
+            if($v2Type==0){
+                $ret = self::__equalCompareStringToArray__($v2Value, $v1Value, $v1Type);
+            }else{
+                $ret = self::__equalCompareArrayToArray__($v1Value, $v2Value, $v1Type, $v2Type);
+            }            
+        }
+        return $ret;
+    }
+    
+    private static function __equalCompareStringToString__($v1, $v2){
+        return $v1===$v2;
+    }
+
+    private static function __equalCompareStringToArray__($v1, $v2, $operator){
+        $ret=true;
+        if($operator==1){
+            $ret = in_array($v1, $v2);
+        }else{
+            foreach ($v2 as $elem){
+                $ret = $ret && $v1==$elem;
+            }
+        }
+        return $ret;
+    }
+
+    private static function __equalCompareArrayToArray__($v1, $v2, $operator1, $operator2){
+        if($operator1==1 && $operator2==1){
+            $ret =false;
+            foreach ($v1 as $elem){
+                $ret = $ret || in_array($elem, $v2);
+            }
+        }elseif($operator1==1 && $operator2==2){
+            $ret = self::__equalCompareArrayToArray__($v2, $v1, $operator2, $operator1);
+        }elseif($operator1==2 && $operator2==1){
+            $ret =true;
+            foreach ($v1 as $elem){
+                $ret = $ret && in_array($elem, $v2);
+            }
+        }else{
+            foreach ($v1 as $elem){
+                $ret = $ret && self::__equalCompareStringToArray__($elem, $v2, $operator2);
+            }
+        }
+        return $ret;
     }
 
 }
