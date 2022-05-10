@@ -1588,7 +1588,19 @@ class ProjectMetaDataQuery extends DataQuery {
                     fclose($fh);
                 }
             }
-            for ($i=$offset; $i<$num; $i++) {
+
+            $max = WikiGlobalConfig::getConf('revision-lines-per-page', 'wikiiocmodel');
+            if ($num-$max<=0) {
+                $num = $num % $max;
+            } else {
+                $num = $max;
+            }
+
+
+
+
+
+            for ($i=$offset; $i<$offset + $num + 1; $i++) {
                 if (!empty(trim($lines[$i]))) {
                     $registre = explode("\t", $lines[$i]);
                     $revs[$registre[0]]['date'] = date("d-m-Y h:i:s", $registre[0]);
@@ -1601,6 +1613,7 @@ class ProjectMetaDataQuery extends DataQuery {
                 }
             }
         }
+
         return $revs;
     }
 

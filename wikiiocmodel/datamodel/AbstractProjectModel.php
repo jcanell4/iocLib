@@ -1335,20 +1335,19 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getProjectRevisionList($num=0, $offset=0) {
         $revs = $this->projectMetaDataQuery->getProjectRevisionList($num, $offset);
         if ($revs) {
-            $amount = WikiGlobalConfig::getConf('revision-lines-per-page', 'wikiiocmodel');
-            if (($revs["totalamount"] = count($revs)) > $amount) {
+            $maxAmount = WikiGlobalConfig::getConf('revision-lines-per-page', 'wikiiocmodel');
+            if (($revs["totalamount"] = count($revs)) >= $maxAmount) {
                 $revs['show_more_button'] = true;
-                $revs["maxamount"]=$amount;
-            }else{
-                $revs["maxamount"]=$revs["totalamount"];
             }
+
+            $revs["maxamount"]=$maxAmount;
             $r = $this->getActualRevision();
             $this->setActualRevision(TRUE);
             $revs['current'] = @filemtime($this->projectMetaDataQuery->getFileName($this->id));
             $this->setActualRevision($r);
             $revs['docId'] = $this->id;
-            $revs['position'] = -1;
-            $revs['amount'] = $amount;
+            $revs['position'] = $offset;
+            $revs['amount'] = $revs["totalamount"];
         }
         return $revs;
     }
