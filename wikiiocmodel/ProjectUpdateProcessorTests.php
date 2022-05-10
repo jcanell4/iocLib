@@ -67,17 +67,19 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $testParams = [
-//    ['a, a', "Cadena única", "Cadena única", true],
-//    ['a, b', "Cadena única", "Una altre cadena", false],
-//    ['a, [a,b]', "Cadena única", "[Cadena única, Una altre cadena]", true],
-//    ['a, (a,b)', "Cadena única", "(Cadena única, Una altre cadena)", false],
-//    ['a, (a)', "Cadena única", "(Cadena única)", true],
-//    ['a, (a,a)', "Cadena única", "(Cadena única, Cadena única)", true],
-//    ['[1, 2], [3, 4]', "[cadena 1, cadena 2]", "[cadena 3, cadena 4]", false],
-//    ['[1, 2], [3, 4, 1]', "[cadena 1, cadena 2]", "[cadena 3, cadena 4, cadena 1]", true],
-//    ['(1, 2), [3, 2, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 2, cadena 1]", true],
-//    ['(1, 2), [3, 4, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 4, cadena 1]", false],
-//    ['(1, 2), (3, 2, 1)', "(cadena 1, cadena 2)", "(cadena 3, cadena 2, cadena 1)", false],
+    ['a, a', "Cadena única", "Cadena única", true],
+    ['a, b', "Cadena única", "Una altre cadena", false],
+    ['a, [a,b]', "Cadena única", "[Cadena única, Una altre cadena]", true],
+    ['a, (a,b)', "Cadena única", "(Cadena única, Una altre cadena)", false],
+    ['a, (a)', "Cadena única", "(Cadena única)", true],
+    ['a, (a,a)', "Cadena única", "(Cadena única, Cadena única)", true],
+    ['[1, 2], [3, 4]', "[cadena 1, cadena 2]", "[cadena 3, cadena 4]", false],
+    ['[1, 2], [3, 4, 1]', "[cadena 1, cadena 2]", "[cadena 3, cadena 4, cadena 1]", true],
+    ['(1, 2), [3, 2, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 2, cadena 1]", true],
+    ['(1, 2), [3, 4, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 4, cadena 1]", false],
+    ['(1, 2), (3, 2, 1)', "(cadena 1, cadena 2)", "(cadena 3, cadena 2, cadena 1)", false],
+
+    // Aquestes fallen:
     ['(1, 2), (2, 2, 1)', "(cadena 1, cadena 2)", "(cadena 2, cadena 2, cadena 1)", true],
     ['(1, 2, 2), (1, 2)', "(cadena 1, cadena 2, cadena 2)", "(cadena 1, cadena 2)", true],
     ['(1, 2), (1, 2)', "(cadena 1, cadena 2)", "(cadena 1, cadena 2)", true],
