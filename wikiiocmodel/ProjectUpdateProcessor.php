@@ -238,6 +238,10 @@ class ArrayFieldProjectUpdateProcessor{
         return (isset($andcondition)) ? $orcondition : $condition;
     }
     
+    public static function test_equalcompare($v1, $v2){
+        return self::__equalCompare__($v1, $v2);
+    }
+    
     /**
      * Compara si dos valors són iguals o no. Els valors han de ser de tipus string però 
      * si algun d'ells es troba tancat entre els caracters [] o els caracters (), es consierarà 
@@ -288,11 +292,11 @@ class ArrayFieldProjectUpdateProcessor{
      * @param type $v1
      * @param type $v2
      */
-    public static function __equalCompare__($v1, $v2){
+    private static function __equalCompare__($v1, $v2){
         $v1Type=0;
         $v2Type=0;
-        $v1Value = trim($v1);
-        $v2Value = trim($v2);
+        $v1Value = $v1?trim($v1):"";
+        $v2Value = $v2?trim($v2):"";
         if($v1Value[0]=="[" && $v1Value[-1]=="]"){
             $v1Type = 1;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 1, -1));
@@ -345,18 +349,17 @@ class ArrayFieldProjectUpdateProcessor{
             foreach ($v1 as $elem){
                 $ret = $ret || in_array($elem, $v2);
             }
-        }elseif($operator1==1 && $operator2==2){
-            $ret = self::__equalCompareArrayToArray__($v2, $v1, $operator2, $operator1);
-        }elseif($operator1==2 && $operator2==1){
-            $ret =true;
-            foreach ($v1 as $elem){
-                $ret = $ret && in_array($elem, $v2);
-            }
         }else{
-            // Alerta! s'ha de donar el valor a $ret, si $v1 és buit retornarà true <-- és això el que volem?
-            $ret = true;
-            foreach ($v1 as $elem){
-                $ret = $ret && self::__equalCompareStringToArray__($elem, $v2, $operator2);
+            $ret =true;
+            if($operator1==2){
+                foreach ($v1 as $elem){
+                    $ret = $ret && in_array($elem, $v2);
+                }
+            }
+            if($operator2==2){
+                foreach ($v2 as $elem){
+                    $ret = $ret && in_array($elem, $v1);
+                }
             }
         }
         return $ret;

@@ -78,8 +78,8 @@ $testParams = [
     ['(1, 2), [3, 2, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 2, cadena 1]", true],
     ['(1, 2), [3, 4, 1]', "(cadena 1, cadena 2)", "[cadena 3, cadena 4, cadena 1]", false],
     ['(1, 2), (3, 2, 1)', "(cadena 1, cadena 2)", "(cadena 3, cadena 2, cadena 1)", false],
-
-    // Aquestes fallen:
+    ['[1, 2], (1, 2, 1)', "[cadena 1, cadena 2]", "(cadena 1, cadena 2, cadena 1)", true],
+    ['[1, 2, 3, 4], (1, 2, 3)', "[cadena 1, cadena 2, cadena 3, cadena 4]", "(cadena 3, cadena 2, cadena 1)", true],
     ['(1, 2), (2, 2, 1)', "(cadena 1, cadena 2)", "(cadena 2, cadena 2, cadena 1)", true],
     ['(1, 2, 2), (1, 2)', "(cadena 1, cadena 2, cadena 2)", "(cadena 1, cadena 2)", true],
     ['(1, 2), (1, 2)', "(cadena 1, cadena 2)", "(cadena 1, cadena 2)", true],
@@ -95,7 +95,7 @@ echo '</pre>';
 
 
 function test($i, $case, $param1, $param2, $expected) {
-    $resultat = ArrayFieldProjectUpdateProcessor::__equalCompare__($param1, $param2);
+    $resultat = ArrayFieldProjectUpdateProcessor::test_equalcompare($param1, $param2);
     echo "Test {$i}: {$case}. Params: {$param1}, {$param2}. Esperat: {$expected}, Retornat: {$resultat}. <b ";
     if ($resultat == $expected) {
         echo "style='color: green'>SUCCESS!";
