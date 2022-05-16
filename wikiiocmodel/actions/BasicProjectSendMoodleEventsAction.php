@@ -11,6 +11,8 @@ class BasicProjectSendMoodleEventsAction extends ProjectAction{
         $id = $this->params[ProjectKeys::KEY_ID];
 
         $dates = $this->projectModel->getCalendarDates();
+        // Afegim les dades extres marcades com a sendToCalendar
+        $this->projectModel->addExtraCalendar($dates);
 
         if(isset($this->params["moodleToken"])){
             $events = [];
