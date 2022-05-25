@@ -22,9 +22,8 @@ $ws = new WsMoodleClient();
 //
 //print(json_encode($token));
 
-//$token = "0c31efd2a78c176c92d929a044c376f2";
-$token = "0c31efd2a78c176c92d929a044c376f2";
-//$ws->setToken($token);
+$token = "e60bfc65d4fa4af3c047f623b45c3667";
+$ws->setToken($token);
 //
 //$params = [
 //    "events" =>[

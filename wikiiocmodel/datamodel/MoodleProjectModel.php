@@ -24,12 +24,13 @@ abstract class MoodleProjectModel extends AbstractProjectModel{
         if($courseId && $this->getMoodleToken()){
             $wsMix = new WsMixClient();
             $wsMix->setToken($this->getMoodleToken());
-            error_log("D0.1.- MoodleToquen:-".$this->getMoodleToken()."-");
-            error_log("D0.2.- CourseId:-".$courseId."-");
+//            error_log("D0.1.- CourseId:-".$courseId."-");
             try{
                 $res = $wsMix->getCourseLessons($courseId);
+//                error_log("D0.2.- Num lessons:-". count($res)."-");
+//                error_log("D0.3.- Num lessons:-". $res."-");
             }catch(WsMixException $ex){
-                error_log("E0.1.- Error: ".$ex->getMessage());
+//                error_log("E0.1.- Error: ".$ex->getMessage());
                 $res = FALSE;
             }            
         }        
