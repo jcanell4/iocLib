@@ -190,3 +190,37 @@ class ConfigurationProjectNotAvailableException extends WikiIocProjectException 
         parent::__construct($message, $code, $page);
     }
 }
+
+class WsMixException extends WikiIocModelException {
+    public function __construct($courseId, $exception=NULL, $message="", $code=7012, $previous=NULL) {
+        $targ = array($courseId);
+        switch ($exception->errorcode){
+            case "invalidtoken":
+                $message="No teniu accès a Moodel des de la WIKI. Tanqueu sessió a la WIKI i torneu-vos a connectar";
+                break;
+            case "errorcoursenotfound":
+                $message="No existeix cap curs amb l'identificador %d a Moodle";
+                $code += 1;
+                break;
+            case "invalidcourse":
+                $message="No existeix cap curs amb l'identificador %d a Mix";
+                $code += 2;
+                break;
+            case "zerolessons":
+                $message="El curs amb l'identificador %d encara no té lliçons definides a MIX";
+                $code += 3;
+                break;
+            case "errorcoursecontextnotvalid":
+                $message=$exception->message;
+                $code += 4;
+                break;
+        }
+        parent::__construct($message, $code, $previous, $targ);
+    }
+}
+
+class MoodleTokenNotFoundException extends WikiIocModelException {
+    public function __construct($message="No teniu accès a Moodel des de la WIKI. Tanqueu sessió a la WIKI i torneu-vos a connectar", $code=7030, $previous=NULL) {
+        parent::__construct($message, $code, $previous);
+    }    
+}

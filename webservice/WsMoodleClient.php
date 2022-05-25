@@ -322,14 +322,21 @@ class WsMoodleClient extends AbstractWs {
     const MOODLEWSRESTFORMAT= "json";
     protected $token = NULL;
     protected $furlToken = "/login/token.php";
-    protected $requestError = NULL;
     
     public function __construct() {
         $this->urlBase = "https://ioc.xtec.cat/campus";
         $this->furl ="/webservice/rest/server.php";
     }
-
-    public function init($urlBase, $furlToken, $furl, $urlParams=false){
+    
+    public function init($pars){
+        if(isset($pars["urlParams"])){
+            $this->__init($pars["urlBase"], $pars["furlToken"], $pars["furl"], $pars["urlParams"]);
+        }else{
+            $this->__init($pars["urlBase"], $pars["furlToken"], $pars["furl"]);
+        }
+    }
+    
+    private function __init($urlBase, $furlToken, $furl, $urlParams=false){
         $this->urlBase = $urlBase;
         $this->furlToken= $furlToken;
         $this->furl= $furl;
@@ -365,14 +372,14 @@ class WsMoodleClient extends AbstractWs {
 
         return $this->_sendRequest($url, "", $query."&".$postData);
 
-    }   
+    }       
 }
 
 class WsMixClient extends AbstractWs {
     protected $token = NULL;
     
     public function __construct() {
-        $this->urlBase = "https://adaint.ioc.cat/iocmixback/ws/get_lessons_by_course";
+        $this->urlBase = "https://adaint.ioc.cat/iocmixback/ws/";
     }
 
     public function setToken($token){
@@ -393,8 +400,19 @@ class WsMixClient extends AbstractWs {
 
         $postData = $this->getStrData($wsParams);
 
-        return $this->_sendRequest($url, "", $query."&".$postData);        
+        return $this->_sendRequest($url.$wsFunction, "", $query."&".$postData);        
     }
+    
+    public function getCourseLessons($courseId) {
+        $this->setWsFunction("get_lessons_by_course");
+        $wsParams = ["courseid" =>$courseId];
+        $json = $this->sendRequest($wsParams);
+        if($this->requestError!=NULL){
+            //Excepció
+            throw new WsMixException($courseId, $this->requestError);
+        }
+        return $json;
+    }    
 }
 
 
@@ -403,8 +421,17 @@ abstract class AbstractWs{
     protected $urlBase;
     protected $furl="";
     protected $urlParams=array();
-    
-    public function init($urlBase, $furl, $urlParams=false){
+    protected $requestError = NULL;
+
+    public function init($pars){
+        if(isset($pars["urlParams"])){
+            $this->__init($pars["urlBase"], $pars["furl"], $pars["urlParams"]);
+        }else{
+            $this->__init($pars["urlBase"], $pars["furl"]);
+        }
+    }
+
+    private function __init($urlBase, $furl, $urlParams=false){
         $this->urlBase = $urlBase;
         $this->furl= $furl;
         if(is_array($urlParams)){
@@ -440,11 +467,25 @@ abstract class AbstractWs{
             if ($resp->exception){
                 $this->requestError = $resp;
             }
+            /*JOSEP ALERTA! el  ws https://adaint.ioc.cat/iocmixback/ws/get_lessons_by_course, retorna 
+             * malament kles excepcions ja que els elements de l'array no són objectes sinó strings que 
+             * cal tornar a convertir. 
+             * Cal parlar amb el Miguel Àngel Lozano
+             */
+            if(is_array($resp) && is_string($resp[0]) && preg_match("/\{ *\"exception\" *:/i", $resp[0])){
+                $this->requestError = json_decode($resp[0]);
+            }else if(is_array($resp) && $resp[0]->exception){
+                $this->requestError = $resp[0];
+            }
         }catch (Exception $ex) {
             $resp = $ex;
             $this->requestError = $ex;
         }
         return $resp;
+    }
+    
+    public function hadError() {
+        return $this->requestError!=null;
     }
 
     protected function getStrData($data){
