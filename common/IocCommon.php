@@ -75,6 +75,47 @@ class IocCommon {
         }
         return $value;
     }
+    
+    public static function getValidatorValueFromExpression($expression, $permission, $responseData){
+        $funcREadOnly = $expression;
+        if(isset($funcREadOnly["or"])){
+            $value=FALSE;
+            foreach ($funcREadOnly["or"] as $readOnlyValidator){
+                $value = $value || self::getValidatorValueFromExpression($readOnlyValidator, $permission, $responseData);
+            }
+        }else if(isset($funcREadOnly["and"])){
+            $value=TRUE;
+            foreach ($funcREadOnly["and"] as $readOnlyValidator){
+                $value = $value && self::getValidatorValueFromExpression($readOnlyValidator, $permission, $responseData);
+            }
+        }else{
+            $value = self::getValidatorValue($funcREadOnly, $permission, $responseData);
+        }
+        return $value;
+    }
+
+    
+    public static function getValidatorValue($outArrValues, $permission, $responseData){
+        $className = $outArrValues['class'];
+        $validator = new $className;
+
+        if (!$validator) {
+            // TODO: la classe no existeix, llençar execepció
+            return;
+        }
+        $validatorTypeData = $validator->getValidatorTypeData();
+        switch ($validatorTypeData){
+            case "permission":
+                $validator->init($permission);
+                break;
+            case "response":
+                $validator->init($responseData);
+                break;
+        }
+        $value = $validator->validate($outArrValues['data']);
+        return $value;
+    }
+
 
     private static function getPersistenceEngineFromPlugincontroller(){
         global $plugin_controller;
