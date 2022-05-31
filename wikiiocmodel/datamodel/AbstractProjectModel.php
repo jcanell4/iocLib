@@ -1299,6 +1299,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $ret;
     }
 
+    public function tractamentInicialDadesFormulari($data=NULL) {
+        return $data;
+    }
+
     //Del fichero _wikiIocSystem_.mdpr, del proyecto en curso, el elemento subSet solicitado
     public function getSystemData($subSet=FALSE) {
         return $this->projectMetaDataQuery->getSystemData($subSet);
