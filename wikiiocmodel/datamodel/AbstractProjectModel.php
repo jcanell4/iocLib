@@ -952,8 +952,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if($originalDataKeyValue){
             $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
         }
-        $aRenderables = $this->getRenderableFieldList();
-        $values = $this->_trimData($values, $aRenderables);
+//        $aRenderables = $this->getRenderableFieldList();
+//        $values = $this->_trimData($values, $aRenderables);
         $values = $this->updateCalculatedFieldsOnSave($values, $originalDataKeyValue);
         $data = ($isArray) ? $values : json_encode($values);
         return $data;
@@ -1299,7 +1299,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $ret;
     }
 
+    //JOSEP: EL nom d'aquest mètode és poc adequat. Caldria canviar-lo per una altre que
+    //incorporés la acció d'emmagatzemar les dades, ja que només es crida quan les dades 
+    //s'ennamgatzemen (setProjetcAction)
     public function tractamentInicialDadesFormulari($data=NULL) {
+        $aRenderables = $this->getRenderableFieldList();
+        $data = $this->_trimData($data, $aRenderables);
         return $data;
     }
 
