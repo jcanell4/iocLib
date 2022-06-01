@@ -972,7 +972,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     // Hace trim, recursivamente, a los valores de todos los campos de $data
     private function _trimData($data, $blackList=array()) {
-        if(is_string($data)){
+        if (is_string($data)){
             $data = trim($data);
             if($data[0]==="[" && $data[strlen($data)-1]==="]" || $data[0]==="{" && $data[strlen($data)-1]==="}"){
                 $dData = json_decode($data, TRUE);
@@ -982,7 +982,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }else if(is_array($data)){
             $seq = $this->isSequentialArray($data);
             foreach ($data as $key => $value) {
-                if($blackList && !array_key_exists($key, $blackList) || is_array($blackList[$key])){
+                if (!array_key_exists($key, $blackList) || is_array($blackList[$key])){
                     if($seq){
                        $data[$key] = $this->_trimData($value, $blackList);
                     }else{
@@ -1299,10 +1299,8 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $ret;
     }
 
-    //JOSEP: EL nom d'aquest mètode és poc adequat. Caldria canviar-lo per una altre que
-    //incorporés la acció d'emmagatzemar les dades, ja que només es crida quan les dades 
-    //s'ennamgatzemen (setProjetcAction)
-    public function tractamentInicialDadesFormulari($data=NULL) {
+    //Tractament inicial de les dades del formulari en el procés de desar els canvis
+    public function tractamentInicialEnDesarDadesFormulari($data=NULL) {
         $aRenderables = $this->getRenderableFieldList();
         $data = $this->_trimData($data, $aRenderables);
         return $data;
