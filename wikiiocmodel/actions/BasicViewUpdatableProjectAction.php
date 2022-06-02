@@ -49,7 +49,7 @@ class BasicViewUpdatableProjectAction extends BasicViewProjectAction{
             $metaDataConfigProject = $configProjectModel->getCurrentDataProject($metaDataSubSet);
 
             if ($metaDataConfigProject['arraytaula']) {
-                $arraytaula = json_decode($metaDataConfigProject['arraytaula'], TRUE);
+                $arraytaula = is_string($metaDataConfigProject['arraytaula'])?json_decode($metaDataConfigProject['arraytaula'], TRUE):$metaDataConfigProject['arraytaula'];
                 $anyActual = date("Y");
                 $dataActual = new DateTime();
                 $dataActual->setTime(0, 0, 0);
