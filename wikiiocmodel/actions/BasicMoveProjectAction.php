@@ -27,6 +27,7 @@ class BasicMoveProjectAction extends ProjectAction {
         $old_path = implode(":", $old);
 
         $model->duplicateProject($this->params[ProjectKeys::KEY_ID], $old_path, $old_project, $persons);
+        $model->removeProject($this->params[ProjectKeys::KEY_ID], $persons);
 
         $response = $model->getData();
         $response[ProjectKeys::KEY_OLD_NS] = $oldID;
@@ -59,7 +60,7 @@ class BasicMoveProjectAction extends ProjectAction {
 
     protected function postAction(&$response) {
         $this->resourceLocker->leaveResource(TRUE);
-        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], WikiIocLangManager::getLang('project_duplicated','wikiiocmodel'));
+        $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], WikiIocLangManager::getLang('project_moved','wikiiocmodel'));
         $response['info'] = self::addInfoToInfo($response['info'], $new_message);
     }
 
