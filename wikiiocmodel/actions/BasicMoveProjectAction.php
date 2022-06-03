@@ -5,68 +5,22 @@
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicMoveProjectAction extends ProjectAction {
+class BasicMoveProjectAction extends BasicDuplicateProjectAction {
 
     protected function runAction() {
+        $response = parent::runAction();
         $model = $this->getModel();
-        $oldID = $this->params[ProjectKeys::KEY_ID];
-        $newID = "{$this->params['new_path']}:{$this->params['new_project']}";
-
-        //Sólo se ejecutará si no existe un proyecto con el mismo nombre
-        if ($model->existProject($newID)) {
-            throw new ProjectExistException($newID);
-        }
-        $response = $model->getData();
-        $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].",".$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
-
-        $this->params[ProjectKeys::KEY_ID] = $newID;
-        parent::setParams($this->params);
-
-        $old = explode(":", $oldID);
-        $old_project = array_pop($old);
-        $old_path = implode(":", $old);
-
-        $model->duplicateProject($this->params[ProjectKeys::KEY_ID], $old_path, $old_project, $persons);
-        $model->removeProject($this->params[ProjectKeys::KEY_ID], $persons);
-
-        $response = $model->getData();
-        $response[ProjectKeys::KEY_OLD_NS] = $oldID;
-        $response[ProjectKeys::KEY_OLD_ID] = $this->idToRequestId($oldID);
-        $response[ProjectKeys::KEY_NS] = $newID;
-        $response[ProjectKeys::KEY_ID] = $this->idToRequestId($newID);
-        $response[ProjectKeys::KEY_GENERATED] = $model->isProjectGenerated();
+        $persons = $response[ProjectKeys::KEY_PROJECT_METADATA]['autor']['value'].","
+                  .$response[ProjectKeys::KEY_PROJECT_METADATA]['responsable']['value'];
+        $model->removeProject($response[ProjectKeys::KEY_OLD_NS], $persons);
 
         return $response;
-    }
-
-    public function responseProcess() {
-        $this->initAction();
-        $response = $this->runAction();
-        $this->postAction($response);
-        return $response;
-    }
-
-    protected function initAction() {
-        $this->lockStruct = $this->requireResource(TRUE);
-        if ($this->lockStruct["state"]!== ResourceLockerInterface::LOCKED){
-            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
-        }
-
-        if ($this->resourceLocker->isLockedChild($this->params[PageKeys::KEY_ID])) {
-            $this->resourceLocker->leaveResource(TRUE);
-            throw new FileIsLockedException($this->params[PageKeys::KEY_ID]);
-        }
     }
 
     protected function postAction(&$response) {
         $this->resourceLocker->leaveResource(TRUE);
         $new_message = $this->generateMessageInfoForSubSetProject($response[ProjectKeys::KEY_ID], $this->params[ProjectKeys::KEY_METADATA_SUBSET], WikiIocLangManager::getLang('project_moved','wikiiocmodel'));
         $response['info'] = self::addInfoToInfo($response['info'], $new_message);
-    }
-
-    public function requireResource($lock = FALSE) {
-        $this->resourceLocker->init($this->params, TRUE);
-        return $this->resourceLocker->requireResource($lock);
     }
 
 }
