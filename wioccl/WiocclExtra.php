@@ -36,6 +36,7 @@ class WiocclExtra extends WiocclField{
             switch ($dadesExtres[$found]["tipus"]){
                 case "dada":
                 case "dada_actualitzable":
+                case "data_actualitzable":
                     $ret = $this->_getExtraDataValue($dadesExtres[$found]["valor"]);
                     break;
             }
