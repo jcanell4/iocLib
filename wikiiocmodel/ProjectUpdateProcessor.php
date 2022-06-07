@@ -300,16 +300,40 @@ class ArrayFieldProjectUpdateProcessor{
         if($v1Value[0]=="[" && $v1Value[-1]=="]"){
             $v1Type = 1;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 1, -1));
+        }elseif($v1Value[1]=="[" && $v1Value[-1]=="]"){
+            $v1Type = 1;
+            $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -1));
+        }elseif($v1Value[1]=="[" && $v1Value[-2]=="]"){
+            $v1Type = 1;
+            $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -2));
         }elseif($v1Value[0]=="(" && $v1Value[-1]==")"){
             $v1Type = 2;    
             $v1Value = preg_split("/ *\, */", substr($v1Value, 1, -1));
+        }elseif($v1Value[1]=="(" && $v1Value[-1]==")"){
+            $v1Type = 2;    
+            $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -1));
+        }elseif($v1Value[1]=="(" && $v1Value[-2]==")"){
+            $v1Type = 2;    
+            $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -2));
         }
         if($v2Value[0]=="[" && $v2Value[-1]=="]"){
             $v2Type = 1;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 1, -1));
+        }elseif($v2Value[1]=="[" && $v2Value[-1]=="]"){
+            $v2Type = 1;
+            $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -1));
+        }elseif($v2Value[1]=="[" && $v2Value[-2]=="]"){
+            $v2Type = 1;
+            $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -2));
         }elseif($v2Value[0]=="(" && $v2Value[-1]==")"){
             $v2Type = 2;    
             $v2Value = preg_split("/ *\, */", substr($v2Value, 1, -1));
+        }elseif($v2Value[1]=="(" && $v2Value[-1]==")"){
+            $v2Type = 2;    
+            $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -1));
+        }elseif($v2Value[1]=="(" && $v2Value[-2]==")"){
+            $v2Type = 2;    
+            $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -2));
         }
         if($v1Type==0){
             if($v2Type==0){
