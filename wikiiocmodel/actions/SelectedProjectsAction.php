@@ -58,19 +58,15 @@ class SelectedProjectsAction extends AdminAction {
                 if (empty($branques) && empty($grup['branca'])) {
                     $branques = "root";
                 }
-                if ($grup['projecttype']) {
-                    if (!empty($grup['projecttype'])) {
-                        $listProjectTypes[] = $grup['projecttype'];
-                    }else {
-                        $listProjectTypes = $model->getListProjectTypes(true);
-                    }
-                    if (!empty($grup['branca']) && $branques !== "root") {
-                        $branques[] = $grup['branca'];
-                    }else {
-                        $branques = "root";
-                    }
+                if (!empty($grup['projecttype'])) {
+                    $listProjectTypes[] = $grup['projecttype'];
                 }else {
                     $listProjectTypes = $model->getListProjectTypes(true);
+                }
+                if (!empty($grup['branca']) && $branques !== "root") {
+                    $branques[] = $grup['branca'];
+                }else {
+                    $branques = "root";
                 }
             }else {
                 unset($grups[$key]);
