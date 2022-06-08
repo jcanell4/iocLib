@@ -1123,28 +1123,30 @@ class ProjectMetaDataQuery extends DataQuery {
             }
         }
 
-        //4. Elimina les referències externes a aquest projecte (nsProgramacio) en els plans de treball
-        $projectTypes = ["ptfct", "ptfploe", "ptfplogse", "sintesi"];
-        $field = "nsProgramacio";
-        /**
-         * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
-         * @param array $dades : array de dades del projecte
-         * @param array $params : ['field', 'value']
-         * @return boolean
-         */
-        $function = function($dades, $params) {
-                        $field = $params[0];
-                        $value = $params[1];
-                        return (is_array($dades) && !empty($dades[$field]) && $dades[$field] === $value);
-                    };
-        $callback = ['function' => $function,
-                     'params' => [$field, $ns]
-                    ];
-        $projectList = $this->selectProjectsByField($callback, $projectTypes);
-        if (!empty($projectList)) {
-            $summary = "$field: la programació $ns associada ha estat eliminada";
-            $this->changeFieldValueInProjects($field, "", $projectList, $summary, $callback);
-        }
+//          MOGUT A ProgramacioProjectModel.php
+//          -----------------------------------
+//        //4. Elimina les referències externes a aquest projecte (nsProgramacio) en els plans de treball
+//        $projectTypes = ["ptfct", "ptfploe", "ptfplogse", "sintesi"];
+//        $field = "nsProgramacio";
+//        /**
+//         * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
+//         * @param array $dades : array de dades del projecte
+//         * @param array $params : ['field', 'value']
+//         * @return boolean
+//         */
+//        $function = function($dades, $params) {
+//                        $field = $params[0];
+//                        $value = $params[1];
+//                        return (is_array($dades) && !empty($dades[$field]) && $dades[$field] === $value);
+//                    };
+//        $callback = ['function' => $function,
+//                     'params' => [$field, $ns]
+//                    ];
+//        $projectList = $this->selectProjectsByField($callback, $projectTypes);
+//        if (!empty($projectList)) {
+//            $summary = "$field: la programació $ns associada ha estat eliminada";
+//            $this->changeFieldValueInProjects($field, "", $projectList, $summary, $callback);
+//        }
 
     }
 
@@ -1205,9 +1207,13 @@ class ProjectMetaDataQuery extends DataQuery {
                     if (empty($projectTypes) || in_array($file, $projectTypes)) {
                         $projectFileName = $this->getProjectFileName($metaDataSubSet, $file);
                         if (is_file("$dir/$file/$projectFileName")) {
-                            $dades = $this->getDataProject($id, $file, $metaDataSubSet);
-                            if ($callback['function']($dades, $callback['params'])) {
-                                $selected[] = $id;
+                            try {
+                                $dades = $this->getDataProject($id, $file, $metaDataSubSet);
+                                if ($callback['function']($dades, $callback['params'])) {
+                                    $selected[] = $id;
+                                }
+                            }catch(MalFormedJSON $e) {
+                                $selected[] = "ERROR_".$e->getMessage()."_$id";
                             }
                         }
                     }else {

@@ -46,6 +46,38 @@ class ProgramacioProjectModel extends UniqueContentFileProjectModel {
         $this->postRenameProject($ns, $new_name);
     }
     
+    /**
+     * Elimina els directoris del projecte indicat i les seves referències i enllaços
+     * @param string $ns : ns del projecte
+     * @param string $persons : noms dels autors i els responsables separats per ","
+     */
+    public function removeProject($ns, $persons) {
+        parent::removeProject($ns, $persons);
+        
+        //4. Elimina les referències externes a aquest projecte (nsProgramacio) en els plans de treball
+        $projectTypes = ["ptfct", "ptfploe", "ptfplogse", "sintesi"];
+        $field = "nsProgramacio";
+        /**
+         * Informa si en les dades del projecte el camp 'field' conté el valor 'value'
+         * @param array $dades : array de dades del projecte
+         * @param array $params : ['field', 'value']
+         * @return boolean
+         */
+        $function = function($dades, $params) {
+                        $field = $params[0];
+                        $value = $params[1];
+                        return (is_array($dades) && !empty($dades[$field]) && $dades[$field] === $value);
+                    };
+        $callback = ['function' => $function,
+                     'params' => [$field, $ns]
+                    ];
+        $projectList = $this->projectMetaDataQuery->selectProjectsByField($callback, $projectTypes);
+        if (!empty($projectList)) {
+            $summary = "$field: la programació $ns associada ha estat eliminada";
+            $this->projectMetaDataQuery->changeFieldValueInProjects($field, "", $projectList, $summary, $callback);
+        }
+    }
+
     public function canDocumentBeEdited($documentId){
         $data = $this->getDataProject($this->getId(), $this->getProjectType(), "management");
         return $data['workflow']['currentState'] && ($data['workflow']['currentState']=="creating" || $data['workflow']['currentState']=="modifiying");
