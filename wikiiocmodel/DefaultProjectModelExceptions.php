@@ -113,4 +113,10 @@ class PageIsProtectedCantEditException extends WikiIocModelException {
     }
 }
 
+class InconsistentDataException extends WikiIocModelException{
+    public function __construct($explanation, $message='Les dades són inconsistents: %s', $code=7117, $previous=NULL) {
+        parent::__construct($message, $code, $previous, $explanation);
+    }
+}
+
 
