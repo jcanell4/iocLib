@@ -100,9 +100,10 @@
         "}";
 
 
-    let $style = jQuery('<style>');
-    $style.text(css);
-    jQuery('html').append($style);
+    // Ho desactivem, estem provant a integrar el fitxer css amb la build
+    // let $style = jQuery('<style>');
+    // $style.text(css);
+    // jQuery('html').append($style);
 
     $.fn.toBColumn = function (options) {
         let settings = $.extend({
@@ -296,12 +297,15 @@
             $columnbMobile.on('click', function () {
                 toggle = !toggle;
 
+                // ALERTA! L'alineació de la columna oberta no la estem controlant per classe
                 if (toggle) {
                     // $columnbMobile.removeClass('hide');
                     $contentMobile.removeClass('hide');
+                    $columnbMobile.css('float', 'none');
                     $img.addClass('hide');
                 } else {
                     // $columnbMobile.addClass('hide');
+                    $columnbMobile.css('float', settings.columnAlign);
                     $contentMobile.addClass('hide');
                     $img.removeClass('hide');
                 }
