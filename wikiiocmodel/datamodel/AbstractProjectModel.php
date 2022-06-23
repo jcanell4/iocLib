@@ -1192,7 +1192,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @param string $configKey : conjunto principal requerido
      * @return Json con el array correspondiente a la clave $configKey
      */
-    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=NULL, $configKey=NULL) {
+    // TODO[Xavi]: Determinar d'on s'ha de carregar el valor per defecte, no pot ser null perquè llavors no es carrega
+    // al ProjectMetadataQuery
+    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=ProjectMetaDataQuery::FILE_CONFIGMAIN, $configKey=NULL) {
         return $this->projectMetaDataQuery->getMetaDataJsonFile($projectType, $jsonFile, $configKey);
     }
 
