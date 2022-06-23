@@ -972,6 +972,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     // Hace trim, recursivamente, a los valores de todos los campos de $data
     private function _trimData($data, $blackList=array()) {
+        if (!is_array($blackList)) {
+            $blackList = [$blackList];
+        }
         if (is_string($data)){
             $data = trim($data);
             if($data[0]==="[" && $data[strlen($data)-1]==="]" || $data[0]==="{" && $data[strlen($data)-1]==="}"){
