@@ -8,7 +8,7 @@
  *
  * @author xaviergaro.dev@gamail.com
  */
-class CalculateFromConfigMainValue extends AbstractCalculate implements ICalculateWithConfigMain
+abstract class CalculateFromConfigMainValue extends AbstractCalculate implements ICalculateWithConfigMain
 {
 
     const KEY_PARAM = "key";
@@ -77,8 +77,6 @@ class CalculateFromConfigMainValue extends AbstractCalculate implements ICalcula
 
     private function extractValueFromPath($path, $object)
     {
-
-        // TODO: Comprovar que passa si el valor no existeix
         if (count($path) == 1) {
             return $object[$path[0]];
         }
