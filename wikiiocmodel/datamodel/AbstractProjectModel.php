@@ -1005,7 +1005,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
-        // A implementar a les subclasses, per defecte no es fa res
+        $data = $this->updateDadesExtresOnRead($data);
         return $data;
     }
     
@@ -1301,8 +1301,58 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     //Tractament inicial de les dades del formulari en el procés de desar els canvis
     public function tractamentInicialEnDesarDadesFormulari($data=NULL) {
+        $data = $this->updateDadesExtresOnSave($data);
         $aRenderables = $this->getRenderableFieldList();
         $data = $this->_trimData($data, $aRenderables);
+        return $data;
+    }
+    
+    protected function updateDadesExtresOnRead($data=NULL){
+        $isArray = is_array($data);
+        $values = $isArray ? $data : json_decode($data, true);
+
+        $dadesExtres =  IocCommon::toArrayThroughArrayOrJson($values["dadesExtres"]);
+        $modif=FALSE;
+        foreach ($dadesExtres as $rowKey => $rowValue) {
+            if(isset($rowValue["parametres"])){
+                if($rowValue["parametres"][0]=="\"" && $rowValue["parametres"][1]=="[" 
+                        && $rowValue["parametres"][-1]=="\"" && $rowValue["parametres"][-2]=="]"){
+                    $dadesExtres[$rowKey]["parametres"] = substr($rowValue["parametres"], 1, -1);
+                    $modif=TRUE;
+                }elseif($rowValue["parametres"][0]=="\\" && $rowValue["parametres"][1]=="[" 
+                        && $rowValue["parametres"][-1]=="]" && $rowValue["parametres"][-2]=="\\"){
+                    $dadesExtres[$rowKey]["parametres"] = "[".substr($rowValue["parametres"], 2, -2)."]";
+                    $modif=TRUE;
+                }
+            }
+        }
+        if($modif){
+            $values["dadesExtres"] = $dadesExtres;
+            $data = $isArray?$values:json_encode($values);
+        }
+        
+        return $data;       
+    }
+    
+    protected function updateDadesExtresOnSave($data=NULL){
+        $isArray = is_array($data);
+        $values = $isArray ? $data : json_decode($data, true);
+
+        $dadesExtres =  IocCommon::toArrayThroughArrayOrJson($values["dadesExtres"]);
+        $modif=FALSE;
+        foreach ($dadesExtres as $rowKey => $rowValue) {
+            if(isset($rowValue["parametres"])){
+                if($rowValue["parametres"][0]=="[" && $rowValue["parametres"][-1]=="]"){
+                    $dadesExtres[$rowKey]["parametres"] = "\\[".substr($rowValue["parametres"], 1, -1)."\\]";
+                    $modif=TRUE;
+                }
+            }
+        }
+        if($modif){
+            $values["dadesExtres"] = $dadesExtres;
+            $data = $isArray?$values:json_encode($values);
+        }
+        
         return $data;
     }
 
