@@ -77,7 +77,8 @@ class CommonUpgrader {
     }
 
     public function changeFieldNameInMultiRow($rama, $u0, $u1) {
-        $rama = (is_array($rama)) ? $rama : json_decode($rama, TRUE);
+        $rama = IocCommon::toArrayThroughArrayOrJson($rama);
+
         if (is_array($rama[0])) { //es un conjunto de filas de una tabla
             for ($j=0; $j<count($rama); $j++) {
                 $ret = $this->changeFieldName($rama[$j], $u0, $u1);
@@ -110,10 +111,8 @@ class CommonUpgrader {
      * @return array de datos con la nueva clave añadida
      */
     public function addFieldInMultiRow($data, $row, $newkey, $newvalue) {
-        $rama = (is_array($data[$row])) ? $data[$row] : json_decode($data[$row], TRUE);
-        if($rama==NULL){
-            $rama=[];
-        }
+        $rama = IocCommon::toArrayThroughArrayOrJson($data[$row]);
+
         foreach ($rama as $k => $v) {
             $rama[$k][$newkey] = $newvalue;
         }
@@ -129,8 +128,8 @@ class CommonUpgrader {
      * @return array de datos con la nueva clave añadida
      */
     public function addFieldAutoIncrementInMultiRow($data, $row, $newkey) {
-        $rama = (is_array($data[$row])) ? $data[$row] : json_decode($data[$row], TRUE);
-        if ($rama==NULL) $rama = [];
+        $rama = IocCommon::toArrayThroughArrayOrJson($data[$row]);
+
         foreach ($rama as $k => $v) {
             $rama[$k][$newkey] = $k;
         }
@@ -147,8 +146,9 @@ class CommonUpgrader {
      * @return array de datos con la nueva fila añadida
      */
     public function addRowInMultiRow($data, $field, $newrow, $penultima) {
-        $rama = (is_array($data[$field])) ? $data[$field] : json_decode($data[$field], TRUE);
-        $fila = (is_array($newrow)) ? $newrow : json_decode($newrow, TRUE);
+        $rama = IocCommon::toArrayThroughArrayOrJson($data[$field]);
+        $fila = IocCommon::toArrayThroughArrayOrJson($newrow);
+
         if (!empty($fila)) {
             if ($penultima) {
                 $ultim = array_pop($rama);
@@ -172,23 +172,23 @@ class CommonUpgrader {
         $notaMinimaEAF = 11;
         $notaMinimaJT = 11;
         $notaMinimaPAF = 11;
-        $taulaInstrumentsAvaluacio = is_array($data['taulaInstrumentsAvaluacio']) ? $data['taulaInstrumentsAvaluacio'] : json_decode($data['taulaInstrumentsAvaluacio'], TRUE);
-        if (is_array($taulaInstrumentsAvaluacio)) {
-            foreach ($taulaInstrumentsAvaluacio as $item) {
-                if ($item["tipus"] == "AC"){
-                    if ($notaMinimaAC > $item["notaMinima"]) $notaMinimaAC = $item["notaMinima"];
-                }
-                if ($item["tipus"] == "EAF"){
-                    if($notaMinimaEAF > $item["notaMinima"]) $notaMinimaEAF = $item["notaMinima"];
-                }
-                if ($item["tipus"] == "JT"){
-                    if ($notaMinimaJT > $item["notaMinima"]) $notaMinimaJT = $item["notaMinima"];
-                }
-                if ($item["tipus"] == "PAF"){
-                    if($notaMinimaPAF > $item["notaMinima"]) $notaMinimaPAF = $item["notaMinima"];
-                }
+        $taulaInstrumentsAvaluacio = IocCommon::toArrayThroughArrayOrJson($data['taulaInstrumentsAvaluacio']);
+
+        foreach($taulaInstrumentsAvaluacio as $item) {
+            if ($item["tipus"] == "AC"){
+                if ($notaMinimaAC > $item["notaMinima"]) $notaMinimaAC = $item["notaMinima"];
+            }
+            if ($item["tipus"] == "EAF"){
+                if($notaMinimaEAF > $item["notaMinima"]) $notaMinimaEAF = $item["notaMinima"];
+            }
+            if ($item["tipus"] == "JT"){
+                if ($notaMinimaJT > $item["notaMinima"]) $notaMinimaJT = $item["notaMinima"];
+            }
+            if ($item["tipus"] == "PAF"){
+                if($notaMinimaPAF > $item["notaMinima"]) $notaMinimaPAF = $item["notaMinima"];
             }
         }
+
         $data['notaMinimaAC'] = ($notaMinimaAC === 11) ? 0 : $notaMinimaAC;
         $data['notaMinimaEAF'] = ($notaMinimaEAF === 11) ? 0 : $notaMinimaEAF;
         $data['notaMinimaJT'] = ($notaMinimaJT === 11) ? 0 : $notaMinimaJT;
@@ -202,15 +202,16 @@ class CommonUpgrader {
      * @return dades del projecte amb el camp bloc actualitzat
      */
     public function updateBlocInProgramacions(&$data) {
-        $taulaInstrumentsAvaluacio = is_array($data['taulaInstrumentsAvaluacio']) ? $data['taulaInstrumentsAvaluacio'] : json_decode($data['taulaInstrumentsAvaluacio'], TRUE);
-        if (is_array($taulaInstrumentsAvaluacio)) {
-            foreach ($taulaInstrumentsAvaluacio as $k => $item) {
-                if (!$item['bloc']) {
-                    $taulaInstrumentsAvaluacio[$k]['bloc'] = 0;
-                }
+        $taulaInstrumentsAvaluacio = IocCommon::toArrayThroughArrayOrJson($data['taulaInstrumentsAvaluacio']);
+
+        foreach ($taulaInstrumentsAvaluacio as $k => $item) {
+            if (!$item['bloc']) {
+                $taulaInstrumentsAvaluacio[$k]['bloc'] = 0;
             }
-            $data['taulaInstrumentsAvaluacio'] = json_encode($taulaInstrumentsAvaluacio);
         }
+
+        $data['taulaInstrumentsAvaluacio'] = json_encode($taulaInstrumentsAvaluacio);
+
         return TRUE;
     }
 

@@ -63,9 +63,9 @@ class CalculateArrayObjectFromExternalField extends CalculateWithPersistenceAndV
         }
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
         $arrayObject = $this->getValueFieldFromValues($values, $field);
-        if(is_string($arrayObject)){
-            $arrayObject = json_decode($arrayObject, TRUE);
-        }
+
+        $arrayObject = IocCommon::toArrayThroughArrayOrJson($arrayObject);
+
         $this->setVariable(self::ARRAY_OBJECT_VALUE_VAR, $arrayObject);
 
         foreach ($arrayObject as $rowValue) {

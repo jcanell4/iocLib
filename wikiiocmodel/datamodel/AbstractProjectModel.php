@@ -950,7 +950,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
         if($originalDataKeyValue){
-            $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
+            $originalDataKeyValue = IocCommon::toArrayThroughArrayOrJson($originalDataKeyValue);
         }
 //        $aRenderables = $this->getRenderableFieldList();
 //        $values = $this->_trimData($values, $aRenderables);
@@ -963,7 +963,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $isArray = is_array($data);
         $values = ($isArray) ? $data : json_decode($data, true);
         if($originalDataKeyValue){
-            $originalDataKeyValue = (is_array($originalDataKeyValue)) ? $originalDataKeyValue : json_decode($originalDataKeyValue, true);
+            $originalDataKeyValue = IocCommon::toArrayThroughArrayOrJson($originalDataKeyValue);
         }
         $values = $this->updateCalculatedFieldsOnRead($values, $originalDataKeyValue, $subset);
         $data = ($isArray) ? $values : json_encode($values);

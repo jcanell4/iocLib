@@ -70,11 +70,13 @@ abstract class AbstractProjectUpdateProcessor{
     }
     
     private function setParams($p){
-        if(is_string($p)){
-            $this->params = json_decode($p, TRUE);
-        }else{
-            $this->params = $p;
-        }        
+        $this->params = IocCommon::toArrayThroughArrayOrJson($p);
+
+//        if(is_string($p)){
+//            $this->params = json_decode($p, TRUE);
+//        }else{
+//            $this->params = $p;
+//        }
     }
 
     public function runProcess(&$projectMetaData){
@@ -197,9 +199,13 @@ class ArrayFieldProjectUpdateProcessor{
     }
     
     private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey, $conditions=NULL){
-        if (is_string($projectMetaData[$field])){
-            $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
-        }
+
+        $projectMetaData[$field] = IocCommon::toArrayThroughArrayOrJson($projectMetaData[$field]);
+
+//        if (is_string($projectMetaData[$field])){
+//            $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
+//        }
+
         if ($projectMetaData[$field] && is_array($projectMetaData[$field])) {
             for ($i=0; $i<count($projectMetaData[$field]); $i++) {
                 $condition = TRUE;

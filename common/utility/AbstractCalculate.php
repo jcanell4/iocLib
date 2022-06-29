@@ -287,14 +287,12 @@ abstract class AbstractCalculate implements ICalculate{
     }
 
     protected function castToArray($var, $ThrowException=TRUE){
-        $ret = NULL;
-        if (is_string($var)){
-            $ret = json_decode($var, TRUE);
-        }elseif(is_array($var)){
-            $ret = $var;
-        }elseif($ThrowException) {
+        $ret = IocCommon::toArrayThroughArrayOrJson($var);
+
+        if (count($ret) && $ThrowException) {
             throw new Exception("'$var' no es pot transformar a un tipus ARRAY");
         }
+
         return $ret;
     }
 }
