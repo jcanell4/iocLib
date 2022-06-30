@@ -73,28 +73,28 @@ class CalculateDateFormat extends CalculateFromValues
         // Reemplacem per assegurar que en tots els casos fem servir - (pel cas on el $valor ja és correcte
         // i no cal canviar-lo)
         $chunks = preg_split('/[-\/]/', $value);
+        $ret = ['00', '00' ,'0000'];
 
-        // TODO: Determinar si enviem un valor per defecte o llencem una excepció
         if (count($chunks) != 3) {
             // TODO: Determinar si enviem un valor per defecte o llencem una excepció
             // No cal fer res, retornarem el valor per defecte
-
         } else if (strlen($chunks[0]) === 4) {
             // l'any es troba al principi, intercanviem les posicions
-            $year = $chunks[0];
-            $chunks[0] = $chunks[2];
-            $chunks[2] = $year;
-
-            $value = implode($chunks, $separator);
-            return $value;
+            $this->swapDayAndMonth($chunks);
+            $ret = $chunks;
 
         } else if (strlen($chunks[2]) === 4) {
             // No cal fer res, el format ja és correcte
-            return implode($chunks, $separator);
+            $ret = $chunks;
         }
 
-        // El format no és correcte
-        return "00".$separator."00".$separator."0000";
+        return implode($ret, $separator);
+    }
+
+    private function swapDayAndMonth(&$chunks) {
+        $aux = $chunks[0];
+        $chunks[0] = $chunks[2];
+        $chunks[2] = $aux;
     }
 
     private function fixValueToDateYYYYMMDD($value, $separator)
@@ -103,27 +103,22 @@ class CalculateDateFormat extends CalculateFromValues
         // i no cal canviar-lo)
         $chunks = preg_split('/[-\/]/', $value);
 
-
+        $ret = ['0000', '00' ,'00'];
 
         if (count($chunks) != 3) {
             // TODO: Determinar si enviem un valor per defecte o llencem una excepció
             // No cal fer res, retornarem el valor per defecte
         } else if (strlen($chunks[2]) === 4) {
             // l'any es troba al principi, intercanviem les posicions
-            $day = $chunks[0];
-            $chunks[0] = $chunks[2];
-            $chunks[2] = $day;
+            $this->swapDayAndMonth($chunks);
+            $ret = $chunks;
 
-            $value = implode($chunks, $separator);
-            return $value;
-
-        } else if (strlen($chunks[2]) === 4) {
+        } else if (strlen($chunks[0]) === 4) {
             // No cal fer res, el format ja és correcte
-            return implode($chunks, $separator);
+            $ret = $chunks;
         }
 
-
-        return "0000".$separator."00".$separator."00";
+        return implode($ret, $separator);
 
     }
 
