@@ -28,6 +28,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $viewConfigName;
     protected $roleProperties;
     protected $needGenerateAction;
+    protected $useRouteInRemoteDir;
 
     public function __construct($persistenceEngine)  {
         parent::__construct($persistenceEngine);
@@ -39,8 +40,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->viewConfigKey = ProjectKeys::KEY_VIEW_DEFAULTVIEW;
         $this->needGenerateAction=TRUE;
         $this->externalCallMethods = [];
+        $this->$useRouteInRemoteDir = FALSE;
     }
-    
+        
     public function callMethod($methodName, $params){
         if(is_callable(array($this, $this->externalCallMethods[$methodName]))){
             return $this->{$this->externalCallMethods[$methodName]}($params);
@@ -1546,6 +1548,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getMetaDataExport($key=NULL, $metaDataSubset=FALSE) {
         return $this->getProjectMetaDataQuery()->getMetaDataExport($key, $metaDataSubset);
     }
+    
+    private function __getRouteForRemoteDir(){
+        if($this->useRouteInRemoteDir){
+            $ret =  str_replace(':', '/', $this->id)."/";
+        }else{
+            $ret = "";
+        }
+        return $ret;
+    }
 
     /**
      * Obtiene la lista de ficheros, y sus propiedades, (del configMain.json) que hay que enviar por FTP
@@ -1554,6 +1565,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function filesToExportList() {
         $ret = array();
         $metadata = $this->getMetaDataFtpSender();
+        $ruta = $this->__getRouteForRemoteDir();
         if (!empty($metadata["files"])) {
             foreach ($metadata["files"] as $f => $objFile) {
                 $suff = (empty($objFile['suffix'])) ? "" : "_{$objFile['suffix']}";
@@ -1568,6 +1580,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                             $connData = $this->getFtpConfigData($ret[$f]['ftpId']);
                             $rBase = (empty($objFile['remoteBase'])) ? (empty($metadata['remoteBase'])) ? $connData["remoteBase"] : $metadata['remoteBase'] : $objFile['remoteBase'];
                             $rDir  = (empty($objFile['remoteDir'])) ? (empty($metadata['remoteDir'])) ? $connData["remoteDir"] : $metadata['remoteDir'] : $objFile['remoteDir'];
+                            $rDir .= $ruta;
                             $ret[$f]['remoteBase'] = $rBase;
                             $ret[$f]['remoteDir'] = $rDir;
                         }
@@ -1615,6 +1628,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->setProjectSystemStateAttr("ftpsend_timestamp", filemtime($file));
     }
 
+     public function hasFtpAction(){
+         $mdFtpSender = $this->getMetaDataFtpSender();
+         return !empty($mdFtpSender) && isset($mdFtpSender['files']);
+    }    
+
+    
     /**
      * Comprova si els fitxers 'HTML export' han estat enviats a FTP
      * (només s'utilitza el primer fitxer de la llista)
@@ -1633,6 +1652,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if ($fileexists) $filetime = filemtime($file);
 
         if ($fileexists && (!$useSavedTime || ($savedtime === $filetime))) {
+            $ruta = $this->__getRouteForRemoteDir();
             foreach ($mdFtpSender['files'] as $objFile) {
                 $ftpId = (empty($objFile[ProjectKeys::KEY_FTPID])) ? $mdFtpSender[ProjectKeys::KEY_FTPID] : $objFile[ProjectKeys::KEY_FTPID];
                 $connData = $this->getFtpConfigData($ftpId);
@@ -1644,10 +1664,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                     $index = "${outfile}${suff}.{$objFile['type']}";
                 }
                 $rDir  = (empty($objFile['remoteDir'])) ? (empty($mdFtpSender['remoteDir'])) ? $connData["remoteDir"] : $mdFtpSender['remoteDir'] : $objFile['remoteDir'];
+                $rDir .= $ruta;
                 if (in_array(1, $objFile['action'])) {
                     $rDir .= pathinfo($file, PATHINFO_FILENAME)."/";  //es una action del tipo unzip
                 }
-                $url = "{$connData['remoteUrl']}${rDir}${index}";
+                $remoteUrl = (empty($objFile['remoteUrl'])) ? (empty($mdFtpSender['remoteUrl'])) ? $connData["remoteUrl"] : $mdFtpSender['remoteUrl'] : $objFile['remoteUrl'];
+                $url = "${remoteUrl}${rDir}${index}";
                 $data = date("d/m/Y H:i:s", $filetime);
                 $class = "mf_".pathinfo($index, PATHINFO_EXTENSION);
                 $linkRef = empty($objFile['linkName']) ? $index : $objFile['linkName'];
