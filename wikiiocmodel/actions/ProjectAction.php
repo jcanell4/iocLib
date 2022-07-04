@@ -115,6 +115,10 @@ abstract class ProjectAction extends AbstractWikiAction {
         }
         $response[ProjectKeys::KEY_GENERATED] = $this->getModel()->isProjectGenerated();
         $response[ProjectKeys::KEY_DATA_ERROR_LIST] = $this->getModel()->getErrorFields($response[ProjectKeys::KEY_PROJECT_METADATA]);
+        if($this->getModel()->hasFtpAction()){
+            $response[AjaxKeys::KEY_FTPSEND_HTML] = $this->getModel()->get_ftpsend_metadata(FALSE);
+        }
+
     }
 
     public function generateMessageInfoForSubSetProject($id, $subSet, $message) {
