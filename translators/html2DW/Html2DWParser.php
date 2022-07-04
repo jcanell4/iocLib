@@ -264,7 +264,7 @@ class Html2DWParser extends IocParser {
         '<h3' => ['mode' => 'block', 'state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['====', "====\n"]]],
         "<\/h3>\n?" => ['mode' => 'block', 'state' => 'close_h3', 'type' => 'h3', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         "<h4" => ['mode' => 'block', 'state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['===', "===\n"]]],
-        "<\/h4>\n?" => ['mode' => 'block', 'state' => 'close_h4', 't   ype' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        "<\/h4>\n?" => ['mode' => 'block', 'state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         "<h5" => ['mode' => 'block', 'state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
         "<\/h5>\n?" => ['mode' => 'block', 'state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
