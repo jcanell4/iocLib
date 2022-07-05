@@ -130,9 +130,13 @@ class DW2HtmlImage extends DW2HtmlInstruction {
 
         $text = $this->parseContent($text);
 
+        // això només es mostra al títol o com a text alternatiu
+        $sanitizedText = htmlspecialchars($text);
+//        $sanitizedText = str_replace('"', "'", $text);
 
         $html = '<div data-dw-lateral="image" class="imgb" contenteditable="false">'
-            . '<img src="' . $url . '" class="media ' . $CSSClasses . '" title="' . $text . '" alt="' . $text . '" width="'
+            . '<img src="' . $url . '" class="media ' . $CSSClasses . '" '
+            . 'title="' . $sanitizedText . '" alt="' . $sanitizedText . '" width="'
             . $width .'" ' . $value . ' contenteditable="false"/>'
             . '<div class="title" contenteditable="true">' . $text . '</div>'
             . '</div>';

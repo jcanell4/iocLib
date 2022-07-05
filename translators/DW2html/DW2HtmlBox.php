@@ -74,13 +74,13 @@ class DW2HtmlBox extends DW2HtmlInstruction
         $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '') . '>'
             . '<div class="ioccontent">';
 
-        foreach($fields as $field=>$value) {
-            $html .= '<p data-dw-field="' .$field .'" data-ioc-optional><b class="no-save" contenteditable="false">'. $field . '</b> ' . $value . '</p>';
-        }
-
-//        if (isset($fields['title'])) {
-//            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+//        foreach($fields as $field=>$value) {
+//            $html .= '<p data-dw-field="' .$field .'" data-ioc-optional><b class="no-save" contenteditable="false">'. $field . ':</b> ' . $value . '</p>';
 //        }
+
+        if (isset($fields['title'])) {
+            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+        }
 
 
         $content = $this->getContent($token);
