@@ -113,7 +113,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
-        "(?: {2})+[\*-](.*?)\n" => [
+        "^(?: {2})+[\*-](.*?)\n" => [
             'state' => 'list-item'
         ],
 
@@ -245,8 +245,8 @@ class DW2HtmlParser extends IocParser {
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        " {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
-        " {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
+        "^ {2}\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
+        "^ {2}- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
         "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre data-code-type='indented'><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
         
