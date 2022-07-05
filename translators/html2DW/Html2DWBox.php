@@ -27,7 +27,7 @@ class Html2DWBox extends Html2DWMarkup {
             if ($key === 'id') {
                 continue;
             }
-            $pre .= '  :' . $key . ':' . $value . "\n";
+            $pre .= '  :' . $key . ': ' . $value . "\n";
         }
 
 

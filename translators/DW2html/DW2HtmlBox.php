@@ -68,14 +68,19 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         if (isset($fields['large'])) {
             $type = 'textl';
+            unset($fields['large']);
         }
 
         $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '') . '>'
             . '<div class="ioccontent">';
 
-        if (isset($fields['title'])) {
-            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+        foreach($fields as $field=>$value) {
+            $html .= '<p data-dw-field="' .$field .'" data-ioc-optional><b class="no-save" contenteditable="false">'. $field . '</b> ' . $value . '</p>';
         }
+
+//        if (isset($fields['title'])) {
+//            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+//        }
 
 
         $content = $this->getContent($token);
@@ -129,14 +134,17 @@ class DW2HtmlBox extends DW2HtmlInstruction
         $pre = $this->getPreContent($fields, $id, $type);
         $content = $this->getContent($token);
 
-        // ALERTA[Xavi] eliminem el trailing \n aquí perquè no sempre és aplicable, a les taules
-        // s'han de conservar per poder fer el parser correcte de les files
+
 
         $post = "</div>";
 
-        if (substr($content, -1) == "\n") {
-            $content = substr_replace($content, "", -1);
-        }
+        // ALERTA[Xavi] eliminem qualsevol possible espai o salt de línia, a la figura només
+        // hi ha d'haver la figura
+//        if (substr($content, -1) == "\n") {
+//            $content = substr_replace($content, "", -1);
+//        }
+
+        $content = trim($content);
 
         $value = $this->parseContent($content);
 
