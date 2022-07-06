@@ -188,7 +188,7 @@ class Html2DWParser extends IocParser {
             'state' => 'link',
         ],
 
-        '<img.*?\/>' => [
+        '<img.*?>' => [
             'state' => 'image',
         ],
 
@@ -204,7 +204,7 @@ class Html2DWParser extends IocParser {
 
         "'<div>(<br ?\/>)*<\/div>'" => ['mode' => 'block', 'state' => 'paragraph', 'type' => 'paragraph', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
 
-        '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['mode' => 'block','state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?>)(.*?)<\/div><\/div>' => ['mode' => 'block','state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="iocgif".*?><img.*?><\/div>' => ['mode' => 'block', 'state' => 'gif', 'type' => 'gif', 'class' => 'Html2DWImageGIF', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -268,6 +268,7 @@ class Html2DWParser extends IocParser {
         "<h5" => ['mode' => 'block', 'state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
         "<\/h5>\n?" => ['mode' => 'block', 'state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
+        '<hr( \/)?>' => ['mode' => 'block', 'state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'replacement' => "----"]],
         '&nbsp;' => ['mode' => 'block', 'state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => " "]],
 
 
