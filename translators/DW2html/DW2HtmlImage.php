@@ -5,6 +5,8 @@ class DW2HtmlImage extends DW2HtmlInstruction {
 
     protected $urlPattern = "/{{(.*?)\|.*}}/";
 
+    protected const DEFAULT_WIDTH = '200';
+
     public function getUrlPattern(){
         return $this->urlPattern;
     }
@@ -118,8 +120,18 @@ class DW2HtmlImage extends DW2HtmlInstruction {
         }
     }
 
+    private function extractWidth($value) {
+        $pattern = "/\?(\d*)\|/";
+        if (preg_match($pattern, $value, $matches)) {
+            return $matches[1];
+        } else {
+            // valor per defecte
+            return self::DEFAULT_WIDTH;
+        }
+    }
+
     protected function makeLateralBox($url, $text, $CSSClasses, $isInternal) {
-        $width = '200';
+        $width = $this->extractWidth($this->currentToken['raw']);
 
         $value = ' data-dw-type="';
         if ($isInternal) {
