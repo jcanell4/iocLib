@@ -18,7 +18,7 @@
  *
  * @author josep
  */
-class CalculateDateFormat extends CalculateFromValues
+class CalculateDateFormatFromArrayObject extends CalculateFromValues
 {
     const FIELD_PARAM = "field";
     const DEFAULT_SEPARATOR = "-";
@@ -30,8 +30,7 @@ class CalculateDateFormat extends CalculateFromValues
 
         $values = $this->getValues();
         $field = $this->getParamValue($data[self::FIELD_PARAM]);
-        $array = $this->setVariable(self::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field)));
-
+        $array = $this->setVariable(self::ARRAY_VALUE_VAR, $this->castToArray($this->getValueFieldFromValues($values, $field, $this->getDefaultValueFromData($data))));
 
         $formatField = $data['formatField'];
         $format = $data['format'];
@@ -52,6 +51,14 @@ class CalculateDateFormat extends CalculateFromValues
         }
 
         return $array;
+    }
+
+    private function getDefaultValueFromData($data) {
+        if (isset($data['defaultValue'])) {
+            return $data['defaultValue'];
+        } else {
+            return [];
+        }
     }
 
     private function applyFormat($value, $format, $separator)
