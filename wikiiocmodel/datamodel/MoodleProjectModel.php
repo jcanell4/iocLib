@@ -40,11 +40,7 @@ abstract class MoodleProjectModel extends AbstractProjectModel{
     public function addExtraCalendar(&$ret) {
         $data = $this->getCurrentDataProject();
         // Comprovem si hi ha dades extre que afegir al calendari
-        if (!is_string($data["dadesExtres"]) || strlen($data["dadesExtres"])===0) {
-            return;
-        }
-
-        $dadesExtres = json_decode($data["dadesExtres"], true);
+        $dadesExtres = IocCommon::toArrayThroughArrayOrJson($data["dadesExtres"]);
 
         for ($i = 0; $i<count($dadesExtres); $i++) {
             $row = $dadesExtres[$i];
@@ -55,14 +51,18 @@ abstract class MoodleProjectModel extends AbstractProjectModel{
                 $parametres = preg_split($regex, $row['parametres']);
 
                 for ($j = 0; $j < count($parametres); $j++) {
-                    if (!(strpos($parametres[$j], "sendToCalendar") === 0)) {
+
+                    $pattern = "/^[\(\[]?(sendToCalendar(?::.*?)?)[\)\]]?$/m";
+                    if (!preg_match($pattern, $parametres[$j], $match) ) {
                         continue;
                     }
 
-                    $separadorPos = strpos($parametres[$j], ":");
+                    $sanitized =$match[1];
+                    $separadorPos = strpos($sanitized, ":");
 
                     if ($separadorPos !== false) {
-                        $text = substr($parametres[$j], $separadorPos + 1);
+
+                        $text = substr($sanitized, $separadorPos + 1);
                     } else {
                         $text = $row['nom'];
                     }

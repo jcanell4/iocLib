@@ -14,7 +14,7 @@ class Html2DWLink extends Html2DWMarkup {
                 return ':table:' . $url . ':';
 
             case 'figure':
-                // TODO
+
                 return ':figure:' . $url . ':';
 
             default:

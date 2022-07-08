@@ -40,7 +40,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 break;
 
             case 'figure':
-                $result =  $this->getValueFigure($token, $id);
+                $result = $this->getValueFigure($token, $id);
                 break;
 
             case 'text':
@@ -68,15 +68,33 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
         if (isset($fields['large'])) {
             $type = 'textl';
+            unset($fields['large']);
         }
 
         $html = '<div class="ioc' . $type . '" data-dw-box-text="' . $type . '"' . ($large ? $large : '') . '>'
             . '<div class="ioccontent">';
 
-        if (isset($fields['title'])) {
-            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+//        foreach($fields as $field=>$value) {
+//            $html .= '<p data-dw-field="' .$field .'" data-ioc-optional><b class="no-save" contenteditable="false">'. $field . ':</b> ' . $value . '</p>';
+//        }
+
+        // Solució temporal: només permetem editar el títol, actualment no es pot
+        // afegir cap etiqueta per indicar quin és l'atribut que s'està editant
+        // en principi l'únic atribut addicional sembla ser "offset"
+        foreach ($fields as $field => $value) {
+            $html .= '<p class="ioctitle" data-dw-field="' . $field . '" data-ioc-optional'
+                . ($field !== 'title' ? ' contenteditable="false"' : '')
+                . '>' . $value . '</p>';
         }
 
+
+//        if (isset($fields['title'])) {
+//            $html .= '<p class="ioctitle" data-dw-field="title" data-ioc-optional>' . $fields['title'] . '</p>';
+//        }
+//
+//        if (isset($fields['offset'])) {
+//            $html .= '<p class="ioctitle" data-dw-field="offset" data-ioc-optional contenteditable="false">' . $fields['offset'] . '</p>';
+//        }
 
         $content = $this->getContent($token);
 
@@ -129,14 +147,16 @@ class DW2HtmlBox extends DW2HtmlInstruction
         $pre = $this->getPreContent($fields, $id, $type);
         $content = $this->getContent($token);
 
-        // ALERTA[Xavi] eliminem el trailing \n aquí perquè no sempre és aplicable, a les taules
-        // s'han de conservar per poder fer el parser correcte de les files
 
         $post = "</div>";
 
-        if (substr($content, -1) == "\n") {
-            $content = substr_replace($content, "", -1);
-        }
+        // ALERTA[Xavi] eliminem qualsevol possible espai o salt de línia, a la figura només
+        // hi ha d'haver la figura
+//        if (substr($content, -1) == "\n") {
+//            $content = substr_replace($content, "", -1);
+//        }
+
+        $content = trim($content);
 
         $value = $this->parseContent($content);
 
@@ -263,10 +283,10 @@ class DW2HtmlBox extends DW2HtmlInstruction
         // Eliminem el marcador de multilínia:
         //  cas 1: hi ha preref: [[ref
         // cas 2: comença la taula [^ o [|
-        if (strlen($content)>2) {
+        if (strlen($content) > 2) {
             $check = substr($content, 0, 2);
             if ($check === "[[" || $check === "[^" || $check == "[|") {
-                $content = (substr($content,1));
+                $content = (substr($content, 1));
             }
         }
 
@@ -301,7 +321,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 if ($endPos < $len - 1) {
                     // TODO: capturar el contingut des de $endpos fins al final i afegir-la al postrefs
                     $endLen = $len - $endPos - 1;
-                    $postRefs[$i] = substr($raw, $endPos+1, $endLen+1);
+                    $postRefs[$i] = substr($raw, $endPos + 1, $endLen + 1);
                 } else {
                     $endLen = 0;
                 }
@@ -353,7 +373,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 // el retorn serà spans, però ha de ser un tr amb totes les cel·les
 
                 $preRow = $this->parseContent($preRefs[$rowIndex], false);
-                $preRow = '<tr class="discardable"><td colspan="' . (count($cols)-2) . '">' . $preRow . '</td></tr>';
+                $preRow = '<tr class="discardable"><td colspan="' . (count($cols) - 2) . '">' . $preRow . '</td></tr>';
             }
 
             // ALERTA! això aquí s'ha de fer després del parse del preref!

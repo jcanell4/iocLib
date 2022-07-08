@@ -10,9 +10,11 @@ class Html2DWBoxText extends Html2DWBox {
 
         $type = $this->extractVarName($token['raw'], 'data-dw-box-text');
 
-        if ($this->extractVarName($token['raw'], 'data-dw-type', false)) {
-            $data[] = 'large';
-        }
+        // [Xavi] Això no té sentit, el large és controla a sota i el textl no s'afegeix al data-dw-type
+        // no hi ha aquest atribut en aquests elements
+//        if ($this->extractVarName($token['raw'], 'data-dw-type', false)) {
+//            $data[] = 'large';
+//        }
 
         // El grup 1 es el tipus
         // el grup 2 es la resta del contingut: camps + content
@@ -48,6 +50,9 @@ class Html2DWBoxText extends Html2DWBox {
         $content = $this->normalize(substr($matches[2][0], $start));
 
 
+        // [Xavi] per poder capturar correctament les caixes hem afegit el tancament de paràgraf
+        // corresponent al final del contingut, de manera que queda </p></div></div>
+        // això fa que el parse del content sigui incorrecte, perquè s'ha perdut
         $content = $this->parseContent($content);
 
 
