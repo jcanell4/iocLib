@@ -45,6 +45,9 @@ class DW2HtmlCode extends DW2HtmlInstruction {
             $value = substr($value, 0, strlen($value) - 1);
         }
 
+        // Ens assegurem que no es trencará la pàgina
+        $value = htmlentities($value);
+
         if ($token['extra']['padding']) {
             $pattern = "/^ {" . $token['extra']['padding'] . "}/m";
             $value = preg_replace($pattern, '', $value);
