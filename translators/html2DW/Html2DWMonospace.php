@@ -5,7 +5,7 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocInstruction.php';
 
 class Html2DWMonospace extends Html2DWInstruction {
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $tokenEnd) {
         var_dump("adeu monospace");
         die();
     }

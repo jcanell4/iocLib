@@ -8,7 +8,7 @@ class Html2DWNote extends Html2DWInstruction {
     const NOTE = 1;
     const SIGNATURE = 2;
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $tokenEnd) {
         die('Code#resolveOnClose');
     }
 

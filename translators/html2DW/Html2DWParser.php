@@ -351,13 +351,14 @@ class Html2DWParser extends IocParser {
     public static function initializeStructure($structureData) {
         static::$structure = [];
 
-        foreach ($structureData as $data) {
-            if (!is_array($data)) {
-                // pot ser la propietat next que indica el ID del següent element a afegir
-                continue;
+        if (!empty($structureData) && is_array($structureData)) {
+            foreach ($structureData as $data) {
+                if (!is_array($data)) {
+                    // pot ser la propietat next que indica el ID del següent element a afegir
+                    continue;
+                }
+                static::$structure[$data['id']] = new WiocclStructureItem(static::$structure, $data);
             }
-            static::$structure[$data['id']] = new WiocclStructureItem(static::$structure, $data);
         }
-
     }
 }

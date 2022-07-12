@@ -5,7 +5,7 @@ require_once DOKU_INC . 'lib/lib_ioc/iocparser/IocInstruction.php';
 
 class Html2DWCode extends Html2DWInstruction {
 
-    protected function resolveOnClose($result) {
+    protected function resolveOnClose($result, $tokenEnd) {
         die('Code#resolveOnClose');
     }
 
