@@ -449,6 +449,8 @@ class DW2HtmlInstruction extends IocInstruction
 
     protected function getRefId()
     {
+        $stack = WiocclParser::$structureStack;
+        $index = count(WiocclParser::$structureStack) - 1;
         return WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
 
     }

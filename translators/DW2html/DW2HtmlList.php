@@ -7,14 +7,26 @@ class DW2HtmlList extends DW2HtmlInstruction {
     public $level = 0;
 
     public function open() {
-        $return = '';
+//        $return = '';
 
         $top = $this->getTopState();
         $this->currentToken['instruction'] = $this;
 
+        $raw = $this->currentToken['raw'];
+        $i = strpos($raw, "  ");
+        $refs = substr($raw, 0, $i);
 
-        $this->level = $this->getLevel($this->currentToken['raw']);
-        $value = $this->getValue($this->currentToken['raw']);
+
+        $return = $this->parseContent($refs);
+
+        $listItem = strstr($raw, "  *");
+//        $listItem = str_replace("  *", "", $listItem);
+//        $listItem = ltrim($listItem);
+
+        $this->level = $this->getLevel($listItem);
+//        $this->level = $this->getLevel($this->currentToken['raw']);
+        $value = $this->getValue($listItem);
+//        $value = $this->getValue($this->currentToken['raw']);
 
         // Cas 1: no hi ha $top o el nivell del top es menor que aquest
         if (!$top || $top['state'] !== 'list-item' || $top['instruction']->level < $this->level) {
