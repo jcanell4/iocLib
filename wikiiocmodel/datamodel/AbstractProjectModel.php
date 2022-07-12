@@ -28,6 +28,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $viewConfigName;
     protected $roleProperties;
     protected $needGenerateAction;
+    protected $useRouteInRemoteDir;
 
     public function __construct($persistenceEngine)  {
         parent::__construct($persistenceEngine);
@@ -39,8 +40,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->viewConfigKey = ProjectKeys::KEY_VIEW_DEFAULTVIEW;
         $this->needGenerateAction=TRUE;
         $this->externalCallMethods = [];
+        $this->$useRouteInRemoteDir = FALSE;
     }
-    
+        
     public function callMethod($methodName, $params){
         if(is_callable(array($this, $this->externalCallMethods[$methodName]))){
             return $this->{$this->externalCallMethods[$methodName]}($params);
@@ -972,6 +974,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     // Hace trim, recursivamente, a los valores de todos los campos de $data
     private function _trimData($data, $blackList=array()) {
+        if (!is_array($blackList)) {
+            $blackList = [$blackList];
+        }
         if (is_string($data)){
             $data = trim($data);
             if($data[0]==="[" && $data[strlen($data)-1]==="]" || $data[0]==="{" && $data[strlen($data)-1]==="}"){
@@ -1005,7 +1010,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function updateCalculatedFieldsOnRead($data, $originalDataKeyValue=FALSE, $subset=FALSE) {
-        // A implementar a les subclasses, per defecte no es fa res
+        $data = $this->updateDadesExtresOnRead($data);
         return $data;
     }
     
@@ -1192,7 +1197,9 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * @param string $configKey : conjunto principal requerido
      * @return Json con el array correspondiente a la clave $configKey
      */
-    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=NULL, $configKey=NULL) {
+    // TODO[Xavi]: Determinar d'on s'ha de carregar el valor per defecte, no pot ser null perquè llavors no es carrega
+    // al ProjectMetadataQuery
+    public function getMetaDataJsonFile($projectType=FALSE, $jsonFile=ProjectMetaDataQuery::FILE_CONFIGMAIN, $configKey=NULL) {
         return $this->projectMetaDataQuery->getMetaDataJsonFile($projectType, $jsonFile, $configKey);
     }
 
@@ -1301,8 +1308,58 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     //Tractament inicial de les dades del formulari en el procés de desar els canvis
     public function tractamentInicialEnDesarDadesFormulari($data=NULL) {
+        $data = $this->updateDadesExtresOnSave($data);
         $aRenderables = $this->getRenderableFieldList();
         $data = $this->_trimData($data, $aRenderables);
+        return $data;
+    }
+    
+    protected function updateDadesExtresOnRead($data=NULL){
+        $isArray = is_array($data);
+        $values = $isArray ? $data : json_decode($data, true);
+
+        $dadesExtres =  IocCommon::toArrayThroughArrayOrJson($values["dadesExtres"]);
+        $modif=FALSE;
+        foreach ($dadesExtres as $rowKey => $rowValue) {
+            if(isset($rowValue["parametres"])){
+                if($rowValue["parametres"][0]=="\"" && $rowValue["parametres"][1]=="[" 
+                        && $rowValue["parametres"][-1]=="\"" && $rowValue["parametres"][-2]=="]"){
+                    $dadesExtres[$rowKey]["parametres"] = substr($rowValue["parametres"], 1, -1);
+                    $modif=TRUE;
+                }elseif($rowValue["parametres"][0]=="\\" && $rowValue["parametres"][1]=="[" 
+                        && $rowValue["parametres"][-1]=="]" && $rowValue["parametres"][-2]=="\\"){
+                    $dadesExtres[$rowKey]["parametres"] = "[".substr($rowValue["parametres"], 2, -2)."]";
+                    $modif=TRUE;
+                }
+            }
+        }
+        if($modif){
+            $values["dadesExtres"] = $dadesExtres;
+            $data = $isArray?$values:json_encode($values);
+        }
+        
+        return $data;       
+    }
+    
+    protected function updateDadesExtresOnSave($data=NULL){
+        $isArray = is_array($data);
+        $values = $isArray ? $data : json_decode($data, true);
+
+        $dadesExtres =  IocCommon::toArrayThroughArrayOrJson($values["dadesExtres"]);
+        $modif=FALSE;
+        foreach ($dadesExtres as $rowKey => $rowValue) {
+            if(isset($rowValue["parametres"])){
+                if($rowValue["parametres"][0]=="[" && $rowValue["parametres"][-1]=="]"){
+                    $dadesExtres[$rowKey]["parametres"] = "\\[".substr($rowValue["parametres"], 1, -1)."\\]";
+                    $modif=TRUE;
+                }
+            }
+        }
+        if($modif){
+            $values["dadesExtres"] = $dadesExtres;
+            $data = $isArray?$values:json_encode($values);
+        }
+        
         return $data;
     }
 
@@ -1494,6 +1551,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getMetaDataExport($key=NULL, $metaDataSubset=FALSE) {
         return $this->getProjectMetaDataQuery()->getMetaDataExport($key, $metaDataSubset);
     }
+    
+    private function __getRouteForRemoteDir(){
+        if($this->useRouteInRemoteDir){
+            $ret =  str_replace(':', '/', $this->id)."/";
+        }else{
+            $ret = "";
+        }
+        return $ret;
+    }
 
     /**
      * Obtiene la lista de ficheros, y sus propiedades, (del configMain.json) que hay que enviar por FTP
@@ -1502,6 +1568,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function filesToExportList() {
         $ret = array();
         $metadata = $this->getMetaDataFtpSender();
+        $ruta = $this->__getRouteForRemoteDir();
         if (!empty($metadata["files"])) {
             foreach ($metadata["files"] as $f => $objFile) {
                 $suff = (empty($objFile['suffix'])) ? "" : "_{$objFile['suffix']}";
@@ -1516,6 +1583,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                             $connData = $this->getFtpConfigData($ret[$f]['ftpId']);
                             $rBase = (empty($objFile['remoteBase'])) ? (empty($metadata['remoteBase'])) ? $connData["remoteBase"] : $metadata['remoteBase'] : $objFile['remoteBase'];
                             $rDir  = (empty($objFile['remoteDir'])) ? (empty($metadata['remoteDir'])) ? $connData["remoteDir"] : $metadata['remoteDir'] : $objFile['remoteDir'];
+                            $rDir .= $ruta;
                             $ret[$f]['remoteBase'] = $rBase;
                             $ret[$f]['remoteDir'] = $rDir;
                         }
@@ -1563,6 +1631,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->projectMetaDataQuery->setProjectSystemStateAttr("ftpsend_timestamp", filemtime($file));
     }
 
+     public function hasFtpAction(){
+         $mdFtpSender = $this->getMetaDataFtpSender();
+         return !empty($mdFtpSender) && isset($mdFtpSender['files']);
+    }    
+
+    
     /**
      * Comprova si els fitxers 'HTML export' han estat enviats a FTP
      * (només s'utilitza el primer fitxer de la llista)
@@ -1581,6 +1655,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         if ($fileexists) $filetime = filemtime($file);
 
         if ($fileexists && (!$useSavedTime || ($savedtime === $filetime))) {
+            $ruta = $this->__getRouteForRemoteDir();
             foreach ($mdFtpSender['files'] as $objFile) {
                 $ftpId = (empty($objFile[ProjectKeys::KEY_FTPID])) ? $mdFtpSender[ProjectKeys::KEY_FTPID] : $objFile[ProjectKeys::KEY_FTPID];
                 $connData = $this->getFtpConfigData($ftpId);
@@ -1592,10 +1667,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
                     $index = "${outfile}${suff}.{$objFile['type']}";
                 }
                 $rDir  = (empty($objFile['remoteDir'])) ? (empty($mdFtpSender['remoteDir'])) ? $connData["remoteDir"] : $mdFtpSender['remoteDir'] : $objFile['remoteDir'];
+                $rDir .= $ruta;
                 if (in_array(1, $objFile['action'])) {
                     $rDir .= pathinfo($file, PATHINFO_FILENAME)."/";  //es una action del tipo unzip
                 }
-                $url = "{$connData['remoteUrl']}${rDir}${index}";
+                $remoteUrl = (empty($objFile['remoteUrl'])) ? (empty($mdFtpSender['remoteUrl'])) ? $connData["remoteUrl"] : $mdFtpSender['remoteUrl'] : $objFile['remoteUrl'];
+                $url = "${remoteUrl}${rDir}${index}";
                 $data = date("d/m/Y H:i:s", $filetime);
                 $class = "mf_".pathinfo($index, PATHINFO_EXTENSION);
                 $linkRef = empty($objFile['linkName']) ? $index : $objFile['linkName'];

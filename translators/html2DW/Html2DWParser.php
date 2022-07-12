@@ -27,6 +27,11 @@ class Html2DWParser extends IocParser {
             'state' => 'paragraph',
         ],
 
+        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => [
+            /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
+            'state' => 'box-text',
+        ],
+
         // ALERTA! Sempre ha de ser el primer atribut el div: data-dw-lateral
         '<div class="imgb.*?" data-dw-lateral.*?<\/div><\/div>' => [
             'state' => 'image-lateral'
@@ -56,10 +61,7 @@ class Html2DWParser extends IocParser {
             'state' => 'wioccl'
         ],
 
-        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?)<\/div><\/div>\n?" => [
-            /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
-            'state' => 'box-text',
-        ],
+
 
         '<div class="ioc-quiz".*?(<\/div><\/div><\/div>|<\/pre><\/div><\/div>)' => [
             'state' => 'quiz'
@@ -188,7 +190,7 @@ class Html2DWParser extends IocParser {
             'state' => 'link',
         ],
 
-        '<img.*?\/>' => [
+        '<img.*?>' => [
             'state' => 'image',
         ],
 
@@ -204,7 +206,9 @@ class Html2DWParser extends IocParser {
 
         "'<div>(<br ?\/>)*<\/div>'" => ['mode' => 'block', 'state' => 'paragraph', 'type' => 'paragraph', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
 
-        '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?\/>)(.*?)<\/div><\/div>' => ['mode' => 'block','state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => ['mode' => 'block', 'state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+
+        '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?>)(.*?)<\/div><\/div>' => ['mode' => 'block','state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="iocgif".*?><img.*?><\/div>' => ['mode' => 'block', 'state' => 'gif', 'type' => 'gif', 'class' => 'Html2DWImageGIF', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -221,7 +225,6 @@ class Html2DWParser extends IocParser {
 
         '<div(?: class="")?(?: contenteditable="false")? data-dw-block="video".*?>.*?<\/div>' => ['mode' => 'block', 'state' => 'video', 'type' => 'video', 'class' => 'Html2DWMedia', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
-        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?)<\/div><\/div>\n?" => ['mode' => 'block', 'state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="ioc-quiz".*?(<\/div><\/div><\/div>|<\/pre><\/div><\/div>)' => ['mode' => 'block', 'state' => 'quiz', 'type' => 'quiz', 'class' => 'Html2DWQuiz', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
@@ -264,10 +267,11 @@ class Html2DWParser extends IocParser {
         '<h3' => ['mode' => 'block', 'state' => 'open_h3', 'type' => 'h3', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['====', "====\n"]]],
         "<\/h3>\n?" => ['mode' => 'block', 'state' => 'close_h3', 'type' => 'h3', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         "<h4" => ['mode' => 'block', 'state' => 'open_h4', 'type' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['===', "===\n"]]],
-        "<\/h4>\n?" => ['mode' => 'block', 'state' => 'close_h4', 't   ype' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
+        "<\/h4>\n?" => ['mode' => 'block', 'state' => 'close_h4', 'type' => 'h4', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
         "<h5" => ['mode' => 'block', 'state' => 'open_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'open', 'extra' => ['replacement' => ['==', "==\n"]]],
         "<\/h5>\n?" => ['mode' => 'block', 'state' => 'close_h5', 'type' => 'h5', 'class' => 'Html2DWHeader', 'action' => 'close', 'extra' => ['regex' => TRUE]],
 
+        '<hr( \/)?>' => ['mode' => 'block', 'state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['regex' => TRUE, 'replacement' => "----"]],
         '&nbsp;' => ['mode' => 'block', 'state' => 'hr', 'type' => 'hr', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => " "]],
 
 

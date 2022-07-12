@@ -6,6 +6,11 @@
 if (!defined("DOKU_INC")) die();
 
 class ProgramacioProjectModel extends UniqueContentFileProjectModel {
+    
+    public function __construct($persistenceEngine)  {
+        parent::__construct($persistenceEngine);
+        $this->useRouteInRemoteDir=TRUE;
+    }
 
     /**
      * @overwrite

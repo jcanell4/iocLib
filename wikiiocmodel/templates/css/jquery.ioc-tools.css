@@ -1,1 +1,65 @@
-/*Per ara no hi ha res, però ho deixem preparat per fer la built*/
+/*
+   ALERTA! Aquest fitexer no s'utilita, copiem el codig CSS directament al jquery.ioc-tools.js per fer
+   la inserció automàtica com a node style.
+ */
+
+.column-b {
+    margin-bottom: 1em;
+}
+
+img.left {
+    float: right;
+}
+
+img.right {
+    float: left;
+}
+
+.column-b.right {
+    margin-left: 2em;
+    float: right;
+    clear: right;
+}
+
+.column-b.right.mobile, .column-b.left.mobile {
+    clear: inherit;
+}
+
+.column-b .iocfigurec {
+    max-width: inherit;
+}
+
+.column-b.left {
+    float: left;
+    clear: left;
+    margin-right: 2em;
+}
+
+.column-b {
+    display: none;
+}
+
+.column-b.mobile {
+    display: block;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.column-b .hide {
+    display: none
+}
+
+.debug {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+@media (min-width: 992px) {
+    .column-b {
+        display: block;
+    }
+
+    .column-b.mobile {
+        display: none;
+    }
+}

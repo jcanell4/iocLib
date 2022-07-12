@@ -57,19 +57,29 @@ class IocCommon {
             $className = $calcDefProp['class'];
             $calculator = new $className;
             if ($calculator) {
+
                 //init
                 if($calculator->isCalculatorOfTypeData(ICalculateWithProjectId::WITH_PROJECT_ID_TYPE)){
                     $calculator->init($projectId, ICalculateWithProjectId::WITH_PROJECT_ID_TYPE, $defaultValue);
                 }
+
+                if($calculator->isCalculatorOfTypeData(ICalculateWithConfigMain::WITH_CONFIG_MAIN_TYPE)){
+                    $configMain = static::getConfigMainFromPlugincontroller();
+                    $calculator->init($configMain, ICalculateWithConfigMain::WITH_CONFIG_MAIN_TYPE);
+                }
+
                 if($calculator->isCalculatorOfTypeData(ICalculateFromValues::FROM_VALUES_TYPE)){
                     $calculator->init($values, ICalculateFromValues::FROM_VALUES_TYPE, $defaultValue);
                 }
+
                 if($calculator->isCalculatorOfTypeData(ICalculateWithPersistence::WITH_PERSISTENCE_TYPE)){
                     if($persistence==NULL){
                         $persistence = static::getPersistenceEngineFromPlugincontroller();
                     }
                     $calculator->init($persistence, ICalculateWithPersistence::WITH_PERSISTENCE_TYPE, $defaultValue);
                 }
+
+
                 $value = $calculator->calculate($calcDefProp['data']);
             }
         }
@@ -353,5 +363,26 @@ class IocCommon {
             }
         }
         return $ret;
+    }
+
+    private static function getConfigMainFromPlugincontroller(){
+        global $plugin_controller;
+
+
+
+//        if(is_callable([$plugin_controller, "getProjectFile"])){
+//            return $plugin_controller->getProjectFile();
+//        }else{
+//            throw new Exception("Es necessita la persistència per poder continuar");
+//        }
+
+        if(is_callable([$plugin_controller, "getProjectFile"])){
+            $model = $plugin_controller->getCurrentProjectModel();
+            $data = $model->getMetaDataJsonFile();
+        }else{
+            throw new Exception("Es necessita la persistència per poder continuar");
+        }
+
+        return $data;
     }
 }
