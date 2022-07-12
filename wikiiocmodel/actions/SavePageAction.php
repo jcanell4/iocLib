@@ -135,7 +135,7 @@ class SavePageAction extends RawPageAction {
             && $this->params[PageKeys::KEY_DATE] != 0
             && WikiIocInfoManager::getInfo("meta")["date"]["modified"] > $this->params[PageKeys::KEY_DATE] ){
             //return 'conflict';
-            throw new DateConflictSavingException();
+            throw new DateConflictSavingException($this->params[PageKeys::KEY_ID]);
         }
 
         //save it
