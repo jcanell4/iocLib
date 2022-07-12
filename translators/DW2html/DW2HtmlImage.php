@@ -5,7 +5,7 @@ class DW2HtmlImage extends DW2HtmlInstruction {
 
     protected $urlPattern = "/{{(.*?)\|.*}}/";
 
-    protected const DEFAULT_WIDTH = '200';
+    const DEFAULT_WIDTH = '200';
 
     public function getUrlPattern(){
         return $this->urlPattern;
