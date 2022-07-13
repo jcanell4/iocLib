@@ -11,6 +11,35 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
         $return = '';
 
 
+        // Primer de tot cal parsejar els [ref] que poden anar davant de la fila:
+//        $value = $this->getRawValue();
+        // el raw del currentToken és diferent al del getRaw
+
+
+        $separator = $this->extra['container'] == 'ol'? '-' : '*';
+
+        // ALERTA! Això s'ha d'extreure al list, aquí ha d'arribar ja sense els refs
+        $raw = $this->currentToken['raw'];
+        $i = strpos($raw, "  " . $separator);
+        $refs = substr($raw, 0, $i);
+//
+//
+        $parsedRefs = $this->parseContent($refs);
+
+
+
+
+
+        $listItem = strstr($raw, "  " . $separator);
+
+        $pos = strpos($listItem, "  " . $separator);
+        if ($pos !== false) {
+            $listItem = substr_replace($listItem, "", $pos, strlen("  *"));
+        }
+//        $listItem = str_replace("  *", "", $listItem);
+        $listItem = ltrim($listItem);
+
+
         // Afegim l'item
 
         $class = static::$parserClass;
@@ -19,7 +48,8 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
 
         $class::setInner(true);
 
-        $value = $class::getValue($this->getRawValue());
+        $value = $class::getValue($listItem);
+//        $value = $class::getValue($this->getRawValue());
 
         $this->solved = true;
 
@@ -31,7 +61,7 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
             $this->closing = true;
         }
 
-        return $return;
+        return $parsedRefs. $return;
     }
 
 

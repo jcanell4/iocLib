@@ -39,4 +39,13 @@ class WiocclIf extends WiocclInstruction{
         return $_condition->validate();
         
     }
+
+    // @override
+    protected function isTrailingNeeded($token) {
+        $trailingPattern = "/<\\/WIOCCL:.*?>\n/";
+        if ($token != null && isset($token['value']) && preg_match($trailingPattern, $token['value'])) {
+            return true;
+        }
+        return false;
+    }
 }
