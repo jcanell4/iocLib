@@ -8,7 +8,7 @@ class WiocclExtra extends WiocclField{
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
         $fieldName = $result;
-        if(isset($this->dataSource["dadesExtres"])){
+        if (isset($this->dataSource["dadesExtres"]) && is_array($this->dataSource["dadesExtres"])){
             $ret = $this->_getExtraValue(json_decode($this->dataSource["dadesExtres"], true), $fieldName, $ret);
         }
 
@@ -25,9 +25,11 @@ class WiocclExtra extends WiocclField{
     private function _getExtraValue($dadesExtres, $fieldName, $default){
         $ret;
         $found = -1;
-        for($i=0; $found==-1 && $i<count($dadesExtres); $i++){
-            if($dadesExtres[$i]["nom"] === $fieldName){
-                $found = $i;
+        if (is_array($dadesExtres)){
+            for($i=0; $found==-1 && $i<count($dadesExtres); $i++){
+                if ($dadesExtres[$i]["nom"] === $fieldName){
+                    $found = $i;
+                }
             }
         }
         if($found==-1){
