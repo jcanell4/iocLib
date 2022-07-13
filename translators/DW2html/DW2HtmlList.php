@@ -7,7 +7,6 @@ class DW2HtmlList extends DW2HtmlInstruction {
     public $level = 0;
 
     public function open() {
-//        $return = '';
 
         $top = $this->getTopState();
         $this->currentToken['instruction'] = $this;
@@ -21,37 +20,22 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
         $separator = $this->extra['container'] == 'ol'? '-' : '*';
         $listItem = strstr($raw, "  " . $separator);
-//        $listItem = str_replace("  *", "", $listItem);
-//        $listItem = ltrim($listItem);
-
         $this->level = $this->getLevel($listItem);
-//        $this->level = $this->getLevel($listItem);
-//        $this->level = $this->getLevel($this->currentToken['raw']);
         $value = $listItem;
-//        $value = $this->getValue($listItem);
-//        $value = $this->getValue($this->currentToken['raw']);
 
 
 //        // TODO: Cas 0, el tipus de container és diferent <ul></ol> <-- aixó era el 3, marcat com TODO, però sembla que ja es va solucionar en altre banda
 //
-        $topLevel = isset($top['extra']) && $top['instruction']
-            ? $top['instruction']->level : -1;
 
         if ($top
             && isset($top['extra'])
             && $top['extra']['container'] != $this->extra['container']
-//            && $top['instruction']
             && $top['instruction']->level == $this->level
         ) {
             $return .= $top['instruction']->close();
 
-            $checkStack = static::$stack;
-            $checkStructure = WiocclParser::$structureStack;
-            $a = array_pop(static::$stack);
-            $b = array_pop(WiocclParser::$structureStack);
-
-            $postcheckStack = static::$stack;
-            $postcheckStructure = WiocclParser::$structureStack;
+            array_pop(static::$stack);
+            array_pop(WiocclParser::$structureStack);
 
             $openNew = true;
         }
@@ -73,14 +57,6 @@ class DW2HtmlList extends DW2HtmlInstruction {
         }
 
         // Cas 2: el top és una llista amb el mateix nivell (no pot ser major perquè s'hauria tancat)
-
-
-
-
-
-
-
-
 
 
 

@@ -320,6 +320,7 @@ class IocInstruction {
     }
 
     public function popState() {
+        $s =WiocclParser::$structureStack;
         return array_pop(static::$stack);
     }
 

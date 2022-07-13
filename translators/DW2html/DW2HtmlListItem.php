@@ -24,7 +24,9 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
         $refs = substr($raw, 0, $i);
 //
 //
-        $parsedRefs = $this->parseContent($refs);
+        // ALERTA! No cal perquè ja es parsejan quan s'analitza la fila!
+        $parsedRefs = '';
+//        $parsedRefs = $this->parseContent($refs);
 
 
 
@@ -139,6 +141,5 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
         preg_match("/^( *)/", $raw, $spaces);
         return strlen($spaces[1]) / 2;
     }
-
 
 }
