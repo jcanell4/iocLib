@@ -9,7 +9,9 @@ class WiocclExtra extends WiocclField{
 
         $fieldName = $result;
         if(isset($this->dataSource["dadesExtres"])){
-            $ret = $this->_getExtraValue(json_decode($this->dataSource["dadesExtres"], true), $fieldName, $ret);
+            $dadesExtres = IocCommon::toArrayThroughArrayOrJson($this->dataSource["dadesExtres"]);
+//            $ret = $this->_getExtraValue(json_decode($this->dataSource["dadesExtres"], true), $fieldName, $ret);
+            $ret = $this->_getExtraValue($dadesExtres, $fieldName, $ret);
         }
 
         if(!is_string($ret)){
@@ -23,7 +25,7 @@ class WiocclExtra extends WiocclField{
     }
     
     private function _getExtraValue($dadesExtres, $fieldName, $default){
-        $ret;
+        $ret = null;
         $found = -1;
         for($i=0; $found==-1 && $i<count($dadesExtres); $i++){
             if($dadesExtres[$i]["nom"] === $fieldName){
