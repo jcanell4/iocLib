@@ -97,7 +97,9 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
 
         $nextTokenLevel = $this->getLevel($token['raw']);
-        if ($token['state'] == 'close' || $token['state'] == 'content' || (isset($token['extra']) &&  $token['extra']['block'])
+        if ($token['state'] == 'close'
+            || $token['state'] == 'content'
+            || (isset($token['extra']) && $token['extra']['block'] && $token['state'] != 'list-item')
             || ($nextTokenLevel !== false && $nextTokenLevel < $this->level)) {
             return true;
         }

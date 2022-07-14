@@ -307,7 +307,16 @@ class WiocclInstruction extends IocInstruction {
 
     // [Xavi] per implementar a les subclasses, veure WiocclIf
     protected function isTrailingNeeded($token) {
+        if ($this->startsWith($token['value'], "</WIOCCL") && substr($token['value'], -1) == "\n") {
+            return true;
+        }
         return false;
+    }
+
+    private function startsWith($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
     }
 
     protected function close(&$result, $tokenEnd) {
