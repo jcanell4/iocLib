@@ -13,4 +13,14 @@ class Html2DWInstruction extends IocInstruction {
 
         return parent::parseTokens($tokens, $tokenIndex);
     }
+
+    // override
+    // Si el token és un únic salt de línia i el darrer caràcter és un salt de línia, l'ignorem
+    public function validateToken($token, $result) {
+        $hasResultTrailingNewLine = substr($result, -1) == "\n";
+        $isContent = $token['state'] == 'content';
+        $isEmpty = $isContent && $token['value']=="\n";
+        $validated = !$isContent || !($isEmpty && $hasResultTrailingNewLine);
+        return $validated;
+    }
 }

@@ -157,7 +157,14 @@ class Html2DWTable extends Html2DWMarkup {
 
         for ($row = 0; $row < count($tableData[0]); $row++) {
 
+            $skipColumns = 0;
             for ($col = 0; $col < count($tableData); $col++) {
+
+                // Això es produeix quan es fica un if que mostra o no una columna
+                if ($skipColumns>0) {
+                    --$skipColumns;
+                    continue;
+                }
 
                 if ($col===0 && $tableData[$col][$row]['wioccl']) {
                     $class = static::$parserClass;
@@ -192,13 +199,13 @@ class Html2DWTable extends Html2DWMarkup {
                     $value = '  ' . ltrim($value);
                 }
 
-                if ($align === 'left') {
+                if ($align === 'right') {
                     // valor per defecte, en lloc d'afegir el doble espai simplement esborrem qualsevol
                     // possible espai a la dreta
-                    $value = '  ' . trim($value);
+                    $value = '  ' . trim($value) ;
                 }
 
-                if ($align === 'center' || $align === 'right') {
+                if ($align === 'center' || $align === 'left') {
                     // s'han d'afegir els caràcters d'alineació
 
                     // ALERTA[Xavi]: si hi ha un <wioccl::if que s'obre i es tanca al final del $value la alineació
@@ -213,6 +220,9 @@ class Html2DWTable extends Html2DWMarkup {
 
                 }
 
+                // Si hi ha cap dels dos caràcters s'han de saltar les columnes següents
+                $skipColumns = substr_count($value, "^");
+                $skipColumns += substr_count($value, "|");
 
                 $content .= $value;
 

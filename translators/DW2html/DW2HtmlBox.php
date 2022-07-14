@@ -469,9 +469,9 @@ class DW2HtmlBox extends DW2HtmlInstruction
                     if ($start === "  " && $end === "  ") {
                         $cell['align'] = "center";
                     } else if ($start === "  ") {
-                        $cell['align'] = "left";
-                    } else if ($end === "  ") {
                         $cell['align'] = "right";
+                    } else if ($end === "  ") {
+                        $cell['align'] = "left";
                     }
 
 
