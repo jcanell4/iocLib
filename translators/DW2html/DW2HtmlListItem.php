@@ -15,13 +15,13 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
 //        $value = $this->getRawValue();
         // el raw del currentToken és diferent al del getRaw
 
-
+        // TODO: Ficar el separador als extres per no acoblar-lo
         $separator = $this->extra['container'] == 'ol'? '-' : '*';
 
         // ALERTA! Això s'ha d'extreure al list, aquí ha d'arribar ja sense els refs
         $raw = $this->currentToken['raw'];
-        $i = strpos($raw, "  " . $separator);
-        $refs = substr($raw, 0, $i);
+//        $i = strpos($raw, "  " . $separator);
+//        $refs = substr($raw, 0, $i);
 //
 //
         // ALERTA! No cal perquè ja es parsejan quan s'analitza la fila!
@@ -49,6 +49,11 @@ class DW2HtmlListItem extends DW2HtmlInstruction {
         $isInnerPrevious = $class::isInner();
 
         $class::setInner(true);
+
+
+        // Eliminem el darrer \n del contingut parsejat, aquest indica el final d'aquesta línia
+        // I si no s'elimina es provoca un tancament del contenidor ol/ul
+        $listItem = (substr($listItem,-1) === "\n") ? substr($listItem, 0, strlen($listItem)-1) : $listItem;
 
         $value = $class::getValue($listItem);
 //        $value = $class::getValue($this->getRawValue());

@@ -3,6 +3,9 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlList extends DW2HtmlInstruction {
 
+    // Pattern que ha d'incloure tots els possibles separadors (només hi ha 2)
+    // Es farà servir amb regex així que cal escapar el *
+    const separatorsPattern = "\*-";
 
     public $level = 0;
 
@@ -18,9 +21,11 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
         $return = $this->parseContent($refs);
 
-        $separator = $this->extra['container'] == 'ol'? '-' : '*';
+        $separator = $this->extra['container'] == "ol"? '-' : "\*";
         $listItem = strstr($raw, "  " . $separator);
-        $this->level = $this->getLevel($listItem);
+
+
+        $this->level = $this->getLevel($this->currentToken['raw']);
         $value = $listItem;
 
 
@@ -41,6 +46,8 @@ class DW2HtmlList extends DW2HtmlInstruction {
         }
 
 
+        $topLevel = $top['instruction']->level;
+        $currentLevel = $this->level;
         // Cas 1: no hi ha $top o el nivell del top es menor que aquest
         if ($openNew || !$top || $top['state'] !== 'list-item' || $top['instruction']->level < $this->level) {
             // Obrim la llista
@@ -90,7 +97,8 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
 
         $nextTokenLevel = $this->getLevel($token['raw']);
-        if ($token['state'] == 'content' || ($nextTokenLevel !== false && $nextTokenLevel < $this->level)) {
+        if ($token['state'] == 'close' || $token['state'] == 'content' || (isset($token['extra']) &&  $token['extra']['block'])
+            || ($nextTokenLevel !== false && $nextTokenLevel < $this->level)) {
             return true;
         }
 
@@ -106,10 +114,12 @@ class DW2HtmlList extends DW2HtmlInstruction {
     // Si no hi ha com a mínim 2 espais és que no es tracta d'un element de llista, retornem false per poder
     // gestionar-ho
     protected function getLevel($raw) {
-        preg_match("/^( *)/", $raw, $spaces);
-        $len = strlen($spaces);
-        if ($len>=2) {
-            return strlen($spaces[1]) / 2;
+        $pattern = "/( *?)[" . self::separatorsPattern . "]/";
+        if (preg_match($pattern, $raw, $spaces)) {
+            $len = strlen($spaces[1]);
+            if ($len>=2) {
+                return $len / 2;
+            }
         }
 
         return false;

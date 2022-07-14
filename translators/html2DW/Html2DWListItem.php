@@ -26,7 +26,10 @@ class Html2DWListItem extends Html2DWMarkup {
 ////            $post = "";
 ////        }
 
-        if (substr($content, -1, 1) != "\n") {
+        // Si el següent és un salt de línia no l'afegim
+        $isNextTokeIsNewLine = $tokenIndex < count($tokens) && $tokens[$tokenIndex+1]['value'] == "\n";
+
+        if (substr($content, -1, 1) != "\n" &&  !$isNextTokeIsNewLine) {
             $post = "\n";
         } else {
             $post = "";

@@ -123,6 +123,7 @@ class DW2HtmlInstruction extends IocInstruction
             $result .= $top['instruction']->Close();
             $this->popState();
             $extra = $top['extra'];
+            $s = static::$stack;
             $top = end(static::$stack);
 
             if ($extra && $extra['inline-block']) {
