@@ -364,42 +364,44 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $lastHeaderRead = '';
         $firstSection = true;
 
-        for ($i = 0; $i < count($instructions); $i++) {
-            $currentSection['type'] = 'section';
+        if (!empty($instructions) && is_array($instructions)) {
+            for ($i = 0; $i < count($instructions); $i++) {
+                $currentSection['type'] = 'section';
 
-            $instruction = self::_getSectionInstructionValue($instructions[$i], 'header');
-            if ($instruction) {
-                $lastHeaderRead = $instruction[1][0];
-            }
-
-            $instruction = self::_getSectionInstructionValue($instructions[$i], 'section_open');
-            if ($instruction && $instruction[1][0] < 4) {
-                // Tanquem la secció anterior
-                if ($firstSection) {
-                    // Ho descartem, el primer element no conté informació
-                    $firstSection = false;
-                } else {
-                    $currentSection['end'] = $instruction[2];
-                    $sections[] = $currentSection;
+                $instruction = self::_getSectionInstructionValue($instructions[$i], 'header');
+                if ($instruction) {
+                    $lastHeaderRead = $instruction[1][0];
                 }
 
-                // Obrim la nova secció
-                $currentSection = [];
-                $currentSection['title'] = $lastHeaderRead;
-                $currentSection['start'] = $instruction[2];
-                $currentSection['params']['level'] = $instruction[1][0];
-            }
+                $instruction = self::_getSectionInstructionValue($instructions[$i], 'section_open');
+                if ($instruction && $instruction[1][0] < 4) {
+                    // Tanquem la secció anterior
+                    if ($firstSection) {
+                        // Ho descartem, el primer element no conté informació
+                        $firstSection = false;
+                    } else {
+                        $currentSection['end'] = $instruction[2];
+                        $sections[] = $currentSection;
+                    }
 
-            // Si trobem un tancament de secció actualitzem la ultima posició de tancament
-            $instruction = self::_getSectionInstructionValue($instructions[$i], 'section_close');
-            if ($instruction) {
-                $lastClosePosition = $instruction[2];
-            }
+                    // Obrim la nova secció
+                    $currentSection = [];
+                    $currentSection['title'] = $lastHeaderRead;
+                    $currentSection['start'] = $instruction[2];
+                    $currentSection['params']['level'] = $instruction[1][0];
+                }
 
+                // Si trobem un tancament de secció actualitzem la ultima posició de tancament
+                $instruction = self::_getSectionInstructionValue($instructions[$i], 'section_close');
+                if ($instruction) {
+                    $lastClosePosition = $instruction[2];
+                }
+
+            }
+            // La última secció es tanca amb la posició final del document
+            $currentSection['end'] = $lastClosePosition;
+            $sections[] = $currentSection;
         }
-        // La última secció es tanca amb la posició final del document
-        $currentSection['end'] = $lastClosePosition;
-        $sections[] = $currentSection;
 
         return $sections;
     }
