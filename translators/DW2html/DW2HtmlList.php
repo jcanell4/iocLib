@@ -3,21 +3,53 @@ require_once "DW2HtmlParser.php";
 
 class DW2HtmlList extends DW2HtmlInstruction {
 
+    // Pattern que ha d'incloure tots els possibles separadors (només hi ha 2)
+    // Es farà servir amb regex així que cal escapar el *
+    const separatorsPattern = "\*-";
 
     public $level = 0;
 
     public function open() {
-        $return = '';
 
         $top = $this->getTopState();
         $this->currentToken['instruction'] = $this;
 
+        $raw = $this->currentToken['raw'];
+        $i = strpos($raw, "  ");
+        $refs = substr($raw, 0, $i);
+
+
+        $return = $this->parseContent($refs);
+
+        $separator = $this->extra['container'] == "ol"? '-' : "\*";
+        $listItem = strstr($raw, "  " . $separator);
+
 
         $this->level = $this->getLevel($this->currentToken['raw']);
-        $value = $this->getValue($this->currentToken['raw']);
+        $value = $listItem;
 
+
+//        // TODO: Cas 0, el tipus de container és diferent <ul></ol> <-- aixó era el 3, marcat com TODO, però sembla que ja es va solucionar en altre banda
+//
+
+        if ($top
+            && isset($top['extra'])
+            && $top['extra']['container'] != $this->extra['container']
+            && $top['instruction']->level == $this->level
+        ) {
+            $return .= $top['instruction']->close();
+
+            array_pop(static::$stack);
+            array_pop(WiocclParser::$structureStack);
+
+            $openNew = true;
+        }
+
+
+        $topLevel = $top['instruction']->level;
+        $currentLevel = $this->level;
         // Cas 1: no hi ha $top o el nivell del top es menor que aquest
-        if (!$top || $top['state'] !== 'list-item' || $top['instruction']->level < $this->level) {
+        if ($openNew || !$top || $top['state'] !== 'list-item' || $top['instruction']->level < $this->level) {
             // Obrim la llista
 
 //            if ($top) {
@@ -34,7 +66,6 @@ class DW2HtmlList extends DW2HtmlInstruction {
         // Cas 2: el top és una llista amb el mateix nivell (no pot ser major perquè s'hauria tancat)
 
 
-        // TODO: Cas 3, el tipus de container és diferent? <ul></ol>
 
         //Afegim el nou element de llista
 
@@ -44,7 +75,7 @@ class DW2HtmlList extends DW2HtmlInstruction {
 //        $extra = ['container' => $this->currentToken['extra']['container'], 'level' => $this->level];
 
 
-        $itemToken['instruction'] ->setTokens($this->currentToken, $this->nextToken);
+        $itemToken['instruction']->setTokens($this->currentToken, $this->nextToken);
 
         $extra = ['container' => $this->currentToken['extra']['container'], 'level' => $this->level, 'replacement' => $this->currentToken['extra']['replacement']];
         $itemToken['instruction']->setExtra($extra);
@@ -66,7 +97,10 @@ class DW2HtmlList extends DW2HtmlInstruction {
 
 
         $nextTokenLevel = $this->getLevel($token['raw']);
-        if ($nextTokenLevel < $this->level) {
+        if ($token['state'] == 'close'
+            || $token['state'] == 'content'
+            || (isset($token['extra']) && $token['extra']['block'] && $token['state'] != 'list-item')
+            || ($nextTokenLevel !== false && $nextTokenLevel < $this->level)) {
             return true;
         }
 
@@ -79,9 +113,19 @@ class DW2HtmlList extends DW2HtmlInstruction {
         return $match[1];
     }
 
+    // Si no hi ha com a mínim 2 espais és que no es tracta d'un element de llista, retornem false per poder
+    // gestionar-ho
     protected function getLevel($raw) {
-        preg_match("/^( *)/", $raw, $spaces);
-        return strlen($spaces[1]) / 2;
+        $pattern = "/( *?)[" . self::separatorsPattern . "]/";
+        if (preg_match($pattern, $raw, $spaces)) {
+            $len = strlen($spaces[1]);
+            if ($len>=2) {
+                return $len / 2;
+            }
+        }
+
+        return false;
+
     }
 
 

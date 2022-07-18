@@ -29,7 +29,6 @@ class DW2HtmlRef extends DW2HtmlMarkup {
         }  else if ($this->currentToken['state'] === 'ref-close'){
             $top = array_pop(WiocclParser::$structureStack);
 
-
             if ($top !== $this->refId && self::THROW_EXCEPTION) {
                 $stack = WiocclParser::$structureStack;
                 var_dump($top, $this->refId, $stack);
@@ -77,6 +76,8 @@ class DW2HtmlRef extends DW2HtmlMarkup {
         $structure = WiocclParser::getStructure();
 
         // Ignorem els nodes de tipus content
+//        PROBLEMA: tant el open i el close de [/ref] són ignorats, quin era el sentit d'això??'
+//        On es realitza el array_pop de la referència??
         if ($structure[$this->refId]->type === 'content' || $this->currentToken['state'] === 'ref-close') {
             return false;
         }
@@ -94,4 +95,5 @@ class DW2HtmlRef extends DW2HtmlMarkup {
 //        return count($structure[$this->refId]->children) === 0;
         return true;
     }
+
 }

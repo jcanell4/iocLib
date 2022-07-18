@@ -9,7 +9,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
 
         $token = $this->currentToken;
 
-        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $ns, $isInternal);
+        $url = $this->extractUrl($token, $width, $height, $CSSClasses, $isInternal, $ns);
 
         $textPattern = "/\|(.*?)}}/";
 
@@ -29,7 +29,7 @@ class DW2HtmlImageGIF extends DW2HtmlImage {
 
     }
 
-    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$ns, &$isInternal = false) {
+    protected function extractUrl($token, &$width = 0, &$height = 0, &$CSSclasses = '', &$isInternal = false, &$ns="") {
 
         preg_match($this->getUrlPattern(), $token['raw'], $matchUrl);
         $candidateUrl = $matchUrl[1];

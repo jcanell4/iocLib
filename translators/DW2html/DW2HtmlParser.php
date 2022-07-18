@@ -62,9 +62,7 @@ class DW2HtmlParser extends IocParser {
         ],
 
 
-        "={2,6}" => [
-            'state' => 'header'
-        ],
+
 
         "\[{2}(.*?)\]{2}" => [
             'state' => 'link'
@@ -113,7 +111,7 @@ class DW2HtmlParser extends IocParser {
             'state' => 'code',
         ],
 
-        "^(?: {2})+[\*-](.*?)\n" => [
+        "^(?:\[\/?ref=\d+?])*(?: {2})+[\*-](.*?)\n" => [
             'state' => 'list-item'
         ],
 
@@ -180,6 +178,10 @@ class DW2HtmlParser extends IocParser {
             'state' => 'wioccl-close'
         ],
 
+        "={2,6}" => [
+            'state' => 'header'
+        ],
+
 
         "\n\n+?" => [
             'state' => 'paragraph'
@@ -219,7 +221,7 @@ class DW2HtmlParser extends IocParser {
             'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
 
-        "={2,6}\n?" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
+//        "={2,6}\n?" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         '^\[{2}(.*?)\]{2}' => ['state' => 'link', 'type' => 'a', 'class' => 'DW2HtmlLink', 'action' => 'self-contained', 'extra' => ['replacement' => ["<a ", "</a>"], 'regex' => TRUE]],
 
@@ -245,8 +247,8 @@ class DW2HtmlParser extends IocParser {
 
         "<file>(.*?)<\/file>\n?" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre><code data-dw-file=\"true\">", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE]],
 
-        "(?: {2})+\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
-        "(?: {2})+- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
+        "^(?:\[\/?ref=\d+?])*(?: {2})+\* (.*?)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ul', 'block' => TRUE]],
+        "^(?:\[\/?ref=\d+?])*(?: {2})+- (.*)\n" => ['state' => 'list-item', 'type' => 'li', 'class' => 'DW2HtmlList', 'action' => 'tree', 'extra' => ['replacement' => ["<li>", "</li>\n"], 'regex' => TRUE, 'container' => 'ol', 'block' => TRUE]],
 
         "((^  [^:\-\*].*?\n)+?)(?=^ ?[^ ].*|$)" => ['state' => 'code', 'type' => 'code', 'class' => 'DW2HtmlCode', 'action' => 'self-contained', 'extra' => ['replacement' => ["<pre data-code-type='indented'><code>", "</code></pre>\n"], 'regex' => TRUE, 'block' => TRUE, 'padding' => 2]],
         
@@ -275,6 +277,8 @@ class DW2HtmlParser extends IocParser {
         "\\[ref=(.*?)\\]" => ['state' => 'ref-open', 'type' => 'wioccl', 'class' => 'DW2HtmlRef', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-ref=\"%d\" data-wioccl-state='open'></span>", ""], 'regex' => TRUE, 'inline-block' => TRUE]],
         "\[\\/ref=(.*?)\\]" => ['state' => 'ref-close', 'type' => 'wioccl', 'class' => 'DW2HtmlRef', 'action' => 'self-contained', 'extra' => ['replacement' => ["<span data-wioccl-ref=\"%d\" data-wioccl-state='close'></span>", ""], 'regex' => TRUE, 'inline-block' => TRUE]],
 
+
+        "={2,6}\n?" => ['state' => 'header', 'type' => 'header', 'class' => 'DW2HtmlHeader', 'action' => 'open-close', 'extra' => ['regex' => TRUE, 'block' => TRUE]],
 
         // ALERTA, aquestes han d'anar al final de la llista de blocs
 

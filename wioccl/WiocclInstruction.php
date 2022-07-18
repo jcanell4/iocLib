@@ -137,6 +137,7 @@ class WiocclInstruction extends IocInstruction {
 
 
                 if ($addToStructure) {
+
                     $this->addToStructure($auxResult, 'content', $currentToken['tokenIndex'], 'content');
                 }
 
@@ -237,6 +238,7 @@ class WiocclInstruction extends IocInstruction {
 
 
     // Aquest mètode afegeix un element a la estructura sense modificar les propietats de la instrucció actual
+//    protected function addToStructure(&$result, $type, $startIndex = 0, $endIndex = 0, $trailing = false) {
     protected function addToStructure(&$result, $type, $startIndex = 0, $endIndex = 0) {
 
 
@@ -278,6 +280,11 @@ class WiocclInstruction extends IocInstruction {
             $result = '[ref=' . $item->id . ']' . $result . '[/ref=' . $item->id . ']';
         }
 
+        // TODO: eliminar d'aqui i de la crida, s'afegeix quan es tanca
+//        if ($trailing) {
+//            $result .= "\n";
+//        }
+
 
         if ($class::$debugStructure) {
             $item->result = $result;
@@ -298,6 +305,20 @@ class WiocclInstruction extends IocInstruction {
         return parent::resolveOnClose($result, $tokenEnd);
     }
 
+    // [Xavi] per implementar a les subclasses, veure WiocclIf
+    protected function isTrailingNeeded($token) {
+        if ($this->startsWith($token['value'], "</WIOCCL") && substr($token['value'], -1) == "\n") {
+            return true;
+        }
+        return false;
+    }
+
+    private function startsWith($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
+    }
+
     protected function close(&$result, $tokenEnd) {
 
         if ($this->skipOpening) {
@@ -305,7 +326,14 @@ class WiocclInstruction extends IocInstruction {
         }
 
         if ($this->item->id>=0) {
+
+            $trailing = $this->isTrailingNeeded($tokenEnd);
+
             $result = '[ref=' . $this->item->id . ']' . $result . '[/ref=' . $this->item->id . ']';
+
+            if ($trailing) {
+                $result .= "\n";
+            }
 
             $this->item->type = $this->currentToken['type'];
         }

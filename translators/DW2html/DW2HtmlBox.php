@@ -294,14 +294,50 @@ class DW2HtmlBox extends DW2HtmlInstruction
         // Dividim el contingut en files
         preg_match_all('/^([\|\[\^].*?[\|\]\^])$/ms', $content, $matchesRow);
 
+        $test = WiocclParser::getStructure();
+
+        // PROBLEMA: com que ara els [/ref] corresponents a tancaments wioccl acabats amb \n afegeixen
+        // el salt de línia, ara ens trobem línies que són només un seguit de refs.
+
+        // Idea: només es considera un \n legitim si la fila conté com a mínim un | o un ^
+        // això continuarà fallant si ens trobem un wioccl amb un salt de línia dintre d'una taula
+
+
 
         $rows = [];
         $preRefs = [];
         $postRefs = [];
 
+        $temp = "";
+        $index = 0;
         for ($i = 0; $i < count($matchesRow[1]); $i++) {
             // LA fila pot contenir prefrefs i postrefs
             $raw = $matchesRow[1][$i];
+
+
+            if (strpos($raw, "|") === false && strpos($raw, "^") === false) {
+                // No és una fila, conté només refs
+
+                if ($i<count($matchesRow[1])-1) {
+                    // Cas 1: hi han més files
+                    $temp .= $raw;
+                    continue;
+
+                } else {
+                    // Cas 2: no hi ha més files, això diria que no ha de passar, però si passa
+                    // no es descartarà res
+                    $raw = $temp . $raw;
+                    $temp = '';
+                }
+
+
+            } else {
+                // Si hi ha $temp l'afegim
+                $raw = $temp . $raw;
+                $temp = '';
+            }
+
+
             $len = strlen($raw);
 
             $startPos = 0;
@@ -314,14 +350,13 @@ class DW2HtmlBox extends DW2HtmlInstruction
 
 
                 if ($startPos > 0) {
-                    // TODO: s'ha de capturar el contingut fins la posició $start i afegir-la al prerefs
-                    $preRefs[$i] = substr($raw, 0, $startPos);
+                    $preRefs[$index] = substr($raw, 0, $startPos);
                 }
 
                 if ($endPos < $len - 1) {
                     // TODO: capturar el contingut des de $endpos fins al final i afegir-la al postrefs
                     $endLen = $len - $endPos - 1;
-                    $postRefs[$i] = substr($raw, $endPos + 1, $endLen + 1);
+                    $postRefs[$index] = substr($raw, $endPos + 1, $endLen + 1);
                 } else {
                     $endLen = 0;
                 }
@@ -332,11 +367,14 @@ class DW2HtmlBox extends DW2HtmlInstruction
                 $raw = substr($raw, $startPos, $cropLen);
 
             } else {
+                // ALERTA[Xavi]això ara s'ignora perquè els refs els fiquem tots a la primera fila amb contingut
+                //
                 // és una fila sense files, han de ser tot referències open/close
-                $preRefs[$i] = $raw;
+                $preRefs[$index] = $raw;
                 $raw = '';
             }
-            $rows[$i] = $raw;
+            $rows[$index] = $raw;
+            $index++;
         }
 
         $table = [];
@@ -431,9 +469,9 @@ class DW2HtmlBox extends DW2HtmlInstruction
                     if ($start === "  " && $end === "  ") {
                         $cell['align'] = "center";
                     } else if ($start === "  ") {
-                        $cell['align'] = "left";
-                    } else if ($end === "  ") {
                         $cell['align'] = "right";
+                    } else if ($end === "  ") {
+                        $cell['align'] = "left";
                     }
 
 

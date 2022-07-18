@@ -123,6 +123,7 @@ class DW2HtmlInstruction extends IocInstruction
             $result .= $top['instruction']->Close();
             $this->popState();
             $extra = $top['extra'];
+            $s = static::$stack;
             $top = end(static::$stack);
 
             if ($extra && $extra['inline-block']) {
@@ -449,6 +450,8 @@ class DW2HtmlInstruction extends IocInstruction
 
     protected function getRefId()
     {
+        $stack = WiocclParser::$structureStack;
+        $index = count(WiocclParser::$structureStack) - 1;
         return WiocclParser::$structureStack[count(WiocclParser::$structureStack) - 1];
 
     }

@@ -55,9 +55,10 @@ class IocInstruction {
 
         while ($tokenIndex < count($tokens)) {
             $auxToken = $tokens[$tokenIndex];
-                $auxToken['tokenIndex'] = $tokenIndex;
+            $auxToken['tokenIndex'] = $tokenIndex;
 
-            $newChunk = $this->parseToken($tokens, $tokenIndex);
+            // Si no el token no passa la validació no cal parsejar-lo
+            $newChunk = $this->validateToken($auxToken, $result) ? $this->parseToken($tokens, $tokenIndex) : '';
             if ($newChunk === NULL) { // tancament de la etiqueta
                 break;
             }
@@ -67,6 +68,11 @@ class IocInstruction {
 
         //$auxToken['next'] = $tokens[$tokenIndex+1];
         return $this->resolveOnClose($result, $auxToken);
+    }
+
+    // Comprovem si s'ha de processar o no, veure HTML2DW
+    public function validateToken($token, $currentText) {
+        return true;
     }
 
     // l'index del token analitzat s'actualitza globalment per referència
@@ -320,6 +326,7 @@ class IocInstruction {
     }
 
     public function popState() {
+        $s =WiocclParser::$structureStack;
         return array_pop(static::$stack);
     }
 
