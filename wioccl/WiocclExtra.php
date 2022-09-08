@@ -8,7 +8,7 @@ class WiocclExtra extends WiocclField{
         // es un array? el value tindrà el format xxx['yyy'] llavors el valor serà $this->arrays[xxx][yyy]
 
         $fieldName = $result;
-        if (isset($this->dataSource["dadesExtres"]) && is_array($this->dataSource["dadesExtres"])){
+        if (isset($this->dataSource["dadesExtres"])){
             $dadesExtres = IocCommon::toArrayThroughArrayOrJson($this->dataSource["dadesExtres"]);
 //            $ret = $this->_getExtraValue(json_decode($this->dataSource["dadesExtres"], true), $fieldName, $ret);
             $ret = $this->_getExtraValue($dadesExtres, $fieldName, $ret);
