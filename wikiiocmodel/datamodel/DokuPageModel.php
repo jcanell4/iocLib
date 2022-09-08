@@ -176,9 +176,9 @@ class DokuPageModel extends WikiRenderizableDataModel {
         $draftContent .= $structuredDraft['pre'] /*. "\n"*/;
 
         for ($i = 0; $i < count($chunks); $i++) {
-            if (array_key_exists($chunks[$i]['header_id'], $structuredDraft['content'])) {
+            if (is_array($structuredDraft['content']) && array_key_exists($chunks[$i]['header_id'], $structuredDraft['content'])) {
                 $draftContent .= $structuredDraft['content'][$chunks[$i]['header_id']];
-            } else {
+            }else {
                 $draftContent .= $chunks[$i]['text']['editing'];
             }
         }
