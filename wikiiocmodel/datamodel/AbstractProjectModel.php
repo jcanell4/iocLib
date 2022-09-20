@@ -9,6 +9,7 @@ if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocm
 
 require_once (DOKU_INC . "inc/common.php");
 require_once (WIKI_IOC_MODEL . "metadata/MetaDataService.php");
+require_once (WIKI_IOC_MODEL . 'metadata/MetaDataRender.php');
 
 abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $id;
@@ -33,6 +34,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function __construct($persistenceEngine)  {
         parent::__construct($persistenceEngine);
         $this->metaDataService= new MetaDataService();
+        $this->metaDataRender = new MetaDataRender();
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
@@ -77,7 +79,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $this->metaDataSubSet = $metaDataSubSet;
             $this->actionCommand = $actionCommand;
             $this->viewConfigKey = $viewConfigKey;
-//            $this->viewConfigName = empty($viewConfigName)?"defaultView":$viewConfigName;
             $this->isOnView = $isOnView;
         }
         $this->projectMetaDataQuery->init($this->id);
@@ -330,49 +331,44 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     public function getData() {
         $ret = [];
         $subSet = $this->getMetaDataSubSet();
-        $query = [
-            ProjectKeys::KEY_PERSISTENCE => $this->persistenceEngine,
-            ProjectKeys::KEY_PROJECT_TYPE => $this->getProjectType(),
-            ProjectKeys::KEY_METADATA_SUBSET => $subSet,
-            ProjectKeys::KEY_ID_RESOURCE => $this->id
-        ];
-        if ($this->rev) {
-            $query[ProjectKeys::KEY_REV] = $this->rev;
-        }
-        $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataService->getMeta($query, FALSE)[0];
+//        $query = [
+//            ProjectKeys::KEY_PERSISTENCE => $this->persistenceEngine,
+//            ProjectKeys::KEY_PROJECT_TYPE => $this->getProjectType(),
+//            ProjectKeys::KEY_METADATA_SUBSET => $subSet,
+//            ProjectKeys::KEY_ID_RESOURCE => $this->id
+//        ];
+//        if ($this->rev) {
+//            $query[ProjectKeys::KEY_REV] = $this->rev;
+//        }
+//        $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataService->getMeta($query, FALSE)[0];
 
+        $configProject = $this->projectMetaDataQuery->getMetaDataConfig(ProjectKeys::KEY_METADATA_PROJECT_STRUCTURE);
+        $configProject = $this->projectMetaDataQuery->controlMalFormedJson($configProject, "array");
+        $metaDataEntityWrapper['idResource'] = $this->id;
+        $metaDataEntityWrapper['metaDataStructure'] = $configProject['typesDefinition'][$configProject['mainType']['typeDef']]['keys'];
+        $metaDataEntityWrapper['metaDataTypesDefinition'] = $configProject['typesDefinition'];
+        $metaDataEntityWrapper['metaDataValue'] = $this->projectMetaDataQuery->getMeta();
+        $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataRender->render($metaDataEntityWrapper);
 
         // TODO: demanar el del subset, passar per paràmetre!
         $struct = $this->projectMetaDataQuery->getMetaDataStructure($subSet);
 
-
-        //if ($this->viewConfigName === ProjectKeys::KEY_DEFAULTVIEW) {  //CANVIAR $viewConfigName a VALOR NUMÊRIC
-            //$struct = $this->projectMetaDataQuery->getMetaDataStructure();
-
-            if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
-                //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
-                $typeDef = $struct['mainType']['typeDef'];
-                $keys = $struct['typesDefinition'][$typeDef]['keys'];
-                foreach ($keys as $k => $v) {
-                    $metaData[$k] = ($v['default']) ? $v['default'] : "";
-                }
-                $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
+        if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
+            //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
+            $typeDef = $struct['mainType']['typeDef'];
+            $keys = $struct['typesDefinition'][$typeDef]['keys'];
+            foreach ($keys as $k => $v) {
+                $metaData[$k] = ($v['default']) ? $v['default'] : "";
             }
-
-//            if ($struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW]) {
-//                $this->viewConfigName = $struct['viewfiles'][ProjectKeys::KEY_VIEW_DEFAULTVIEW];
-//            }
-        //}
-//        } else {
-//            $this->viewConfigName = $struct['viewfiles'][$this->viewConfigName];
-//        }
+            $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
+        }
 
         $viewConfigName = NULL;
         // ALERTA!
         if ($struct['viewfiles'][$this->viewConfigKey]) {
             // ALERTA! Això ha de ser el viewConfigName!!
             $viewConfigName = $struct['viewfiles'][$this->viewConfigKey];
-        } else {
+        }else {
             $viewConfigName = NULL;
             $this->viewConfigKey = NULL;
         }
@@ -381,6 +377,7 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->processAutoFieldsAndUpdateCalculatedFieldsOnReadFromStructuredData($ret[ProjectKeys::KEY_PROJECT_METADATA]);
 
         $this->mergeFieldConfig($ret[ProjectKeys::KEY_PROJECT_METADATA], $ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
+
         if (isset($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields'])) {
             $this->mergeFieldNameToLayout($ret[ProjectKeys::KEY_PROJECT_VIEWDATA]['fields']);
         }
@@ -812,11 +809,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         return $this->viewConfigKey;
     }
 
-    // No s'utilitza, el nom s'assigna al getData segons la key
-//    public function setViewConfigName($viewConfigName) {
-//        $this->viewConfigName = $viewConfigName;
-//    }
-
     /**
      * Guarda los datos
      * @param array $toSet (s'ha generat a l'Action corresponent)
@@ -1217,11 +1209,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      * Devuelve un array con la estructura definida en el archivo configMain.json
      */
     public function getMetaDataDefKeys($subset=FALSE) {
-        //Cambiado por traspaso desde Dao a ProjectMetaDataQuery
-//        $dao = $this->metaDataService->getMetaDataDaoConfig();
-//        $struct = $dao->getMetaDataStructure($this->getProjectType(),
-//                                             $this->getMetaDataSubSet(),
-//                                             $this->persistenceEngine);
         $defKeys = $this->projectMetaDataQuery->getMetaDataDefKeys($subset);
         return json_decode($defKeys, TRUE);
     }
@@ -1426,7 +1413,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
     }
 
     public function getMetaDataComponent($projectType, $type){
-        //$dao = $this->metaDataService->getMetaDataDaoConfig(); Anulado por TRASPASO a projectMetaDataQuery
         $set = $this->projectMetaDataQuery->getMetaDataComponentTypes($this->getMetaDataSubSet(), $projectType);
         if ($set) {
             $subset = $set[$type];
