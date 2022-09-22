@@ -394,7 +394,7 @@ class ObjectInstruction extends AbstractInstruction
             return null;
         }
 
-        $arr = is_array($arrays[$obj]) ? $arrays[$obj] : json_decode($arrays[$obj], true);
+        $arr = IocCommon::toArrayThroughArrayOrJson($arrays[$obj]);
         $field = $arr[$prop];
 
         if ($field !== NULL) {
