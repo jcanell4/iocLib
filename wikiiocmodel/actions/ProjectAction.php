@@ -36,7 +36,7 @@ abstract class ProjectAction extends AbstractWikiAction {
                                    ProjectKeys::KEY_METADATA_SUBSET => $this->params[ProjectKeys::KEY_METADATA_SUBSET],
                                    ProjectKeys::KEY_ACTION          => $this->params[ProjectKeys::KEY_ACTION],
                                    ProjectKeys::KEY_ISONVIEW        => $this->getModel()->getIsOnView(),
-                                   "moodleToken"                    => $this->params["moodleToken"]?$this->params["moodleToken"]:FALSE
+                                   ProjectKeys::KEY_MOODLE_TOKEN    => $this->params[ProjectKeys::KEY_MOODLE_TOKEN] ? $this->params[ProjectKeys::KEY_MOODLE_TOKEN] : FALSE
                                 ]);
     }
 

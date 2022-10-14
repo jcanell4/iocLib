@@ -9,7 +9,7 @@ class RefreshMoodleSessionAction  extends AbstractWikiAction {
 
     public function responseProcess() {
         $ws = new WsMoodleSession();
-        $ws->setToken($this->params['moodleToken']);
+        $ws->setToken($this->params[ProjectKeys::KEY_MOODLE_TOKEN]);
         $ret = $ws->refreshUserSession($_SERVER['REMOTE_USER']);
         return $ret;
     }

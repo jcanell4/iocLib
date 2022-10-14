@@ -403,19 +403,20 @@ class AjaxCmdResponseGenerator {
 
     /**
      * Afegeix una resposta de tipus LOGIN_INFO al generador de respostes.
-     *
-     * @param string $loginRequest
-     * @param string $loginResult
+     * @param boolean $loginRequest
+     * @param boolean $loginResult
+     * @param string  $userId - usuari del login
+     * @param string  $moodleToken
      */
-    public function addLoginInfo($loginRequest, $loginResult, $userId = NULL)
-    {
+    public function addLoginInfo($loginRequest, $loginResult, $userId=NULL, $moodleToken=NULL) {
         $response = array(
-            "loginRequest" => $loginRequest,
-            "loginResult" => $loginResult
+            ProjectKeys::KEY_LOGIN_REQUEST => $loginRequest,
+            ProjectKeys::KEY_LOGIN_RESULT => $loginResult
         );
-        if ($userId) {
-            $response["userId"] = $userId;
-        }
+        if ($userId)
+            $response[ProjectKeys::KEY_USER_ID] = $userId;
+        if ($moodleToken)
+            $response[ProjectKeys::KEY_MOODLE_TOKEN] = $moodleToken;
 
         $this->response->add(
             new JSonGeneratorImpl(

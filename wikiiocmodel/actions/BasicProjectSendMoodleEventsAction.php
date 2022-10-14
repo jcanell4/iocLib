@@ -10,8 +10,7 @@ class BasicProjectSendMoodleEventsAction extends ProjectAction{
         
         $id = $this->params[ProjectKeys::KEY_ID];
 
-
-        if(isset($this->params["moodleToken"])){
+        if(isset($this->params[ProjectKeys::KEY_MOODLE_TOKEN])){
             $events = [];
             $courseId = $this->projectModel->getCourseId();
             if($courseId){
@@ -24,7 +23,7 @@ class BasicProjectSendMoodleEventsAction extends ProjectAction{
                     //$dates = $this->projectModel->getCalendarDates();
                     $ws = new WsMoodleCalendar();
                     //$ws->init(parametres de configuració);
-                    $ws->setToken($this->params["moodleToken"]);
+                    $ws->setToken($this->params[ProjectKeys::KEY_MOODLE_TOKEN]);
                     $ws->deleteAllCourseEvents($courseId);
                     foreach ($dates as $date){
                         $events[] = EventMoodle::newInstanceFromAssociative(array(
@@ -47,7 +46,7 @@ class BasicProjectSendMoodleEventsAction extends ProjectAction{
         }else{
             $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('USER_IS_NOT_MOODLE_USER'), $id);
             $response['info'] = self::addInfoToInfo($response['info'], 
-                                        self::generateInfo("info", WikiIocLangManager::getLang('MOODLE_EVENTS_NOT_UPDATED'), $id));            
+                                self::generateInfo("info", WikiIocLangManager::getLang('MOODLE_EVENTS_NOT_UPDATED'), $id));            
         }
         return $response;
     }

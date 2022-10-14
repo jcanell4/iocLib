@@ -10,8 +10,8 @@ abstract class MoodleProjectModel extends AbstractProjectModel{
     
     public function init($params, $projectType=NULL, $rev=NULL, $viewConfigKey=ProjectKeys::KEY_VIEW_DEFAULTVIEW, $metaDataSubSet=Projectkeys::VAL_DEFAULTSUBSET, $actionCommand=NULL, $isOnView=FALSE) {
         parent::init($params, $projectType, $rev, $viewConfigKey, $metaDataSubSet, $actionCommand, $isOnView);
-        if(isset($params["moodleToken"]) && $params["moodleToken"]){
-            $this->moodleToken = $params["moodleToken"];
+        if (isset($params[ProjectKeys::KEY_MOODLE_TOKEN]) && $params[ProjectKeys::KEY_MOODLE_TOKEN]){
+            $this->moodleToken = $params[ProjectKeys::KEY_MOODLE_TOKEN];
         }
     }
     

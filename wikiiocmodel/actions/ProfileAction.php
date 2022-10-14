@@ -74,7 +74,7 @@ class ProfileAction extends DokuAction{
                     $param = WikiIocLangManager::getLang('menu','usermanager');
                     break;
                 case "modify":
-                    $response['user_state'] = ["editor" => WikiIocInfoManager::getInfo("userinfo")['editor']];
+                    $response[ProjectKeys::KEY_USER_STATE] = ["editor" => WikiIocInfoManager::getInfo("userinfo")['editor']];
                     $param = WikiIocLangManager::getLang('update_ok','usermanager');
                     break;
             }
