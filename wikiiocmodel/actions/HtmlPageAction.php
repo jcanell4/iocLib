@@ -27,10 +27,12 @@ class HtmlPageAction extends RenderedPageAction{
     }
 
     protected function responseProcess(){
+        global $INFO;
         $response = parent::responseProcess();
 
+        $response['structure']['perm'] = $INFO['perm'];
+        
         // TODO: afegir el 'info' que correspongui
-
         // Si no s'ha especificat cap altre missatge mostrem el de carrega
         if (!$response['info']) {
             $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('document_loaded'), $this->params[PageKeys::KEY_ID]);
@@ -39,9 +41,7 @@ class HtmlPageAction extends RenderedPageAction{
         }
 
         // TODO: Afegir els drafts des del responseprocess del pare?
-
         $drafts = $this->dokuPageModel->getAllDrafts();
-
         if (count($drafts)>0) {
             $response['drafts'] = $drafts;
         }

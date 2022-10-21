@@ -75,24 +75,19 @@ class WikiIocInfoManager {
     }
 
     private static function updateJsInfo(){
-	global $JSINFO;
-	global $INFO;
-        
+        global $JSINFO;
+        global $INFO;
+
         $JSINFO['isadmin']   = $INFO['isadmin'];
-        $JSINFO['ismanager']   = $INFO['ismanager'];
+        $JSINFO['ismanager'] = $INFO['ismanager'];
         if ($INFO['userinfo'] && $INFO['userinfo']['grps']) {
-            $JSINFO['permission']=array();
+            $JSINFO['permission'] = array();
+            $JSINFO['permission']['perm'] = $INFO['perm'];
             foreach ($INFO['userinfo']['grps'] as $value) {
                 $JSINFO['permission']["is$value"] = TRUE;
             }
         }
-
         $JSINFO['shared_constants'] = SharedConstants::getConstantsAsArray();
-
-//        if ($INFO['userinfo'] && $INFO['userinfo']['grps']) {
-//            if (in_array('projectmanager', $INFO['userinfo']['grps']))
-//                $JSINFO['isprojectmanager'] = TRUE;
-//        }
     }
 
     public static function setParams($params){
