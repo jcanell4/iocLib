@@ -14,11 +14,6 @@ require_once (DOKU_INC . "inc/auth.php");
 class AdminAuthorization extends ProjectCommandAuthorization {
 
     public function canRun($permis=AUTH_ADMIN, $type_exception=NULL) {
-//        if ( parent::canRun() && $this->permission->getInfoPerm() < AUTH_ADMIN) {
-//            $this->errorAuth[self::ERROR_KEY] = TRUE;
-//            $this->errorAuth[self::EXCEPTION_KEY] = 'AuthorizationNotCommandAllowed';
-//            $this->errorAuth[self::EXTRA_PARAM_KEY] = $this->permission->getIdPage();
-//        }
         parent::canRun($permis, $type_exception);
         return !$this->errorAuth[self::ERROR_KEY];
     }

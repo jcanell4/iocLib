@@ -16,13 +16,6 @@ class ManagerProjectAuthorization extends ProjectCommandAuthorization {
     }
 
     public function canRun($permis=AUTH_DELETE, $type_exception="Edit") {
-//        if (parent::canRun()) {
-//            if ( $this->permission->getInfoPerm() < AUTH_DELETE || !$this->isUserGroup(["projectmanager","admin","manager"]) ) {
-//                $this->errorAuth['error'] = TRUE;
-//                $this->errorAuth['exception'] = 'InsufficientPermissionToEditProjectException';
-//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-//            }
-//        }
         parent::canRun($permis, $type_exception);
         return !$this->errorAuth['error'];
     }

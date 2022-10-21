@@ -15,19 +15,6 @@ class CreateProjectAuthorization extends ProjectCommandAuthorization {
     }
 
     public function canRun($permis=AUTH_CREATE, $type_exception="Create") {
-//        if (parent::canRun()) {
-//            if ($this->permission->getInfoPerm() < AUTH_CREATE) {
-//                $this->errorAuth['error'] = TRUE;
-//                $this->errorAuth['exception'] = 'InsufficientPermissionToCreateProjectException';
-//                $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-//            }else {
-//                if (!$this->isUserGroup(array("projectmanager","admin"))) {
-//                    $this->errorAuth['error'] = TRUE;
-//                    $this->errorAuth['exception'] = 'UserNotAuthorizedException';
-//                    $this->errorAuth['extra_param'] = $this->permission->getIdPage();
-//                }
-//            }
-//        }
         parent::canRun($permis, $type_exception);
         return !$this->errorAuth['error'];
     }

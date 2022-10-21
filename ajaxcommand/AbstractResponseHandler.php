@@ -15,8 +15,7 @@ abstract class AbstractResponseHandler {
     /**
      * Constructor al que se li passa el nom del Command com argument.
      * @param string $cmd
-     * @param instance $modelAdapter
-     * @param instance $permission
+     * @param string $subcmd
      */
     public function __construct($cmd, $subcmd="") {
         $this->cmd = $cmd;
