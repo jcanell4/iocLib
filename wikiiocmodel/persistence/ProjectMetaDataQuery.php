@@ -6,9 +6,8 @@
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC."lib/plugins/");
 if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN."wikiiocmodel/");
-
 require_once (DOKU_INC."inc/JSON.php");
-require_once (DOKU_PLUGIN . 'wikiiocmodel/metadata/MetaDataExceptions.php');
+//require_once (DOKU_PLUGIN . 'wikiiocmodel/metadata/MetaDataExceptions.php'); //ioc_load.php
 
 class ProjectMetaDataQuery extends DataQuery {
 
@@ -377,7 +376,6 @@ class ProjectMetaDataQuery extends DataQuery {
      * @return array con la lista de subSets del archivo FILE_CONFIGMAIN
      */
     public function getListMetaDataSubSets($projectType=FALSE) {
-        $configSet = ProjectKeys::KEY_METADATA_CLASSES_NAMESPACES;
         if (!$projectType){
             $projectType = $this->getProjectType();
         }
@@ -389,12 +387,7 @@ class ProjectMetaDataQuery extends DataQuery {
         }
 
         $configArray = json_decode($configMain, true);
-        $toReturn = array();
-
-        for ($i = 0; $i < sizeof($configArray[$configSet]); $i++) {
-            $toReturn[] = array_keys($configArray[$configSet][$i])[0];
-        }
-        return $toReturn;
+        return $configArray[ProjectKeys::KEY_METADATA_CLASSES_NAMESPACES];
     }
 
     public function getSubSetPermissions($projectType=FALSE, $subSet=FALSE) {

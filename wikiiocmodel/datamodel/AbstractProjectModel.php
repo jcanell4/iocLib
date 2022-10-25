@@ -4,11 +4,10 @@
  * @author professor
  */
 if (!defined('DOKU_INC')) die();
-if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . "lib/plugins/");
-if (!defined('WIKI_IOC_MODEL')) define('WIKI_IOC_MODEL', DOKU_PLUGIN . "wikiiocmodel/");
-
 require_once (DOKU_INC . "inc/common.php");
-require_once (WIKI_IOC_MODEL . 'metadata/MetaDataRender.php');
+//if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC.'lib/lib_ioc/');
+//if (!defined('WIKI_LIB_IOC_MODEL')) define('WIKI_LIB_IOC_MODEL', DOKU_LIB_IOC."wikiiocmodel/");
+//require_once (WIKI_LIB_IOC_MODEL . 'metadata/BasicMetaDataRender.php');
 
 abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $id;
@@ -31,13 +30,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
 
     public function __construct($persistenceEngine)  {
         parent::__construct($persistenceEngine);
-        $this->metaDataRender = new MetaDataRender();
         $this->draftDataQuery = $persistenceEngine->createDraftDataQuery();
         $this->lockDataQuery = $persistenceEngine->createLockDataQuery();
         $this->dokuPageModel = new DokuPageModel($persistenceEngine);
 
         $this->viewConfigKey = ProjectKeys::KEY_VIEW_DEFAULTVIEW;
-        $this->needGenerateAction=TRUE;
+        $this->needGenerateAction = TRUE;
         $this->externalCallMethods = [];
         $this->useRouteInRemoteDir = FALSE;
     }
@@ -87,6 +85,15 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         }
         if ($this->rev){
             $this->projectMetaDataQuery->setRevision($this->rev);
+        }
+        $this->instanceMetaDataRender();
+    }
+
+    private function instanceMetaDataRender() {
+        try {
+            $this->metaDataRender = new MetaDataRender($this->metaDataSubSet);
+        }catch (Throwable $e) {
+            throw new Exception($e);
         }
     }
 
