@@ -4,11 +4,7 @@
  * @author Miguel Àngel Lozano Márquez<mlozan54@ioc.cat>
  */
 if (!defined("DOKU_INC")) die();
-//if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC.'lib/lib_ioc/');
-//if (!defined('WIKI_LIB_IOC_MODEL')) define('WIKI_LIB_IOC_MODEL', DOKU_LIB_IOC."wikiiocmodel/");
-
 require_once(DOKU_INC . 'inc/JSON.php');
-//require_once(WIKI_LIB_IOC_MODEL . 'metadata/MetaDataExceptions.php'); //ioc_load.php
 
 class BasicMetaDataRender {
     public static $DEFAULT_SINGLE_VALUES = ["string"=>"", "textarea"=>"", "number"=>0, "boolean"=>false, "bool"=>false, "date"=>""];

@@ -5,9 +5,6 @@
  */
 if (!defined('DOKU_INC')) die();
 require_once (DOKU_INC . "inc/common.php");
-//if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC.'lib/lib_ioc/');
-//if (!defined('WIKI_LIB_IOC_MODEL')) define('WIKI_LIB_IOC_MODEL', DOKU_LIB_IOC."wikiiocmodel/");
-//require_once (WIKI_LIB_IOC_MODEL . 'metadata/BasicMetaDataRender.php');
 
 abstract class AbstractProjectModel extends AbstractWikiDataModel{
     protected $id;
@@ -89,11 +86,16 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $this->instanceMetaDataRender();
     }
 
-    private function instanceMetaDataRender() {
+    public function instanceMetaDataRender() {
         try {
-            $this->metaDataRender = new MetaDataRender($this->metaDataSubSet);
+            $class = "{$this->metaDataSubSet}MetaDataRender";
+            $this->metaDataRender = new $class();
         }catch (Throwable $e) {
-            throw new Exception($e);
+            try {
+                $this->metaDataRender = new MetaDataRender();
+            } catch (Exception $e) {
+                throw new Exception($e);
+            }
         }
     }
 
@@ -337,18 +339,6 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $metaDataEntity = $this->buildMetaDataEntity();
         $ret[ProjectKeys::KEY_PROJECT_METADATA] = $this->metaDataRender->render($metaDataEntity);
 
-//        Este código ya no es necesario
-//        if (!$ret[ProjectKeys::KEY_PROJECT_METADATA]) {
-//            //si todavía no hay datos en el fichero de proyecto se recoge la lista de campos del tipo de proyecto
-//            $typeDef = $configProject['mainType']['typeDef'];
-//            $keys = $configProject['typesDefinition'][$typeDef]['keys'];
-//            foreach ($keys as $k => $v) {
-//                $metaData[$k] = ($v['default']) ? $v['default'] : "";
-//            }
-//            $ret[ProjectKeys::KEY_PROJECT_METADATA] = $metaData;
-//        }
-
-        // ALERTA!
         if ($metaDataEntity['viewfiles'][$this->viewConfigKey]) {
             // ALERTA! Això ha de ser el viewConfigName!!
             $viewConfigName = $metaDataEntity['viewfiles'][$this->viewConfigKey];
