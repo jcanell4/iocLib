@@ -32,12 +32,11 @@ class HtmlPageAction extends RenderedPageAction{
 
         $response['structure']['perm'] = $INFO['perm'];
         
-        // TODO: afegir el 'info' que correspongui
-        // Si no s'ha especificat cap altre missatge mostrem el de carrega
+        $info = self::generateInfo("info", WikiIocLangManager::getLang('document_loaded'), $this->params[PageKeys::KEY_ID]);
         if (!$response['info']) {
-            $response['info'] = self::generateInfo("info", WikiIocLangManager::getLang('document_loaded'), $this->params[PageKeys::KEY_ID]);
+            $response['info'] = $info;
         }else {
-            self::addInfoToInfo($response['info'], self::generateInfo("info", WikiIocLangManager::getLang('document_loaded'), $this->params[PageKeys::KEY_ID]));
+            self::addInfoToInfo($response['info'], $info);
         }
 
         // TODO: Afegir els drafts des del responseprocess del pare?

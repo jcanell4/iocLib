@@ -82,7 +82,6 @@ class WikiIocInfoManager {
         $JSINFO['ismanager'] = $INFO['ismanager'];
         if ($INFO['userinfo'] && $INFO['userinfo']['grps']) {
             $JSINFO['permission'] = array();
-            $JSINFO['permission']['perm'] = $INFO['perm'];
             foreach ($INFO['userinfo']['grps'] as $value) {
                 $JSINFO['permission']["is$value"] = TRUE;
             }
