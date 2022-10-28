@@ -559,9 +559,7 @@ class BasicRenderDocument extends BasicRenderObject{
     }
 
     public function cocinandoLaPlantillaConDatos($data) {
-        $isArray = is_array($data);
-        $isObject = $isArray && array_keys($data) !== range(0, count($arr) - 1);
-        if ($isObject || $isArray){
+        if (is_array($data)){
             $ret = json_encode($data);
         }else{
             $ret = $data;
