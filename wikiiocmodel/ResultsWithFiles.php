@@ -62,18 +62,31 @@ class ResultsWithFiles {
     }
 
     private static function copyFiles(&$result){
-        $result["dest"]=array();
-        $ok=false;
-        $dest = preg_replace('/:/', '/', $result['ns']);
-        $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
-        if (!file_exists($path_dest)){
-            mkdir($path_dest, 0755, TRUE);
-        }
-        if(is_array($result["files"])){
-            $ok=true;
+        $ok = false;
+        $result["dest"] = array();
+
+        if (is_array($result["files"])) {
+            $ok = true;
+            $dest = preg_replace('/:/', '/', $result['ns']);
+            $path_dest = WikiGlobalConfig::getConf('mediadir').'/'.$dest;
+            if (!file_exists($path_dest)){
+                mkdir($path_dest, 0755, TRUE);
+            }
+
             for($i=0; $i<count($result["files"]); $i++) {
-                $ok = $ok && copy($result["files"][$i], $path_dest.'/'.$result["fileNames"][$i]);
-                $result["dest"][$i]=$path_dest.'/'.$result["fileNames"][$i];
+                //control de directorios especiales en proyectos activityutil
+                $spl = explode("/", $result["fileNames"][$i], 2);
+                if (!empty($spl[1]) && !file_exists("$path_dest/{$spl[0]}")){
+                    mkdir("$path_dest/{$spl[0]}", 0755, TRUE);
+                }
+
+                $ok = $ok && copy($result["files"][$i], "$path_dest/{$result["fileNames"][$i]}");
+                if (empty($spl[1])) {
+                    $result["dest"][$i] = "$path_dest/{$result["fileNames"][$i]}";
+                }else {
+                    //los archivos especiales no aparecerán en la lista de metadatos
+                    unset($result["fileNames"][$i]);
+                }
             }
         }
         return $ok;

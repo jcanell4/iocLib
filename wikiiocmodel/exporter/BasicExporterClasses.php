@@ -168,135 +168,42 @@ class BasicRenderObject extends renderComposite {
         $extres = $this->getRenderExtraFields();
         if ($extres) {
             foreach ($extres as $item) {
-                if ($item["valueType"] == "page" ){
-                    $typedefKeyField = ["type" => "string"];
-                    $renderKeyField = $this->getRenderKeyField($item["name"]);
-                    $render = $this->createRender($typedefKeyField, $renderKeyField);
-
-                    $dataField = $item["value"]; //$this->factory->getProjectModel()->getRawProjectDocument($item["value"]);
-                    $render->init($item["name"], $renderKeyField['render']['styletype']);
-
-                    $this->_createSessionStyle($renderKeyField['render']);
-                    $arrayDeDatosParaLaPlantilla[$item["name"]] = $render->process($dataField, $item["name"]);
-                    $this->_destroySessionStyle();
-                }
-                else if ($item["valueType"] == "field") {
-                    $typedefKeyField = $this->getTypedefKeyField($item["value"]);
-                    $renderKeyField = $this->getRenderKeyField($item["name"]);
-                    $render = $this->createRender($typedefKeyField, $renderKeyField);
-
-                    $dataField = $this->getDataField($item["value"]);
-                    $render->init($item["name"], $renderKeyField['render']['styletype']);
-
-                    $this->_createSessionStyle($renderKeyField['render']);
-                    $arrayDeDatosParaLaPlantilla[$item["name"]] = $render->process($dataField, $item["name"]);
-                    $this->_destroySessionStyle();
-                }
-                else if ($item["valueType"] == "arrayDocuments") {
-                    $typedefKeyField = $this->getTypedefKeyField($item["value"]);
-                    $renderKeyField = $this->getRenderKeyField($item["name"]);
-                    $render = $this->createRender($typedefKeyField, $renderKeyField);
-                    $render->init($item["name"], $renderKeyField['render']['styletype']);
-
-                    $arrayDataField = json_decode($this->getDataField($item["value"]), true);
-                    foreach ($arrayDataField as $key) {
-                        $arrDataField[] = $key['nom'];
-                    }
-
-                    if ($item["type"] == "psdom") {
-                        foreach ($arrDataField as $doc) {
-                            $this->_createSessionStyle($renderKeyField['render']);
-                            $jsonDoc = $render->process($doc, $item["name"]);
-                            $this->_destroySessionStyle();
-                            if (!empty($jsonDoc)) {//evita procesar los documentos inexistentes
-                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $jsonDoc;
-                            }
-                        }
-                    }else {
-                        // Renderiza cada uno de los documentos
-                        $htmlDocument = "";
-                        foreach ($arrDataField as $doc) {
-                            $this->_createSessionStyle($renderKeyField['render']);
-                            $htmlDocument = $render->process($doc, $item["name"]);
-                            $this->_destroySessionStyle();
-                            if (!empty($htmlDocument)) {//evita procesar los documentos inexistentes
-                                $arrayDeDatosParaLaPlantilla['arrayDocuments'][$doc][$item['name']] = $htmlDocument;
-                                $toc[$doc] = $this->cfgExport->toc[$item["name"]];
-                                
-                                $latexImg[$doc] = $this->cfgExport->latex_images;
-                                $this->cfgExport->latex_images = array();
-                                $mediaFiles[$doc] = $this->cfgExport->media_files;
-                                $this->cfgExport->media_files = array();
-                                $graphvizImg[$doc]= $this->cfgExport->graphviz_images;
-                                $this->cfgExport->graphviz_images = array();
-                                $gifImg[$doc] = $this->cfgExport->gif_images;
-                                $this->cfgExport->gif_images = array();
-                                $figRef[$doc] = $this->cfgExport->figure_references;
-                                $this->cfgExport->figure_references = array();
-                                $tabRef[$doc] = $this->cfgExport->table_references;
-                                $this->cfgExport->table_references = array();
-                            }
-                        }
-                        $this->cfgExport->toc = $toc;
-                        
-                        $this->cfgExport->latex_images = $latexImg;
-                        $this->cfgExport->media_files = $mediaFiles;
-                        $this->cfgExport->graphviz_images = $graphvizImg;
-                        $this->cfgExport->gif_images = $gifImg;
-                        $this->cfgExport->figure_references= $figRef;
-                        $this->cfgExport->table_references= $tabRef;
-                    }
-                }
-                else if ($item["valueType"] == "arrayFields") {
-                    $typedefKeyField = $this->getTypedefKeyField($item["value"]);
-                    $renderKeyField = $this->getRenderKeyField($item["name"]);
-                    $render = $this->createRender($typedefKeyField, $renderKeyField);
-                    $render->init($item["name"], $renderKeyField['render']['styletype']);
-
-                    $arrayDataField = $this->getDataField($item["value"]);
-                    if (!is_array($arrayDataField)) {
-                        $arrayDataField = json_decode($arrayDataField, true);
-                    }
-                    foreach ($arrayDataField as $key) {
-                        $arrDataField[$key['ordre']] = $key['nom'];
-                    }
-                    ksort($arrDataField);
-
-                    if ($item["type"] == "psdom") {
-                        $arrDocument = array();
-                        foreach ($arrDataField as $dataField) {
-                            $this->_createSessionStyle($renderKeyField['render']);
-                            $jsonPart = $render->process($dataField, $item["name"]);
-                            $this->_destroySessionStyle();
-                            if (($arrPart = json_decode($jsonPart))) //evita procesar los documentos inexistentes
-                                $arrDocument = array_merge($arrDocument, $arrPart);
-                        }
-                        $arrayDeDatosParaLaPlantilla[$item["name"]] = json_encode($arrDocument);
-                    }
-                    else {
-                        // Renderiza cada uno de los documentos
-                        $htmlDocument = "";
-                        foreach ($arrDataField as $dataField) {
-                            $this->_createSessionStyle($renderKeyField['render']);
-                            $htmlDocument .= $render->process($dataField, $item["name"]);
-                            $this->_destroySessionStyle();
-                            $toc[] = $this->cfgExport->toc[$item["name"]];
-                        }
-                        // Une los TOCs de todos los documentos
-                        $aux = array();
-                        foreach ($toc as $t) {
-                            if ($t) $aux = array_merge($aux, $t);
-                        }
-                        $this->cfgExport->toc[$item["name"]] = $aux;
-
-                        $arrayDeDatosParaLaPlantilla[$item["name"]] = $htmlDocument;
-                    }
-                }
+                $arrayDeDatosExtra = $this->processExtraFields($item);
+                $arrayDeDatosParaLaPlantilla = array_merge($arrayDeDatosParaLaPlantilla, $arrayDeDatosExtra);
             }
         }
 
         self::$deepLevel--;
         return $arrayDeDatosParaLaPlantilla;
+    }
+
+    public function processExtraFields($item) {
+        $arrayDeDatosExtra = [];
+        if ($item["valueType"] == "page" ){
+            $typedefKeyField = ["type" => "string"];
+            $renderKeyField = $this->getRenderKeyField($item["name"]);
+            $render = $this->createRender($typedefKeyField, $renderKeyField);
+
+            $dataField = $item["value"]; //$this->factory->getProjectModel()->getRawProjectDocument($item["value"]);
+            $render->init($item["name"], $renderKeyField['render']['styletype']);
+
+            $this->_createSessionStyle($renderKeyField['render']);
+            $arrayDeDatosExtra[$item["name"]] = $render->process($dataField, $item["name"]);
+            $this->_destroySessionStyle();
+        }
+        else if ($item["valueType"] == "field") {
+            $typedefKeyField = $this->getTypedefKeyField($item["value"]);
+            $renderKeyField = $this->getRenderKeyField($item["name"]);
+            $render = $this->createRender($typedefKeyField, $renderKeyField);
+
+            $dataField = $this->getDataField($item["value"]);
+            $render->init($item["name"], $renderKeyField['render']['styletype']);
+
+            $this->_createSessionStyle($renderKeyField['render']);
+            $arrayDeDatosExtra[$item["name"]] = $render->process($dataField, $item["name"]);
+            $this->_destroySessionStyle();
+        }
+        return $arrayDeDatosExtra;
     }
 
     protected function _createSessionStyle($keyRender) {
@@ -429,24 +336,7 @@ class BasicRenderFile extends AbstractRenderer {
 
     public function process($data, $alias="") {
         global $plugin_controller;
-
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-            $startedHere = true;
-        }
-        $_SESSION['export_html'] = $this->cfgExport->export_html;
-        $_SESSION['tmp_dir'] = $this->cfgExport->tmp_dir;
-        $_SESSION['latex_images'] = &$this->cfgExport->latex_images;
-        $_SESSION['media_files'] = &$this->cfgExport->media_files;
-        $_SESSION['graphviz_images'] = &$this->cfgExport->graphviz_images;
-        $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
-        $_SESSION['figure_references'] = &$this->cfgExport->figure_references;
-        $_SESSION['table_references'] = &$this->cfgExport->table_references;
-        $_SESSION['alternateAddress'] = TRUE;
-        $_SESSION['dir_images'] = "img/";
-        if ($this->cfgExport->styletype){
-            $_SESSION['styletype'] = $this->cfgExport->styletype;
-        }
+        $startedHere = $this->preProcessSession();
 
         if (preg_match("/".$this->cfgExport->id."/", $data)!=1){
             $fns = $this->cfgExport->id.":".$data;
@@ -477,9 +367,31 @@ class BasicRenderFile extends AbstractRenderer {
         return $html;
     }
 
+    public function preProcessSession() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+            $startedHere = true;
+        }
+        $_SESSION['export_html'] = $this->cfgExport->export_html;
+        $_SESSION['tmp_dir'] = $this->cfgExport->tmp_dir;
+        $_SESSION['latex_images'] = &$this->cfgExport->latex_images;
+        $_SESSION['media_files'] = &$this->cfgExport->media_files;
+        $_SESSION['graphviz_images'] = &$this->cfgExport->graphviz_images;
+        $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
+        $_SESSION['figure_references'] = &$this->cfgExport->figure_references;
+        $_SESSION['table_references'] = &$this->cfgExport->table_references;
+        $_SESSION['alternateAddress'] = TRUE;
+        $_SESSION['dir_images'] = "img/";
+        if ($this->cfgExport->styletype){
+            $_SESSION['styletype'] = $this->cfgExport->styletype;
+        }
+        return $startedHere;
+    }
+
     protected function render($instructions, &$renderData){
         return p_render('wikiiocmodel_ptxhtml', $instructions, $renderData);
     }
+
 }
 
 
@@ -619,10 +531,24 @@ class BasicRenderHtmlDocument extends BasicRenderDocument{
         $this->initialized = TRUE;
     }
     
+    //Obtiene los ficheros css básicos (por defecto)
+    public function getDefaultCssFiles() {
+        $path = realpath(__DIR__)."/xhtml/css";
+        $scdir = scandir($path);
+        if ($scdir) {
+            foreach($scdir as $file) {
+                if (substr($file, -4) === ".css") {
+                    $ret[] = "$path/$file";
+                }
+            }
+        }
+        return $ret;
+    }
+
     function addDefaultCssFilesToZip(&$zip, $rdir) {
         $this->addFilesToZip($zip, realpath(__DIR__)."/xhtml", $rdir, "css", TRUE);
     }
-    
+
     protected function addFilesToZip(&$zip, $base, $d, $dir, $recursive=FALSE, $file=FALSE) {
         $zip->addEmptyDir("$d$dir");
         $files = $this->getDirFiles("$base/$dir");
