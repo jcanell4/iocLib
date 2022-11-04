@@ -91,7 +91,10 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
             $class = "{$this->metaDataSubSet}MetaDataRender";
             $this->metaDataRender = new $class();
         }catch (Throwable $e) {
-            try {
+            //1. Caldria assegurar que el següent només s'executa si l'error és 
+            //degut a que no es troba la classe en qualsevol altre cas caldria 
+            //fer  throw $e
+            try { //2. No cal embolcallar amb aquest try!
                 $this->metaDataRender = new MetaDataRender();
             } catch (Exception $e) {
                 throw new Exception($e);
