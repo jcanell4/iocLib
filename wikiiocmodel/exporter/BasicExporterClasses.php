@@ -404,78 +404,13 @@ class BasicRenderDocument extends BasicRenderObject{
     }    
     
     public function process($data) {
-        $ret = parent::process($data);
-        if (isset($ret['arrayDocuments'])) {
-            $ret = $this->preCocinadoIndividual($ret);
-        }else {
-            $ret = $this->cocinandoLaPlantillaConDatos($ret);
-        }
+        $data = parent::process($data);
+        $ret = $this->cocinandoLaPlantillaConDatos($data);
         return $ret;
     }
     
-    /**
-     * Tractament específic per a la generació de fitxers, individuals, resultat de cocinandoLaPlantillaConDatos
-     * @param array $data : dades ja renderitzades. La renderització del contigut de cada document està individualitzada
-     *                      en $data['arrayDocuments']
-     * @return array
-     */
-    public function preCocinadoIndividual($data) {
-        $id = str_replace(':', '_', $this->cfgExport->id);
-        $toc_backup = $this->cfgExport->toc;
-        
-        $latexImg_backup = $this->cfgExport->latex_images;
-        $mediaFiles_backup = $this->cfgExport->media_files;
-        $graphvizImg_backup = $this->cfgExport->graphviz_images;
-        $gifImg_backup = $this->cfgExport->gif_images;
-        $figRef_backup = $this->cfgExport->figure_references;
-        $tabRef_backup = $this->cfgExport->table_references;
-
-        
-        foreach ($data['arrayDocuments'] as $doc => $arrayDocuments) { //para cada documento
-            $this->cfgExport->toc = [];
-            foreach ($arrayDocuments as $name => $value) { //para cada tipo: pdf, html
-                $data[$name] = $value;
-                $this->cfgExport->toc[$name] = $toc_backup[$doc];
-            }
-            $this->cfgExport->output_filename = "{$id}_{$doc}";
-
-            $this->cfgExport->latex_images = $latexImg_backup[$doc];
-            $this->cfgExport->media_files = $mediaFiles_backup[$doc];
-            $this->cfgExport->graphviz_images = $graphvizImg_backup[$doc];
-            $this->cfgExport->gif_images = $gifImg_backup[$doc];
-            $this->cfgExport->figure_references = $figRef_backup[$doc];
-            $this->cfgExport->table_references = $tabRef_backup[$doc];
-            
-            $result[$this->cfgExport->output_filename] = $this->cocinandoLaPlantillaConDatos($data);
-        }
-
-        $this->cfgExport->toc = $toc_backup ;        
-        $this->cfgExport->latex_images = $latexImg_backup ;
-        $this->cfgExport->media_files = $mediaFiles_backup ;
-        $this->cfgExport->graphviz_images = $graphvizImg_backup ;
-        $this->cfgExport->gif_images = $gifImg_backup ;
-        $this->cfgExport->figure_references = $figRef_backup ;
-        $this->cfgExport->table_references = $tabRef_backup ;
-
-        $ret['tmp_dir'] = $this->cfgExport->tmp_dir;
-        foreach ($result as $value) {
-            if ($value['error']) {
-                $ret['error'][] = $value['error'];
-            }else {
-                $ret['files'][] = $value['file'];
-                $ret['fileNames'][] = $value['fileName'];
-            }
-            $ret['info'][] = $value['info'];
-        }
-        return $ret;
-    }
-
     public function cocinandoLaPlantillaConDatos($data) {
-        if (is_array($data)){
-            $ret = json_encode($data);
-        }else{
-            $ret = $data;
-        }
+        $ret = (is_array($data)) ? json_encode($data) : $data;
         return $ret;
     }
 
