@@ -371,7 +371,7 @@ class ProjectMetaDataQuery extends DataQuery {
     }
 
     /**
-     * Obtiene un array con un conjunto de subSets, extraidos de la clave 'metaDataClassesNameSpaces', del archivo FILE_CONFIGMAIN
+     * Obtiene un array con un conjunto de subSets, extraidos de la clave 'metaDataSubsetsList', del archivo FILE_CONFIGMAIN
      * @param string $projectType
      * @return array con la lista de subSets del archivo FILE_CONFIGMAIN
      */
@@ -387,7 +387,7 @@ class ProjectMetaDataQuery extends DataQuery {
         }
 
         $configArray = json_decode($configMain, true);
-        return $configArray[ProjectKeys::KEY_METADATA_CLASSES_NAMESPACES];
+        return $configArray[ProjectKeys::KEY_METADATA_SUBSETS_LIST];
     }
 
     public function getSubSetPermissions($projectType=FALSE, $subSet=FALSE) {
