@@ -434,10 +434,7 @@ class BasicRenderDocument extends BasicRenderObject {
         foreach(array_unique($this->cfgExport->media_files) as $f){
             resolve_mediaid(getNS($f), $f, $exists);
             if ($exists) {
-                //eliminamos el primer nivel del ns
-                $arr = explode(":", $f);
-                array_shift($arr);
-                $zip->addFile(mediaFN($f), 'img/'.implode("/", $arr));
+                $zip->addFile(mediaFN($f), 'img/'.str_replace(":", "/", $f));
             }
         }
         $this->cfgExport->media_files = array();
