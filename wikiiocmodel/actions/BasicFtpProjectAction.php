@@ -17,7 +17,7 @@ class BasicFtpProjectAction extends ProjectAction{
 
     private function addFilesToSend() {
         // $filesToSend es un array de n arrays con el formato ['file', 'local', 'action', 'remoteBase', 'remoteDir']
-        $filesToSend = $this->getModel()->filesToExportList(); //crear la funció filesToExportList a cada projectModel amb les dades a tractar
+        $filesToSend = $this->getModel()->filesToExportList(true); //crear la funció filesToExportList a cada projectModel amb les dades a tractar
 
         if ($filesToSend) {
             foreach ($filesToSend as $afile) {
