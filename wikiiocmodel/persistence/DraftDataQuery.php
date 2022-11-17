@@ -50,11 +50,11 @@ class DraftDataQuery extends DataQuery
         if (@file_exists($draftFile)) {
             $oldDraft = $this->getStructured($id);
 
-            if (array_key_exists($chunkId, $oldDraft['content'])) {
+            if (isset($oldDraft['content']) && array_key_exists($chunkId, $oldDraft['content'])) {
                 unset($oldDraft['content'][$chunkId]);
             }
 
-            if (count($oldDraft['content']) > 0) {
+            if (isset($oldDraft['content']) && count($oldDraft['content']) > 0) {
                 io_saveFile($draftFile, serialize($oldDraft));
 
             } else {
