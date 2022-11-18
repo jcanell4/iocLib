@@ -70,7 +70,7 @@ class DW2HtmlNewContent extends DW2HtmlInstruction {
 
     // @override ALERTA! La diferència es que es tracta el contingut parsejat com si es trobès a l'arrel en lloc de ser intern,
     // en cas contrari no es tancan correctament algunes etiquetes
-    protected function parseContent($raw) {
+    protected function parseContent($raw, $setInner = true) {
         ++static::$instancesCounter;
         $class = static::$parserClass;
 //        $isInnerPrevious = $class::isInner();
