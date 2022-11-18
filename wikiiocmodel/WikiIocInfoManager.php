@@ -119,7 +119,7 @@ class WikiIocInfoManager {
         if($params['media']){
             $IMG = $params['image'] = $params['media'];
             if(!$params['id']){
-                $params['ns']=  getNS($params[image]);
+                $params['ns']=  getNS($params['image']);
                 $params['id']= $params['ns'].":*";
             }
         }
