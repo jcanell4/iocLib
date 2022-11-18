@@ -715,10 +715,12 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
      */
     protected function renamePage($id, $path, $old_name, $new_name) {
         $contingut = $this->getRawDocument("$id:$old_name");
-        $o_name = str_replace(" ", "_", str_replace(":", "/", $old_name));
-        $n_name = str_replace(" ", "_", str_replace(":", "/", $new_name));
-        rename("$path/$o_name.txt", "$path/$n_name.txt");
-        $this->createPageFromTemplate("$id:$new_name", NULL, $contingut, "rename page", TRUE);
+        $o_name = str_replace(":", "/", $old_name);
+        $n_name = str_replace(":", "/", $new_name);
+        if (file_exists("$path/$o_name.txt")) {
+            rename("$path/$o_name.txt", "$path/$n_name.txt");
+            $this->createPageFromTemplate("$id:$new_name", NULL, $contingut, "rename page", TRUE);
+        }
     }
 
     protected function mergeFieldNameToLayout(&$projectViewDataFields) {
