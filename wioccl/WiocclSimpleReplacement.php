@@ -1,7 +1,7 @@
 <?php
 require_once "WiocclParser.php";
 
-class WiocclSimpleReplacement extends WiocclInstruction {
+class   WiocclSimpleReplacement extends WiocclInstruction {
 
     const OPEN = 0;
     const CLOSE = 1;

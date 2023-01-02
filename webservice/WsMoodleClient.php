@@ -379,7 +379,7 @@ class WsMixClient extends AbstractWs {
     protected $token = NULL;
     
     public function __construct() {
-        $this->urlBase = "https://adaint.ioc.cat/iocmixback/ws/";
+        $this->urlBase = "https://ifp.ioc.cat/iocmixback/ws/";
     }
 
     public function setToken($token){
