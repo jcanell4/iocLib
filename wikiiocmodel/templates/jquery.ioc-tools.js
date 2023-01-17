@@ -40,73 +40,73 @@
 (function ($) {
 
     // Afegim el node style
-    let css =
-        ".column-b {\n" +
-        "    margin-bottom: 1em;\n" +
-        "}\n" +
-        "\n" +
-        ".column-b.right {\n" +
-        "    margin-left: 2em;\n" +
-        "    float: right;\n" +
-        "    clear: right;\n" +
-        "}\n" +
-        "\n" +
-        ".column-b.left {\n" +
-        "    float: left;\n" +
-        "    clear: left;\n" +
-        "    margin-right: 2em;\n" +
-        "}\n" +
-        "\n" +
-        ".column-b {\n" +
-        "    display:none;\n" +
-        "}\n" +
-        "\n" +
-        ".column-b.mobile {\n" +
-        "    float: none;" +
-        "    margin-left: 0;" +
-        "    margin-right: 0;" +
-        "    display:block;\n" +
-        "}\n" +
-        "\n" +
-        "img.right {\n" +
-        "    float: right;\n" +
-        "}\n" +
-        "\n" +
-        ".column-b.right.mobile, .column-b.left.mobile {\n" +
-        "    clear: inherit;\n" +
-        "}" +
-        "img.left {\n" +
-        "    float: left;\n" +
-        "}\n" +
-        ".debug {\n" +
-        "    background-color: #d4edda;\n" +
-        "    border: 1px solid #c3e6cb;\n" +
-        "}\n" +
-        "\n" +
-        "@media (min-width: 992px) {\n" +
-        "    .column-b {\n" +
-        "        display:block;\n" +
-        "    }\n" +
-        "\n" +
-        "    .column-b.mobile {\n" +
-        "        display:none;\n" +
-        "    }\n" +
-        "}" +
-        ".column-b .hide {\n" +
-        "    display: none\n" +
-        "}\n" +
-        ".column-b .iocfigurec {\n" + // això és un arreglo forçat per la imatge lateral, queda massa petita
-        "    max-width:inherit;\n" +
-        "}";
-
-
-    // Ho desactivem, estem provant a integrar el fitxer css amb la build
-    // let $style = jQuery('<style>');
-    // $style.text(css);
-    // jQuery('html').append($style);
+//    var css =
+//        ".column-b {\n" +
+//        "    margin-bottom: 1em;\n" +
+//        "}\n" +
+//        "\n" +
+//        ".column-b.right {\n" +
+//        "    margin-left: 2em;\n" +
+//        "    float: right;\n" +
+//        "    clear: right;\n" +
+//        "}\n" +
+//        "\n" +
+//        ".column-b.left {\n" +
+//        "    float: left;\n" +
+//        "    clear: left;\n" +
+//        "    margin-right: 2em;\n" +
+//        "}\n" +
+//        "\n" +
+//        ".column-b {\n" +
+//        "    display:none;\n" +
+//        "}\n" +
+//        "\n" +
+//        ".column-b.mobile {\n" +
+//        "    float: none;" +
+//        "    margin-left: 0;" +
+//        "    margin-right: 0;" +
+//        "    display:block;\n" +
+//        "}\n" +
+//        "\n" +
+//        "img.right {\n" +
+//        "    float: right;\n" +
+//        "}\n" +
+//        "\n" +
+//        ".column-b.right.mobile, .column-b.left.mobile {\n" +
+//        "    clear: inherit;\n" +
+//        "}" +
+//        "img.left {\n" +
+//        "    float: left;\n" +
+//        "}\n" +
+//        ".debug {\n" +
+//        "    background-color: #d4edda;\n" +
+//        "    border: 1px solid #c3e6cb;\n" +
+//        "}\n" +
+//        "\n" +
+//        "@media (min-width: 992px) {\n" +
+//        "    .column-b {\n" +
+//        "        display:block;\n" +
+//        "    }\n" +
+//        "\n" +
+//        "    .column-b.mobile {\n" +
+//        "        display:none;\n" +
+//        "    }\n" +
+//        "}" +
+//        ".column-b .hide {\n" +
+//        "    display: none\n" +
+//        "}\n" +
+//        ".column-b .iocfigurec {\n" + // això és un arreglo forçat per la imatge lateral, queda massa petita
+//        "    max-width:inherit;\n" +
+//        "}";
+//
+//
+//     //Ho desactivem, estem provant a integrar el fitxer css amb la build
+//     var $style = jQuery('<style>');
+//     $style.text(css);
+//     jQuery('html').append($style);
 
     $.fn.toBColumn = function (options) {
-        let settings = $.extend({
+        var settings = $.extend({
             forceIcons: false, // si mostrarà sempre les icones, ocultant els blocs
             columnAlign: 'right', // left | right
             beforeContainer: 'p, ul, ol', // selectors per col·locar l'element abans per amplada d'escriptori
@@ -127,11 +127,11 @@
 
 
             // PROVA: creem dos nous divs, amb classe column-b i column-b mobile.
-            let $columnb = jQuery('<div class="column-b"></div>');
+            var $columnb = jQuery('<div class="column-b"></div>');
             $columnb.addClass(settings.columnAlign);
 
 
-            let $content = jQuery(this);
+            var $content = jQuery(this);
 
             // $this.css('float', settings.columnAlign);
             // $this.css('clear', settings.columnAlign);
@@ -149,7 +149,7 @@
                 $columnb.addClass(settings.class);
             }
 
-            let $targetBlock = $content.prevAll(settings.beforeContainer).first();
+            var $targetBlock = $content.prevAll(settings.beforeContainer).first();
 
             // Hem de cercar el targetblock previ adequat
             while ($targetBlock.length > 0 && $targetBlock.children().length === 0 && $targetBlock.text().trim().length === 0) {
@@ -185,7 +185,7 @@
 
             // if (settings.minWidth > 0 && window.matchMedia('(min-width: ' + settings.minWidth + 'px)').matches) {
             // S'ha de recol·locar a sobre
-            // let $target = $content.prevAll(settings.beforeContainer).first();
+            // var $target = $content.prevAll(settings.beforeContainer).first();
 
             // Ens assegurem que s'insereix abans d'un contenidor no buit
             // while ($targetBlock.length > 0 && $targetBlock.children().length === 0 && $targetBlock.text().trim().length === 0) {
@@ -227,13 +227,13 @@
             // } else {
 
             // Això s'ha de fer sempre, clonem el node
-            let $columnbMobile = $columnb.clone();
+            var $columnbMobile = $columnb.clone();
             $columnbMobile.addClass('mobile');
-            let $contentMobile = $content.clone();
+            var $contentMobile = $content.clone();
             // TODO: Considerar moure això al css
             $contentMobile.css('cursor', 'pointer');
             // La x només és decorativa, ciclar en qualsevol punt tancará el desplegable
-            let $close = jQuery("<span style='color: #5C5C5C; font-weight: bold; float: right; margin-top: -5px'>x</span>");
+            var $close = jQuery("<span style='color: #5C5C5C; font-weight: bold; float: right; margin-top: -5px'>x</span>");
             $contentMobile.prepend($close);
 
             // Afegiem el contingut desprès de fer el clone per no duplicar-lo
@@ -247,21 +247,21 @@
             // Ho converti'm en un clicable que es desplega
 
             // S'ha de mostrar quan es clica
-            // let $node = jQuery('<div style="float:' + settings.columnAlign + '"></div>');
+            // var $node = jQuery('<div style="float:' + settings.columnAlign + '"></div>');
 
-            let pattern = /url\("(.*)"\)?/gm;
+            var pattern = /url\("(.*)"\)?/gm;
 
             // TODO: Comprovar si settings.icon és un objecte i si és així
             // comprovar si hi ha correspondència amb la classe o alguna de les classes
 
             // ALERTA! La icona s'agafa del content original, el content clonat en aquest punt
             // sembla que no té el css assignat, encara que quan carrega la pàgina sí que hi és
-            let icon = '';
+            var icon = '';
             if (settings.icon) {
                 icon = settings.icon;
             } else if ($content.css('background-image')) {
 
-                let matches = pattern.exec($content.css('background-image'))
+                var matches = pattern.exec($content.css('background-image'))
                 icon = matches ? matches[1] : false;
             }
 
@@ -271,12 +271,12 @@
                 icon = settings.defaultIcon;
             }
 
-            let $img = jQuery('<img src="' + icon + '" style="cursor: pointer">');
+            var $img = jQuery('<img src="' + icon + '" style="cursor: pointer">');
             $columnbMobile.append($img);
             $img.addClass(settings.columnAlign);
 
             // Títol
-            let text = $content.text().trim();
+            var text = $content.text().trim();
             if (text.length>settings.maxTitleLength) {
                 text = text.substr(0, settings.maxTitleLength) + "...";
             }
@@ -291,7 +291,7 @@
 
             $contentMobile.addClass('hide');
 
-            let toggle = false;
+            var toggle = false;
 
             // Mostra o amaga l'element
             $columnbMobile.on('click', function () {
