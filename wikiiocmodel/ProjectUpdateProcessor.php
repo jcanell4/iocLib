@@ -422,6 +422,10 @@ class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcesso
     }
     
     protected function incrementData($value, $inc, $unit){
+        if(preg_match('/\d{1,2}[\/-]\d{1,2}[\/-]\d{4}/', $value)){
+            $avalue = preg_split('/[\/-]/', $value);
+            $value = $avalue[2]."/".$avalue[1]."/".$avalue[0];
+        }
         $fecha = new DateTime($value);
         $fecha->add(new DateInterval('P'.$inc.$unit));
         return $fecha->format($this->dateFormat);        
