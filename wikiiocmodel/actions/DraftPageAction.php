@@ -45,7 +45,7 @@ class DraftPageAction extends PageAction {
 
         if($this->params[PageKeys::KEY_DO]===PageKeys::DW_ACT_PREVIEW){
             $lockInfo = $this->updateLock()["info"];
-            $draft = json_decode($this->params['draft'], true);
+            $draft = IocCommon::toArrayThroughArrayOrJson($this->params['draft']);
             $draft['date'] = $this->params['date'];
             $this->getModel()->saveDraft($draft);
 

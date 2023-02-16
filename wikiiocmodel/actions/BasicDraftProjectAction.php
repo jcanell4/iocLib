@@ -45,7 +45,7 @@ class BasicDraftProjectAction extends ProjectAction {
             //actualiza la información de bloqueo mientras se siguen modificando los datos del formulario del proyecto
             $response["lockInfo"] = $this->resourceLocker->updateLock()["info"];
 
-            $draft = json_decode($this->params['draft'], true);
+            $draft = IocCommon::toArrayThroughArrayOrJson($this->params['draft']);
             $draft['date'] = $this->params['date']; //ATENCIÓN: En principio parecen el mismo dato
             $this->getModel()->saveDraft($draft);
             $response[ProjectKeys::KEY_ID] = $id;
