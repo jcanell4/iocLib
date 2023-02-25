@@ -74,7 +74,6 @@ class _WiocclLoop
                 }
 
                 $lastTokenIndex = $tokenIndex;
-
             }
 
             $tokenIndex = $lastTokenIndex;

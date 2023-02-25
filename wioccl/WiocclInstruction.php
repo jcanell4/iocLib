@@ -129,7 +129,6 @@ class WiocclInstruction extends IocInstruction {
 
                 if ($currentToken['value'] == "\n") {
                     $auxResult = $currentToken['value'];
-//                    $result .= $currentToken['value'];
                 } else {
 
                     $auxResult = $item->getContent($currentToken);
@@ -162,7 +161,7 @@ class WiocclInstruction extends IocInstruction {
                 if (!$currentToken['extra'] || !isset($currentToken['extra']['exclude-stack']) || !$currentToken['extra']['exclude-stack']) {
                     $this->pushState($currentToken);
                 } else {
-                    // no afegim a l'statck
+                    // no afegim a l'stack
                 }
 
 
