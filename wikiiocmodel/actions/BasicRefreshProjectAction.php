@@ -6,7 +6,7 @@
 if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 
-class BasicRefreshProjectAction extends BasicViewProjectAction implements ResourceLockerInterface {
+class BasicRefreshProjectAction extends ViewProjectAction implements ResourceLockerInterface {
 
     protected function runAction() {
         $this->lockStruct = $this->requireResource(TRUE);

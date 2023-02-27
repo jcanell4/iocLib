@@ -3,7 +3,8 @@ if (!defined("DOKU_INC")) die();
 if (!defined('DOKU_LIB_IOC')) define('DOKU_LIB_IOC', DOKU_INC . "lib/lib_ioc/");
 require_once DOKU_LIB_IOC . "wikiiocmodel/ResourceLocker.php";
 
-class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLockerInterface {
+//class BasicGetProjectAction extends BasicViewProjectAction implements ResourceLockerInterface {
+class BasicGetProjectAction extends ViewProjectAction implements ResourceLockerInterface {
 
     private $messageLock;
     private $lockStruct;
