@@ -726,16 +726,20 @@ abstract class DataQuery {
                     while ($current = readdir($fh)) {
                         $currentDir = "$parentDir/$current";
                         if (is_dir($currentDir) && $current !== "." && $current !== "..") {
-                            $prp = $this->getProjectProperties($pathElement, $currentDir, $nsElement, $current);
-                            if ($prp[self::K_PROJECTTYPE]) {
-                                if ($type==="f") {
-                                    $ret[self::K_TYPE] = "pf";
-                                    $ret[self::K_PROJECTSOURCETYPE] = $prp[self::K_PROJECTTYPE];
-                                    $ret[self::K_PROJECTOWNER] = $prp[self::K_NSPROJECT];
+                            try{
+                                $prp = $this->getProjectProperties($pathElement, $currentDir, $nsElement, $current);
+                                if ($prp[self::K_PROJECTTYPE]) {
+                                    if ($type==="f") {
+                                        $ret[self::K_TYPE] = "pf";
+                                        $ret[self::K_PROJECTSOURCETYPE] = $prp[self::K_PROJECTTYPE];
+                                        $ret[self::K_PROJECTOWNER] = $prp[self::K_NSPROJECT];
+                                    }
+                                    $ret = $prp;
+                                    break 2;
                                 }
-                                $ret = $prp;
-                                break 2;
-                            }
+                            } catch (UnknownPojectTypeException $e){
+                                error_log($e->getMessage());
+                            }                                
                         }
                     }
                 }

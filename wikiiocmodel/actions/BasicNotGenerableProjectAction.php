@@ -9,7 +9,7 @@ if (!defined("DOKU_INC")) die();
  * 
  * A més, així, només es podia fer sevir pels SetProjectActions, Amb la variable es pot extendre a altres ProjectActions.
  */
-class BasicNotGenerableProjectAction extends SetProjectAction {
+class BasicNotGenerableProjectAction extends BasicSetProjectAction {
 
     /**
      * Envía los datos del proyecto al ProjectModel y obtiene la estructura y los valores del proyecto
