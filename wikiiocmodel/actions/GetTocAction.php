@@ -11,6 +11,7 @@ class GetTocAction extends PageAction {
     protected function runProcess() {}
 
     public function responseProcess() {
+        $this->noMessage=TRUE;
         $toc = $this->getModel()->getMetaToc();
         $toc = json_encode(['htmlTOC' => preg_replace(['/<!--.*-->\n*/', '/\n/'], '', $toc)]);
         return $toc;

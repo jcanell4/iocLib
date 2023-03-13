@@ -9,6 +9,8 @@ abstract class DokuAction extends AbstractWikiAction{
     protected $defaultDo;
     protected $response;
 
+    protected $noMessage = FALSE;
+
     private $preResponseTmp = array(); //EL format d'aquestes dades és un hashArray on la clau indica el tipus i el valor el contingut. La clau
                                        //pot ser qualsevol de les que es processaràn després com a resposta en el responseHandler. Per exemple
                                        //title, content, info, meta, etc. A més hi ha la possibilitat d'afegir contingut html a la resposta
@@ -32,7 +34,9 @@ abstract class DokuAction extends AbstractWikiAction{
             throw new HttpErrorCodeException('accessdenied', 403);
         }
 
-        $response = $this->_responseGet($response);
+        if(!$this->noMessage){
+            $response = $this->_responseGet($response);
+        }
         return $response;
     }
 
