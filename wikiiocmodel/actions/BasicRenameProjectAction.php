@@ -5,7 +5,7 @@
  */
 if (!defined("DOKU_INC")) die();
 
-class BasicRenameProjectAction extends BasicViewProjectAction {
+class BasicRenameProjectAction extends ViewProjectAction {
 
     protected function runAction() {
         $model = $this->getModel();
