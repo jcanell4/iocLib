@@ -303,6 +303,12 @@ class RawPartialPageAction extends EditPageAction {
         return $resp;
     }
 
+
+    /**
+     * Això no es fa servir, es va descartar perquè la edició de documents parcials en l'editor
+     * WYSIWYG donava molts problemes i la execució de pandoc no acabava de funcionar bé.
+     * @deprecated
+     */
     protected function translateToDW($text){
 
 
@@ -314,6 +320,11 @@ class RawPartialPageAction extends EditPageAction {
         return $trans->getRenderedContent($trans->getInstructions($text));
     }
 
+    /**
+     * Això no es fa servir, es va descartar perquè la edició de documents parcials en l'editor
+     * WYSIWYG donava molts problemes i la execució de pandoc no acabava de funcionar bé.
+     * @deprecated
+     */
     protected function translateToHTML($text){
         $trans = new DikuWiki2MarkDownTranslator();
         $mdFormat=$trans->getRenderedContent($trans->getInstructions($text));
