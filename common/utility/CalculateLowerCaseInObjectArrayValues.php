@@ -8,9 +8,10 @@ class CalculateLowerCaseInObjectArrayValues extends CalculateFromValues {
     const FIELD_TO_ADD_PARAM = "fieldToAdd";
 
     public function calculate($data) {
-        $table = $this->getVariable($data['table']);
-        foreach ($table as $row) {
-            $row[$data['field']] = strtolower($row[$data['field']]);
+        $values = $this->getVariable('values');
+        $table = $this->castToArray($values[$data['table']]);
+        foreach ($table as $k => $row) {
+            $table[$k][$data['field']] = strtolower($row[$data['field']]);
         }
         return $table;
     }
