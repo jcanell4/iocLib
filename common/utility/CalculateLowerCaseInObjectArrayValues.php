@@ -7,11 +7,12 @@ class CalculateLowerCaseInObjectArrayValues extends CalculateFromValues {
 
     public function calculate($data) {
         $values = $this->getValues();
+        $isArray = is_array($values[$data['table']]);
         $table = $this->castToArray($values[$data['table']]);
         foreach ($table as $k => $row) {
             $table[$k][$data['field']] = strtolower($row[$data['field']]);
         }
-        return json_encode($table);
+        return ($isArray) ? $table : json_encode($table);
     }
 
 }
