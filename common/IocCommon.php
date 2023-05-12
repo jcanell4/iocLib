@@ -275,6 +275,24 @@ class IocCommon {
         }
     }
 
+    /**
+     * Extreu la propietat 'title' d'una construcció del tipus externallink o media
+     * @param string $title - Cadena en format JSON que conté les diverses posibilitats de títol
+     * @param string $type - 'pdf', 'html', 'default'
+     * @return string
+     */
+    public static function formatTitleExternalLink($title="", $type="default") {
+        if (!empty($title) && $title[0] === "[") {
+            $title = str_replace(['[',']','&quot;'], ['{','}','"'], $title);  //format JSON
+            //$arr_titol = preg_replace("/^{([a-z]+?):(.*?)(,\s*)([a-z]+?):(.*?)}$/", '{$1":"$2"$3"$4":"$5}', $title);
+            $arr_titol = json_decode($title, true);
+            if ($arr_titol) {
+                $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
+            }
+        }
+        return $title;
+    }
+
     public static function removeDir($directory) {
         if (!file_exists($directory) || !is_dir($directory)) {
             $ret = FALSE;
