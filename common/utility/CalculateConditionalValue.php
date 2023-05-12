@@ -7,7 +7,9 @@
  *   - valueIfFalse: És valor a retornar si la condició avalua a fals.
  * 
  * EXEMPLE 1:
- * ...
+ * ...//calculate on read si ve de fora la dada
+ * ...//calculate on save, si depén dels meus propis valors. Té sentit per un camp que apareix buit i que es readonly, així que es mostrarà després de guardar. 
+ * 
  * "calculateOnSave":{
  *      "class": "CalculateConditionalValue",
  *      "data:{
@@ -17,7 +19,7 @@
     *              {
     *                  "_type_":"field",
     *                  "name":"durada",
-    *                  "values":"$values"
+    *                  "values":"$values" // per obtenir el camp durada que esta a $values
     *              },
     *              "anual"
     *          ],
