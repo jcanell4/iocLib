@@ -277,20 +277,42 @@ class IocCommon {
 
     /**
      * Extreu la propietat 'title' d'una construcció del tipus externallink o media
-     * @param string $title - Cadena en format JSON que conté les diverses posibilitats de títol
-     * @param string $type - 'pdf', 'html', 'default'
+     * @param string $render - Objecte sol·licitant: 'link', 'media'
+     * @param string $type - 'pdf', 'html'
+     * @param string $comment - Cadena en format: 'JSON', 'amb #' o 'string', que conté les diverses posibilitats de títol
      * @return string
      */
-    public static function formatTitleExternalLink($title="", $type="default") {
-        if (!empty($title) && $title[0] === "[") {
-            $title = str_replace(['[',']','&quot;'], ['{','}','"'], $title);  //format JSON
-            //$arr_titol = preg_replace("/^{([a-z]+?):(.*?)(,\s*)([a-z]+?):(.*?)}$/", '{$1":"$2"$3"$4":"$5}', $title);
-            $arr_titol = json_decode($title, true);
-            if ($arr_titol) {
-                $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
+    public static function formatTitleExternalLink($render, $type, $comment="") {
+        $ret = $comment;
+        if (!empty($comment)) {
+            if ($comment[0] === "[") {
+                $comment = str_replace(['[',']','&quot;'], ['{','}','"'], $comment);  //format JSON
+                $arr_titol = json_decode($comment, true);
+                if ($arr_titol) {
+                    $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
+                    if ($render == "media") {
+                        $alt = ($arr_titol['alt']) ? $arr_titol['alt'] : $title;
+                        $ret = ["title" => $title, "alt" => $alt];
+                    }else {
+                        $ret = $title;
+                    }
+                }
+            }elseif (strpos($comment, "#") !== FALSE) {
+                $title = $comment;
+                if (preg_match("/(?<!&amp;)#|\#(?!\d+;)/", $comment)) {
+                    $s = preg_split("/(?<!&amp;)#|\#(?!\d+;)/", $comment);
+                    $title = $s[0];
+                    $alt = preg_replace('/\/[+-]?\d+$/', '', $s[1]); //elimina el 'offset'
+                }
+                if ($render == "media") {
+                    $alt = ($arr_titol['alt']) ? $arr_titol['alt'] : $title;
+                    $ret = ["title" => $title, "alt" => $alt];
+                }else {
+                    $ret = $title;
+                }
             }
         }
-        return $title;
+        return $ret;
     }
 
     public static function removeDir($directory) {
