@@ -291,21 +291,25 @@ class IocCommon {
                 if ($arr_titol) {
                     $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
                     if ($render == "media") {
-                        $alt = ($arr_titol['alt']) ? $arr_titol['alt'] : $title;
-                        $ret = ["title" => $title, "alt" => $alt];
+                        $ret = ["title" => $title, "alt" => ($arr_titol['alt']) ? $arr_titol['alt'] : ""];
                     }else {
                         $ret = $title;
                     }
                 }
             }elseif (strpos($comment, "#") !== FALSE) {
                 $title = $comment;
-                if (preg_match("/(?<!&amp;)#|\#(?!\d+;)/", $comment)) {
-                    $s = preg_split("/(?<!&amp;)#|\#(?!\d+;)/", $comment);
+                $alt = "";
+                if (preg_match("/(?<!&amp;)#|\#(?!\d+;)/", $comment) || preg_match("/(?<!&)#|\#(?!\d+;)/", $comment)) {
+                    // busca &#39; o &amp;#39; (comilla simple o torturada per htmlentities())
+                    if (preg_match("/&amp;#\d+;/", $comment)) {
+                        $s = preg_split("/(?<!&amp;)#|\#(?!\d+;)/", $comment);
+                    }elseif (preg_match("/&#\d+;/", $comment)) {
+                        $s = preg_split("/(?<!&)#|\#(?!\d+;)/", $comment);
+                    }
                     $title = $s[0];
                     $alt = preg_replace('/\/[+-]?\d+$/', '', $s[1]); //elimina el 'offset'
                 }
                 if ($render == "media") {
-                    $alt = ($arr_titol['alt']) ? $arr_titol['alt'] : $title;
                     $ret = ["title" => $title, "alt" => $alt];
                 }else {
                     $ret = $title;
