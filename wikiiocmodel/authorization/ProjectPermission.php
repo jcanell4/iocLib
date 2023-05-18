@@ -65,12 +65,14 @@ class ProjectPermission extends BasicPermission {
     public function setResponsable($responsable) {
         if (is_string($responsable) && !empty($responsable)){
             $this->responsable = preg_split("/[\s,]+/", $responsable);
+            $this->addUserInGroup($this->responsable);
         }
     }
 
     public function setAuthor($author) {
         if (is_string($author) && !empty($author)){
             $this->author = preg_split("/[\s,]+/", $author);
+            $this->addUserInGroup($this->author);
         }
     }
 
@@ -99,14 +101,23 @@ class ProjectPermission extends BasicPermission {
     public function setRoleMembers($role, $member=NULL){
         if (is_string($member) && !empty($member)){
             $this->roleMembers[$role] = preg_split("/[\s,]+/", $member);
+            $this->addUserInGroup($this->roleMembers[$role]);
+        }
+    }
 
-            $user = WikiIocInfoManager::getInfo('client');
-            $grups = WikiIocInfoManager::getInfo('userinfo')['grps'];
-            foreach ($this->roleMembers[$role] as $name) {
-                if ($name[0] == "@") {
-                    if (in_array(substr($name, 1), $grups)) {
-                        array_push($this->roleMembers[$role], $user);
-                    }
+    /**
+     * Si en la lista de usuarios hay un grupo (indicado por @), añade
+     * el nombre del usuario actual a esa lista pasada por referencia
+     * @param array $userslist - Array de usuarios
+     */
+    protected function addUserInGroup(&$userslist) {
+        foreach ($userslist as $name) {
+            if ($name[0] == "@") {
+                $user = WikiIocInfoManager::getInfo('client');
+                $grups = WikiIocInfoManager::getInfo('userinfo')['grps'];
+                if (in_array(substr($name, 1), $grups)) {
+                    array_push($userslist, $user);
+                    break;
                 }
             }
         }
