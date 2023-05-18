@@ -93,18 +93,22 @@ class ProjectPermission extends BasicPermission {
     }
     
     public function getRoleMembers($role=NULL){
-        if($role==NULL){
-            $ret=$this->roleMembers;
-        }else{
-            $ret=$this->roleMembers[$role];            
-        }
-                
-        return $ret;
+        return (empty($role)) ? $this->roleMembers : $this->roleMembers[$role];
     }
     
     public function setRoleMembers($role, $member=NULL){
         if (is_string($member) && !empty($member)){
             $this->roleMembers[$role] = preg_split("/[\s,]+/", $member);
+
+            $user = WikiIocInfoManager::getInfo('client');
+            $grups = WikiIocInfoManager::getInfo('userinfo')['grps'];
+            foreach ($this->roleMembers[$role] as $name) {
+                if ($name[0] == "@") {
+                    if (in_array(substr($name, 1), $grups)) {
+                        array_push($this->roleMembers[$role], $user);
+                    }
+                }
+            }
         }
     }
 
