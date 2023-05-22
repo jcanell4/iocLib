@@ -111,8 +111,7 @@
             columnAlign: 'right', // left | right
             beforeContainer: 'p, ul, ol', // selectors per col·locar l'element abans per amplada d'escriptori
             icon: false, // si s'assigna un icon es farà servir aquest, en lloc d'intentar cercar-lo
-            defaultIcon: '../../../img/iocinclude.png', // Icona per defecte per desplegar els elements en
-                                                        // amplada mòbil
+            defaultIcon: 'img/iocinclude.png', // Icona per defecte per desplegar els elements en amplada mòbil
             lateralMargin: '2em', // Marge lateral de la columna
             debug: false, // Si és cert mostra un requadre vermell o verd segons si s'ha desplaçat el bloc
                           // de contingut (la nota, la imatge lateral, el text, etc.) o no.

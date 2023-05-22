@@ -104,6 +104,8 @@ abstract class AbstractCalculate implements ICalculate{
                 $operation =$this->getParamValue($value["operation"]);
                 $ret = $this->getOperationResult($values, $operation);
                 break;
+            case "literal":
+                $ret = $this->getParamValue($value["value"]);
             default :
                 throw new Exception("No hi ha cap tipus estructurat en el sistema \"Calculate\" anomenat \"{$value["_type_"]}\".");
         }

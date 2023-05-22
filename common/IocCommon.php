@@ -275,6 +275,50 @@ class IocCommon {
         }
     }
 
+    /**
+     * Extreu la propietat 'title' d'una construcció del tipus externallink o media
+     * @param string $render - Objecte sol·licitant: 'link', 'media'
+     * @param string $type - 'pdf', 'html'
+     * @param string $comment - Cadena en format: 'JSON', 'amb #' o 'string', que conté les diverses posibilitats de títol
+     * @return string
+     */
+    public static function formatTitleExternalLink($render, $type, $comment="") {
+        $ret = $comment;
+        if (!empty($comment)) {
+            if ($comment[0] === "[") {
+                $comment = str_replace(['[',']','&quot;'], ['{','}','"'], $comment);  //format JSON
+                $arr_titol = json_decode($comment, true);
+                if ($arr_titol) {
+                    $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
+                    if ($render == "media") {
+                        $ret = ["title" => $title, "alt" => ($arr_titol['alt']) ? $arr_titol['alt'] : ""];
+                    }else {
+                        $ret = $title;
+                    }
+                }
+            }elseif (strpos($comment, "#") !== FALSE) {
+                $title = $comment;
+                $alt = "";
+                if (preg_match("/(?<!&amp;)#|\#(?!\d+;)/", $comment) || preg_match("/(?<!&)#|\#(?!\d+;)/", $comment)) {
+                    // busca &#39; o &amp;#39; (comilla simple o torturada per htmlentities())
+                    if (preg_match("/&amp;#\d+;/", $comment)) {
+                        $s = preg_split("/(?<!&amp;)#|\#(?!\d+;)/", $comment);
+                    }elseif (preg_match("/&#\d+;/", $comment)) {
+                        $s = preg_split("/(?<!&)#|\#(?!\d+;)/", $comment);
+                    }
+                    $title = $s[0];
+                    $alt = preg_replace('/\/[+-]?\d+$/', '', $s[1]); //elimina el 'offset'
+                }
+                if ($render == "media") {
+                    $ret = ["title" => $title, "alt" => $alt];
+                }else {
+                    $ret = $title;
+                }
+            }
+        }
+        return $ret;
+    }
+
     public static function removeDir($directory) {
         if (!file_exists($directory) || !is_dir($directory)) {
             $ret = FALSE;
