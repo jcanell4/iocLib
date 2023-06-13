@@ -470,7 +470,7 @@ class RowInstruction extends AbstractInstruction
 class FunctionInstruction extends AbstractInstruction
 {
     static public $className = "FunctionInstruction";
-    static protected $pattern = "/(.*?)\((.*?)\)/ms";
+    static protected $pattern = "/(.*?)\((.*?)\)$/ms";
 
     static public function match($text)
     {
@@ -489,6 +489,7 @@ class FunctionInstruction extends AbstractInstruction
         $funcName = $matches[1];
         // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
 
+        $params = ResolveValues::resolve($matches[2], $matches[2]);
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
         $parsedParams = [];
