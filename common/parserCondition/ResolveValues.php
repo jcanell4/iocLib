@@ -83,20 +83,52 @@ class rslvExtractString {
 
 }
 
-class ListParserValues {
+class analysisResolver {
 
-    private $values;
+//    private $af = [];       //array de noms de funcions
+//    private $nf = 0;        //nivell de la funció actual
+//    private $prnts = 0;     //nivell de paréntesis
+//    private $ap = [];       //array de paràmetres
+//    private $np = 0;        //número de paràmetre de la funció actual
+//    private $ic = false;    //inicio comillas
 
     public function __construct() {
-        $this->values = [
-            rslvExtractString::$className,
-        ];
+
     }
 
-    public function parse($text = null, $arrays = [], $dataSource = []) {
-        foreach ($this->values as $value) {
-            if (call_user_func([$value, 'match'], $text)) {
-                return (new $value($this))->getValue($text, $arrays, $dataSource);
+    public function analysis($sentence) {
+        $af = [];       //array de noms de funcions
+        $nf = 0;        //nivell de la funció actual (nivell de paréntesis)
+        $ap = [];       //array de paràmetres
+        $np = 0;        //número de paràmetre de la funció actual
+        $ic = false;    //inicio comillas
+
+        for ($i = 0; $i < strlen($sentence); $i++) {
+            switch ($sentence[$i]) {
+                case '(':
+                    $nf++;
+                    break;
+                case ')':
+                    $nf--;
+                    break;
+                case '"':
+                case "'":
+                    $ic = !$ic;
+                    if ($ic) $np++;
+                    $ap[$nf][$np] .= $sentence[$i];
+                    break;
+                case preg_match('/^\w/', $sentence[$i]):
+                    if ($ic) {
+                        $ap[$nf][$np] .= $sentence[$i];
+                    }else {
+                        $af[$nf] .= $sentence[$i];
+                    }
+                    break;
+                default:
+                    if ($ic) {
+                        $ap[$nf][$np] .= $sentence[$i];
+                    }
+                    break;
             }
         }
         return null;
