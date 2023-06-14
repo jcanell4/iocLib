@@ -44,42 +44,6 @@ class ResolveValues extends abstractResolveValues {
 
 }
 
-class rslvExtractQString {
-    public static $className = "rslvExtractQString";
-    protected static $pattern = '/^(".*?[^\\\\]")(?:(,|))/';
-
-    public static function match($param) {
-        return (bool)preg_match(self::$pattern, $param);
-    }
-
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-        $result[] = $match[1];
-        return $result;
-    }
-
-}
-
-class rslvExtractString {
-    public static $className = "rslvExtractString";
-    protected static $pattern = '/^(\w+)(?:(,|))/';
-
-    public static function match($param) {
-        return (bool)preg_match(self::$pattern, $param);
-    }
-
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-        $result[] = $match[1];
-        return $result;
-    }
-
-}
-
 class rslvResolveFunction {
     public static $className = "rslvResolveFunction";
     protected static $pattern = '/^(\w+)(\(.*)/';
@@ -114,6 +78,44 @@ class rslvResolveObject {
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
+    }
+
+}
+
+class rslvExtractQString {
+    //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
+    public static $className = "rslvExtractQString";
+    protected static $pattern = '/^(".*?[^\\\\]")(?:(,|))/';
+
+    public static function match($param) {
+        return (bool)preg_match(self::$pattern, $param);
+    }
+
+    public static function getValue($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
+        $result[] = $match[1];
+        return $result;
+    }
+
+}
+
+class rslvExtractString {
+    //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
+    public static $className = "rslvExtractString";
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(?:,|[^\(\w])/';
+
+    public static function match($param) {
+        return (bool)preg_match(self::$pattern, $param);
+    }
+
+    public static function getValue($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
+        $result[] = $match[1];
+        return $result;
     }
 
 }
