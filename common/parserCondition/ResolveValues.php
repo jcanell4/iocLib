@@ -1,84 +1,119 @@
 <?php
 
 abstract class abstractResolveValues {
+    protected $result = [];
 
-    protected static $result = [];
-
-    public static function setResult($result) {
-        self::$result[] = $result;
+    public function setResult($result) {
+        $this->result[] = $result;
     }
 
-    public static function getResult() {
-        return self::$result;
+    public function getResult() {
+        return $this->result;
     }
 
 }
 
 class ResolveValues extends abstractResolveValues {
-    
     private $values;
 
     public function __construct() {
         $this->values = [
+            rslvExtractQString::$className,
             rslvExtractString::$className,
             rslvResolveFunction::$className,
+            rslvResolveArray::$className,
+            rslvResolveObject::$className
         ];
     }
 
-    public static function resolve($param, $full_param) {
+    public function resolve($param) {
         while ($param) {
             foreach ($this->values as $value) {
                 if (call_user_func([$value, 'match'], $param)) {
                     $result = (new $value($this))->getValue($param);
                     $param = $result[0];
                     if (isset($result[1])) {
-                        self::setResult($result[1]);
+                        $this->setResult($result[1]);
                     }
+                    break;
                 }
             }
         }
+        return $this->getResult();
     }
 
 }
 
-class rslvResolveFunction {
-
-    public static $className = "rslvResolveFunction";
-    protected static $pattern = '/([A-Z]+\(.*\))(?=,|$)/';
+class rslvExtractQString {
+    public static $className = "rslvExtractQString";
+    protected static $pattern = '/^(".*?[^\\\\]")(?:(,|))/';
 
     public static function match($param) {
-        return (bool)(preg_match("/[^A-Z]/", $param[0]));
+        return (bool)preg_match(self::$pattern, $param);
     }
 
     public static function getValue($param) {
         $result = [];
-            preg_match(self::$pattern, $param, $match);
-            $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-            $result[] = $match[0];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
+        $result[] = $match[1];
         return $result;
     }
 
 }
 
 class rslvExtractString {
-
     public static $className = "rslvExtractString";
-    protected static $pattern = '/(".*?")/';
+    protected static $pattern = '/^(\w+)(?:(,|))/';
 
     public static function match($param) {
-        return (bool)($param[0] == '"');
+        return (bool)preg_match(self::$pattern, $param);
     }
 
     public static function getValue($param) {
         $result = [];
-        if ($param[0] == '"') {
-            preg_match(self::$pattern, $param, $match);
-            $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-            $result[] = $match[0];
-        }else {
-            $result[] = $param;
-        }
+        preg_match(self::$pattern, $param, $match);
+        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
+        $result[] = $match[1];
         return $result;
+    }
+
+}
+
+class rslvResolveFunction {
+    public static $className = "rslvResolveFunction";
+    protected static $pattern = '/^(\w+)(\(.*)/';
+
+    public static function match($param) {
+        return (bool)(preg_match(self::$pattern, $param[0]));
+    }
+
+    public static function getValue($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
+        $result[] = $match[0];
+        return $result;
+    }
+
+}
+
+class rslvResolveArray {
+    public static $className = "rslvResolveArray";
+    protected static $pattern = '/^(\[.*?[^\\]\])(?:(,|))/';
+
+    public static function match($param) {
+        return (bool)preg_match(self::$pattern, $param);
+    }
+
+}
+
+class rslvResolveObject {
+    public static $className = "rslvResolveObject";
+    protected static $pattern = '/^({.*?[^\\]})(?:(,|))/';
+
+    public static function match($param) {
+        return (bool)preg_match(self::$pattern, $param);
     }
 
 }
@@ -93,7 +128,6 @@ class analysisResolver {
 //    private $ic = false;    //inicio comillas
 
     public function __construct() {
-
     }
 
     public function analysis($sentence) {
@@ -101,9 +135,10 @@ class analysisResolver {
         $nf = 0;        //nivell de la funció actual (nivell de paréntesis)
         $ap = [];       //array de paràmetres
         $np = 0;        //número de paràmetre de la funció actual
-        $ic = false;    //inicio comillas
+        $ic = false;    //inici cometes
+        $ip = false;    //inici paràmetre
 
-        for ($i = 0; $i < strlen($sentence); $i++) {
+        for ($i = 0; $i < strlen($sentence); $i++) { $s = $sentence[$i];
             switch ($sentence[$i]) {
                 case '(':
                     $nf++;
@@ -111,13 +146,21 @@ class analysisResolver {
                 case ')':
                     $nf--;
                     break;
+
+                case ',':
+                    $ip = true;
+                    $np++;
+                    break;
+
                 case '"':
                 case "'":
                     $ic = !$ic;
-                    if ($ic) $np++;
+                    if ($ic && !$ip) $np++;
+                    $ip = false;
                     $ap[$nf][$np] .= $sentence[$i];
                     break;
-                case preg_match('/^\w/', $sentence[$i]):
+
+                case preg_match('/\w/', $sentence[$i], $matches):
                     if ($ic) {
                         $ap[$nf][$np] .= $sentence[$i];
                     }else {
@@ -131,7 +174,7 @@ class analysisResolver {
                     break;
             }
         }
-        return null;
+        return ["af"=>$af, "ap"=>$ap];
     }
 
 }
