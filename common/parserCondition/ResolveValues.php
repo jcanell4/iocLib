@@ -24,10 +24,10 @@ abstract class abstractResolveValues {
 }
 
 class ResolveValues extends abstractResolveValues {
-    private $resolvers;
+    private static $resolvers;
 
     public function __construct() {
-        $this->resolvers = [
+        self::$resolvers = [
             rslvResolveFunction::$className,
             rslvExtractQString::$className,
             rslvExtractString::$className,
@@ -37,19 +37,24 @@ class ResolveValues extends abstractResolveValues {
     }
 
     public function resolve($param, &$pila=[], &$nf=0) {
+        return $this->_resolve($param, $pila, $nf);
+    }
+
+    public function _resolve($param, &$pila=[], &$nf=0) {
         while ($param) {
-            foreach ($this->resolvers as $resolver) {
+            foreach (self::$resolvers as $resolver) {
                 if (call_user_func([$resolver, 'match'], $param)) {
                     //$result = (new $resolver($this))->getValue($param);
                     $result = $resolver::getValue($param, $pila, $nf);
                     $param = $result[0];
-                    if (isset($result[1]))
-                        $this->setResult($result[1]);
+//                    if (isset($result[1]))
+//                        $this->setResult($result[1]);
                     break;
                 }
             }
         }
-        return $this->getResult();
+        return $pila;
+        //return $this->getResult();
     }
 
 }
@@ -66,9 +71,10 @@ class rslvResolveFunction extends abstractResolveValues {
         $result = [];
         preg_match(self::$pattern, $param, $match);
         $result[] = $match[2];
-        $result[] = ["f_$nf" => [$match[1]]];
         $nf++;
-        $pila[]["f_$nf"] = [$match[1]];
+        $result["f_$nf"] = [$match[1]];
+        $pila["f_$nf"] = [$match[1]];
+        $rslt = ResolveValues::_resolve($result[0], $pila["f_$nf"], $nf);
         return $result;
     }
 
@@ -76,20 +82,28 @@ class rslvResolveFunction extends abstractResolveValues {
 
 class rslvResolveArray extends abstractResolveValues {
     public static $className = "rslvResolveArray";
-    protected static $pattern = '/^(\[.*?[^\\]\])(?:(,|))/m';
+    protected static $pattern = '/^(\[.*?[^\\\\]\])(?:(,|))/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
+    }
+    public static function getValue($param, &$pila=[], &$nf=0) {
+        $result = [];
+        return $result;
     }
 
 }
 
 class rslvResolveObject {
     public static $className = "rslvResolveObject";
-    protected static $pattern = '/^({.*?[^\\]})(?:(,|))/';
+    protected static $pattern = '/^({.*?[^\\\\]})(?:(,|))/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
+    }
+    public static function getValue($param, &$pila=[], &$nf=0) {
+        $result = [];
+        return $result;
     }
 
 }
