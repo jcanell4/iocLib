@@ -1,80 +1,65 @@
 <?php
 
 abstract class abstractResolveValues {
-    protected $result = [];
-    protected $pila = [];
-    protected $nf = 0;  //nivell de funció
+    protected $name;
+    protected $toParse;
 
-    public function setResult($result) {
-        $this->result[] = $result;
-    }
-
-    public function getResult() {
-        return $this->result;
-    }
-
-    public function setPila($pila) {
-        $this->pila[] = $pila;
-    }
-
-    public function getPila() {
-        return $this->pila;
+    public function init($name, $toParse) {
+        $this->name = $name;
+        $this->toParse = $toParse;
     }
 
 }
 
-class ResolveValues extends abstractResolveValues {
-    private static $resolvers;
+abstract class stackResolveValues extends abstractResolveValues {
+    protected $pila = [];
+    protected $resolvers = [
+                "rslvResolveFunction",
+                "rslvExtractQString",
+                "rslvExtractString",
+                "rslvResolveArray",
+                "rslvResolveObject"
+            ];
 
-    public function __construct() {
-        self::$resolvers = [
-            rslvResolveFunction::$className,
-            rslvExtractQString::$className,
-            rslvExtractString::$className,
-            rslvResolveArray::$className,
-            rslvResolveObject::$className
-        ];
-    }
-
-    public function resolve($param, &$pila=[], &$nf=0) {
-        return $this->_resolve($param, $pila, $nf);
-    }
-
-    public function _resolve($param, &$pila=[], &$nf=0) {
+    public function parse($param) {
         while ($param) {
-            foreach (self::$resolvers as $resolver) {
+            foreach ($this->resolvers as $resolver) {
                 if (call_user_func([$resolver, 'match'], $param)) {
-                    //$result = (new $resolver($this))->getValue($param);
-                    $result = $resolver::getValue($param, $pila, $nf);
-                    $param = $result[0];
-//                    if (isset($result[1]))
-//                        $this->setResult($result[1]);
-                    break;
+                    $instance = new $resolver();
+                    $instance->init($param[0], $param[1]);
+                    $toParse = $instance->parse($param);
+                    $this->pila = $instance;
                 }
             }
         }
-        return $pila;
-        //return $this->getResult();
+        return $toParse;
     }
 
 }
 
-class rslvResolveFunction extends abstractResolveValues {
+class ResolveValues extends stackResolveValues {
+
+    public function resolve($param) {
+        $toParse = $this->parse($param);
+        return $toParse;
+    }
+
+}
+
+class rslvResolveFunction extends stackResolveValues {
     public static $className = "rslvResolveFunction";
-    protected static $pattern = '/^(\w+)\((.*)/';
+    protected static $pattern = '/^(\w+)(\()(.*)/';
 
     public static function match($param) {
         return (bool)(preg_match(self::$pattern, $param));
     }
 
-    public static function getValue($param, &$pila=[], &$nf=0) {
+    public function parse($param) {
         $result = [];
         preg_match(self::$pattern, $param, $match);
+        $result[] = $match[0];
+        $result[] = $match[1];
         $result[] = $match[2];
-        $nf++;
-        $result["f_$nf"] = [$match[1]];
-        $pila["f_$nf"] = [$match[1]];
-        $rslt = ResolveValues::_resolve($result[0], $pila["f_$nf"], $nf);
         return $result;
     }
 
@@ -87,8 +72,9 @@ class rslvResolveArray extends abstractResolveValues {
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
-    public static function getValue($param, &$pila=[], &$nf=0) {
+    public static function getValue($param, &$pila=[], &$nf=0, &$na=0, &$no=0) {
         $result = [];
+        preg_match(self::$pattern, $param, $match);
         return $result;
     }
 
@@ -101,8 +87,9 @@ class rslvResolveObject {
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
-    public static function getValue($param, &$pila=[], &$nf=0) {
+    public static function getValue($param, &$pila=[], &$nf=0, &$na=0, &$no=0) {
         $result = [];
+        preg_match(self::$pattern, $param, $match);
         return $result;
     }
 
@@ -111,18 +98,25 @@ class rslvResolveObject {
 class rslvExtractQString extends abstractResolveValues {
     //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
     public static $className = "rslvExtractQString";
-    protected static $pattern = '/^(".*?[^\\\\]")(?:(,|))/';
+    protected static $pattern = '/^(".*?[^\\]")(,|$|\W[^\(\w])/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue($param, &$pila=[]) {
+    public static function getValue($param, &$pila=[], &$nf=0, &$na=0, &$no=0) {
         $result = [];
         preg_match(self::$pattern, $param, $match);
         $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-        $result[] = $match[1];
-        $pila[] = $match[1];
+        $result[] = $match[0];
+        $pila[] = $match[0];
+        for ($i=0; $i<strlen($match[1]); $i++) {
+            switch ($match[1][$i]) {
+                case ")": $nf--; break;
+                case "]": $na--; break;
+                case "}": $no--; break;
+            }
+        }
         return $result;
     }
 
@@ -131,18 +125,25 @@ class rslvExtractQString extends abstractResolveValues {
 class rslvExtractString extends abstractResolveValues {
     //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
     public static $className = "rslvExtractString";
-    protected static $pattern = '/^(\w+(?:\.\d+)?)(?:,|[^\(\w])?/';
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue($param, &$pila=[]) {
+    public static function getValue($param, &$pila=[], &$nf=0, &$na=0, &$no=0) {
         $result = [];
         preg_match(self::$pattern, $param, $match);
         $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
         $result[] = $match[1];
         $pila[] = $match[1];
+        for ($i=0; $i<strlen($match[2]); $i++) {
+            switch ($match[2][$i]) {
+                case ")": $nf--; break;
+                case "]": $na--; break;
+                case "}": $no--; break;
+            }
+        }
         return $result;
     }
 
