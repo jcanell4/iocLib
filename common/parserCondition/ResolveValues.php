@@ -2,37 +2,69 @@
 
 abstract class abstractResolveValues {
     protected $name;
+    protected $delimiter;
     protected $toParse;
 
-    public function init($name, $toParse) {
+    public function init($name="", $toParse="", $delimiter="") {
         $this->name = $name;
         $this->toParse = $toParse;
+        $this->delimiter = $delimiter;
     }
+/*
+ * Expresión regular para extraer los parámetros, separados por comas, de una función
+(?(DEFINE)
+  (?<functionname>
+    [^\W\d]\w*
+  )
 
+  (?<string>
+    (?<quote>["'])
+    (?:\\.|(?!\k<quote>).)*
+    \k<quote>
+  )
+  (?<number>
+    \d+(?:\.\d+)?
+  )
+  (?<functioncall>
+    \g<functionname>\(\s*
+    \g<expression>(?:\s*,\s*\g<expression>)*
+    \s*\)
+  )
+
+  (?<expression>
+    \g<string>|\g<number>
+  |
+    \g<functioncall>|\g<functionname>
+  )
+)
+
+(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)
+*/
 }
 
-abstract class stackResolveValues extends abstractResolveValues {
-    protected $pila = [];
-    protected $resolvers = [
+class stackResolveValues extends abstractResolveValues {
+    private $resolvers = [
                 "rslvResolveFunction",
                 "rslvExtractQString",
                 "rslvExtractString",
                 "rslvResolveArray",
                 "rslvResolveObject"
             ];
+    protected $pila = [];
 
     public function parse($param) {
         while ($param) {
             foreach ($this->resolvers as $resolver) {
                 if (call_user_func([$resolver, 'match'], $param)) {
                     $instance = new $resolver();
-                    $instance->init($param[0], $param[1]);
-                    $toParse = $instance->parse($param);
-                    $this->pila = $instance;
+                    $extract = $instance->extract($param);
+                    $instance->init($extract[0], $extract[2], $extract[1]);
+                    $this->toParse = $instance->parse($extract[2]);
+                    $this->pila[] = $instance;
                 }
             }
         }
-        return $toParse;
+        return $this->toParse;
     }
 
 }
@@ -40,8 +72,7 @@ abstract class stackResolveValues extends abstractResolveValues {
 class ResolveValues extends stackResolveValues {
 
     public function resolve($param) {
-        $toParse = $this->parse($param);
-        return $toParse;
+        return parent::parse($param);
     }
 
 }
@@ -57,15 +88,23 @@ class rslvResolveFunction extends stackResolveValues {
     public function parse($param) {
         $result = [];
         preg_match(self::$pattern, $param, $match);
+        $result[] = trim($match[0]);
+        $result[] = trim($match[1]);
+        $result[] = trim($match[2]);
+        return $result;
+    }
+
+    public static function extract($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
         $result[] = $match[0];
-        $result[] = $match[1];
-        $result[] = $match[2];
+        $result[] = $match[1] . $match[2];
         return $result;
     }
 
 }
 
-class rslvResolveArray extends abstractResolveValues {
+class rslvResolveArray extends stackResolveValues {
     public static $className = "rslvResolveArray";
     protected static $pattern = '/^(\[.*?[^\\\\]\])(?:(,|))/';
 
@@ -95,10 +134,11 @@ class rslvResolveObject {
 
 }
 
-class rslvExtractQString extends abstractResolveValues {
+class rslvExtractQString extends stackResolveValues {
     //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
     public static $className = "rslvExtractQString";
-    protected static $pattern = '/^(".*?[^\\]")(,|$|\W[^\(\w])/';
+    //protected static $pattern = '/^(".*?[^\\]")(,|$|\W[^\(\w])/';
+    protected static $pattern = '/^(".*?[^\\]")(,|$|\W[^\(\w])(.*)$/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
@@ -120,12 +160,21 @@ class rslvExtractQString extends abstractResolveValues {
         return $result;
     }
 
+    public static function extract($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = $match[0];
+        $result[] = $match[1] . $match[2];
+        return $result;
+    }
+
 }
 
-class rslvExtractString extends abstractResolveValues {
+class rslvExtractString extends stackResolveValues {
     //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
     public static $className = "rslvExtractString";
-    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
+    //protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])(.*)$/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
@@ -144,6 +193,15 @@ class rslvExtractString extends abstractResolveValues {
                 case "}": $no--; break;
             }
         }
+        return $result;
+    }
+
+    public static function extract($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = trim($match[1]);
+        $result[] = trim($match[2]);
+        $result[] = trim($match[3]);
         return $result;
     }
 
