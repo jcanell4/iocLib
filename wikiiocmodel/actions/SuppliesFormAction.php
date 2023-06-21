@@ -304,7 +304,7 @@ class SuppliesFormAction extends AdminAction {
         $attrs = ['_text' => "condició ${n}:&nbsp;",
                   'name' => "condicio_${n}_grup_${grup}",
                   'type' => "text",
-                  'size' => "35",
+                  'size' => "70",
                   'value' => $value];
         $this->_creaElement($form, $ret, $value, $attrs, $grup);
         $this->_creaBotoEliminaCondicio($form, $n, $grup, "Condició");
