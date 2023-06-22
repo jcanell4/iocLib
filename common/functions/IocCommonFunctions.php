@@ -5,7 +5,33 @@ class IocCommonFunctions
     public static function extractComaSeparatedValues($text) {
         $array = [];
         //Capture words comma separated values: ("\w+")[^,]?+
-        $patternParams = '/(?:^|,\s*)(?=[^"]|(")?)"?((?(1)[^"]*|[^,"]*))"?(?=,|$)/m';
+        //$patternParams = '/(?:^|,\s*)(?=[^"]|(")?)"?((?(1)[^"]*|[^,"]*))"?(?=,|$)/m';
+        // Expresión regular para extraer los parámetros, separados por comas, de una función
+        $patternParams = '/(?(DEFINE)'
+                          .'  (?<functionname>'
+                          .'    [^\W\d]\w*'
+                          .'  )'
+                          .'  (?<string>'
+                          .'    (?<quote>["\'])'
+                          .'    (?:\\.|(?!\k<quote>).)*'
+                          .'    \k<quote>'
+                          .'  )'
+                          .'  (?<number>'
+                          .'    \d+(?:\.\d+)?'
+                          .'  )'
+                          .'  (?<functioncall>'
+                          .'    \g<functionname>\(\s*'
+                          .'    \g<expression>(?:\s*,\s*\g<expression>)*'
+                          .'    \s*\)'
+                          .'  )'
+                          .'  (?<expression>'
+                          .'    \g<string>|\g<number>'
+                          .'    |'
+                          .'    \g<functioncall>|\g<functionname>'
+                          .'  )'
+                          .')'
+                          .'(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)/m';
+
         if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
 
             for ($i=0; $i<count($matchParams); $i++) {

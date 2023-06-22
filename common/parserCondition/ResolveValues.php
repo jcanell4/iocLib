@@ -60,7 +60,7 @@ class stackResolveValues extends abstractResolveValues {
                     $extract = $instance->extract($param);
                     $param = $extract[2];
                     $instance->init($extract[0], $extract[1], $param);
-                    if ($extract[1] != "," && !in_array($param[0], [")","]"])) {
+                    if ($extract[1] != "," && !in_array($extract[1][0], [",",")","]"]) && !in_array($param[0], [")","]"])) {
                         $this->toParse = $instance->parse($param);
                     }
                     $this->pila[] = $instance;
@@ -153,7 +153,7 @@ class rslvExtractQString extends stackResolveValues {
     //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
     public static $className = "rslvExtractQString";
     //protected static $pattern = '/^(".*?[^\\\\]")(,|$|\W[^\(\w])/';
-    protected static $pattern = '/^(".*?[^\\\\]")(,|$|\W[^\(\w])(.*)$/';
+    protected static $pattern = '/^(".*?[^\\\\]")(,|\(|\]|})?(.*)$/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
@@ -182,7 +182,7 @@ class rslvExtractString extends stackResolveValues {
     //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
     public static $className = "rslvExtractString";
     //protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
-    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])(.*)$/';
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|\(|\]|})?(.[^\(]*)$/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
