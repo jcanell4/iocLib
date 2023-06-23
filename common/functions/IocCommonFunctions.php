@@ -13,7 +13,7 @@ class IocCommonFunctions
                           .'  )'
                           .'  (?<string>'
                           .'    (?<quote>["\'])'
-                          .'    (?:\\.|(?!\k<quote>).)*'
+                          .'    (?:\\\\.|(?!\k<quote>).)*'
                           .'    \k<quote>'
                           .'  )'
                           .'  (?<number>'
@@ -30,7 +30,7 @@ class IocCommonFunctions
                           .'    \g<functioncall>|\g<functionname>'
                           .'  )'
                           .')'
-                          .'(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)/m';
+                          .'(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)/mx';
 
         if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
 

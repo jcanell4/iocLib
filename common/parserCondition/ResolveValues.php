@@ -10,36 +10,7 @@ abstract class abstractResolveValues {
         $this->delimiter = $delimiter;
         $this->toParse = $toParse;
     }
-/*
- * Expresión regular para extraer los parámetros, separados por comas, de una función
-(?(DEFINE)
-  (?<functionname>
-    [^\W\d]\w*
-  )
 
-  (?<string>
-    (?<quote>["'])
-    (?:\\.|(?!\k<quote>).)*
-    \k<quote>
-  )
-  (?<number>
-    \d+(?:\.\d+)?
-  )
-  (?<functioncall>
-    \g<functionname>\(\s*
-    \g<expression>(?:\s*,\s*\g<expression>)*
-    \s*\)
-  )
-
-  (?<expression>
-    \g<string>|\g<number>
-  |
-    \g<functioncall>|\g<functionname>
-  )
-)
-
-(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)
-*/
 }
 
 class stackResolveValues extends abstractResolveValues {
@@ -48,7 +19,8 @@ class stackResolveValues extends abstractResolveValues {
                 "rslvExtractQString",
                 "rslvExtractString",
                 "rslvResolveArray",
-                "rslvResolveObject"
+                "rslvResolveObject",
+                "rslvResolveTerminator"
             ];
     protected $pila = [];
 
@@ -60,10 +32,14 @@ class stackResolveValues extends abstractResolveValues {
                     $extract = $instance->extract($param);
                     $param = $extract[2];
                     $instance->init($extract[0], $extract[1], $param);
-                    if ($extract[1] != "," && !in_array($extract[1][0], [",",")","]"]) && !in_array($param[0], [")","]"])) {
+                    if (in_array($extract[0], [")","}","]"])) {
+                        return $param;
+                    }
+                    if ($extract[1] !== ",") {
                         $this->toParse = $instance->parse($param);
                     }
                     $this->pila[] = $instance;
+                    break;
                 }
             }
         }
@@ -124,7 +100,7 @@ class rslvResolveArray extends stackResolveValues {
 
 }
 
-class rslvResolveObject {
+class rslvResolveObject extends stackResolveValues {
     public static $className = "rslvResolveObject";
     //protected static $pattern = '/^({.*?[^\\\\]})(?:(,|))/';
     protected static $pattern = '/^({)(.*)$/';
@@ -149,11 +125,30 @@ class rslvResolveObject {
 
 }
 
+class rslvResolveTerminator extends stackResolveValues {
+    public static $className = "rslvResolveTerminator";
+    protected static $pattern = '/^(,|}|\]|\))(.*)$/';
+
+    public static function match($param) {
+        return (bool)preg_match(self::$pattern, $param);
+    }
+
+    public function extract($param) {
+        $result = [];
+        preg_match(self::$pattern, $param, $match);
+        $result[] = trim($match[1]);    //terminator
+        $result[] = trim($match[1]);
+        $result[] = trim($match[2]);
+        return $result;
+    }
+
+}
+
 class rslvExtractQString extends stackResolveValues {
     //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
     public static $className = "rslvExtractQString";
     //protected static $pattern = '/^(".*?[^\\\\]")(,|$|\W[^\(\w])/';
-    protected static $pattern = '/^(".*?[^\\\\]")(,|\(|\]|})?(.*)$/';
+    protected static $pattern = '/^(".*?[^\\\\]")(,|\)|\]|})?(.*)$/';
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
@@ -182,8 +177,9 @@ class rslvExtractString extends stackResolveValues {
     //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
     public static $className = "rslvExtractString";
     //protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
-    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|\(|\]|})?(.[^\(]*)$/';
-
+    //protected static $pattern = '/^(\w+(?:\.\d+)?)[^\(]?(,|\)|\]|})(.*)$/';
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|\)|\]|})?(.*)$/'; //Aquest inclou noms de funcions: nom(
+                                                                       //per tant s'ha d'executar després
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
