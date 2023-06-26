@@ -32,18 +32,19 @@ class stackResolveValues extends abstractResolveValues {
                     $extract = $instance->extract($param);
                     $param = $extract[2];
                     $instance->init($extract[0], $extract[1], $param);
-                    if (in_array($extract[0], [")","}","]"])) {
-                        return $param;
-                    }
-                    if ($extract[1] !== ",") {
-                        $this->toParse = $instance->parse($param);
+                    if ($extract[1] !== "," && !empty($extract[1])) {
+                        if (in_array($extract[1], [")","}","]"])) {
+                            return $extract[0];
+                        }else {
+                            $this->pila[] = $instance->parse($param);
+                        }
                     }
                     $this->pila[] = $instance;
                     break;
                 }
             }
         }
-        return $this->toParse;
+        return $this->pila;
     }
 
 }
@@ -51,7 +52,12 @@ class stackResolveValues extends abstractResolveValues {
 class ResolveValues extends stackResolveValues {
 
     public function resolve($param) {
-        return parent::parse($param);
+        $result = [];
+        $pilas = parent::parse($param);
+        foreach ($pilas as $p) {
+            $result[] = call_user_func([$p, 'getValue']);
+        }
+        return $result;
     }
 
 }
@@ -62,6 +68,15 @@ class rslvResolveFunction extends stackResolveValues {
 
     public static function match($param) {
         return (bool)(preg_match(self::$pattern, $param));
+    }
+
+    public static function getValue() {
+        $func = $this->name;
+        foreach($this->pila as $p) {
+            $param[] = call_user_func([$p, 'getValue']);
+        }
+        $result = call_user_func_array($func, $param);
+        return $result;
     }
 
     public function extract($param) {
@@ -83,10 +98,12 @@ class rslvResolveArray extends stackResolveValues {
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        return $result;
+
+    public static function getValue() {
+        foreach($this->pila as $p) {
+            $param[] = call_user_func([$p, 'getValue']);
+        }
+        return $param;
     }
 
     public function extract($param) {
@@ -108,10 +125,12 @@ class rslvResolveObject extends stackResolveValues {
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
     }
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        return $result;
+
+    public static function getValue() {
+        foreach($this->pila as $p) {
+            $param[] = call_user_func([$p, 'getValue']);
+        }
+        return $param;
     }
 
     public function extract($param) {
@@ -131,6 +150,11 @@ class rslvResolveTerminator extends stackResolveValues {
 
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
+    }
+
+    public static function getValue() {
+        $result = $this->name;
+        return $result;
     }
 
     public function extract($param) {
@@ -154,11 +178,8 @@ class rslvExtractQString extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-        $result[] = $match[0];
+    public static function getValue() {
+        $result = $this->name;
         return $result;
     }
 
@@ -184,11 +205,8 @@ class rslvExtractString extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue($param) {
-        $result = [];
-        preg_match(self::$pattern, $param, $match);
-        $result[] = preg_replace("/${match[0]}[,\s]*/", "", $param, 1);
-        $result[] = $match[1];
+    public static function getValue() {
+        $result = $this->name;
         return $result;
     }
 

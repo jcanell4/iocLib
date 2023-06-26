@@ -4,9 +4,7 @@ class IocCommonFunctions
 {
     public static function extractComaSeparatedValues($text) {
         $array = [];
-        //Capture words comma separated values: ("\w+")[^,]?+
-        //$patternParams = '/(?:^|,\s*)(?=[^"]|(")?)"?((?(1)[^"]*|[^,"]*))"?(?=,|$)/m';
-        // Expresión regular para extraer los parámetros, separados por comas, de una función
+        /* Expresión regular para extraer los parámetros, separados por comas, de una función
         $patternParams = '/(?(DEFINE)'
                           .'  (?<functionname>'
                           .'    [^\W\d]\w*'
@@ -31,6 +29,9 @@ class IocCommonFunctions
                           .'  )'
                           .')'
                           .'(?:\g<functionname>\(\s*|\G,\s*)\K(\g<expression>)/mx';
+         */
+        //Capture words comma separated values: ("\w+")[^,]?+
+        $patternParams = '/(?:^|,\s*)(?=[^"]|(")?)"?((?(1)[^"]*|[^,"]*))"?(?=,|$)/m';
 
         if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
 
