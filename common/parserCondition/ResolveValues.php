@@ -34,7 +34,8 @@ class stackResolveValues extends abstractResolveValues {
                     $instance->init($extract[0], $extract[1], $param);
                     if ($extract[1] !== "," && !empty($extract[1])) {
                         if (in_array($extract[1], [")","}","]"])) {
-                            return $extract[0];
+                            $this->pila[] = $instance;
+                            return $this->pila;
                         }else {
                             $this->pila[] = $instance->parse($param);
                         }
@@ -55,7 +56,10 @@ class ResolveValues extends stackResolveValues {
         $result = [];
         $pilas = parent::parse($param);
         foreach ($pilas as $p) {
-            $result[] = call_user_func([$p, 'getValue']);
+            $r = call_user_func([$p, 'getValue']);
+            if ($r) {
+                $result[] = $r;
+            }
         }
         return $result;
     }
