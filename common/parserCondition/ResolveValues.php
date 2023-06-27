@@ -1,16 +1,34 @@
 <?php
 
 abstract class abstractResolveValues {
-    protected $name;
+    protected static $parser;
+    protected static $arrays = [];
+    protected static $dataSource = [];
+    protected $mainParam;
     protected $delimiter;
     protected $toParse;
 
-    public function init($name="", $delimiter="", $toParse="") {
-        $this->name = $name;
+    public function foreing_construct($parser=NULL, $arrays=[], $dataSource=[]) {
+        self::$parser = $parser;
+        self::$arrays = $arrays;
+        self::$dataSource = $dataSource;
+    }
+
+    public function init($mainParam="", $delimiter="", $toParse="") {
+        $this->mainParam = $mainParam;
         $this->delimiter = $delimiter;
         $this->toParse = $toParse;
     }
 
+    public function getParser() {
+        return self::$parser;
+    }
+    public function getArrays() {
+        return self::$arrays;
+    }
+    public function getDataSource() {
+        return self::$dataSource;
+    }
 }
 
 class stackResolveValues extends abstractResolveValues {
@@ -34,13 +52,13 @@ class stackResolveValues extends abstractResolveValues {
                     $instance->init($extract[0], $extract[1], $param);
                     if ($extract[1] !== "," && !empty($extract[1])) {
                         if (in_array($extract[1], [")","}","]"])) {
-                            $this->pila[] = $instance;
+                            $this->pila[] = $instance->getValue();
                             return $this->pila;
                         }else {
                             $this->pila[] = $instance->parse($param);
                         }
                     }
-                    $this->pila[] = $instance;
+                    $this->pila[] = $instance->getValue();
                     break;
                 }
             }
@@ -55,10 +73,9 @@ class ResolveValues extends stackResolveValues {
     public function resolve($param) {
         $result = [];
         $pilas = parent::parse($param);
-        foreach ($pilas as $p) {
-            $r = call_user_func([$p, 'getValue']);
-            if ($r) {
-                $result[] = $r;
+        foreach ($pilas as $value) {
+            if (!is_array($value)) {
+                $result[] = $value;
             }
         }
         return $result;
@@ -73,13 +90,14 @@ class rslvResolveFunction extends stackResolveValues {
     public static function match($param) {
         return (bool)(preg_match(self::$pattern, $param));
     }
-
-    public static function getValue() {
-        $func = $this->name;
-        foreach($this->pila as $p) {
-            $param[] = call_user_func([$p, 'getValue']);
+    
+    public function getValue() {
+        $funcName = $this->mainParam;
+        $parsedParams = [];
+        foreach($this->pila as $param) {
+            $parsedParams[] = $this->getParser()->parse($param, $this->getArrays(), $this->getDataSource());
         }
-        $result = call_user_func_array($func, $param);
+        $result = call_user_func_array(["IocCommonFunctions", $funcName], $this->pila);
         return $result;
     }
 
@@ -103,11 +121,8 @@ class rslvResolveArray extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue() {
-        foreach($this->pila as $p) {
-            $param[] = call_user_func([$p, 'getValue']);
-        }
-        return $param;
+    public function getValue() {
+        return $this->pila;
     }
 
     public function extract($param) {
@@ -130,11 +145,8 @@ class rslvResolveObject extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue() {
-        foreach($this->pila as $p) {
-            $param[] = call_user_func([$p, 'getValue']);
-        }
-        return $param;
+    public function getValue() {
+        return $this->pila;
     }
 
     public function extract($param) {
@@ -156,9 +168,8 @@ class rslvResolveTerminator extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue() {
-        $result = $this->name;
-        return $result;
+    public function getValue() {
+        return $this->mainParam;
     }
 
     public function extract($param) {
@@ -182,9 +193,8 @@ class rslvExtractQString extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue() {
-        $result = $this->name;
-        return $result;
+    public function getValue() {
+        return $this->mainParam;
     }
 
     public function extract($param) {
@@ -209,9 +219,8 @@ class rslvExtractString extends stackResolveValues {
         return (bool)preg_match(self::$pattern, $param);
     }
 
-    public static function getValue() {
-        $result = $this->name;
-        return $result;
+    public function getValue() {
+        return $this->mainParam;
     }
 
     public function extract($param) {

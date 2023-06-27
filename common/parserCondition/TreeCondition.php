@@ -485,6 +485,7 @@ class FunctionInstruction extends AbstractInstruction
 
         // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
         $resolve = new ResolveValues();
+        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
         $params = $resolve->resolve($matches[2]);
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
