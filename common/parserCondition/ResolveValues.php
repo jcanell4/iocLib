@@ -14,7 +14,7 @@ abstract class abstractResolveValues {
         self::$dataSource = $dataSource;
     }
 
-    public function init($mainParam="", $delimiter="", $toParse="") {
+    public function setParams($mainParam="", $delimiter="", $toParse="") {
         $this->mainParam = $mainParam;
         $this->delimiter = $delimiter;
         $this->toParse = $toParse;
@@ -29,6 +29,17 @@ abstract class abstractResolveValues {
     public function getDataSource() {
         return self::$dataSource;
     }
+
+    public function getMainParam() {
+        return $this->mainParam;
+    }
+    public function getDelimiter() {
+        return $this->delimiter;
+    }
+    public function getToParse() {
+        return $this->toParse;
+    }
+
 }
 
 class stackResolveValues extends abstractResolveValues {
@@ -47,15 +58,16 @@ class stackResolveValues extends abstractResolveValues {
             foreach ($this->resolvers as $resolver) {
                 if (call_user_func([$resolver, 'match'], $param)) {
                     $instance = new $resolver();
-                    $extract = $instance->extract($param);
-                    $param = $extract[2];
-                    $instance->init($extract[0], $extract[1], $param);
-                    if (in_array($extract[1], [",",")","}","]"])) {
-                        if ($extract[0] !== NULL) {
-                            //control del terminator después de "," o de cierre de bloque (función, array, objeto)
-                            $this->pila[] = $instance->getValue();
-                        }
-                        if ($extract[1] !== ",") {
+                    $instance->extract($param);
+                    $param = $instance->getToParse();
+                    //$instance->setParams($extract[0], $extract[1], $param);
+                    $instance->terminator();
+                    if (in_array($instance->getDelimiter(), [",",")","}","]"])) {
+//                        if ($instance->getMainParam() !== NULL) {
+//                            //control del terminator después de "," o de cierre de bloque (función, array, objeto)
+//                            $this->pila[] = $instance->getValue();
+//                        }
+                        if ($instance->getDelimiter() !== ",") {
                             return ['pila'=>$this->pila, 'param'=>$param];
                         }
                     }else {
@@ -89,7 +101,7 @@ class rslvResolveFunction extends stackResolveValues {
     }
     
     public function getValue() {
-        $funcName = $this->mainParam;
+        $funcName = $this->getMainParam();
         $parsedParams = [];
         foreach($this->pila as $param) {
             if (is_array($param)) {
@@ -103,12 +115,14 @@ class rslvResolveFunction extends stackResolveValues {
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[2]);
-        $result[] = trim($match[3]);
-        return $result;
+        $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === ")" && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
@@ -127,12 +141,14 @@ class rslvResolveArray extends stackResolveValues {
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[2]);
-        return $result;
+        $this->setParams(trim($match[1]), trim($match[1]), trim($match[2]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === "]" && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
@@ -151,12 +167,14 @@ class rslvResolveObject extends stackResolveValues {
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[2]);
-        return $result;
+        $this->setParams(trim($match[1]), trim($match[1]), trim($match[2]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === "}" && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
@@ -170,16 +188,18 @@ class rslvResolveTerminator extends stackResolveValues {
     }
 
     public function getValue() {
-        return $this->mainParam;
+        return $this->getMainParam();
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = NULL;
-        $result[] = trim($match[1]); //terminator
-        $result[] = trim($match[2]);
-        return $result;
+        $this->setParams(NULL, trim($match[1]), trim($match[2]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === "}" && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
@@ -195,16 +215,18 @@ class rslvExtractQString extends stackResolveValues {
     }
 
     public function getValue() {
-        return $this->mainParam;
+        return $this->getMainParam();
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[2]);
-        $result[] = trim($match[3]);
-        return $result;
+        $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === "," && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
@@ -221,16 +243,18 @@ class rslvExtractString extends stackResolveValues {
     }
 
     public function getValue() {
-        return $this->mainParam;
+        return $this->getMainParam();
     }
 
     public function extract($param) {
-        $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);
-        $result[] = trim($match[2]);
-        $result[] = trim($match[3]);
-        return $result;
+        $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
+    }
+
+    public function terminator() {
+        if ($this->getDelimiter() === "," && $this->getMainParam()) {
+            $this->pila[] = $this->getValue();
+        }
     }
 
 }
