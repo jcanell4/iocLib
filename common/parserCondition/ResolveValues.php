@@ -52,7 +52,7 @@ class stackResolveValues extends abstractResolveValues {
                     $instance->init($extract[0], $extract[1], $param);
                     if (in_array($extract[1], [",",")","}","]"])) {
                         if ($extract[0] !== NULL) {
-                            //control del terminator , después de cierre de bloque (función, array, objeto)
+                            //control del terminator después de "," o de cierre de bloque (función, array, objeto)
                             $this->pila[] = $instance->getValue();
                         }
                         if ($extract[1] !== ",") {
@@ -61,7 +61,7 @@ class stackResolveValues extends abstractResolveValues {
                     }else {
                         $r = $instance->parse($param);
                         $this->pila[] = $instance->getValue();
-                        $param = $r['param'];   //eliminar la parte ya tratada del resto de paràmetros
+                        $param = $r['param'];   //eliminar, de los parámetros restantes, la parte ya tratada
                     }
                 }
             }
