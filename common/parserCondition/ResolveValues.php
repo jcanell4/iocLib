@@ -50,16 +50,19 @@ class stackResolveValues extends abstractResolveValues {
                     $extract = $instance->extract($param);
                     $param = $extract[2];
                     $instance->init($extract[0], $extract[1], $param);
-                    if ($extract[1] !== "," && !empty($extract[1])) {
-                        if (in_array($extract[1], [")","}","]"])) {
+                    if (in_array($extract[1], [",",")","}","]"])) {
+                        if ($extract[0] !== NULL) {
+                            //control del terminator , después de cierre de bloque (función, array, objeto)
                             $this->pila[] = $instance->getValue();
-                            return $this->pila;
-                        }else {
-                            $this->pila[] = $instance->parse($param);
                         }
+                        if ($extract[1] !== ",") {
+                            return ['pila'=>$this->pila, 'param'=>$param];
+                        }
+                    }else {
+                        $r = $instance->parse($param);
+                        $this->pila[] = $instance->getValue();
+                        $param = $r['param'];   //eliminar la parte ya tratada del resto de paràmetros
                     }
-                    $this->pila[] = $instance->getValue();
-                    break;
                 }
             }
         }
@@ -71,13 +74,7 @@ class stackResolveValues extends abstractResolveValues {
 class ResolveValues extends stackResolveValues {
 
     public function resolve($param) {
-        $result = [];
-        $pilas = parent::parse($param);
-        foreach ($pilas as $value) {
-            if (!is_array($value)) {
-                $result[] = $value;
-            }
-        }
+        $result = parent::parse($param);
         return $result;
     }
 
@@ -95,9 +92,13 @@ class rslvResolveFunction extends stackResolveValues {
         $funcName = $this->mainParam;
         $parsedParams = [];
         foreach($this->pila as $param) {
-            $parsedParams[] = $this->getParser()->parse($param, $this->getArrays(), $this->getDataSource());
+            if (is_array($param)) {
+                $parsedParams[] = $param;
+            }else {
+                $parsedParams[] = $this->getParser()->parse($param, $this->getArrays(), $this->getDataSource());
+            }
         }
-        $result = call_user_func_array(["IocCommonFunctions", $funcName], $this->pila);
+        $result = call_user_func_array(["IocCommonFunctions", $funcName], $parsedParams);
         return $result;
     }
 
@@ -129,7 +130,7 @@ class rslvResolveArray extends stackResolveValues {
         $result = [];
         preg_match(self::$pattern, $param, $match);
         $result[] = trim($match[1]);
-        $result[] = "";
+        $result[] = trim($match[1]);
         $result[] = trim($match[2]);
         return $result;
     }
@@ -153,8 +154,8 @@ class rslvResolveObject extends stackResolveValues {
         $result = [];
         preg_match(self::$pattern, $param, $match);
         $result[] = trim($match[1]);
-        $result[] = "";
-        $result[] = trim($match[3]);
+        $result[] = trim($match[1]);
+        $result[] = trim($match[2]);
         return $result;
     }
 
@@ -175,8 +176,8 @@ class rslvResolveTerminator extends stackResolveValues {
     public function extract($param) {
         $result = [];
         preg_match(self::$pattern, $param, $match);
-        $result[] = trim($match[1]);    //terminator
-        $result[] = trim($match[1]);
+        $result[] = NULL;
+        $result[] = trim($match[1]); //terminator
         $result[] = trim($match[2]);
         return $result;
     }
