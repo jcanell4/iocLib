@@ -60,20 +60,14 @@ class stackResolveValues extends abstractResolveValues {
                     $instance = new $resolver();
                     $instance->extract($param);
                     $param = $instance->getToParse();
-                    //$instance->setParams($extract[0], $extract[1], $param);
-                    $instance->terminator();
-                    if (in_array($instance->getDelimiter(), [",",")","}","]"])) {
-//                        if ($instance->getMainParam() !== NULL) {
-//                            //control del terminator después de "," o de cierre de bloque (función, array, objeto)
-//                            $this->pila[] = $instance->getValue();
-//                        }
-                        if ($instance->getDelimiter() !== ",") {
-                            return ['pila'=>$this->pila, 'param'=>$param];
+                    if ($instance->isSeparator()) {
+                        $this->pila[] = $instance->getValue();
+                        if ($instance->isTerminator()) { //$this->isTerminator($instance->getTerminator())
+                            return $param;
                         }
                     }else {
-                        $r = $instance->parse($param);
+                        $param = $instance->parse($param);   //eliminar, de los parámetros restantes, la parte ya tratada
                         $this->pila[] = $instance->getValue();
-                        $param = $r['param'];   //eliminar, de los parámetros restantes, la parte ya tratada
                     }
                 }
             }
@@ -106,7 +100,7 @@ class rslvResolveFunction extends stackResolveValues {
         foreach($this->pila as $param) {
             if (is_array($param)) {
                 $parsedParams[] = $param;
-            }else {
+            }elseif ($param) {
                 $parsedParams[] = $this->getParser()->parse($param, $this->getArrays(), $this->getDataSource());
             }
         }
@@ -119,10 +113,12 @@ class rslvResolveFunction extends stackResolveValues {
         $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === ")" && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+        return FALSE;
+    }
+
+    public function isTerminator($delimiter="") {
+        return ($this->getDelimiter() === ")");
     }
 
 }
@@ -145,10 +141,12 @@ class rslvResolveArray extends stackResolveValues {
         $this->setParams(trim($match[1]), trim($match[1]), trim($match[2]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === "]" && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+        return FALSE;
+    }
+
+    public function isTerminator($delimiter="") {
+        return ($this->getDelimiter() === "]");
     }
 
 }
@@ -171,10 +169,12 @@ class rslvResolveObject extends stackResolveValues {
         $this->setParams(trim($match[1]), trim($match[1]), trim($match[2]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === "}" && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+        return FALSE;
+    }
+
+    public function isTerminator($delimiter="") {
+        return ($this->getDelimiter() === "}");
     }
 
 }
@@ -196,10 +196,12 @@ class rslvResolveTerminator extends stackResolveValues {
         $this->setParams(NULL, trim($match[1]), trim($match[2]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === "}" && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+        return TRUE;
+    }
+
+    public function isTerminator($delimiter="") {
+        return ($this->getDelimiter() !== ",");
     }
 
 }
@@ -223,10 +225,15 @@ class rslvExtractQString extends stackResolveValues {
         $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === "," && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+//        if ($this->getMainParam()) {
+//            $this->pila[] = $this->getValue();
+//        }
+        return TRUE;
+    }
+
+    public function isTerminator() {
+        return ($this->getDelimiter() !== ",");
     }
 
 }
@@ -251,10 +258,15 @@ class rslvExtractString extends stackResolveValues {
         $this->setParams(trim($match[1]), trim($match[2]), trim($match[3]));
     }
 
-    public function terminator() {
-        if ($this->getDelimiter() === "," && $this->getMainParam()) {
-            $this->pila[] = $this->getValue();
-        }
+    public function isSeparator() {
+//        if ($this->getMainParam()) {
+//            $this->pila[] = $this->getValue();
+//        }
+        return TRUE;
+    }
+
+    public function isTerminator() {
+        return ($this->getDelimiter() !== ",");
     }
 
 }
