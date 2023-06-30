@@ -61,12 +61,14 @@ class stackResolveValues extends abstractResolveValues {
                     $instance->extract($param);
                     $param = $instance->getToParse();
                     if ($instance->isSeparator()) {
-                        $this->pila[] = $instance->getValue();
-                        if ($instance->isTerminator()) { //$this->isTerminator($instance->getTerminator())
-                            return $param;
+                        if ($instance->getMainParam()!==NULL) {
+                            $this->pila[] = $instance->getValue();
+                        }
+                        if ($this->isTerminator($instance->getDelimiter())) { //$instance->isTerminator()
+                            return $param;   //eliminar, de los parámetros restantes, la parte ya tratada
                         }
                     }else {
-                        $param = $instance->parse($param);   //eliminar, de los parámetros restantes, la parte ya tratada
+                        $param = $instance->parse($param);
                         $this->pila[] = $instance->getValue();
                     }
                 }
@@ -82,6 +84,10 @@ class ResolveValues extends stackResolveValues {
     public function resolve($param) {
         $result = parent::parse($param);
         return $result;
+    }
+
+    public function isTerminator($delimiter="") {
+        return ($delimiter !== ",");   // versió sense paràmetre: ($this->getDelimiter() !== ",")
     }
 
 }
@@ -118,7 +124,7 @@ class rslvResolveFunction extends stackResolveValues {
     }
 
     public function isTerminator($delimiter="") {
-        return ($this->getDelimiter() === ")");
+        return ($delimiter === ")");   // versió sense paràmetre: ($this->getDelimiter() === ")")
     }
 
 }
@@ -146,7 +152,7 @@ class rslvResolveArray extends stackResolveValues {
     }
 
     public function isTerminator($delimiter="") {
-        return ($this->getDelimiter() === "]");
+        return ($delimiter === "]");   // versió sense paràmetre: ($this->getDelimiter() === "]")
     }
 
 }
@@ -174,7 +180,7 @@ class rslvResolveObject extends stackResolveValues {
     }
 
     public function isTerminator($delimiter="") {
-        return ($this->getDelimiter() === "}");
+        return ($delimiter === "}");   // versió sense paràmetre: ($this->getDelimiter() === "}")
     }
 
 }
@@ -201,7 +207,7 @@ class rslvResolveTerminator extends stackResolveValues {
     }
 
     public function isTerminator($delimiter="") {
-        return ($this->getDelimiter() !== ",");
+        return ($delimiter !== ",");   // versió sense paràmetre: ($this->getDelimiter() !== ",")
     }
 
 }
@@ -226,24 +232,21 @@ class rslvExtractQString extends stackResolveValues {
     }
 
     public function isSeparator() {
-//        if ($this->getMainParam()) {
-//            $this->pila[] = $this->getValue();
-//        }
         return TRUE;
     }
 
-    public function isTerminator() {
-        return ($this->getDelimiter() !== ",");
+    public function isTerminator($delimiter="") {
+        return ($delimiter !== ",");   // versió sense paràmetre: ($this->getDelimiter() !== ",")
     }
 
 }
 
 class rslvExtractString extends stackResolveValues {
-    //extrae, del inicio, palabras sin comillas y sin "(" (no funciones) y números enteros y decimales
+    //extrae, del inicio, palabras sin comillas y números enteros y decimales
     public static $className = "rslvExtractString";
     //protected static $pattern = '/^(\w+(?:\.\d+)?)(,|$|\W[^\(\w])/';
     //protected static $pattern = '/^(\w+(?:\.\d+)?)[^\(]?(,|\)|\]|})(.*)$/';
-    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|\)|\]|})?(.*)$/'; //Aquest inclou noms de funcions: nom(
+    protected static $pattern = '/^(\w+(?:\.\d+)?)(,|\)|\]|})?(.*)$/'; //Aquest inclou noms de funcions: "nom("
                                                                        //per tant s'ha d'executar després
     public static function match($param) {
         return (bool)preg_match(self::$pattern, $param);
@@ -259,14 +262,11 @@ class rslvExtractString extends stackResolveValues {
     }
 
     public function isSeparator() {
-//        if ($this->getMainParam()) {
-//            $this->pila[] = $this->getValue();
-//        }
         return TRUE;
     }
 
-    public function isTerminator() {
-        return ($this->getDelimiter() !== ",");
+    public function isTerminator($delimiter="") {
+        return ($delimiter !== ",");   // versió sense paràmetre: ($this->getDelimiter() !== ",")
     }
 
 }
