@@ -472,23 +472,21 @@ class FunctionInstruction extends AbstractInstruction
     static public $className = "FunctionInstruction";
     static protected $pattern = "/(.*?)\((.*?)\)$/ms";
 
-    static public function match($text)
-    {
+    static public function match($text) {
         return (bool)preg_match(self::$pattern, $text);
-
     }
 
-    public function getValue($text = null, $arrays = [], $dataSource = [])
-    {
+    public function getValue($text = null, $arrays = [], $dataSource = []) {
 
         if (!preg_match(self::$pattern, $text, $matches)) {
-//            return "[Bad Format: Function]";
-            return null;
+            return FALSE;
         }
-
         $funcName = $matches[1];
-        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
 
+        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
+        $resolve = new ResolveValues();
+        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
+        $params = $resolve->resolve($matches[2]);
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
         $parsedParams = [];
@@ -500,18 +498,15 @@ class FunctionInstruction extends AbstractInstruction
         if (is_callable($method)) {
             try {
                 $result = call_user_func_array($method, $parsedParams);
-            } catch (Error $e) {
+            }catch (Error $e) {
                 $result = $e->getMessage();
             }
-        } else {
-//            $result = "[ERROR! No existeix la funció ${$method[1]}]";
-            $result = null;
+        }else {
+            $result = FALSE;
         }
 
         $result = TreeParserCondition::normalizeValue($result);
-
         return $result;
-
     }
 
 }
