@@ -470,7 +470,7 @@ class RowInstruction extends AbstractInstruction
 class FunctionInstruction extends AbstractInstruction
 {
     static public $className = "FunctionInstruction";
-    static protected $pattern = "/(.*?)\((.*?)\)/ms";
+    static protected $pattern = "/(.*?)\((.*?)\)$/ms";
 
     static public function match($text)
     {

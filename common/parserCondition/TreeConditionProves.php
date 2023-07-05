@@ -30,9 +30,7 @@ function updateCount($label, $result, $expected, &$success, &$fail)
         echo '<span style="color: green">';
     }
 
-
     echo "Resultat final $label (s'espera " . ($expected ? "TRUE" : "FALSE") . ") :" . ($result ? "TRUE" : "FALSE");
-
 
     if ($bold) {
         echo '</b>';
@@ -47,6 +45,20 @@ function updateCount($label, $result, $expected, &$success, &$fail)
 $tree = [
     "root" => "ag3",
     "grups" => [
+        "fun01" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'ARRAY_GET_SUM("taulaDadesUnitats", "hores", "unitat", 4)==ARRAY_GET_SUM("calendari", "hores", "unitat", 4)'
+            ]
+        ],
+        "fun02" => [
+            "type" => "conditions",
+            "connector" => "",
+            "elements" => [
+                'SEARCH_VALUE(25, "[\"clave\"=>27, \"patata\"=>23]", "clave")'
+            ]
+        ],
         "g0" => [
             "type" => "conditions",
             "connector" => "or",
@@ -571,6 +583,15 @@ $fail = 0;
 
 
 /// TESTS
+
+$root = NodeFactory::getNode($tree['grups'], 'fun01', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('fun01', $finalResult, TRUE, $success, $fail);
+
+$root = NodeFactory::getNode($tree['grups'], 'fun02', $arrays, $datasource);
+$finalResult = $root->getValue();
+updateCount('fun02', $finalResult, FALSE, $success, $fail);
+
 /// Test 1: g1 camp diferent a valor. Esperat FALSE
 $root = NodeFactory::getNode($tree['grups'], 'g1', $arrays, $datasource);
 $finalResult = $root->getValue();
@@ -929,9 +950,6 @@ updateCount('sr3', $finalResult, TRUE, $success, $fail);
 $root = NodeFactory::getNode($tree['grups'], 'sr4', $arrays, $datasource);
 $finalResult = $root->getValue();
 updateCount('sr4', $finalResult, FALSE, $success, $fail);
-
-
-
 
 
 $total = $success + $fail;
