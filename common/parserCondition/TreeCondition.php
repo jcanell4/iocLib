@@ -484,9 +484,13 @@ class FunctionInstruction extends AbstractInstruction
         $funcName = $matches[1];
 
         // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
-        $resolve = new ResolveValues();
-        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
-        $params = $resolve->resolve($matches[2]);
+//        $resolve = new ResolveValues();
+//        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
+//        $params = $resolve->resolve($matches[2]);
+        include_once DOKU_INC.'lib/lib_ioc/common/parserCondition/ResolveValues_jc.php';
+        $resolve = new resolveValueFromInstruction();
+        $params = $resolve->resolveValue($matches[2]);
+
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
         $parsedParams = [];
