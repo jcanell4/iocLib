@@ -546,6 +546,11 @@ $arrays = [
         '{"unitat formativa":"1","nucli formatiu":"1","nom":"Introducció al programari de base i a la virtualització","hores":"16","unitat al pla de treball":"1"}',
         '{"unitat formativa":"1","nucli formatiu":"3","nom":"Administració de programari de base lliure","hores":"30","unitat al pla de treball":"3"}',
     ],
+    'aObj51' =>[
+        ["nom"=>"a1", "filtre"=>0 ,"valor"=>5],
+        ["nom"=>"a2", "filtre"=>1 ,"valor"=>10],
+        ["nom"=>"a3", "filtre"=>0 ,"valor"=>15]
+    ],
     'array_buit' => "[]",
 ];
 $datasource = [
@@ -565,6 +570,11 @@ $datasource = [
         'obj30' => [
             '{"unitat formativa":"1","nucli formatiu":"1","nom":"Introducció al programari de base i a la virtualització","hores":"16","unitat al pla de treball":"1"}',
             '{"unitat formativa":"1","nucli formatiu":"3","nom":"Administració de programari de base lliure","hores":"30","unitat al pla de treball":"3"}',
+        ],
+        'aObj50' =>[
+            '{"nom":"a1", "filtre":0 ,"valor":5}',
+            '{"nom":"a2", "filtre":1 ,"valor":10}',
+            '{"nom":"a3", "filtre":0 ,"valor":15}',
         ],
     ],
     's2' => [
