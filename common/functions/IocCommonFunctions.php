@@ -2,10 +2,28 @@
 
 class IocCommonFunctions
 {
-    public static function extractComaSeparatedValues($text)
+    public static function extractComaSeparatedValues($text) {
+        $array = [];
+        //Capture words comma separated values: ("\w+")[^,]?+
+        $patternParams = '/(?:^|,\s*)(?=[^"]|(")?)"?((?(1)[^"]*|[^,"]*))"?(?=,|$)/m';
+        if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
+
+            for ($i=0; $i<count($matchParams); $i++) {
+                $value = $matchParams[$i][count($matchParams[$i])-1];
+                //comproba si el paràmetre està entre cometes (literal) per afegir-li i que no les perdi
+                $cometes = preg_match('/,?\s*".*?"/', $matchParams[$i][0]);
+                if (count($matchParams[$i]) > 1 ) {
+                    $array[] = ($cometes) ? "\"$value\"" : $value;
+                }
+            }
+        }
+        return $array;
+    }
+
+    public static function OLD_extractComaSeparatedValues($text)
     {
         $array = [];
-        $patternParams =  '/ ? ?(\[.*?\])|(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)|/m';
+        $patternParams = '/ ? ?(\[.*?\])|(".*?")| ?(?:,)| ?(\d+\.?\d*?)| ?(.*),| ?(.*)|/m';
         if (preg_match_all($patternParams, $text, $matchParams,  PREG_SET_ORDER)) {
 
             // El darrer element sempre és buit
