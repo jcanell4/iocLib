@@ -40,6 +40,8 @@ abstract class AbstractCalculate implements ICalculate{
     public function getDefaultValue($data, $error=TRUE){
         if(isset($data[self::DEFAULT_VALUE_PARAM])){
             $ret = $this->getParamValue($data[self::DEFAULT_VALUE_PARAM]);
+        } elseif($this->initDefaultValue!=NULL){
+            $ret = $this->initDefaultValue;
         } elseif(!$error){
             $ret = FALSE;
         } else{
