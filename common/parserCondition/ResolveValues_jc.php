@@ -68,13 +68,13 @@ abstract class abstractResolveValues_jc {
     */
     //public abstract function parse();
 
-    public function SUMA($param) {
-        $result = 0;
-        foreach ($param as $elem) {
-            $result += $elem;
-        }
-        return $result;
-    }
+//    public function SUMA($param) {
+//        $result = 0;
+//        foreach ($param as $elem) {
+//            $result += $elem;
+//        }
+//        return $result;
+//    }
 
     /**
    Busca quina és la instancia que pot resoldre la dada que es troba més a l'esquerra de toParser

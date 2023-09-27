@@ -861,7 +861,11 @@ abstract class AbstractProjectModel extends AbstractWikiDataModel{
         $configStructure = $this->getMetaDataDefKeys();
         foreach ($configStructure as $key => $def) {
             if(isset($def["calculateOnSave"])){
-                $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnSave"], $this->id, $values, $this->getPersistenceEngine());
+                if(isset($def["default"])){
+                    $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnSave"], $this->id, $values, $this->getPersistenceEngine(), $def["default"]);
+                }else{
+                    $value = IocCommon::getCalculateFieldFromFunction($def["calculateOnSave"], $this->id, $values, $this->getPersistenceEngine());                    
+                }
                 $values[$key]=$value;
             }elseif ($def["type"] == "boolean" || $def["type"] == "bool") {
                 if(!isset($values[$key])

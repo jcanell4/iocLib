@@ -86,6 +86,11 @@ class IocCommonFunctions
         return empty($text) ? "true" : "false";
     }
 
+    public static function IS_ARRAY_EMPTY($array = [])
+    {
+        return empty($array) ? "true" : "false";
+    }
+
     public static function YEAR($date = NULL)
     {
         if ($date == NULL) {
