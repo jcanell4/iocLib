@@ -64,6 +64,7 @@ interface JsonGenerator {
     const PROJECT_PARTIAL_TYPE   = "project_partial";
     const HTML_SUPPLIES_FORM_TYPE= "html_supplies_form";
     const HTML_RESPONSE_FORM_TYPE= "html_response_form";
+    const HTML_NEW_USER_TEACHERS_FORM_TYPE = "html_new_user_teachers_form";
 
     // Aquestes constants es fan servir com a subtipus
     const ADD_ADMIN_TAB     = "add_admin_tab";
