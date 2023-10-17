@@ -99,7 +99,7 @@ class rslvResolveFunction extends stackResolveValues {
     public static function match($param) {
         return (bool)(preg_match(self::$pattern, $param));
     }
-    
+
     public function getValue() {
         $funcName = $this->getMainParam();
         $parsedParams = [];
@@ -131,7 +131,6 @@ class rslvResolveFunction extends stackResolveValues {
 
 class rslvResolveArray extends stackResolveValues {
     public static $className = "rslvResolveArray";
-    //protected static $pattern = '/^(\[.*?[^\\\\]\])(?:(,|))/';
     protected static $pattern = '/^(\[)(.*)$/';
 
     public static function match($param) {
@@ -159,7 +158,6 @@ class rslvResolveArray extends stackResolveValues {
 
 class rslvResolveObject extends stackResolveValues {
     public static $className = "rslvResolveObject";
-    //protected static $pattern = '/^({.*?[^\\\\]})(?:(,|))/';
     protected static $pattern = '/^({)(.*)$/';
 
     public static function match($param) {
@@ -215,7 +213,6 @@ class rslvResolveTerminator extends stackResolveValues {
 class rslvExtractQString extends stackResolveValues {
     //extrae, del inicio, textos entre comillas (incluye las comillas escapadas \")
     public static $className = "rslvExtractQString";
-    //protected static $pattern = '/^(".*?[^\\\\]")(,|$|\W[^\(\w])/';
     protected static $pattern = '/^(".*?[^\\\\]")(,|\)|\]|})?(.*)$/';
 
     public static function match($param) {

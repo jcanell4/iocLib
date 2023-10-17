@@ -82,6 +82,20 @@ class PagePermissionManager{
     }
 
     /**
+     * Obtiene un array de usuarios a partir de una lista de usernames
+     * @param string $list es la parte del nombre que se busca
+     * @return array[firstname lastname, ...]
+     */
+    public static function getUsers($list) {
+        global $auth;
+        $users = explode(",", $list);
+        foreach ($users as $user) {
+            $user_list[] = $auth->getUserData($user, false)['name'];
+        }
+        return $user_list;
+    }
+
+    /**
      * @return int : valor del permiso actual del usuario $user sobre la página $page
      */
     public static function getPermissionPageForUser( $page, $user=NULL ) {

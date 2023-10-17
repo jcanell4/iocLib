@@ -595,7 +595,7 @@ class AjaxCmdResponseGenerator {
                 $resp)
         );
     }
-    
+
     public function addTypedValueResponse($type, $value, $info =""){
         switch ($type){
             case "code":
@@ -1185,6 +1185,29 @@ class AjaxCmdResponseGenerator {
         $this->response->add(
             new JSonGeneratorImpl(
                 JSonGenerator::HTML_SUPPLIES_FORM_TYPE,
+                $contentData)
+        );
+    }
+
+    /**
+     * Afegeix una resposta de tipus HTML_NEW_USER_TEACHERS_FORM_TYPE al generador de respostes.
+     * per generar una pàgina de formulari amb resposta Ajax
+     * @param string $id
+     * @param string $title
+     * @param string $content
+     * @param array $aFormArgs
+     */
+    public function addHtmlNewUserTeachersForm($id, $title, $content, $aFormArgs) {
+        $contentData = array(
+            'id' => $id,
+            'title' => $title,
+            'content' => $content,
+            'aRequestFormArgs' => $aFormArgs
+        );
+
+        $this->response->add(
+            new JSonGeneratorImpl(
+                JSonGenerator::HTML_NEW_USER_TEACHERS_FORM_TYPE,
                 $contentData)
         );
     }

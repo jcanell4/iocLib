@@ -483,14 +483,26 @@ class FunctionInstruction extends AbstractInstruction
         }
         $funcName = $matches[1];
 
-        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
+//<<<<<<< HEAD
+//        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc.
+////        $resolve = new ResolveValues();
+////        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
+////        $params = $resolve->resolve($matches[2]);
+//        include_once DOKU_INC.'lib/lib_ioc/common/parserCondition/ResolveValues_jcb.php';
+//        $resolve = new ResolveValue_jcb();
+//        $params = $resolve->init_parse($matches[2]);
+
+//=======
+        // ALERTA! Els params poden incloure arrays, crides a altres funcions, etc. Per fer proves. Caldrà eliminar
+// Versió 1 resolveValues
 //        $resolve = new ResolveValues();
 //        $resolve->foreing_construct($this->parser, $arrays, $dataSource);
 //        $params = $resolve->resolve($matches[2]);
-        include_once DOKU_INC.'lib/lib_ioc/common/parserCondition/ResolveValues_jcb.php';
-        $resolve = new ResolveValue_jcb();
-        $params = $resolve->init_parse($matches[2]);
-
+// No va versió resolveValues. Esperem a adaptar el nou codi. FINS QUE NO ESTIGUI OPERATIVA LA VERSIó OOP no ho activarem
+//        include_once DOKU_INC.'lib/lib_ioc/common/parserCondition/ResolveValues_jc.php';
+//        $resolve = new resolveValueFromInstruction();
+//        $params = $resolve->resolveValue($matches[2]);
+//>>>>>>> bd00bffa7a4fc5b47e3cd5d4a65a29fc7e62d34a
         $params = IocCommonFunctions::extractComaSeparatedValues($matches[2]);
 
         $parsedParams = [];
