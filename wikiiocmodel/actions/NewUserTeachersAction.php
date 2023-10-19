@@ -21,7 +21,10 @@ class NewUserTeachersAction extends AdminAction {
     }
 
     protected function responseProcess() {
-        $content = $this->createForm();
+        $content = $this->_createForm();
+        if (isset($this->params['do']['actualitza'])) {
+            $this->_mostraLlistaUsuaris($content);
+        }
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
                            PageKeys::KEY_TITLE => "Creació usuaris professors",
@@ -31,7 +34,38 @@ class NewUserTeachersAction extends AdminAction {
         return $this->response;
     }
 
-    protected function createForm() {
+    private function _mostraLlistaUsuaris(&$ret=[]) {
+        $usuari = $this->params['usuari'];
+        $email = $this->params['email'];
+        $nom = $this->params['nom_i_cognoms'];
+        $ret['usuaris'][] = [$usuari, $email, $nom];
+
+        $html = "<div id=\"new_user_teachers_action\">"
+               ."<div class=\"table\">"
+               ."<table class=\"inline\">"
+               ."<thead>"
+               ."<tr>"
+               ."<th>usuari</th>"
+               ."<th>email</th>"
+               ."<th>nom i cognoms</th>"
+               ."</tr>"
+               ."</thead>"
+               ."<tbody>";
+        foreach ($ret['usuaris'] as $u) {
+            $html .= "<tr class=\"user_info\">"
+                    ."<td>$u[0]</td>"
+                    ."<td>$u[1]</td>"
+                    ."<td>$u[2]</td>"
+                    ."</tr>";
+        }
+        $html.= "</tbody>"
+               ."</table>"
+               ."</div>"
+               ."</div>";
+        $ret['list'] .= $html;
+    }
+
+    private function _createForm() {
         $ret = [];
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
         $ret['list'] = '<h1 class="sectionedit1" id="id_'.$this->params[AjaxKeys::KEY_ID].'">Creació dels usuaris pels nous professors</h1>'
@@ -39,6 +73,7 @@ class NewUserTeachersAction extends AdminAction {
 
         $form = new Doku_Form(array('id' => $formId, 'name' => $formId, 'method' => 'GET'));
         $form->addHidden('id', $this->params[AjaxKeys::KEY_ID]);
+        $form->addHidden('sectok', getSecurityToken());
 
         $this->_creacioBlocPrincipal($form, $ret);
 
@@ -58,11 +93,12 @@ class NewUserTeachersAction extends AdminAction {
 
     //Creació del bloc inicial
     private function _creacioBlocPrincipal(&$form, &$ret) {
-        $form->addElement("<p>");
+        $form->addElement(self::DIVGRUP);
+        $form->addElement(self::OBRE_SPAN."<b>Dades del nou professor</b></span>");
         $this->_creaInput($form, $ret, "usuari");
         $this->_creaInput($form, $ret, "email");
         $this->_creaInput($form, $ret, "nom i cognoms");
-        $form->addElement("</p>");
+        $form->addElement("</div>");
     }
 
     private function _creaInput(&$form, &$ret, $name) {
