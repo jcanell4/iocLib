@@ -22,9 +22,6 @@ class NewUserTeachersAction extends AdminAction {
 
     protected function responseProcess() {
         $content = $this->_createForm();
-        if (isset($this->params['do']['actualitza'])) {
-            $this->_mostraLlistaUsuaris($content);
-        }
 
         $this->response = [AjaxKeys::KEY_ID => $this->params[AjaxKeys::KEY_ID],
                            PageKeys::KEY_TITLE => "Creació usuaris professors",
@@ -34,11 +31,14 @@ class NewUserTeachersAction extends AdminAction {
         return $this->response;
     }
 
-    private function _mostraLlistaUsuaris(&$ret=[]) {
+    private function _mostraLlistaUsuaris(&$form, &$ret) {
         $usuari = $this->params['usuari'];
         $email = $this->params['email'];
         $nom = $this->params['nom_i_cognoms'];
-        $ret['usuaris'][] = [$usuari, $email, $nom];
+        $llista_usuaris = $this->params['llista_usuaris'];
+        $llista_usuaris[] = [$usuari, $email, $nom];
+
+        $form->addHidden('llista_usuaris', $llista_usuaris);
 
         $html = "<div id=\"new_user_teachers_action\">"
                ."<div class=\"table\">"
@@ -51,7 +51,7 @@ class NewUserTeachersAction extends AdminAction {
                ."</tr>"
                ."</thead>"
                ."<tbody>";
-        foreach ($ret['usuaris'] as $u) {
+        foreach ($llista_usuaris as $u) {
             $html .= "<tr class=\"user_info\">"
                     ."<td>$u[0]</td>"
                     ."<td>$u[1]</td>"
@@ -88,6 +88,10 @@ class NewUserTeachersAction extends AdminAction {
 
         $ret['list'] .= $form->getForm();
         $ret['list'] .= "</div> ";
+
+        if (isset($this->params['do']['actualitza'])) {
+            $this->_mostraLlistaUsuaris($form, $ret);
+        }
         return $ret;
     }
 
