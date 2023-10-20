@@ -39,6 +39,8 @@ class NewUserTeachersAction extends AdminAction {
         $llista_usuaris[] = [$usuari, $email, $nom];
 
         $form->addHidden('llista_usuaris', $llista_usuaris);
+        $form->addElement(self::DIVGRUP);
+        $form->addElement(self::OBRE_SPAN."<b>Llistat dels nous professors</b></span>");
 
         $html = "<div id=\"new_user_teachers_action\">"
                ."<div class=\"table\">"
@@ -62,7 +64,10 @@ class NewUserTeachersAction extends AdminAction {
                ."</table>"
                ."</div>"
                ."</div>";
-        $ret['list'] .= $html;
+
+        $form->addElement($html);
+        $form->addElement("</div>");
+        $this->_creaBoto($form, "envia", WikiIocLangManager::getLang('btn_send'), ['id'=> "btn__envia"]);
     }
 
     private function _createForm() {
@@ -78,20 +83,14 @@ class NewUserTeachersAction extends AdminAction {
         $this->_creacioBlocPrincipal($form, $ret);
 
         $form->addElement("<p>&nbsp;</p>");
-        if (isset($this->params['do']['actualitza'])) {
-            //BOTÓ CERCA
-            $this->_creaBoto($form, "cerca", WikiIocLangManager::getLang('btn_search'), ['id'=> "btn__cerca", 'data-query'=> $this->datacall]);
-        }else {
-            //BOTÓ ACTUALITZA
-            $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('btn_update'), ['id'=> "btn__actualitza"]);
-        }
-
-        $ret['list'] .= $form->getForm();
-        $ret['list'] .= "</div> ";
+        $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('media_upload'), ['id'=> "btn__actualitza"]);
 
         if (isset($this->params['do']['actualitza'])) {
             $this->_mostraLlistaUsuaris($form, $ret);
         }
+
+        $ret['list'] .= $form->getForm();
+        $ret['list'] .= "</div> ";
         return $ret;
     }
 
