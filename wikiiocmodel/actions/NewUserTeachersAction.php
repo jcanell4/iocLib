@@ -8,11 +8,10 @@ include_once(DOKU_INC.'/inc/form.php');
 
 class NewUserTeachersAction extends AdminAction {
 
-    const DIVGRUP = '<div style="text-align:left; margin:7px; padding:10px; border:1px solid blue; border-radius:8px;">';
-    const DIVGRUPNAME = '<div style="float:left;margin:0 0 10px 0;">';
-    const DIVGRUPBOTO = '<div style="float:right;text-align:right;margin:0 0 10px 0;">';
-    const DIVGRUPCONN = '<div style="clear:left;text-align:left;margin:0 0 10px 0;">connector:&nbsp;';
-    const OBRE_SPAN = '<span style="margin:0 20px 10px 0;">';
+    const DIVGRUP = '<div style="text-align:left; margin:7px; padding:10px; border:1px solid #E0E0FF; border-radius:6px;">';
+    const P_TITLE = '<p style="margin:0 0 10px 10px; font-weight: bold;">';
+    const SPAN_LEFT = '<span style="margin-left:10px;">';
+    const SPAN_CENTER = '<div style="display:block; margin:10px auto; width:20%;">';
 
     private $datacall = "call=new_user_teachers";
 
@@ -31,45 +30,6 @@ class NewUserTeachersAction extends AdminAction {
         return $this->response;
     }
 
-    private function _mostraLlistaUsuaris(&$form, &$ret) {
-        $usuari = $this->params['usuari'];
-        $email = $this->params['email'];
-        $nom = $this->params['nom_i_cognoms'];
-        $llista_usuaris = json_decode($this->params['llista_usuaris'], true);
-        $llista_usuaris[] = [$usuari, $email, $nom];
-
-        $form->addHidden('llista_usuaris', json_encode($llista_usuaris));
-        $form->addElement(self::DIVGRUP);
-        $form->addElement(self::OBRE_SPAN."<b>Llistat dels nous professors</b></span>");
-
-        $html = "<div id=\"new_user_teachers_action\">"
-               ."<div class=\"table\">"
-               ."<table class=\"inline\">"
-               ."<thead>"
-               ."<tr>"
-               ."<th>usuari</th>"
-               ."<th>email</th>"
-               ."<th>nom i cognoms</th>"
-               ."</tr>"
-               ."</thead>"
-               ."<tbody>";
-        foreach ($llista_usuaris as $u) {
-            $html .= "<tr class=\"user_info\">"
-                    ."<td>$u[0]</td>"
-                    ."<td>$u[1]</td>"
-                    ."<td>$u[2]</td>"
-                    ."</tr>";
-        }
-        $html.= "</tbody>"
-               ."</table>"
-               ."</div>"
-               ."</div>";
-
-        $form->addElement($html);
-        $form->addElement("</div>");
-        $this->_creaBoto($form, "desa", WikiIocLangManager::getLang('btn_save'), ['id'=> "btn__save"]);
-    }
-
     private function _createForm() {
         $ret = [];
         $ret['formId'] = $formId = "dw__{$this->params[AjaxKeys::KEY_ID]}";
@@ -82,11 +42,11 @@ class NewUserTeachersAction extends AdminAction {
 
         $this->_creacioBlocPrincipal($form, $ret);
 
-        $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('btn_update'), ['id'=> "btn__actualitza"]);
-        $form->addElement("<p>&nbsp;</p>");
-
-        if (isset($this->params['do']['actualitza'])) {
-            $this->_mostraLlistaUsuaris($form, $ret);
+        if (isset($this->params['do']['desa'])) {
+            
+        }
+        elseif (isset($this->params['do']['actualitza'])) {
+            $this->_mostraLlistaUsuaris($form);
         }
 
         $ret['list'] .= $form->getForm();
@@ -94,28 +54,58 @@ class NewUserTeachersAction extends AdminAction {
         return $ret;
     }
 
-    //Creació del bloc inicial
-    private function _creacioBlocPrincipal(&$form, &$ret) {
+    private function _mostraLlistaUsuaris(&$form) {
+        $usuari = $this->params['usuari'];
+        $email = $this->params['email'];
+        $nom = $this->params['nom_i_cognoms'];
+        $llista_usuaris = json_decode($this->params['llista_usuaris'], true);
+        $llista_usuaris[] = [$usuari, $email, $nom];
+
+        $form->addHidden('llista_usuaris', json_encode($llista_usuaris));
         $form->addElement(self::DIVGRUP);
-        $form->addElement(self::OBRE_SPAN."<b>Dades del nou professor</b></span>");
-        $this->_creaInput($form, $ret, "usuari");
-        $this->_creaInput($form, $ret, "email");
-        $this->_creaInput($form, $ret, "nom i cognoms");
+        $form->addElement(self::P_TITLE."Llistat dels nous professors</p>");
+
+        $html = "<div id=\"new_user_teachers_action\"><div class=\"table\">"
+               ."<table class=\"inline\">"
+               ."<thead><tr>"
+               ."<th>usuari</th><th>email</th><th>nom i cognoms</th>"
+               ."</tr></thead>"
+               ."<tbody>";
+        foreach ($llista_usuaris as $u) {
+            $html .= "<tr class=\"user_info\">"
+                    ."<td>$u[0]</td><td>$u[1]</td><td>$u[2]</td>"
+                    ."</tr>";
+        }
+        $html.= "</tbody></table></div></div>";
+
+        $form->addElement($html);
+        $this->_creaBoto($form, "desa", WikiIocLangManager::getLang('btn_save'), ['id'=> "btn__save"]);
         $form->addElement("</div>");
     }
 
-    private function _creaInput(&$form, &$ret, $name) {
+    //Creació del bloc inicial
+    private function _creacioBlocPrincipal(&$form, &$ret) {
+        $form->addElement(self::DIVGRUP);
+        $form->addElement(self::P_TITLE."Dades del nou professor</p>");
+        $this->_creaInput($form, $ret, "usuari", "15");
+        $this->_creaInput($form, $ret, "email");
+        $this->_creaInput($form, $ret, "nom i cognoms");
+        $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('btn_update'), ['id'=> "btn__actualitza"]);
+        $form->addElement("</div>");
+    }
+
+    private function _creaInput(&$form, &$ret, $name, $size="30") {
         $value = "";
         $attrs = ['_text' => "${name}:&nbsp;",
                   'name' => str_replace(" ","_",$name),
                   'type' => "text",
-                  'size' => "30",
+                  'size' => $size,
                   'value' => $value];
         $this->_creaElement($form, $ret, $value, $attrs);
     }
 
     private function _creaElement(&$form, &$ret, $value, $attrs) {
-        $form->addElement(self::OBRE_SPAN);
+        $form->addElement(self::SPAN_LEFT);
         $form->addElement(form_field($attrs));
         $form->addElement("</span>");
         $ret['elements'][] = $value;
@@ -123,7 +113,7 @@ class NewUserTeachersAction extends AdminAction {
 
     private function _creaBoto(&$form, $action, $title='', $attrs=array(), $type='submit') {
         $button = form_makeButton($type, $action, $title, $attrs);
-        $form->addElement(self::OBRE_SPAN);
+        $form->addElement(self::SPAN_CENTER);
         $form->addElement(form_button($button));
         $form->addElement("</span>");
     }
