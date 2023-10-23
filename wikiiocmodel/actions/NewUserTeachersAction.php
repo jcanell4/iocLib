@@ -43,7 +43,13 @@ class NewUserTeachersAction extends AdminAction {
         $this->_creacioBlocPrincipal($form, $ret);
 
         if (isset($this->params['do']['desa'])) {
-            
+            //class admin_plugin_usermanager extends DokuWiki_Admin_Plugin {
+            global $auth;
+            $this->_auth = $auth;
+            $pass = auth_pwgen($user);
+            $moodle = '1';
+            $editor = 'ACE';
+            $this->_notifyUser($user, $pass, $moodle);
         }
         elseif (isset($this->params['do']['actualitza'])) {
             $this->_mostraLlistaUsuaris($form);
