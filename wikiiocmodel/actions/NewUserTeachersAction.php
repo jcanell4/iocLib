@@ -35,10 +35,10 @@ class NewUserTeachersAction extends AdminAction {
         $usuari = $this->params['usuari'];
         $email = $this->params['email'];
         $nom = $this->params['nom_i_cognoms'];
-        $llista_usuaris = $this->params['llista_usuaris'];
+        $llista_usuaris = json_decode($this->params['llista_usuaris'], true);
         $llista_usuaris[] = [$usuari, $email, $nom];
 
-        $form->addHidden('llista_usuaris', $llista_usuaris);
+        $form->addHidden('llista_usuaris', json_encode($llista_usuaris));
         $form->addElement(self::DIVGRUP);
         $form->addElement(self::OBRE_SPAN."<b>Llistat dels nous professors</b></span>");
 
@@ -67,7 +67,7 @@ class NewUserTeachersAction extends AdminAction {
 
         $form->addElement($html);
         $form->addElement("</div>");
-        $this->_creaBoto($form, "envia", WikiIocLangManager::getLang('btn_send'), ['id'=> "btn__envia"]);
+        $this->_creaBoto($form, "desa", WikiIocLangManager::getLang('btn_save'), ['id'=> "btn__save"]);
     }
 
     private function _createForm() {
@@ -82,8 +82,8 @@ class NewUserTeachersAction extends AdminAction {
 
         $this->_creacioBlocPrincipal($form, $ret);
 
+        $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('btn_update'), ['id'=> "btn__actualitza"]);
         $form->addElement("<p>&nbsp;</p>");
-        $this->_creaBoto($form, "actualitza", WikiIocLangManager::getLang('media_upload'), ['id'=> "btn__actualitza"]);
 
         if (isset($this->params['do']['actualitza'])) {
             $this->_mostraLlistaUsuaris($form, $ret);
@@ -119,16 +119,6 @@ class NewUserTeachersAction extends AdminAction {
         $form->addElement(form_field($attrs));
         $form->addElement("</span>");
         $ret['elements'][] = $value;
-    }
-
-    private function _creaCheckBox(&$form, &$ret, $valor="") {
-        $checkbox = form_makeCheckboxField("checkbox", $valor, "marca la casella per connectar amb altres grups");
-        $form->addElement(form_checkboxfield($checkbox));
-        $ret["checkbox"] = IocCommon::nz($valor);
-    }
-
-    private function _creaBotoConsulta(&$form) {
-        $this->_creaBoto($form, "actualitza_consulta", "Actualitza", ['id'=>"btn__actualitza_consulta"]);
     }
 
     private function _creaBoto(&$form, $action, $title='', $attrs=array(), $type='submit') {
