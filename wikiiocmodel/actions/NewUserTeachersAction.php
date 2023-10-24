@@ -13,8 +13,6 @@ class NewUserTeachersAction extends AdminAction {
     const SPAN_LEFT = '<span style="margin-left:10px;">';
     const SPAN_CENTER = '<div style="display:block; margin:10px auto; width:20%;">';
 
-    private $datacall = "call=new_user_teachers";
-
     public function init($modelManager=NULL) {
         parent::init($modelManager);
     }
@@ -51,9 +49,11 @@ class NewUserTeachersAction extends AdminAction {
                 $usuari = [$u[0], auth_pwgen($u[0]), $u[1], $u[2], '1'];
                 $this->_addUser($usuari);
             }
+            $ret['info'] = 'new_users_created';
         }
         elseif (isset($this->params['do']['actualitza'])) {
             $this->_mostraLlistaUsuaris($form);
+            $ret['info'] = 'list_new_users_updated';
         }
 
         $ret['list'] .= $form->getForm();
