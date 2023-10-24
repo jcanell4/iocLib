@@ -43,13 +43,14 @@ class NewUserTeachersAction extends AdminAction {
         $this->_creacioBlocPrincipal($form, $ret);
 
         if (isset($this->params['do']['desa'])) {
-            //class admin_plugin_usermanager extends DokuWiki_Admin_Plugin {
             global $auth;
-            $this->_auth = $auth;
-            $pass = auth_pwgen($user);
-            $moodle = '1';
-            $editor = 'ACE';
-            $this->_notifyUser($user, $pass, $moodle);
+            $this->_auth = &$auth;
+            $llista_usuaris = json_decode($this->params['llista_usuaris'], true);
+            foreach ($llista_usuaris as $u) {
+                //$user, $pass, $mail, $name, $moodle
+                $usuari = [$u[0], auth_pwgen($u[0]), $u[1], $u[2], '1'];
+                $this->_addUser($usuari);
+            }
         }
         elseif (isset($this->params['do']['actualitza'])) {
             $this->_mostraLlistaUsuaris($form);
@@ -122,6 +123,87 @@ class NewUserTeachersAction extends AdminAction {
         $form->addElement(self::SPAN_CENTER);
         $form->addElement(form_button($button));
         $form->addElement("</span>");
+    }
+
+    /**
+     * Add an user to auth backend
+     * @return bool whether succesful
+     */
+    private function _addUser($usuari){
+        if (!checkSecurityToken()) return false;
+        if (!$this->_auth->canDo('addUser')) return false;
+
+        list($user, $pass, $mail, $name, $moodle, $editor, $grps) = $usuari;
+        if (empty($user)) return false;
+
+        if ($this->_auth->canDo('modPass')){
+            if (empty($pass)){
+                $pass = auth_pwgen($user);
+            }
+        } else {
+            if (!empty($pass)){
+                msg($this->lang['add_fail'], -1);
+                msg($this->lang['addUser_error_modPass_disabled'], -1);
+                return false;
+            }
+        }
+
+        if ($this->_auth->canDo('modName')){
+            if (empty($name)){
+                msg($this->lang['add_fail'], -1);
+                msg($this->lang['addUser_error_name_missing'], -1);
+                return false;
+            }
+        } else {
+            if (!empty($name)){
+                msg($this->lang['add_fail'], -1);
+                msg($this->lang['addUser_error_modName_disabled'], -1);
+                return false;
+            }
+        }
+
+        if ($this->_auth->canDo('modMail')){
+            if (empty($mail)){
+                msg($this->lang['add_fail'], -1);
+                msg($this->lang['addUser_error_mail_missing'], -1);
+                return false;
+            }
+        } else {
+            if (!empty($mail)){
+                msg($this->lang['add_fail'], -1);
+                msg($this->lang['addUser_error_modMail_disabled'], -1);
+                return false;
+            }
+        }
+        
+        if (empty($moodle)){
+            $moodle = '0';
+        }
+
+        if (empty($editor)){
+            $editor = 'ACE';
+        }
+        if (($ok = $this->_auth->triggerUserMod('create', array($user,$pass,$name,$mail,$moodle,$editor,$grps)))) {
+            msg($this->lang['add_ok'], 1);
+            $this->_notifyUser($user, $pass, $moodle);
+        } else {
+            msg($this->lang['add_fail'], -1);
+            msg($this->lang['addUser_error_create_event_failed'], -1);
+        }
+
+        return $ok;
+    }
+
+    private function _notifyUser($user, $password, $moodle, $status_alert=true) {
+        $password = ($moodle===0) ? $password : "Utilitza la contrasenya de moodle";
+        if (($sent = auth_sendPassword($user, $password))) {
+            if ($status_alert) {
+                msg($this->lang['notify_ok'], 1);
+            }
+        }else if ($status_alert) {
+            msg($this->lang['notify_fail'], -1);
+        }
+        return $sent;
     }
 
 }
