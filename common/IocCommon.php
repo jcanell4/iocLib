@@ -276,47 +276,147 @@ class IocCommon {
     }
 
     /**
-     * Extreu la propietat 'title' d'una construcció del tipus externallink o media
-     * @param string $render - Objecte sol·licitant: 'link', 'media'
-     * @param string $type - 'pdf', 'html'
-     * @param string $comment - Cadena en format: 'JSON', 'amb #' o 'string', que conté les diverses posibilitats de títol
-     * @return string
+     * Extreu la/les propietat/s indicadas a $fields d'una construcció del tipus 
+     * link o media de la wiki. que segueixi alguna de les següents sintaxis:
+     * 1. [[url/link|text]] on text és el text visible per vincular la url amb 
+     *    independència de quin renderer es faci servir. Sempre es retorna text
+     * 2. [[url/link|texthtml#textpdf]] on texthtml és un text per vincular l'enllaç 
+     *    en la renderització html i textpdf es el text destinat a vinculat la url
+     *    en la versió pdf.
+     * 3. [[url/link|{“html”:”text per html”,”pdf”:”text per pdf”}]]. on el títol 
+     *    presenta un format JSON amb dos camps html i pdf.
+     * 4. {{ns:imatgeInterna|text/offset?}} destinat a afegir imatges de tipus B en les 
+     *    que el text associat a la imatge, a l'atribut title i l'atribut alt, 
+     *    prenguin el valor text. El valor offset és opcional i pot contenir 
+     *    un valor numèric per determminar l'offset aplicat a la renderització PDF
+     * 5. {{ns:imatgeInterna|text associat a la imatge B i a l'atrubut title#text per a cecs/offset?}} 
+     *    i en el que el text es troba dividit en dos fragments separats per #. El
+     *    primer fragment està destinat a afegir a les imatges de tipus B el text 
+     *    associat a la imatge i el títol. El segon fragment defineix lel valor de 
+     *    l'atribut alt. El valor offset és opcional i pot contenir un valor 
+     *    numèric per determminar l'offset aplicat a la renderització PDF
+     * 6. {{ns:imatgeInterna|["title":"text associat a la imatge B i a l'atribut title", "alt":"text per a cecs", "offset":99]/offset?}}.
+     *    Aquí, els textos associats a la imatge B es defineixen per un objecte 
+     *    amb sintaxi JSON però delimitat per [] en comptes de {}. El camp title 
+     *    s'associarà a l'atribut title de l'etiqieta img i al text associat a 
+     *    la imatge B, el camp alt s'assignarà al l'atribut alt de l'etiqueta img. 
+     *    El valor offset usat en la renderització pdf és opcional i es pot definir
+     *    de dues maneres: fent servir un camp anomenat offset de l'objecte JSON o
+     *    bé fent servir la notació classica on l'ofsset es troba al final del 
+     *    text i es separa amb el caràcter /.
+     * El valor $type indica si la sintaxi esperada és de tipus link [[...]] o de 
+     * tipus imatge B {{...}}. El valor de $fields indica quin o quins camps es volen 
+     * retornar. Admet una cadena amb el nom d'un dels camps o un array amb el
+     * camp o camps que la funció ha d’extreure de $comment i retornar-ho. 
+     * Si $fields és una cadena es retornarà un string amb el valor del camp si 
+     * existeix o una cadena buida en cas contrari. Si $fields és un array es 
+     * retornarà un array associatiu amb el valor de cada camp (cadena buida si 
+     * no existeix). El nom del camp farà de clau en l’array associatiu retornat. 
+     * Per tipus ‘link’ s’admeten els valors de camps: ‘html’ i ‘pdf’. Per tipus 
+     * ‘media’ s’admeten els camps: ‘html’, ‘pdf’, ‘title', ‘alt’ i 'offset’. En el 
+     * tipus ‘media’, el camp ‘html’ és equivalent a passar un array amb el  valor 
+     * array(’title', ‘alt’). El camp ‘pdf’ és equivalent a passar el camp ‘title’. 
+     * Aquest canvis s’han fet per compatibilitzar amb la versió original en la que 
+     * només es feia servir html o pdf. D’aquesta manera evitem canvis a altres parts 
+     * del codi, sense necessitat.
+     * @param string $type - Objecte sol·licitant: 'link', 'media'
+     * @param mixed $fields paràmetre de tipus mixed que pot ser un cadena o un array de 
+     * cadevnes amb algun dels valors següents: 'pdf', 'html', 'name', 'short', 
+     * 'title', 'alt', 'offset'
+     * @param string $comment - Cadena en format: JSON, 'JSON delimitat per []', 
+     * 'amb #' o 'string', que conté les diverses posibilitats de títol.
+     * @return string o array
      */
-    public static function formatTitleExternalLink($render, $type, $comment="") {
+    public static function formatTitleExternalLink($type, $fields, $comment="") {
+        $inputTypesFromRender = array(
+                                "link" => array(
+                                    "html" => "html", 
+                                    "pdf" => "pdf"), 
+                                "media" => array(
+                                    "html" => array("title", "alt"),
+                                    "pdf" => "title",
+                                    "title" => "title", 
+                                    "alt" => "alt",  
+                                    "offset" => "offset"));   
         $ret = $comment;
         if (!empty($comment)) {
-            if ($comment[0] === "[") {
-                $comment = str_replace(['[',']','&quot;'], ['{','}','"'], $comment);  //format JSON
+            if(is_string($fields) && isset($inputTypesFromRender[$type][$fields])){
+                $field_or_fields = $inputTypesFromRender[$type][$fields] ;
+            }else{
+                $field_or_fields = $fields;
+            }            
+            if ($comment[0] === "[" || $comment[0] === "{" ) {
+                $comment = preg_replace('/\/[+-]?\d+$/', '', $comment); //elimina el 'offset'
+                $comment = str_replace(['[',']'], ['{','}'], $comment);  //format JSON
+                $comment = preg_replace(['/\{ *\&quot\;/','/\&quot\;\} */','/\&quot\; *: *\&quot\;/','/\&quot\; *, *\&quot\;/'], ['{"','"}','":"','","'], $comment);  //format JSON
                 $arr_titol = json_decode($comment, true);
-                if ($arr_titol) {
-                    $title = ($arr_titol[$type]) ? $arr_titol[$type] : $arr_titol['default'];
-                    if ($render == "media") {
-                        $ret = ["title" => $title, "alt" => ($arr_titol['alt']) ? $arr_titol['alt'] : ""];
-                    }else {
-                        $ret = $title;
-                    }
-                }
             }elseif (strpos($comment, "#") !== FALSE) {
-                $title = $comment;
-                $alt = "";
+                $t1 = $comment;
+                $t2 = "";
                 if (preg_match("/(?<!&amp;)#|\#(?!\d+;)/", $comment) || preg_match("/(?<!&)#|\#(?!\d+;)/", $comment)) {
                     // busca &#39; o &amp;#39; (comilla simple o torturada per htmlentities())
                     if (preg_match("/&amp;#\d+;/", $comment)) {
                         $s = preg_split("/(?<!&amp;)#|\#(?!\d+;)/", $comment);
-                    }elseif (preg_match("/&#\d+;/", $comment)) {
+//                    }elseif (preg_match("/&#\d+;/", $comment)) {
+//                        $s = preg_split("/(?<!&)#|\#(?!\d+;)/", $comment);
+                    }else{
                         $s = preg_split("/(?<!&)#|\#(?!\d+;)/", $comment);
                     }
-                    $title = $s[0];
-                    $alt = preg_replace('/\/[+-]?\d+$/', '', $s[1]); //elimina el 'offset'
+                    $t1 = $s[0];
+                    $t2 = preg_replace('/\/[+-]?\d+$/', '', $s[1]); //elimina el 'offset'
                 }
-                if ($render == "media") {
-                    $ret = ["title" => $title, "alt" => $alt];
-                }else {
-                    $ret = $title;
+                if(!empty($t2)){
+                    if($type == "link"){
+                        $arr_titol = array("html" => $t1, "pdf" => $t2);
+                    }else{
+                        $arr_titol = array("title" => $t1, "alt" => $t2);
+                    }
+                }
+            }
+            if(isset($arr_titol)) {                    
+                if(is_array($field_or_fields)){
+                    $ret = array();
+                    foreach ($field_or_fields as $field) {
+                        $ret[$field] = self::__getCommentFieldValues($arr_titol, $field);
+                    }
+                }else{
+                    $ret = self::__getCommentFieldValues($arr_titol, $field_or_fields);
                 }
             }
         }
         return $ret;
+    }
+    
+    /**
+     * Aques mètode obté el valor del camp ($field) passat per paràmetre i contingut 
+     * com a clau a l'array associatiu $aComment o en el seu defecte algun dels 
+     * seus alies acceotats a les sintaxis WIKI analitzades.
+     * @param Array $aComment. És una array associatiu amb els valor dels camps a 
+     * extreure.
+     * @param String $field. Ës el nom del camp a extreure des de $aComment. Aquest 
+     * nom o algun dels seus àlies ha d'existir dins l'array associatiu $aComment. 
+     * En cas contrari es retornarà una cadena buida
+     * @return String
+     */
+    private static function __getCommentFieldValues($aComment, $field){
+        $commentFields = array(
+                            "text" => array("text", "default"), 
+                            "short" => array("short", "default"), 
+                            "title" => array("title"),
+                            "alt" => array("alt", "description"),
+                            "offset" => array("offset"));
+        if(isset($commentFields[$field])){
+            $fieldCandidates = $commentFields[$field];
+        }else{
+            $fieldCandidates = array($field);
+        }
+        $found = false;
+        foreach ($fieldCandidates as $candidate) {
+            if(!$found && isset($aComment[$candidate])){
+                $found = $aComment[$candidate];
+            }
+        }
+        return $found?$found:"";
     }
 
     public static function removeDir($directory) {
