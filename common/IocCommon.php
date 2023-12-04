@@ -337,7 +337,10 @@ class IocCommon {
                                     "pdf" => "title",
                                     "title" => "title", 
                                     "alt" => "alt",  
-                                    "offset" => "offset"));   
+                                    "offset" => "offset"),
+                                "file" => array(
+                                    "html" => array("title", "nobreak"),
+                                    "pdf" => "title"));   
         $ret = $comment;
         if (!empty($comment)) {
             if(is_string($fields) && isset($inputTypesFromRender[$type][$fields])){
@@ -368,10 +371,20 @@ class IocCommon {
                 if(!empty($t2)){
                     if($type == "link"){
                         $arr_titol = array("html" => $t1, "pdf" => $t2);
-                    }else{
+                    }else if($type == "media"){
                         $arr_titol = array("title" => $t1, "alt" => $t2);
+                    }else{
+                        $nbreak = str_ends_with($t2, "/++");
+                        $arr_titol = array("title" => $t1, "nobreak" => $nbreak);
                     }
                 }
+            }else if($type == "file"){
+                $comment = preg_replace('/\/[+-]?\d+$/', '', $comment); //elimina el 'offset'
+                $nbreak = preg_match("/\/\+\+$/",  $comment);
+                if($nbreak){
+                    $comment = preg_replace('/\/\+\+$/', '', $comment); //elimina el break'
+                }
+                $arr_titol = array("title" => $comment, "nobreak" => $nbreak);
             }
             if(isset($arr_titol)) {                    
                 if(is_array($field_or_fields)){
