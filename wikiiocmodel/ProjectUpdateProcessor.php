@@ -137,6 +137,12 @@ abstract class AbstractProjectUpdateProcessor{
     }
 }
 
+// Updated by marjose
+// to manage arrays of objects
+// $obj contains de data coming from de admconfig project related
+// $field contains the field name to change
+// $projectMetaData contains all the data of the project being updated
+
 class FieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
@@ -149,18 +155,42 @@ class FieldProjectUpdateProcessor{
 //                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
 //            }            
         }else if(strpos($field, "#")>0){
+            $esElementArray = false;
+
             $b = false;
-            $data = &$projectMetaData;
+            $dataPosIni = $data = &$projectMetaData;
             $akeys = explode("#", $field);
             $lim = count($akeys)-1;
             for($i=0; !$b && $i<$lim; $i++){
-                $b = !isset($data[$akeys[$i]]);
-                if(!$b){
-                    $data = &$data[$akeys[$i]];
+                //akeys contains field to be accessed
+                //if the field contains a number, we are accessing an element of an objectarray, 
+                //it must be coverted from string to int
+                if (is_numeric($akeys[$i])) {
+                   $akeys[$i] = intval($akeys[$i]); 
+                   $b = !isset($data[$akeys[$i]]);
+                   if(!$b){
+                       // saves the data field position
+                        $dataPosIni = $data;
+                        $esElementArray = true;
+                       // convert $data from JSON string to PHP array to be able to access the position specified by $akeys
+                        $phpArray = json_decode($data, true);
+                        $data = &$phpArray[$akeys[$i]];
+                   }
+                }else{ //When element is not a number, thus it is an object and not an element of an objectarray                
+                    $b = !isset($data[$akeys[$i]]);
+                    if(!$b){
+                        $data = &$data[$akeys[$i]];
+                    }
                 }
             }
             if(!$b){
                 $data[$akeys[$lim]]= self::_resolveUpdateValue($obj, $data[$akeys[$lim]]);
+                
+                if($esElementArray){
+                    $stringTempo =  json_encode($phpArray);
+                    copy($stringTempo, $dataPosIni);
+                    $dataPosIni = json_encode($phpArray);
+                }
             }
         }        
     }    
