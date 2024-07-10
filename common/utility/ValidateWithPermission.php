@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of ValidateWithResponse
+ * Description of ValidateWithPermission
  */
 abstract class ValidateWithPermission extends AbstractValidate {
 
@@ -13,5 +13,5 @@ abstract class ValidateWithPermission extends AbstractValidate {
     function init($permission) {
         $this->permission = $permission;
     }
-    
+
 }
