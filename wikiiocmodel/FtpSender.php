@@ -133,9 +133,13 @@ class FtpSender{
             $remote_dir = "/".trim($remote_dir,"/")."/";
             ssh2_sftp_mkdir($this->sftp, $remote_dir, 0777, TRUE);
 
+            
+            //proves
+            //$sftp = $this->sftp;
+            //$stream = @fopen("ssh2.sftp://$sftp$remote_dir$remote_file", 'r');
             $stream = @fopen("ssh2.sftp://{$this->sftp}$remote_dir$remote_file", 'w');
             if (! $stream)
-                throw new Exception("Could not open remote file: $remote_dir$remote_file");
+                throw new Exception("Could not open remote file: $remote_dir$remote_file"); 
 
             while (! feof($fh)) {
                 $data_to_send = @fread($fh, $maxBytes); //Llegir 1 MB
@@ -145,7 +149,7 @@ class FtpSender{
             $ret = fclose($stream);
             fclose($fh);
         }
-        //Logger::debug("FtpSender::uploadFile-end: \$ret=$ret", 0, __LINE__, basename(__FILE__), 1);
+        Logger::debug("FtpSender::uploadFile-end: \$ret=$ret", 0, __LINE__, basename(__FILE__), 1);
         return $ret;
     }
 
@@ -159,13 +163,19 @@ class FtpSender{
         //$methods = ['hostkey' => 'ssh-rsa'];
         //$callbacks = ['disconnect' => [$this, 'callback_ssh_disconnect']];
         //$this->connection = ssh2_connect($host, $port, $methods, $callbacks);
+        //$this->connection = ssh2_connect($host, $port);
 
-        $this->connection = ssh2_connect($host, $port);
+        $this->connection = @ssh2_connect('ftp-ioc.xtec.cat', 22);
+
+        
+
         if ($this->connection) {
-            if (($ret = ssh2_auth_password($this->connection, $user, $pass))) {
+           //if (($ret = ssh2_auth_password($this->connection, $user, $pass))) {
+           if (($ret = ssh2_auth_password($this->connection, "materials", "ZrMjmfZRPf3FVxHU"))) {
                 $this->sftp = $ret = ssh2_sftp($this->connection);
             }
         }
+        
         return $ret;
     }
 

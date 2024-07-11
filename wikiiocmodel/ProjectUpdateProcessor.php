@@ -137,6 +137,29 @@ abstract class AbstractProjectUpdateProcessor{
     }
 }
 
+
+// ------------------------------------------------------------
+// FieldProjectUpdateProcessor 
+// 
+// $obj contains de data coming from de admconfig project related
+// $field contains the field name to change
+// $projectMetaData contains all the data of the project being updated
+// 
+// Updated by marjose to manage arrays of objects
+// Now accepts $projectMetaData structures which contain an array of structures
+// And the way to address a data from de configMain would be:
+//  fielname in case it is a field of $projectMetaData
+//  fielname#subfieldname in case it is a subfield of a field $projectMetaData 
+//  (which as much levels of subfields as wanted, for example: fielname#subfieldname#subfieldname#subfieldname#subfieldname
+//  
+//  and:
+//  fielname#num#subfieldname in case the first subfield of a field $projectMetaData is an array. Being num the index of the array
+//  for example:
+//  fielname#0#subfieldname the pos 0 of the array
+//  fielname#1#subfieldname the pos 1 of the array
+// -----------------------------------------------------------
+
+
 class FieldProjectUpdateProcessor{
     public static function runProcessField($obj, $field, &$projectMetaData){
         if (isset($projectMetaData[$field])) {
@@ -149,29 +172,61 @@ class FieldProjectUpdateProcessor{
 //                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
 //            }            
         }else if(strpos($field, "#")>0){
+            $esElementArray = false;
+
             $b = false;
-            $data = &$projectMetaData;
+            $dataPosIni = $data = &$projectMetaData;
             $akeys = explode("#", $field);
             $lim = count($akeys)-1;
-            for($i=0; !$b && $i<$lim; $i++){
-                $b = !isset($data[$akeys[$i]]);
-                if(!$b){
-                    $data = &$data[$akeys[$i]];
+            for($i=0; !$b && $i<$lim; $i++){                             
+                //if the field contains a number, we are accessing an element of an objectarray
+                //akeys contains field to be accessed   
+                if (is_numeric($akeys[$i])) { 
+                   $akeys[$i] = intval($akeys[$i]); //it must be coverted from string to int
+                   $b = !isset($data[$akeys[$i]]);
+                   if(!$b){
+                        $esElementArray = true;
+                       // convert $data from JSON string to PHP array to be able to access the position specified by $akeys
+                        $phpArray = json_decode($data, true);
+                        $data = &$phpArray[$akeys[$i]];//data apunta a phpArray i no a projectMetaData, això pot ser un problema.
+                        //a partir d'aqui naveguem per l'array $phpArray que està apuntat per $data ($data apunta a un element ed $phpArray)
+                   }
+                }else{ //When element is not a number, thus it is an object and not an element of an objectarray                
+                    $b = !isset($data[$akeys[$i]]);
+                    if(!$b){
+                        $data = &$data[$akeys[$i]];
+                    }
                 }
             }
-            if(!$b){
-                $data[$akeys[$lim]]= self::_resolveUpdateValue($obj, $data[$akeys[$lim]]);
+
+            if(!$b){ //Aquí entrem perquè s'ha arribat al darrer camp de l'estructura i hi ha contingut
+                //If it is an elementArray, $data is pointing to the last element from phpArray
+                //and assigning a new value to data is thus assignig a new value to phpArray field.
+                //In any case (being an elementArray or not) the new value, contained in obj, 
+                //is asigned to the right field in $data[actual position] structure
+                $data[$akeys[$lim]]= self::_resolveUpdateValue($obj, $data[$akeys[$lim]]); 
+                
+                if($esElementArray){
+                    $projectMetaData[$akeys[0]]=json_encode($phpArray);
+                }
             }
         }        
     }    
     
+    //Dubtes marjose:
+    /*
+     * perquè serveix arrayFieldProjectUpdateProcessor? qui defineix que es cridi runProcessField de FieldProjectUpdateProcessor 
+     * i no de ArrayFieldProjectUpdateProcessor???
+     * utilitza el tipus "arrayIncrement", però he de revisar com.
+     */
+    
     private static function _resolveUpdateValue($obj, $currentfieldValue){
         $ret = $obj->getFieldValue($currentfieldValue);
-        if($obj->hasParam("concat")){
-            $ret = $obj->concat($ret, $obj->getParam("concat"));
+        if($obj->hasParam("concat")){ 
+            $ret = $obj->concat($ret, $obj->getParam("concat")); //if obj contains a date, concat adds the year
         }
         if($obj->hasParam("returnType")){
-            $ret = $obj->returnType($ret, $obj->getParam("returnType"));
+            $ret = $obj->returnType($ret, $obj->getParam("returnType")); //if obj contains a date, returnType returns de same date in format YYYY-MM-DD
         }            
         return $ret;
     }
