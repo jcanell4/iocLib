@@ -50,6 +50,7 @@ class DW2HtmlRow extends DW2HtmlInstruction {
 //            case 'example':
 //            case 'note':
 //            case 'reference':
+//            case 'copytoclipboard':
 //            case 'important':
 //            case 'quote':
 //                return $this->getValueText($token, $type);
