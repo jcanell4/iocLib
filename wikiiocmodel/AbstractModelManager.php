@@ -56,7 +56,7 @@ abstract class AbstractModelManager {
     public function getProjectType() {
         return $this->projectType;
     }
-
+    
     public function getConfigProjectType() {
         if (!$this->confProjectType)
             $this->confProjectType = WikiGlobalConfig::getConf('projects','wikiiocmodel')['configuration'];
