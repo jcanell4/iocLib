@@ -27,7 +27,7 @@ class Html2DWParser extends IocParser {
             'state' => 'paragraph',
         ],
 
-        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => [
+        "<div class=\"ioc(?:text|textl|example|note|reference|copytoclipboard|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => [
             /*        '<div(?: class=".*?")? data-dw-box-text="(.*?)".*?>(.*?)<\/div><\/div>' => [*/
             'state' => 'box-text',
         ],
@@ -206,7 +206,7 @@ class Html2DWParser extends IocParser {
 
         "'<div>(<br ?\/>)*<\/div>'" => ['mode' => 'block', 'state' => 'paragraph', 'type' => 'paragraph', 'class' => 'Html2DWBlockReplacement', 'action' => 'self-contained', 'extra' => ['replacement' => "\\\\ ", 'regex' => TRUE]],
 
-        "<div class=\"ioc(?:text|textl|example|note|reference|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => ['mode' => 'block', 'state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
+        "<div class=\"ioc(?:text|textl|example|note|reference|copytoclipboard|important|quote).*?\" data-dw-box-text=\"(.*?)\".*?>(.*?<\/p>)<\/div><\/div>\n?" => ['mode' => 'block', 'state' => 'box', 'type' => 'text', 'class' => 'Html2DWBoxText', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 
         '<div class="imgb.*?" data-dw-lateral="(.*?)".*?>(<img.*?>)(.*?)<\/div><\/div>' => ['mode' => 'block','state' => 'image-lateral', 'type' => 'image', 'class' => 'Html2DWLateral', 'action' => 'self-contained', 'extra' => ['regex' => TRUE]],
 

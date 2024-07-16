@@ -47,6 +47,7 @@ class DW2HtmlBox extends DW2HtmlInstruction
             case 'example':
             case 'note':
             case 'reference':
+            case 'copytoclipboard':
             case 'important':
             case 'quote':
                 $result = $this->getValueText($token, $type);
