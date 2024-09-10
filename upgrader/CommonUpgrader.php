@@ -652,6 +652,35 @@ class CommonUpgrader {
         return $ret;
     }
 
+    //Retorna el text que es troba entre la línia $fromline (inclosa) a la línia
+    //$toline (inclosa) en le paràmetre $txt
+    public function substringFromLineToLine($txt, $fromline, $toline){
+        $fromline = $fromline-1;
+        $lines = $toline-$fromline;
+        $pattern = "/(?:(?:.*\n){{$fromline}})((?:.*\n){{$lines}})/m";
+        preg_match($pattern, $txt, $matches);
+        return $matches[1];        
+    }
+
+    //Retorna el text que es troba entre la línia $fromline (inclosa) a la línia
+    //$toline (inclosa) en le paràmetre $txt
+    public function substringFromLineToLineAsPattern($txt, $fromline, $toline){
+        $fromline = $fromline-1;
+        $lines = $toline-$fromline;
+        $pattern = "/(?:(?:.*\n){{$fromline}})((?:.*\n){{$lines}})/m";
+        preg_match($pattern, $txt, $matches);
+        $ret = $matches[1];       
+        $ret = preg_replace_callback(
+                '/([\\\\\|\$\/\(\[\)\]\"\'\?\^\+\*\{\}\.\-])/m', 
+                function ($matches){
+                    return "\\".$matches[1];
+                }, 
+                $ret
+        );
+//        $ret = preg_replace('/([\\\\\|\$\/\(\[\)\]\"\'\?\^\+\*\{\}\.\-])/m', "\\\\$1", $ret);
+        return $ret;
+    }
+
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //                                  PROVES
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
