@@ -459,12 +459,53 @@ abstract class DataQuery {
             }
         }
     }
+    
+    /**
+     * Duplica els directoris corresponents a un material
+     * @param string $old_dir : ruta wiki del directori original
+     * @param string $new_dir : ruta wiki del directori destí de la còpia
+     * @throws Exception
+     */
+    public function duplicateFolder($old_dir, $new_dir) {
+        $paths = ['datadir', 'mediadir'];
+        foreach ($paths as $dir) {
+            $basePath = WikiGlobalConfig::getConf($dir);
+            $oldPath = "$basePath/$old_dir";
+            if (file_exists($oldPath)) {
+                $newPath = "$basePath/$new_dir";
+                if (!$this->_recurse_copy($oldPath, $newPath)) {
+                    throw new Exception("duplicateProject: Error mentre duplicava el projecte a $dir.");
+                }
+            }
+        }
+    }
 
+    public function renameMediaFiles($old_name, $new_name, $base_dir="") {
+        if ($base_dir == "") {
+            $base_dir = WikiGlobalConfig::getConf('mediadir');
+        }
+        $search = str_replace("/", "_", $old_name);
+        $replace = str_replace("/", "_", $new_name);
+        $ruta = "$base_dir/$new_name";
+
+        $scdir = @scandir($ruta);
+        foreach ($scdir as $file) {
+            if (is_dir($file)) {
+                if ($file != "." && $file != "..") {
+                    $this->renameMediaFiles($old_name, $new_name, "$base_dir/$new_name/$file");
+                }
+            }elseif (preg_match("/^({$search})(.*)/", $file) ) {
+                $nou = preg_replace("/^({$search})(.*)/", "{$replace}$2", $file);
+                rename("$ruta/$file", "$ruta/$nou");
+            }
+        }
+    }
+    
     private function _recurse_copy($src, $dst) {
         $dir = opendir($src);
         $ret = mkdir($dst, 0775, TRUE);
         if (!$ret)
-            throw new Exception("duplicateProject: Error mentre duplicava el projecte. Error de creació del directori: $dst.");
+            throw new Exception("duplicate Project o Folder: Error mentre duplicava. Error de creació del directori: $dst.");
         while(false !== ($file = readdir($dir))) {
             if ($file != "." && $file != "..") {
                 if (is_dir("$src/$file") ) {

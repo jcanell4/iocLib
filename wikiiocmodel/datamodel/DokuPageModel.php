@@ -573,6 +573,42 @@ class DokuPageModel extends WikiRenderizableDataModel {
     }
 
     /**
+     * Duplica els directoris corresponents a un material
+     * @param string $old_name : ns original del directori
+     * @param string $new_name : nou nom pel directori
+     */
+    public function duplicateFolder($old_name, $new_name) {
+        if ($this->pageDataQuery->isAProject($old_name)) {
+            throw new Exception("Aquest procés no permet seleccionar un projecte");
+        }
+        $base_old_dir = explode(":", $old_name);
+        $old_name = array_pop($base_old_dir);
+        $base_old_dir = implode("/", $base_old_dir);
+        $base_new_dir = explode(":", $new_name);
+        $new_name = array_pop($base_new_dir);
+        $base_new_dir = implode("/", $base_new_dir);
+        $old_dir = "$base_old_dir/$old_name";
+        $new_dir = "$base_new_dir/$new_name";
+        
+        if (is_dir("$base_new_dir/$new_name")) {
+            throw new Exception("Acció no permesa: el nom del directori destí ja existeix");
+        }else {
+            //1. Fa una còpia del directori $old en el nou directori $new
+            $this->pageDataQuery->duplicateFolder($old_dir, $new_dir);
+            //2. buscar els arxius (només a media) que comencin per $old_dir* i canviar el nom a $new_dir*
+            $this->pageDataQuery->renameMediaFiles($old_dir, $new_dir);
+            //   
+            //3. $search = ":" . str_replace("/", ":", "$base_old_dir/$old_name") . ":"
+            //   $replace = ":" . str_replace("/", ":", "$base_new_dir/$new_name") . ":"
+            //   buscar dins de cada arxiu (només a pages) la cadena $search i substituir-la per $replace
+            //   
+            //4. $search = str_replace("/", "_", "$base_old_dir/$old_name") . "_"
+            //   $replace = str_replace("/", "_", "$base_new_dir/$new_name") . "_"
+            //   buscar dins de cada arxiu (només a pages) la cadena $search i substituir-la per $replace
+        }
+    }
+
+    /**
      * @return array Llista de terminacions de fitxers que contenen el nom del directori
      */
     private function _arrayTerminators() {
