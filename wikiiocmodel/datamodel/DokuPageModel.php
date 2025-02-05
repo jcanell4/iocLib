@@ -597,14 +597,10 @@ class DokuPageModel extends WikiRenderizableDataModel {
             $this->pageDataQuery->duplicateFolder($old_dir, $new_dir);
             //2. buscar els arxius (només a media) que comencin per $old_dir* i canviar el nom a $new_dir*
             $this->pageDataQuery->renameMediaFiles($old_dir, $new_dir);
-            //   
-            //3. $search = ":" . str_replace("/", ":", "$base_old_dir/$old_name") . ":"
-            //   $replace = ":" . str_replace("/", ":", "$base_new_dir/$new_name") . ":"
-            //   buscar dins de cada arxiu (només a pages) la cadena $search i substituir-la per $replace
-            //   
-            //4. $search = str_replace("/", "_", "$base_old_dir/$old_name") . "_"
-            //   $replace = str_replace("/", "_", "$base_new_dir/$new_name") . "_"
-            //   buscar dins de cada arxiu (només a pages) la cadena $search i substituir-la per $replace
+            //3. buscar dins de cada arxiu (només a pages) la cadena $old_dir i substituir-la per $new_dir (replace amb ":")
+            $this->pageDataQuery->changeNsInFiles($old_dir, $new_dir, ":");
+            //4. buscar dins de cada arxiu (només a pages) la cadena $old_dir i substituir-la per $new_dir (replace amb "_")
+            $this->pageDataQuery->changeNsInFiles($old_dir, $new_dir, "_");
         }
     }
 

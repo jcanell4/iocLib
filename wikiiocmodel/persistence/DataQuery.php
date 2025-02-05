@@ -460,47 +460,6 @@ abstract class DataQuery {
         }
     }
     
-    /**
-     * Duplica els directoris corresponents a un material
-     * @param string $old_dir : ruta wiki del directori original
-     * @param string $new_dir : ruta wiki del directori destí de la còpia
-     * @throws Exception
-     */
-    public function duplicateFolder($old_dir, $new_dir) {
-        $paths = ['datadir', 'mediadir'];
-        foreach ($paths as $dir) {
-            $basePath = WikiGlobalConfig::getConf($dir);
-            $oldPath = "$basePath/$old_dir";
-            if (file_exists($oldPath)) {
-                $newPath = "$basePath/$new_dir";
-                if (!$this->_recurse_copy($oldPath, $newPath)) {
-                    throw new Exception("duplicateProject: Error mentre duplicava el projecte a $dir.");
-                }
-            }
-        }
-    }
-
-    public function renameMediaFiles($old_name, $new_name, $base_dir="") {
-        if ($base_dir == "") {
-            $base_dir = WikiGlobalConfig::getConf('mediadir');
-        }
-        $search = str_replace("/", "_", $old_name);
-        $replace = str_replace("/", "_", $new_name);
-        $ruta = "$base_dir/$new_name";
-
-        $scdir = @scandir($ruta);
-        foreach ($scdir as $file) {
-            if (is_dir($file)) {
-                if ($file != "." && $file != "..") {
-                    $this->renameMediaFiles($old_name, $new_name, "$base_dir/$new_name/$file");
-                }
-            }elseif (preg_match("/^({$search})(.*)/", $file) ) {
-                $nou = preg_replace("/^({$search})(.*)/", "{$replace}$2", $file);
-                rename("$ruta/$file", "$ruta/$nou");
-            }
-        }
-    }
-    
     private function _recurse_copy($src, $dst) {
         $dir = opendir($src);
         $ret = mkdir($dst, 0775, TRUE);
@@ -519,7 +478,77 @@ abstract class DataQuery {
         closedir($dir);
         return $ret;
     }
+    
+    /**
+     * Duplica els directoris corresponents a un material
+     * @param string $old_dir : ruta wiki del directori original
+     * @param string $new_dir : ruta wiki del directori destí de la còpia
+     * @throws Exception
+     */
+    public function duplicateFolder($old_dir, $new_dir) {
+        $paths = ['datadir', 'mediadir'];
+        foreach ($paths as $dir) {
+            $basePath = WikiGlobalConfig::getConf($dir);
+            $oldPath = "$basePath/$old_dir";
+            if (file_exists($oldPath)) {
+                $newPath = "$basePath/$new_dir";
+                if (!$this->_recurse_copy($oldPath, $newPath)) {
+                    throw new Exception("duplicateFolder: Error mentre duplicava el directori $dir.");
+                }
+            }
+        }
+    }
 
+    /**
+     * Canvia el nom dels arxius que comencen per l'antic nom ns per un nou nom ns (el nom del duplicat)
+     * @param string $old_name : antic nom ns
+     * @param string $new_name : nou nom ns (el nom del duplicat)
+     * @param string $ruta : ruta base
+     */
+    public function renameMediaFiles($old_name, $new_name, $ruta="") {
+        $ruta = ($ruta == "") ? WikiGlobalConfig::getConf('mediadir')."/$new_name" : $ruta;
+        $search = str_replace("/", "_", $old_name);
+        $replace = str_replace("/", "_", $new_name);
+
+        $scdir = @scandir($ruta);
+        foreach ($scdir as $file) {
+            if (is_dir("$ruta/$file")) {
+                if ($file != "." && $file != "..") {
+                    $this->renameMediaFiles($old_name, $new_name, "$ruta/$file");
+                }
+            }elseif (preg_match("/^({$search})(.*)/", $file) ) {
+                $nou = preg_replace("/^({$search})(.*)/", "{$replace}$2", $file);
+                rename("$ruta/$file", "$ruta/$nou");
+            }
+        }
+    }
+
+    /**
+     * Canvia el contingut dels arxius que contenen una antiga ruta ns per una nova ruta ns
+     * @param string $old_path : antiga ruta 
+     * @param string $new_path : nova ruta 
+     * @param string $sep : caracter de separació dels components de la ruta ns
+     * @param string $ruta : ruta base
+     */
+    public function changeNsInFiles($old_path, $new_path, $sep, $ruta="") {
+        $ruta = ($ruta == "") ? WikiGlobalConfig::getConf('datadir')."/$new_path" : $ruta;
+        $search = str_replace("/", $sep, $old_path);
+        $replace = str_replace("/", $sep, $new_path);
+
+        $scdir = @scandir($ruta);
+        foreach ($scdir as $file) {
+            if (is_dir("$ruta/$file")) {
+                if ($file != "." && $file != "..") {
+                    $this->changeNsInFiles($old_path, $new_path, $sep, "$ruta/$file");
+                }
+            }else {
+                $content = file_get_contents("$ruta/$file");
+                $content = preg_replace("/{$search}/", $replace, $content);
+                file_put_contents("$ruta/$file", $content, LOCK_EX);
+            }
+        }
+    }
+    
     /**
      * Retorna l'espai de noms que conté el fitxer identificat per $id
      * @param string $id és l'identificador del fitxer d'on extreu l'espai de noms
