@@ -29,6 +29,12 @@ abstract class WikiIocModelException extends Exception {
     }
 }
 
+class MalFormedJSONException extends WikiIocModelException {
+    public function __construct($message = "Malformed JSON to decode", $code = 5100, $previous = NULL) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
 class HttpErrorCodeException extends WikiIocModelException {
     public function __construct($message, $code, $previous=NULL) {
         parent::__construct($message, $code, $previous);

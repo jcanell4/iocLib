@@ -32,9 +32,9 @@ class SelectedProjectsAction extends AdminAction {
                         $llista[] = ['id' => $project['id'],
                                      'workflow' => $workflow];
                 }
-            } catch (MalFormedJSON $er){
+            } catch (MalFormedJSONException $e){
                 //error
-                $llista[] = ["id" => "Error MalFormedJSON in {$project['id']}", "workflow" => false];
+                $llista[] = ["id" => "Error MalFormedJSONException in {$project['id']}", "workflow" => false];
             }
         }
 

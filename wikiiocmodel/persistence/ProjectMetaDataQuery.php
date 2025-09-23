@@ -1205,7 +1205,7 @@ class ProjectMetaDataQuery extends DataQuery {
                                 if ($callback['function']($dades, $callback['params'])) {
                                     $selected[] = $id;
                                 }
-                            }catch(MalFormedJSON $e) {
+                            }catch(MalFormedJSONException $e) {
                                 $selected[] = "ERROR_".$e->getMessage()."_$id";
                             }
                         }
@@ -1628,7 +1628,7 @@ class ProjectMetaDataQuery extends DataQuery {
             $t = ($typeReturn==="array") ? TRUE : FALSE;
             $obj = json_decode($jsonVar, $t);
             if (json_last_error() != JSON_ERROR_NONE) {
-                throw new MalFormedJSON();
+                throw new MalFormedJSONException();
             }
         }
         return $obj;
