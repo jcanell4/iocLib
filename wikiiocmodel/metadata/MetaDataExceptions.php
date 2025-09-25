@@ -7,9 +7,9 @@
  */
 if (!defined('DOKU_INC')) die();
 
-class MalFormedJSON extends WikiIocModelException {
+class MalFormedJSONException extends WikiIocModelException {
 
-    public function __construct($code = 5100, $message = "Malformed JSON to decode", $previous = NULL) {
+    public function __construct($code = 5100, $message = "No es pot decodificar el JSON. Format incorrecte.", $previous = NULL) {
         parent::__construct($message, $code, $previous);
     }
 
