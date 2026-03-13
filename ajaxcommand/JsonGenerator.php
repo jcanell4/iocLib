@@ -91,6 +91,8 @@ interface JsonGenerator {
      * @return string dades en format JSON
      */
     public function getJsonEncoded();
+
+    
 }
 
 /**
@@ -134,7 +136,48 @@ class JSonGeneratorImpl implements JsonGenerator {
      */
     public function getJsonEncoded() {
         $dataToEncode = $this->getJson();
-        return json_encode($dataToEncode);
+        $flags = JSON_UNESCAPED_UNICODE;
+        if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+            $flags = $flags | JSON_INVALID_UTF8_SUBSTITUTE;
+        }
+
+        $json = json_encode($dataToEncode, $flags);
+        if ($json === false) {
+            $json = json_encode($this->sanitizeUtf8Recursive($dataToEncode), $flags);
+        }
+        return $json;
+    }
+
+    private function sanitizeUtf8Recursive($value) {
+        if (is_array($value)) {
+            $sanitized = array();
+            foreach ($value as $k => $v) {
+                $newKey = $k;
+                if (is_string($k)) {
+                    $newKey = $this->sanitizeUtf8Recursive($k);
+                }
+                $sanitized[$newKey] = $this->sanitizeUtf8Recursive($v);
+            }
+            return $sanitized;
+        }
+
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        if (function_exists('mb_check_encoding') && function_exists('mb_convert_encoding')) {
+            if (!mb_check_encoding($value, 'UTF-8')) {
+                return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+            }
+            return $value;
+        }
+
+        if (preg_match('//u', $value) !== 1 && function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+            return ($converted === false) ? '' : $converted;
+        }
+
+        return $value;
     }
 }
 
@@ -162,10 +205,26 @@ class ArrayJSonGenerator implements JsonGenerator {
      * @return string dades codificades en format JSON
      */
     public function getJsonEncoded() {
-        $ret = json_encode($this->getJson());
+        $data = $this->getJson();
+        $flags = JSON_UNESCAPED_UNICODE;
+        if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+            $flags = $flags | JSON_INVALID_UTF8_SUBSTITUTE;
+        }
+
+        $ret = json_encode($data, $flags);
         $error = json_last_error();
         if ($error !== JSON_ERROR_NONE) {
-            $ret = "ERROR en JsonGenerator->getJsonEncoded(): $error:" . json_last_error_msg();
+            $invalidPaths = $this->findInvalidUtf8Paths($data);
+            if (!empty($invalidPaths)) {
+                error_log('JsonGenerator invalid UTF-8 paths: ' . implode(', ', $invalidPaths));
+            }
+
+            $sanitized = $this->sanitizeUtf8Recursive($data);
+            $ret = json_encode($sanitized, $flags);
+            $error = json_last_error();
+            if ($error !== JSON_ERROR_NONE) {
+                $ret = "ERROR en JsonGenerator->getJsonEncoded(): $error:" . json_last_error_msg();
+            }
         }
         return $ret;
     }
@@ -175,6 +234,75 @@ class ArrayJSonGenerator implements JsonGenerator {
      */
     public function add($jSonGenerator) {
         $this->items[] = $jSonGenerator->getJson();
+    }
+
+    private function sanitizeUtf8Recursive($value) {
+        if (is_array($value)) {
+            $sanitized = array();
+            foreach ($value as $k => $v) {
+                $newKey = $k;
+                if (is_string($k)) {
+                    $newKey = $this->sanitizeUtf8Recursive($k);
+                }
+                $sanitized[$newKey] = $this->sanitizeUtf8Recursive($v);
+            }
+            return $sanitized;
+        }
+
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        if (function_exists('mb_check_encoding') && function_exists('mb_convert_encoding')) {
+            if (!mb_check_encoding($value, 'UTF-8')) {
+                return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+            }
+            return $value;
+        }
+
+        if (preg_match('//u', $value) !== 1 && function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+            return ($converted === false) ? '' : $converted;
+        }
+
+        return $value;
+    }
+
+    private function findInvalidUtf8Paths($value, $path = '$') {
+        $invalid = array();
+
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                if (is_string($k)) {
+                    $isKeyValid = function_exists('mb_check_encoding')
+                        ? mb_check_encoding($k, 'UTF-8')
+                        : (preg_match('//u', $k) === 1);
+                    if (!$isKeyValid) {
+                        $invalid[] = $path . '[key:' . bin2hex($k) . ']';
+                    }
+                }
+                $nextPath = $path . '[' . $k . ']';
+                $invalid = array_merge($invalid, $this->findInvalidUtf8Paths($v, $nextPath));
+            }
+            return $invalid;
+        }
+
+        if (!is_string($value)) {
+            return $invalid;
+        }
+
+        $isValid = true;
+        if (function_exists('mb_check_encoding')) {
+            $isValid = mb_check_encoding($value, 'UTF-8');
+        } else {
+            $isValid = (preg_match('//u', $value) === 1);
+        }
+
+        if (!$isValid) {
+            $invalid[] = $path;
+        }
+
+        return $invalid;
     }
 }
 
