@@ -362,28 +362,34 @@ class BasicRenderFile extends AbstractRenderer {
             $alias = $data;
         }
         $this->cfgExport->toc[$alias] = $renderData["tocItems"];
-        if ($startedHere) session_destroy();
+        if (isset($startedHere) && $startedHere && session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
 
         return $html;
     }
 
     public function preProcessSession() {
-        if (session_status() == PHP_SESSION_NONE) {
+        ob_start();
+        $startedHere = false;
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
             session_start();
             $startedHere = true;
         }
-        $_SESSION['export_html'] = $this->cfgExport->export_html;
-        $_SESSION['tmp_dir'] = $this->cfgExport->tmp_dir;
-        $_SESSION['latex_images'] = &$this->cfgExport->latex_images;
-        $_SESSION['media_files'] = &$this->cfgExport->media_files;
-        $_SESSION['graphviz_images'] = &$this->cfgExport->graphviz_images;
-        $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
-        $_SESSION['figure_references'] = &$this->cfgExport->figure_references;
-        $_SESSION['table_references'] = &$this->cfgExport->table_references;
-        $_SESSION['alternateAddress'] = TRUE;
-        $_SESSION['dir_images'] = "img/";
-        if ($this->cfgExport->styletype){
-            $_SESSION['styletype'] = $this->cfgExport->styletype;
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['export_html'] = $this->cfgExport->export_html;
+            $_SESSION['tmp_dir'] = $this->cfgExport->tmp_dir;
+            $_SESSION['latex_images'] = &$this->cfgExport->latex_images;
+            $_SESSION['media_files'] = &$this->cfgExport->media_files;
+            $_SESSION['graphviz_images'] = &$this->cfgExport->graphviz_images;
+            $_SESSION['gif_images'] = &$this->cfgExport->gif_images;
+            $_SESSION['figure_references'] = &$this->cfgExport->figure_references;
+            $_SESSION['table_references'] = &$this->cfgExport->table_references;
+            $_SESSION['alternateAddress'] = TRUE;
+            $_SESSION['dir_images'] = "img/";
+            if ($this->cfgExport->styletype){
+                $_SESSION['styletype'] = $this->cfgExport->styletype;
+            }
         }
         return $startedHere;
     }
@@ -457,7 +463,9 @@ class BasicRenderDocument extends BasicRenderObject {
         }
         $this->cfgExport->gif_images = array();
 
-        if (session_status() == PHP_SESSION_ACTIVE) session_destroy();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
 
 }
