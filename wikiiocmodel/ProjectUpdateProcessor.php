@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ProjectUpdateProcessor: clases para la actualización de los datos de proyecto
  *                         a partir de los parámetros de configuración del tipo de proyecto
@@ -6,128 +7,143 @@
  */
 if (!defined('DOKU_INC')) die();
 
-class ManagerProjectUpdateProcessor{
-    
-    public static function updateAll($arraytaula, &$projectMetaData){
-        $toUpdate=array();
-        
-        foreach ($projectMetaData as $key => $value){
+class ManagerProjectUpdateProcessor
+{
+
+    public static function updateAll($arraytaula, &$projectMetaData)
+    {
+        $toUpdate = array();
+
+        foreach ($projectMetaData as $key => $value) {
             $toUpdate[$key] = $value;
         }
         $processArray = array();
-        try{
+        try {
 
             foreach ($arraytaula as $elem) {
-                if($elem["type"] !== "noprocess"){
-                    $processor = ucwords($elem['type'])."ProjectUpdateProcessor";
-                    if ( !isset($processArray[$processor]) ) {
+                if ($elem["type"] !== "noprocess") {
+                    $processor = ucwords($elem['type']) . "ProjectUpdateProcessor";
+                    if (!isset($processArray[$processor])) {
                         $processArray[$processor] = new $processor;
                     }
                     $processArray[$processor]->init($elem['value'], $elem['parameters']);
                     $processArray[$processor]->runProcess($toUpdate);
                 }
             }
-        } catch (Exception $e){
+        } catch (Exception $e) {
             $toUpdate = array();
         }
-        
-        foreach ($toUpdate as $k => $v){
+
+        foreach ($toUpdate as $k => $v) {
             $projectMetaData[$k] = $v;
         }
-        return count($toUpdate)>0;
-    }    
+        return count($toUpdate) > 0;
+    }
 }
 
-abstract class AbstractProjectUpdateProcessor{
+abstract class AbstractProjectUpdateProcessor
+{
     protected abstract function getFieldValue($fieldValue);
     protected $value;
     protected $params;
     protected $idField;
-    
-    public function init($value, $params) {
+
+    public function init($value, $params)
+    {
         $this->value = $value;
         $this->setParams($params);
     }
-    
-    public function getIdField(){
+
+    public function getIdField()
+    {
         return $this->idField;
     }
-    
-    public function getValue(){
+
+    public function getValue()
+    {
         return $this->value;
     }
-    
-    public function hasParam($key){
+
+    public function hasParam($key)
+    {
         return isset($this->params[$key]);
     }
-    
-    public function getParam($key){
+
+    public function getParam($key)
+    {
         return $this->params[$key];
     }
-    
-    public function getParams(){
+
+    public function getParams()
+    {
         return $this->params;
     }
-    
-    private function setParams($p){
-        if(is_string($p)){
+
+    private function setParams($p)
+    {
+        if (is_string($p)) {
             $this->params = json_decode($p, TRUE);
-        }else{
+        } else {
             $this->params = $p;
-        }        
+        }
     }
 
-    public function runProcess(&$projectMetaData){
-        if(isset($this->params["field"])){
+    public function runProcess(&$projectMetaData)
+    {
+        if (isset($this->params["field"])) {
             $this->runProcessField($this->params["field"], $projectMetaData);
-        }        
-        if(isset($this->params["fields"])){
+        }
+        if (isset($this->params["fields"])) {
             $this->runProcessFields($this->params["fields"], $projectMetaData);
         }
     }
 
-    protected function runProcessFields($fields, &$projectMetaData){
-        for($this->idField=0;$this->idField<count($fields);$this->idField++) {
+    protected function runProcessFields($fields, &$projectMetaData)
+    {
+        for ($this->idField = 0; $this->idField < count($fields); $this->idField++) {
             $this->runProcessField($fields[$this->idField], $projectMetaData);
         }
-    }    
+    }
 
-    protected function runProcessField($field, &$projectMetaData){
+    protected function runProcessField($field, &$projectMetaData)
+    {
         FieldProjectUpdateProcessor::runProcessField($this, $field, $projectMetaData);
     }
 
-    public function returnType($value, $type){
-        if($type==="date" || $type="future_date"){
-            if(is_string($value)){
+    public function returnType($value, $type)
+    {
+        if ($type === "date" || $type = "future_date") {
+            if (is_string($value)) {
                 $fecha = DateTime::createFromFormat('d#m#Y', $value);
-            }else{
+            } else {
                 $fecha = $value;
             }
-            if($type=="future_date"){
+            if ($type == "future_date") {
                 $today = new DateTime();
-                if($fecha <  $today){                    
+                if ($fecha <  $today) {
                     $fecha->add(new DateInterval('P1Y'));
                 }
             }
             $ret =  $fecha->format('Y-m-d');
-        }else{
+        } else {
             $ret = settype($value, $type);
         }
         return $ret;
     }
-    
-    public function concat($str, $objectValues){
-        foreach ($objectValues as $objectValue){
-            switch ($objectValue["type"]){
+
+    public function concat($str, $objectValues)
+    {
+        foreach ($objectValues as $objectValue) {
+            switch ($objectValue["type"]) {
                 case "literal":
                     $str .= $objectValue["value"];
                     break;
                 case "function":
-                    if(is_callable([$this, $objectValue["name"]])){
+                    if (is_callable([$this, $objectValue["name"]])) {
                         $str .= call_user_func([$this, $objectValue["name"]], $objectValue["parameters"]);
-                    }else if(is_callable($objectValue["name"])){
+                    } else if (is_callable($objectValue["name"])) {
                         $str .= call_user_func($objectValue["name"], $objectValue["parameters"]);
-                    }else{
+                    } else {
                         //ERROR
                     }
                     break;
@@ -160,113 +176,119 @@ abstract class AbstractProjectUpdateProcessor{
 // -----------------------------------------------------------
 
 
-class FieldProjectUpdateProcessor{
-    public static function runProcessField($obj, $field, &$projectMetaData){
+class FieldProjectUpdateProcessor
+{
+    public static function runProcessField($obj, $field, &$projectMetaData)
+    {
         if (isset($projectMetaData[$field])) {
             $projectMetaData[$field] = self::_resolveUpdateValue($obj, $projectMetaData[$field]);
-//            $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
-//            if($obj->hasParam("concat")){
-//                $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
-//            }
-//            if($obj->hasParam("returnType")){
-//                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
-//            }            
-        }else if(strpos($field, "#")>0){
+            //            $projectMetaData[$field] = $obj->getFieldValue($projectMetaData[$field]);
+            //            if($obj->hasParam("concat")){
+            //                $projectMetaData[$field] = $obj->concat($projectMetaData[$field], $obj->getParam("concat"));
+            //            }
+            //            if($obj->hasParam("returnType")){
+            //                $projectMetaData[$field] = $obj->returnType($projectMetaData[$field], $obj->getParam("returnType"));
+            //            }            
+        } else if (strpos($field, "#") > 0) {
             $esElementArray = false;
 
             $b = false;
             $dataPosIni = $data = &$projectMetaData;
             $akeys = explode("#", $field);
-            $lim = count($akeys)-1;
-            for($i=0; !$b && $i<$lim; $i++){                             
+            $lim = count($akeys) - 1;
+            for ($i = 0; !$b && $i < $lim; $i++) {
                 //if the field contains a number, we are accessing an element of an objectarray
                 //akeys contains field to be accessed   
-                if (is_numeric($akeys[$i])) { 
-                   $akeys[$i] = intval($akeys[$i]); //it must be coverted from string to int
-                   $b = !isset($data[$akeys[$i]]);
-                   if(!$b){
-                        $esElementArray = true;
-                       // convert $data from JSON string to PHP array to be able to access the position specified by $akeys
-                        $phpArray = json_decode($data, true);
-                        $data = &$phpArray[$akeys[$i]];//data apunta a phpArray i no a projectMetaData, això pot ser un problema.
-                        //a partir d'aqui naveguem per l'array $phpArray que està apuntat per $data ($data apunta a un element ed $phpArray)
-                   }
-                }else{ //When element is not a number, thus it is an object and not an element of an objectarray                
+                if (is_numeric($akeys[$i])) {
+                    $akeys[$i] = intval($akeys[$i]); //it must be coverted from string to int
                     $b = !isset($data[$akeys[$i]]);
-                    if(!$b){
+                    if (!$b) {
+                        $esElementArray = true;
+                        // convert $data from JSON string to PHP array to be able to access the position specified by $akeys
+                        $phpArray = json_decode($data, true);
+                        $data = &$phpArray[$akeys[$i]]; //data apunta a phpArray i no a projectMetaData, això pot ser un problema.
+                        //a partir d'aqui naveguem per l'array $phpArray que està apuntat per $data ($data apunta a un element ed $phpArray)
+                    }
+                } else { //When element is not a number, thus it is an object and not an element of an objectarray                
+                    $b = !isset($data[$akeys[$i]]);
+                    if (!$b) {
                         $data = &$data[$akeys[$i]];
                     }
                 }
             }
 
-            if(!$b){ //Aquí entrem perquè s'ha arribat al darrer camp de l'estructura i hi ha contingut
+            if (!$b) { //Aquí entrem perquè s'ha arribat al darrer camp de l'estructura i hi ha contingut
                 //If it is an elementArray, $data is pointing to the last element from phpArray
                 //and assigning a new value to data is thus assignig a new value to phpArray field.
                 //In any case (being an elementArray or not) the new value, contained in obj, 
                 //is asigned to the right field in $data[actual position] structure
-                $data[$akeys[$lim]]= self::_resolveUpdateValue($obj, $data[$akeys[$lim]]); 
-                
-                if($esElementArray){
-                    $projectMetaData[$akeys[0]]=json_encode($phpArray);
+                $data[$akeys[$lim]] = self::_resolveUpdateValue($obj, $data[$akeys[$lim]]);
+
+                if ($esElementArray) {
+                    $projectMetaData[$akeys[0]] = json_encode($phpArray);
                 }
             }
-        }        
-    }    
-    
+        }
+    }
+
     //Dubtes marjose:
     /*
      * perquè serveix arrayFieldProjectUpdateProcessor? qui defineix que es cridi runProcessField de FieldProjectUpdateProcessor 
      * i no de ArrayFieldProjectUpdateProcessor???
      * utilitza el tipus "arrayIncrement", però he de revisar com.
      */
-    
-    private static function _resolveUpdateValue($obj, $currentfieldValue){
+
+    private static function _resolveUpdateValue($obj, $currentfieldValue)
+    {
         $ret = $obj->getFieldValue($currentfieldValue);
-        if($obj->hasParam("concat")){ 
+        if ($obj->hasParam("concat")) {
             $ret = $obj->concat($ret, $obj->getParam("concat")); //if obj contains a date, concat adds the year
         }
-        if($obj->hasParam("returnType")){
+        if ($obj->hasParam("returnType")) {
             $ret = $obj->returnType($ret, $obj->getParam("returnType")); //if obj contains a date, returnType returns de same date in format YYYY-MM-DD
-        }            
+        }
         return $ret;
     }
 }
 
-class ArrayFieldProjectUpdateProcessor{
+class ArrayFieldProjectUpdateProcessor
+{
 
-    public static function runProcessField($obj, $field, &$projectMetaData){
+    public static function runProcessField($obj, $field, &$projectMetaData)
+    {
         if (isset($projectMetaData[$field])) {
             $keysOfArray = $obj->getParam("keysOfArray");
             $conditions = $obj->getParam("conditions");
             $idField = $obj->getIdField();
-            if (is_array($keysOfArray) && array_diff_key($keysOfArray,array_keys(array_keys($keysOfArray)))){
-                foreach ($keysOfArray[$field] as $arrayKey){
+            if (is_array($keysOfArray) && array_diff_key($keysOfArray, array_keys(array_keys($keysOfArray)))) {
+                foreach ($keysOfArray[$field] as $arrayKey) {
                     self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$field]);
-                }            
-            }else {
-                foreach ($keysOfArray[$idField] as $arrayKey){
+                }
+            } else {
+                foreach ($keysOfArray[$idField] as $arrayKey) {
                     self::_runProcessField($obj, $field, $projectMetaData, $arrayKey, $conditions[$idField]);
                 }
             }
         }
     }
-    
-    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey, $conditions=NULL){
-        if (is_string($projectMetaData[$field])){
+
+    private static function _runProcessField($obj, $field, &$projectMetaData, $arrayKey, $conditions = NULL)
+    {
+        if (is_string($projectMetaData[$field])) {
             $projectMetaData[$field] = json_decode($projectMetaData[$field], TRUE);
         }
         if ($projectMetaData[$field] && is_array($projectMetaData[$field])) {
-            for ($i=0; $i<count($projectMetaData[$field]); $i++) {
+            for ($i = 0; $i < count($projectMetaData[$field]); $i++) {
                 $condition = TRUE;
                 if (is_array($conditions) && !empty($conditions)) {
                     $condition = self::_evalCondition($projectMetaData[$field][$i], $conditions);
                 }
                 if ($condition) {
                     $projectMetaData[$field][$i][$arrayKey] = $obj->getFieldValue($projectMetaData[$field][$i][$arrayKey]);
-                    if ($obj->hasParam("concat")){
+                    if ($obj->hasParam("concat")) {
                         $projectMetaData[$field][$i][$arrayKey] = $obj->concat($projectMetaData[$field][$i][$arrayKey], $obj->getParam("concat"));
                     }
-                    if ($obj->hasParam("returnType")){
+                    if ($obj->hasParam("returnType")) {
                         $projectMetaData[$field][$i][$arrayKey] = $obj->returnType($projectMetaData[$field][$i][$arrayKey], $obj->getParam("returnType"));
                     }
                 }
@@ -274,29 +296,29 @@ class ArrayFieldProjectUpdateProcessor{
         }
     }
 
-    private static function _evalCondition($field, $conditions) {
+    private static function _evalCondition($field, $conditions)
+    {
         $condition = TRUE;
         $orcondition = FALSE;
         foreach ($conditions as $key => $value) {
             if (is_numeric($key) && is_array($value)) {
                 $andcondition = TRUE;
                 foreach ($value as $k => $v) {
-                    //$andcondition &= ($field[$k] === $v);
                     $andcondition &= self::__equalCompare__($field[$k], $v);
                 }
                 $orcondition |= $andcondition;
-            }else {
-                //$condition &= ($field[$key] === $value);
+            } else {
                 $condition &= self::__equalCompare__($field[$key], $value);
             }
         }
         return (isset($andcondition)) ? $orcondition : $condition;
     }
-    
-    public static function test_equalcompare($v1, $v2){
+
+    public static function test_equalcompare($v1, $v2)
+    {
         return self::__equalCompare__($v1, $v2);
     }
-    
+
     /**
      * Compara si dos valors són iguals o no. Els valors han de ser de tipus string però 
      * si algun d'ells es troba tancat entre els caracters [] o els caracters (), es consierarà 
@@ -347,109 +369,114 @@ class ArrayFieldProjectUpdateProcessor{
      * @param type $v1
      * @param type $v2
      */
-    private static function __equalCompare__($v1, $v2){
-        $v1Type=0;
-        $v2Type=0;
-        $v1Value = $v1?trim($v1):"";
-        $v2Value = $v2?trim($v2):"";
-        if($v1Value[0]=="[" && $v1Value[-1]=="]"){
+    private static function __equalCompare__($v1, $v2)
+    {
+        $v1Type = 0;
+        $v2Type = 0;
+        $v1Value = $v1 ? trim($v1) : "";
+        $v2Value = $v2 ? trim($v2) : "";
+        if ($v1Value[0] == "[" && $v1Value[-1] == "]") {
             $v1Type = 1;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 1, -1));
-        }elseif($v1Value[1]=="[" && $v1Value[-1]=="]"){
+        } elseif ($v1Value[1] == "[" && $v1Value[-1] == "]") {
             $v1Type = 1;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -1));
-        }elseif($v1Value[1]=="[" && $v1Value[-2]=="]"){
+        } elseif ($v1Value[1] == "[" && $v1Value[-2] == "]") {
             $v1Type = 1;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -2));
-        }elseif($v1Value[0]=="(" && $v1Value[-1]==")"){
-            $v1Type = 2;    
+        } elseif ($v1Value[0] == "(" && $v1Value[-1] == ")") {
+            $v1Type = 2;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 1, -1));
-        }elseif($v1Value[1]=="(" && $v1Value[-1]==")"){
-            $v1Type = 2;    
+        } elseif ($v1Value[1] == "(" && $v1Value[-1] == ")") {
+            $v1Type = 2;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -1));
-        }elseif($v1Value[1]=="(" && $v1Value[-2]==")"){
-            $v1Type = 2;    
+        } elseif ($v1Value[1] == "(" && $v1Value[-2] == ")") {
+            $v1Type = 2;
             $v1Value = preg_split("/ *\, */", substr($v1Value, 2, -2));
         }
-        if($v2Value[0]=="[" && $v2Value[-1]=="]"){
+        if ($v2Value[0] == "[" && $v2Value[-1] == "]") {
             $v2Type = 1;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 1, -1));
-        }elseif($v2Value[1]=="[" && $v2Value[-1]=="]"){
+        } elseif ($v2Value[1] == "[" && $v2Value[-1] == "]") {
             $v2Type = 1;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -1));
-        }elseif($v2Value[1]=="[" && $v2Value[-2]=="]"){
+        } elseif ($v2Value[1] == "[" && $v2Value[-2] == "]") {
             $v2Type = 1;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -2));
-        }elseif($v2Value[0]=="(" && $v2Value[-1]==")"){
-            $v2Type = 2;    
+        } elseif ($v2Value[0] == "(" && $v2Value[-1] == ")") {
+            $v2Type = 2;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 1, -1));
-        }elseif($v2Value[1]=="(" && $v2Value[-1]==")"){
-            $v2Type = 2;    
+        } elseif ($v2Value[1] == "(" && $v2Value[-1] == ")") {
+            $v2Type = 2;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -1));
-        }elseif($v2Value[1]=="(" && $v2Value[-2]==")"){
-            $v2Type = 2;    
+        } elseif ($v2Value[1] == "(" && $v2Value[-2] == ")") {
+            $v2Type = 2;
             $v2Value = preg_split("/ *\, */", substr($v2Value, 2, -2));
         }
-        if($v1Type==0){
-            if($v2Type==0){
+        if ($v1Type == 0) {
+            if ($v2Type == 0) {
                 $ret = self::__equalCompareStringToString__($v1Value, $v2Value);
-            }else{
+            } else {
                 $ret = self::__equalCompareStringToArray__($v1Value, $v2Value, $v2Type);
             }
-        }else{
-            if($v2Type==0){
+        } else {
+            if ($v2Type == 0) {
                 $ret = self::__equalCompareStringToArray__($v2Value, $v1Value, $v1Type);
-            }else{
+            } else {
                 $ret = self::__equalCompareArrayToArray__($v1Value, $v2Value, $v1Type, $v2Type);
-            }            
-        }
-        return $ret;
-    }
-    
-    private static function __equalCompareStringToString__($v1, $v2){
-        return $v1===$v2;
-    }
-
-    private static function __equalCompareStringToArray__($v1, $v2, $operator){
-        $ret=true;
-        if($operator==1){
-            $ret = in_array($v1, $v2);
-        }else{
-            foreach ($v2 as $elem){
-                $ret = $ret && $v1==$elem;
             }
         }
         return $ret;
     }
 
-    private static function __equalCompareArrayToArray__($v1, $v2, $operator1, $operator2){
-        if($operator1==1 && $operator2==1){
-            $ret =false;
-            foreach ($v1 as $elem){
+    private static function __equalCompareStringToString__($v1, $v2)
+    {
+        return $v1 === $v2;
+    }
+
+    private static function __equalCompareStringToArray__($v1, $v2, $operator)
+    {
+        $ret = true;
+        if ($operator == 1) {
+            $ret = in_array($v1, $v2);
+        } else {
+            foreach ($v2 as $elem) {
+                $ret = $ret && $v1 == $elem;
+            }
+        }
+        return $ret;
+    }
+
+    private static function __equalCompareArrayToArray__($v1, $v2, $operator1, $operator2)
+    {
+        if ($operator1 == 1 && $operator2 == 1) {
+            $ret = false;
+            foreach ($v1 as $elem) {
                 $ret = $ret || in_array($elem, $v2);
             }
-        }else{
-            $ret =true;
-            if($operator1==2){
-                foreach ($v1 as $elem){
+        } else {
+            $ret = true;
+            if ($operator1 == 2) {
+                foreach ($v1 as $elem) {
                     $ret = $ret && in_array($elem, $v2);
                 }
             }
-            if($operator2==2){
-                foreach ($v2 as $elem){
+            if ($operator2 == 2) {
+                foreach ($v2 as $elem) {
                     $ret = $ret && in_array($elem, $v1);
                 }
             }
         }
         return $ret;
     }
-
 }
 
 
-class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProcessor{
+class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProcessor
+{
 
-    public function getFieldValue($fieldValue) {
+    public function getFieldValue($fieldValue)
+    {
         return $this->value;
     }
 }
@@ -457,11 +484,13 @@ class FieldSubstitutionProjectUpdateProcessor extends AbstractProjectUpdateProce
 /**
  * Incrementa el valor en los campos especificados del archivo de datos de un proyecto
  */
-class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcessor {
-    
-    protected $dateFormat='Y-m-d';
+class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcessor
+{
 
-    public function getFieldValue($fieldValue) {
+    protected $dateFormat = 'Y-m-d';
+
+    public function getFieldValue($fieldValue)
+    {
         $ret  = $fieldValue;
         switch ($this->params['type']) {
             case 'loop':
@@ -475,29 +504,33 @@ class FieldIncrementProjectUpdateProcessor extends AbstractProjectUpdateProcesso
         }
         return $ret;
     }
-    
-    protected function incrementData($value, $inc, $unit){
-        if(preg_match('/\d{1,2}[\/-]\d{1,2}[\/-]\d{4}/', $value)){
+
+    protected function incrementData($value, $inc, $unit)
+    {
+        if (preg_match('/\d{1,2}[\/-]\d{1,2}[\/-]\d{4}/', $value)) {
             $avalue = preg_split('/[\/-]/', $value);
-            $value = $avalue[2]."/".$avalue[1]."/".$avalue[0];
+            $value = $avalue[2] . "/" . $avalue[1] . "/" . $avalue[0];
         }
         $fecha = new DateTime($value);
-        $fecha->add(new DateInterval('P'.$inc.$unit));
-        return $fecha->format($this->dateFormat);        
+        $fecha->add(new DateInterval('P' . $inc . $unit));
+        return $fecha->format($this->dateFormat);
     }
-    
-    protected function incrementLoop($value, $inc, $min, $max){
-        $mod = $max-$min+1;
-        return ($value+$min+$inc)%$mod+$min;
+
+    protected function incrementLoop($value, $inc, $min, $max)
+    {
+        $mod = $max - $min + 1;
+        return ($value + $min + $inc) % $mod + $min;
     }
 }
 
-class ArrayIncrementProjectUpdateProcessor extends FieldIncrementProjectUpdateProcessor{
-    public function __construct() {
-        $this->dateFormat="Y/m/d";
+class ArrayIncrementProjectUpdateProcessor extends FieldIncrementProjectUpdateProcessor
+{
+    public function __construct()
+    {
+        $this->dateFormat = "Y/m/d";
     }
-    protected function runProcessField($field, &$projectMetaData) {
+    protected function runProcessField($field, &$projectMetaData)
+    {
         ArrayFieldProjectUpdateProcessor::runProcessField($this, $field, $projectMetaData);
     }
 }
-
